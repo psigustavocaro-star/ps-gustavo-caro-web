@@ -11,13 +11,7 @@ declare global {
 // Inicialización lazy para evitar errores en build
 const getPrisma = () => {
     if (!globalThis.prisma) {
-        globalThis.prisma = new PrismaClient({
-            datasources: {
-                db: {
-                    url: process.env.DATABASE_URL,
-                },
-            },
-        })
+        globalThis.prisma = new PrismaClient()
     }
     return globalThis.prisma
 }
