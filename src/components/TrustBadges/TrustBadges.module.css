@@ -1,0 +1,64 @@
+.trustBar {
+    background-color: white;
+    padding: 30px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-top: -20px;
+    position: relative;
+    z-index: 10;
+}
+
+.badgesContent {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(8, 145, 178, 0.2));
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+}
+
+.text strong {
+    font-size: 0.95rem;
+    color: #0f172a;
+    display: block;
+    font-weight: 700;
+}
+
+.text span {
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+@media (max-width: 768px) {
+    .badgesContent {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .badge {
+        justify-content: center;
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .badgesContent {
+        grid-template-columns: 1fr;
+    }
+}

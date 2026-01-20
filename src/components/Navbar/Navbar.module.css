@@ -1,0 +1,89 @@
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    background-color: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.navContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.logoDot {
+    color: var(--accent);
+}
+
+.navLinks {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.navLink {
+    font-weight: 600;
+    color: var(--foreground);
+    font-size: 1rem;
+    position: relative;
+}
+
+.navLink::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--accent);
+    transition: var(--transition);
+}
+
+.navLink:hover {
+    color: var(--primary);
+}
+
+.navLink:hover::after {
+    width: 100%;
+}
+
+.cta {
+    background-color: var(--primary);
+    color: white !important;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+}
+
+.cta:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(8, 145, 178, 0.5);
+}
+
+@media (max-width: 768px) {
+    .navLinks {
+        display: none;
+    }
+}

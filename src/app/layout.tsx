@@ -1,0 +1,23 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Ps. Gustavo Caro | Psicólogo Clínico y Educacional",
+  description: "Psicólogo clínico U. Chile con enfoque en Terapia Cognitivo Conductual. Atención online para niños, adolescentes y adultos.",
+  keywords: ["Psicólogo", "Chile", "Terapia Online", "TCC", "Gustavo Caro", "Salud Mental"],
+  authors: [{ name: "Ps. Gustavo Caro" }],
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="es">
+      <body>
+        {children}
+      </body>
+    </html>
+  );
+}

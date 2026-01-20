@@ -1,0 +1,139 @@
+.footer {
+    background: linear-gradient(180deg, #0c4a6e 0%, #082f49 100%);
+    color: white;
+    padding: 100px 20px 40px;
+}
+
+.footerContent {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 80px;
+}
+
+.brand h3 {
+    color: white;
+    margin-bottom: 24px;
+    font-size: 1.6rem;
+}
+
+.logoDot {
+    color: #22d3ee;
+}
+
+.description {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    max-width: 280px;
+}
+
+.footerLinks h4 {
+    color: white;
+    margin-bottom: 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.linkList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.linkItem {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    transition: var(--transition);
+    font-weight: 500;
+    display: inline-block;
+}
+
+.linkItem:hover {
+    color: #22d3ee;
+    transform: translateX(4px);
+}
+
+.contactInfo p {
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.bottomBar {
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+}
+
+.legalLinks {
+    display: flex;
+    gap: 32px;
+}
+
+.legalLinks a {
+    color: rgba(255, 255, 255, 0.5);
+    transition: var(--transition);
+}
+
+.legalLinks a:hover {
+    color: #22d3ee;
+}
+
+.crisis {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+}
+
+.crisis a {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .footerContent {
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer {
+        text-align: center;
+        padding-top: 60px;
+    }
+
+    .footerContent {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .description {
+        max-width: 100%;
+    }
+
+    .contactInfo p {
+        justify-content: center;
+    }
+
+    .bottomBar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .legalLinks {
+        flex-direction: column;
+        gap: 12px;
+    }
+}

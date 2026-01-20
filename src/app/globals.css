@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  /* High Contrast Palette - Forced Light Base */
+  --primary: #086d82;
+  /* Slightly darker primary for better contrast */
+  --primary-light: #22d3ee;
+  --primary-dark: #0e4f5e;
+  --secondary: #0d9488;
+  --secondary-light: #5eead4;
+  --accent: #06b6d4;
+  --background: #ffffff;
+  --surface: #ffffff;
+  --foreground: #020617;
+  /* Purest dark blue-black */
+  --foreground-light: #1e293b;
+  /* Solid dark grey */
+  --border: #cbd5e1;
+
+  /* Typography */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-serif: 'Georgia', serif;
+
+  /* Spacing */
+  --section-padding: 120px 20px;
+  --container-width: 1200px;
+
+  /* Premium Shadows - Darker for more depth on white */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 32px 72px rgba(0, 0, 0, 0.16);
+  --shadow-hover: 0 20px 50px rgba(8, 145, 178, 0.2);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-blur: blur(12px);
+
+  /* Transitions */
+  --radius: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Remove or soften the automatic dark mode to keep the "White background" look */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* We keep the white background as requested */
+    --background: #ffffff;
+    --foreground: #020617;
+    --foreground-light: #1e293b;
+    --surface: #ffffff;
+    --border: #cbd5e1;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #000000;
+  /* Pure black for maximum contrast */
+}
+
+@media (prefers-color-scheme: dark) {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #000000;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+ul {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+section {
+  padding: var(--section-padding);
+}
+
+/* Utilities */
+.section-title {
+  font-size: 3rem;
+  margin-bottom: 24px;
+  color: var(--foreground);
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background-color: var(--accent);
+  border-radius: 2px;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: var(--primary);
+  color: white;
+  padding: 14px 36px;
+  border-radius: 50px;
+  font-weight: 600;
+  text-align: center;
+  transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(8, 145, 178, 0.6);
+}
+
+.btn-outline {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--primary);
+  padding: 13px 35px;
+  border-radius: 50px;
+  border: 2px solid var(--primary);
+  font-weight: 600;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.btn-outline:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: translateY(-3px);
+}
