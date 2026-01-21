@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Psicólogo clínico U. Chile con enfoque en Terapia Cognitivo Conductual. Atención online para niños, adolescentes y adultos.",
   keywords: ["Psicólogo", "Chile", "Terapia Online", "TCC", "Gustavo Caro", "Salud Mental"],
   authors: [{ name: "Ps. Gustavo Caro" }],
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
