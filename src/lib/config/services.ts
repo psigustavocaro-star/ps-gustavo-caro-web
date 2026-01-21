@@ -18,8 +18,8 @@ export const paymentConfig = {
     // Configuración de precios
     pricing: {
         sesionIndividual: 40000, // CLP
-        planMensual: 115000,     // CLP (4 sesiones)
-        evaluacion: 80000,      // CLP
+        planMensual: 150000,     // CLP (4 sesiones)
+        evaluacion: 150000,      // CLP (Total proceso)
     },
 
     // URLs de retorno
@@ -60,7 +60,11 @@ export const calendarConfig = {
 
     calcom: {
         apiKey: process.env.CALCOM_API_KEY || '',
-        eventTypeId: process.env.CALCOM_EVENT_TYPE_ID || '',
+        eventTypes: {
+            sesion: process.env.CALCOM_EVENT_SESION_ID || '',
+            planMensual: process.env.CALCOM_EVENT_PACK_ID || '',
+            evaluacion: process.env.CALCOM_EVENT_EVALUACION_ID || '',
+        }
     },
 
     calendly: {

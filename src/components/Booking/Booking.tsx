@@ -39,18 +39,28 @@ export default function Booking() {
                 }),
             });
 
-            const data = await response.json();
-
-            if (data.success && data.paymentUrl) {
-                // Redirigir a Flow para completar el pago
-                window.location.href = data.paymentUrl;
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    alert(`Error: ${data.error || 'No se pudo generar la URL de pago'}`);
+                    setStep('payment');
+                }
             } else {
-                alert('Error al iniciar el pago. Por favor intenta nuevamente.');
+                let errorMsg = 'Error en el servidor';
+                try {
+                    const data = await response.json();
+                    errorMsg = data.error || errorMsg;
+                } catch (e) {
+                    errorMsg = `Status ${response.status}: Error interno del servidor`;
+                }
+                alert(`[NUEVO CÓDIGO] Error al iniciar el pago: ${errorMsg}`);
                 setStep('payment');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Payment error:', error);
-            alert('Error de conexión. Por favor intenta nuevamente.');
+            alert(`Error de conexión: ${error.message}`);
             setStep('payment');
         } finally {
             setIsProcessing(false);
@@ -79,21 +89,21 @@ export default function Booking() {
                                     onClick={() => setFormData({ ...formData, serviceType: 'sesion' })}
                                 >
                                     <strong>Sesión Individual</strong>
-                                    <span>$40.000 (50-60 min)</span>
+                                    <span>$40.000 (45 min)</span>
                                 </button>
                                 <button
                                     className={`${styles.serviceOption} ${formData.serviceType === 'planMensual' ? styles.active : ''}`}
                                     onClick={() => setFormData({ ...formData, serviceType: 'planMensual' })}
                                 >
                                     <strong>Pack 4 Sesiones</strong>
-                                    <span>$115.000 (Ahorro directo)</span>
+                                    <span>$150.000 (Ahorro directo)</span>
                                 </button>
                                 <button
                                     className={`${styles.serviceOption} ${formData.serviceType === 'evaluacion' ? styles.active : ''}`}
                                     onClick={() => setFormData({ ...formData, serviceType: 'evaluacion' })}
                                 >
                                     <strong>Evaluación</strong>
-                                    <span>Consultar proceso</span>
+                                    <span>$150.000 (Proceso completo)</span>
                                 </button>
                             </div>
 
@@ -185,8 +195,8 @@ export default function Booking() {
                                     }</span>
                                     <strong>{
                                         formData.serviceType === 'sesion' ? '$40.000' :
-                                            formData.serviceType === 'planMensual' ? '$115.000' :
-                                                '$80.000'
+                                            formData.serviceType === 'planMensual' ? '$150.000' :
+                                                '$150.000'
                                     }</strong>
                                 </div>
                                 <div className={styles.methodIcons}>

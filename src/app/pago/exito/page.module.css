@@ -15,6 +15,11 @@
     border-radius: 32px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     text-align: center;
+    transition: max-width 0.3s ease;
+}
+
+.largeCard {
+    max-width: 900px;
 }
 
 .successIcon {
@@ -77,6 +82,20 @@
 .note {
     font-size: 0.85rem;
     color: var(--foreground-light);
+}
+
+.calendarSection {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.calendarWrapper {
+    min-height: 600px;
+    border: 1px solid #f1f5f9;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 20px;
+    background: #f8fafc;
 }
 
 @media (max-width: 600px) {

@@ -51,11 +51,19 @@ export async function createFlowPayment(params: FlowPaymentParams): Promise<Flow
     });
 
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Flow API Error: ${error}`);
+        const errorText = await response.text();
+        console.error('Flow API error response:', errorText);
+        throw new Error(`Flow API Error (${response.status}): ${errorText}`);
     }
 
-    const result = await response.json();
+    let result;
+    try {
+        result = await response.json();
+    } catch (e) {
+        const text = await response.text();
+        console.error('Flow response is not JSON:', text);
+        throw new Error('Flow API returned invalid JSON');
+    }
 
     return {
         url: result.url + '?token=' + result.token,

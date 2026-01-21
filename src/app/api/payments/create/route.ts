@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFlowPayment } from '@/lib/services/flow';
 import { paymentConfig } from '@/lib/config/services';
+import prisma from '@/lib/db';
+import { sendBookingNotification } from '@/lib/services/mail';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+    console.log('API: Iniciando creación de pago...');
     try {
         const body = await request.json();
 
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
         const commerceOrder = `PSG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
         // Guardar en base de datos local
-        const { default: prisma } = await import('@/lib/db');
+        console.log('API: Guardando reserva en DB...', { commerceOrder });
         await prisma.booking.create({
             data: {
                 orderId: commerceOrder,
@@ -76,7 +79,6 @@ export async function POST(request: NextRequest) {
         });
 
         // Enviar notificación por email (opcional, no bloqueante)
-        const { sendBookingNotification } = await import('@/lib/services/mail');
         sendBookingNotification({
             name,
             email,
@@ -94,10 +96,13 @@ export async function POST(request: NextRequest) {
             amount,
         });
 
-    } catch (error) {
-        console.error('Payment creation error:', error);
+    } catch (error: any) {
+        console.error('CRITICAL: Payment creation error details:', {
+            message: error.message,
+            stack: error.stack
+        });
         return NextResponse.json(
-            { error: 'Error al procesar el pago' },
+            { error: `API ERROR: ${error.message}` },
             { status: 500 }
         );
     }
