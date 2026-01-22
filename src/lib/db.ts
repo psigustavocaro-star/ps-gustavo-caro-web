@@ -1,20 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 
-const prismaClientSingleton = () => {
-    return new PrismaClient({
-        datasources: {
-            db: {
-                url: process.env.DATABASE_URL
-            },
-        },
-    })
-}
-
 declare global {
-    var prisma: undefined | ReturnType<typeof prismaClientSingleton>
+    var prisma: undefined | PrismaClient
 }
 
-const prisma = globalThis.prisma ?? prismaClientSingleton()
+const prisma = globalThis.prisma ?? new PrismaClient()
 
 export default prisma
 
