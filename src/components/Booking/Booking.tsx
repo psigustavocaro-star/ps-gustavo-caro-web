@@ -9,6 +9,7 @@ type BookingStep = 'intro' | 'reason' | 'contact' | 'payment' | 'processing' | '
 export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
     const [formData, setFormData] = useState({
         serviceType: 'sesion' as 'sesion' | 'planMensual' | 'evaluacion',
         reason: '',
@@ -20,6 +21,39 @@ export default function Booking() {
         medications: '',
         history: ''
     });
+
+    // Validar email
+    const isValidEmail = (email: string) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    // Validar teléfono chileno (opcional)
+    const isValidPhone = (phone: string) => {
+        if (!phone) return true; // Es opcional
+        return /^(\+?56)?(\s?)(9)(\s?)(\d{4})(\s?)(\d{4})$/.test(phone.replace(/\s/g, ''));
+    };
+
+    // Validar antes de continuar al pago
+    const validateContact = () => {
+        const newErrors: { name?: string; email?: string; phone?: string } = {};
+
+        if (!formData.name.trim() || formData.name.trim().length < 3) {
+            newErrors.name = 'Por favor ingresa tu nombre completo';
+        }
+
+        if (!formData.email.trim()) {
+            newErrors.email = 'El email es requerido';
+        } else if (!isValidEmail(formData.email)) {
+            newErrors.email = 'Por favor ingresa un email válido (ej: tu@email.com)';
+        }
+
+        if (formData.phone && !isValidPhone(formData.phone)) {
+            newErrors.phone = 'Formato inválido. Usa: +56 9 1234 5678';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleStartPayment = async () => {
         setIsProcessing(true);
@@ -70,7 +104,11 @@ export default function Booking() {
     const handleNext = () => {
         if (step === 'intro') setStep('reason');
         else if (step === 'reason') setStep('contact');
-        else if (step === 'contact') setStep('payment');
+        else if (step === 'contact') {
+            if (validateContact()) {
+                setStep('payment');
+            }
+        }
         else if (step === 'success') setStep('anamnesis');
     };
 
@@ -149,36 +187,48 @@ export default function Booking() {
                             <h2 className={styles.stepTitle}>Tus datos de contacto</h2>
                             <p className={styles.stepDesc}>Para enviarte la confirmación y el link de la sesión.</p>
                             <div className={styles.formGroup}>
-                                <label>Nombre completo</label>
+                                <label>Nombre completo *</label>
                                 <input
                                     type="text"
-                                    className={styles.input}
-                                    placeholder="Tu nombre"
+                                    className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+                                    placeholder="Tu nombre completo"
                                     value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, name: e.target.value });
+                                        if (errors.name) setErrors({ ...errors, name: undefined });
+                                    }}
                                 />
+                                {errors.name && <span className={styles.errorText}>{errors.name}</span>}
                             </div>
                             <div className={styles.formGroup}>
-                                <label>Email</label>
+                                <label>Email *</label>
                                 <input
                                     type="email"
-                                    className={styles.input}
+                                    className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
                                     placeholder="tu@email.com"
                                     value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, email: e.target.value });
+                                        if (errors.email) setErrors({ ...errors, email: undefined });
+                                    }}
                                 />
+                                {errors.email && <span className={styles.errorText}>{errors.email}</span>}
                             </div>
                             <div className={styles.formGroup}>
                                 <label>Teléfono (opcional)</label>
                                 <input
                                     type="tel"
-                                    className={styles.input}
+                                    className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
                                     placeholder="+56 9 1234 5678"
                                     value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, phone: e.target.value });
+                                        if (errors.phone) setErrors({ ...errors, phone: undefined });
+                                    }}
                                 />
+                                {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                             </div>
-                            <button onClick={handleNext} className="btn-primary" disabled={!formData.name || !formData.email}>Continuar al pago</button>
+                            <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
                         </div>
                     )}
 
