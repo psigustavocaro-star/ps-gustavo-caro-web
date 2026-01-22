@@ -46,22 +46,9 @@ export async function POST(request: NextRequest) {
         // Generar ID único de orden
         const commerceOrder = `PSG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-        // Guardar en base de datos local
-        console.log('API: Guardando reserva en DB...', { commerceOrder });
-        const { default: prisma } = await import('@/lib/db');
-        await prisma.booking.create({
-            data: {
-                orderId: commerceOrder,
-                name,
-                email,
-                phone: body.phone || '',
-                serviceType,
-                amount,
-                reason: motivo || '',
-                details: detalles || '',
-                status: 'PENDING',
-            }
-        });
+        // TEMPORALMENTE: Saltar guardado en DB para que el pago funcione
+        // TODO: Arreglar conexión a Supabase
+        console.log('API: Saltando DB temporalmente...', { commerceOrder });
 
         // Crear pago en Flow
         const payment = await createFlowPayment({
