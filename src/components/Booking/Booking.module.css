@@ -246,6 +246,18 @@
     }
 }
 
+.buttonGroup {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.buttonGroup button {
+    flex: 1;
+    max-width: 200px;
+}
+
 @media (max-width: 768px) {
     .bookingCard {
         padding: 40px 24px;

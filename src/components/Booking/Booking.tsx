@@ -112,6 +112,12 @@ export default function Booking() {
         else if (step === 'success') setStep('anamnesis');
     };
 
+    const handleBack = () => {
+        if (step === 'reason') setStep('intro');
+        else if (step === 'contact') setStep('reason');
+        else if (step === 'payment') setStep('contact');
+    };
+
     return (
         <section id="agendar" className={styles.booking}>
             <div className="container">
@@ -178,7 +184,10 @@ export default function Booking() {
                                     onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                                 />
                             </div>
-                            <button onClick={handleNext} className="btn-primary" disabled={!formData.reason}>Siguiente</button>
+                            <div className={styles.buttonGroup}>
+                                <button onClick={handleBack} className="btn-secondary">← Volver</button>
+                                <button onClick={handleNext} className="btn-primary" disabled={!formData.reason}>Siguiente</button>
+                            </div>
                         </div>
                     )}
 
@@ -228,7 +237,10 @@ export default function Booking() {
                                 />
                                 {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                             </div>
-                            <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
+                            <div className={styles.buttonGroup}>
+                                <button onClick={handleBack} className="btn-secondary">← Volver</button>
+                                <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
+                            </div>
                         </div>
                     )}
 
@@ -260,9 +272,12 @@ export default function Booking() {
                                     Tu boleta de honorarios electrónica será enviada automáticamente a tu email tras confirmar el pago.
                                 </p>
                             </div>
-                            <button onClick={handleStartPayment} className="btn-primary" disabled={isProcessing}>
-                                {isProcessing ? 'Procesando...' : 'Pagar y Confirmar Cita'}
-                            </button>
+                            <div className={styles.buttonGroup}>
+                                <button onClick={handleBack} className="btn-secondary" disabled={isProcessing}>← Volver</button>
+                                <button onClick={handleStartPayment} className="btn-primary" disabled={isProcessing}>
+                                    {isProcessing ? 'Procesando...' : 'Pagar y Confirmar Cita'}
+                                </button>
+                            </div>
                             <p className={styles.disclaimer}>Al continuar aceptas los términos de servicio y política de privacidad.</p>
                         </div>
                     )}
