@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFlowPayment } from '@/lib/services/flow';
 import { paymentConfig } from '@/lib/config/services';
-import prisma from '@/lib/db';
 import { sendBookingNotification } from '@/lib/services/mail';
 
 export const dynamic = 'force-dynamic';
@@ -49,6 +48,7 @@ export async function POST(request: NextRequest) {
 
         // Guardar en base de datos local
         console.log('API: Guardando reserva en DB...', { commerceOrder });
+        const { default: prisma } = await import('@/lib/db');
         await prisma.booking.create({
             data: {
                 orderId: commerceOrder,
