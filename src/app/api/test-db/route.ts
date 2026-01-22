@@ -6,33 +6,48 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     const dbUrl = process.env.DATABASE_URL;
 
-    // VERSIÓN 2.0 - SIN PRISMA
+    // Diagnóstico versión 3.0
+    const diag = {
+        version: "3.0",
+        hasUrl: !!dbUrl,
+        urlLength: dbUrl?.length || 0,
+        urlStarts: dbUrl?.substring(0, 10),
+        env: process.env.NODE_ENV
+    };
+
     if (!dbUrl || dbUrl.length < 10) {
         return NextResponse.json({
             success: false,
-            version: "2.0",
-            error: 'DATABASE_URL no está configurada',
+            diagnostic: diag,
+            error: 'DATABASE_URL no está configurada o es muy corta',
             timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 
+    let pool: Pool | null = null;
     try {
-        const pool = new Pool({ connectionString: dbUrl });
-        const result = await pool.query('SELECT NOW()');
+        pool = new Pool({
+            connectionString: dbUrl,
+            connectionTimeoutMillis: 5000
+        });
+
+        const result = await pool.query('SELECT NOW() as now');
         await pool.end();
 
         return NextResponse.json({
             success: true,
-            version: "2.0",
+            diagnostic: diag,
             message: 'Conexión directa con PG exitosa',
             data: result.rows[0],
             timestamp: new Date().toISOString()
         });
     } catch (error: any) {
+        if (pool) await pool.end().catch(() => { });
         return NextResponse.json({
             success: false,
-            version: "2.0",
+            diagnostic: diag,
             error: error.message,
+            code: error.code,
             timestamp: new Date().toISOString()
         }, { status: 500 });
     }

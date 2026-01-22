@@ -4,17 +4,9 @@ const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined
 }
 
-// In Prisma 7, if the schema doesn't have the URL, 
-// we MUST provide it in the constructor via datasourceUrl or similar 
-// depending on how the client was generated.
-// However, the standard way in P7 with Next.js is:
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-    datasources: {
-        db: {
-            url: process.env.DATABASE_URL
-        }
-    }
-})
+// In Prisma 7, the environment variable usually needs to be named DATABASE_URL 
+// for the client to find it if it's not in the schema.
+const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
