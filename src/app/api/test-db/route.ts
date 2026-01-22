@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
 export const dynamic = 'force-dynamic';
@@ -11,32 +9,31 @@ export async function GET() {
     if (!dbUrl || dbUrl.length < 10) {
         return NextResponse.json({
             success: false,
-            error: 'DATABASE_URL no está configurada en Vercel',
+            error: 'DATABASE_URL no está configurada',
+            urlLength: dbUrl?.length || 0,
             timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 
     try {
-        // Prisma 7 con adaptador pg
         const pool = new Pool({ connectionString: dbUrl });
-        const adapter = new PrismaPg(pool);
-        const prisma = new PrismaClient({ adapter });
 
-        const count = await prisma.booking.count();
-        await prisma.$disconnect();
+        // Test query
+        const result = await pool.query('SELECT COUNT(*) as count FROM "Booking"');
+        const count = result.rows[0].count;
+
         await pool.end();
 
         return NextResponse.json({
             success: true,
-            message: 'Conexión a Supabase exitosa',
-            bookingsCount: count,
+            message: 'Conexión a Supabase exitosa (sin Prisma)',
+            bookingsCount: parseInt(count),
             timestamp: new Date().toISOString()
         });
     } catch (error: any) {
         return NextResponse.json({
             success: false,
             error: error.message,
-            stack: error.stack?.substring(0, 500),
             timestamp: new Date().toISOString()
         }, { status: 500 });
     }
