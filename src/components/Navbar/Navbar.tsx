@@ -10,10 +10,11 @@ export default function Navbar() {
                 </Link>
 
                 <ul className={styles.navLinks}>
-                    <li><Link href="#sobre-mi" className={styles.navLink}>Sobre mí</Link></li>
-                    <li><Link href="#servicios" className={styles.navLink}>Servicios</Link></li>
-                    <li><Link href="#faq" className={styles.navLink}>FAQ</Link></li>
-                    <li><Link href="#contacto" className={styles.navLink}>Contacto</Link></li>
+                    <li><Link href="/#sobre-mi" className={styles.navLink}>Sobre mí</Link></li>
+                    <li><Link href="/#servicios" className={styles.navLink}>Servicios</Link></li>
+                    <li><Link href="/blog" className={styles.navLink}>Blog</Link></li>
+                    <li><Link href="/#faq" className={styles.navLink}>FAQ</Link></li>
+                    <li><Link href="/#contacto" className={styles.navLink}>Contacto</Link></li>
                 </ul>
 
                 <Link href="#agendar" className={styles.cta}>

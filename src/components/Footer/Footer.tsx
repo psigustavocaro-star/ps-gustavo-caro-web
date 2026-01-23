@@ -26,10 +26,11 @@ export default function Footer() {
                     <div className={styles.footerLinks}>
                         <h4>Navegación</h4>
                         <ul className={styles.linkList}>
-                            <li><Link href="#" className={styles.linkItem}>Inicio</Link></li>
-                            <li><Link href="#sobre-mi" className={styles.linkItem}>Sobre mí</Link></li>
-                            <li><Link href="#servicios" className={styles.linkItem}>Servicios</Link></li>
-                            <li><Link href="#agendar" className={styles.linkItem}>Agendar sesión</Link></li>
+                            <li><Link href="/" className={styles.linkItem}>Inicio</Link></li>
+                            <li><Link href="/#sobre-mi" className={styles.linkItem}>Sobre mí</Link></li>
+                            <li><Link href="/blog" className={styles.linkItem}>Blog</Link></li>
+                            <li><Link href="/#servicios" className={styles.linkItem}>Servicios</Link></li>
+                            <li><Link href="/#agendar" className={styles.linkItem}>Agendar sesión</Link></li>
                         </ul>
                     </div>
 
