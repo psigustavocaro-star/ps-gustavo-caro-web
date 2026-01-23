@@ -7,6 +7,7 @@ import Testimonials from "@/components/Testimonials/Testimonials";
 import EmpathySection from "@/components/EmpathySection/EmpathySection";
 import Booking from "@/components/Booking/Booking";
 import FAQ from "@/components/FAQ/FAQ";
+import Newsletter from "@/components/Newsletter/Newsletter";
 import Footer from "@/components/Footer/Footer";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       <EmpathySection />
       <Booking />
       <FAQ />
+      <Newsletter />
       <Footer />
     </main>
   );

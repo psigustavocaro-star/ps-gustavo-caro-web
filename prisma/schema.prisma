@@ -33,3 +33,11 @@ model Anamnesis {
   history     String?
   createdAt   DateTime @default(now())
 }
+
+model Newsletter {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

@@ -1,10 +1,10 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Booking.module.css';
+import Cal from "@calcom/embed-react";
+import { calendarConfig } from '@/lib/config/services';
 
-type BookingStep = 'intro' | 'reason' | 'contact' | 'payment' | 'processing' | 'success' | 'anamnesis';
+type BookingStep = 'intro' | 'reason' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
 
 export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
@@ -17,6 +17,7 @@ export default function Booking() {
         name: '',
         email: '',
         phone: '',
+        newsletter: true,
         age: '',
         medications: '',
         history: ''
@@ -70,6 +71,7 @@ export default function Booking() {
                     motivo: formData.reason,
                     detalles: formData.details,
                     phone: formData.phone,
+                    newsletter: formData.newsletter,
                 }),
             });
 
@@ -106,16 +108,18 @@ export default function Booking() {
         else if (step === 'reason') setStep('contact');
         else if (step === 'contact') {
             if (validateContact()) {
-                setStep('payment');
+                setStep('schedule');
             }
         }
+        else if (step === 'schedule') setStep('payment');
         else if (step === 'success') setStep('anamnesis');
     };
 
     const handleBack = () => {
         if (step === 'reason') setStep('intro');
         else if (step === 'contact') setStep('reason');
-        else if (step === 'payment') setStep('contact');
+        else if (step === 'schedule') setStep('contact');
+        else if (step === 'payment') setStep('schedule');
     };
 
     return (
@@ -237,6 +241,45 @@ export default function Booking() {
                                 />
                                 {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                             </div>
+                            <div className={styles.formGroupCheckbox}>
+                                <label className={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.newsletter}
+                                        onChange={(e) => setFormData({ ...formData, newsletter: e.target.checked })}
+                                    />
+                                    <span>Quiero recibir noticias, consejos de salud mental y novedades.</span>
+                                </label>
+                            </div>
+                            <div className={styles.buttonGroup}>
+                                <button onClick={handleBack} className="btn-secondary">← Volver</button>
+                                <button onClick={handleNext} className="btn-primary">Siguiente: Agendar hora</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 'schedule' && (
+                        <div className={styles.stepContent}>
+                            <h2 className={styles.stepTitle}>Reserva tu horario</h2>
+                            <p className={styles.stepDesc}>Selecciona el día y hora que más te acomode para nuestra sesión.</p>
+
+                            <div className={styles.calendarContainer}>
+                                <Cal
+                                    calLink={calendarConfig.calcom.eventTypes[formData.serviceType]}
+                                    style={{ width: "100%", height: "500px", overflow: "scroll" }}
+                                    config={{
+                                        name: formData.name,
+                                        email: formData.email,
+                                        theme: "light",
+                                        layout: "month_view"
+                                    }}
+                                />
+                            </div>
+
+                            <p className={styles.disclaimer} style={{ marginBottom: '24px' }}>
+                                Una vez agendada tu cita en el calendario de arriba, haz clic en continuar para proceder al pago.
+                            </p>
+
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
                                 <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
@@ -359,6 +402,6 @@ export default function Booking() {
                     )}
                 </div>
             </div>
-        </section>
+        </section >
     );
 }

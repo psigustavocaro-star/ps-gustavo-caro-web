@@ -258,6 +258,36 @@
     max-width: 200px;
 }
 
+.calendarContainer {
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: white;
+}
+
+.formGroupCheckbox {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--foreground-light);
+    line-height: 1.4;
+}
+
+.checkboxLabel input {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .bookingCard {
         padding: 40px 24px;

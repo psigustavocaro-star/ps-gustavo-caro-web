@@ -10,7 +10,7 @@ export default function Hero() {
                 <div className={styles.textContent}>
                     <div className={styles.topBadge}>
                         <span className={styles.heartIcon}>💖</span>
-                        <span className={styles.badgeText}>Tu salud emocional es prioridad (v1.1)</span>
+                        <span className={styles.badgeText}>Tu salud emocional es prioridad</span>
                     </div>
                     <h1 className={styles.title}>
                         Tu bienestar merece un espacio <span>seguro</span> y profesional.

@@ -63,6 +63,15 @@ export async function POST(request: NextRequest) {
                 }
             });
             console.log('API: Reserva guardada en DB', { commerceOrder });
+
+            // Suscribir al newsletter si se seleccionó
+            if (body.newsletter) {
+                await prisma.newsletter.upsert({
+                    where: { email },
+                    update: { active: true, name },
+                    create: { email, name }
+                }).catch((err: any) => console.error('Silent error registering newsletter:', err));
+            }
         } catch (dbError: any) {
             console.error('API: Error al guardar en DB (continuando con pago):', dbError.message);
         }
