@@ -71,6 +71,10 @@ export async function POST(request: NextRequest) {
                     update: { active: true, name },
                     create: { email, name }
                 }).catch((err: any) => console.error('Silent error registering newsletter:', err));
+
+                // Enviar bienvenida al newsletter
+                const { sendNewsletterWelcome } = await import('@/lib/services/mail');
+                sendNewsletterWelcome(email, name).catch((err: any) => console.error('Silent newsletter mail error:', err));
             }
         } catch (dbError: any) {
             console.error('API: Error al guardar en DB (continuando con pago):', dbError.message);

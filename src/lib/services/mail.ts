@@ -127,3 +127,29 @@ export async function sendAnamnesisData(data: {
         console.error('Error sending anamnesis email:', error);
     }
 }
+
+export async function sendNewsletterWelcome(email: string, name?: string) {
+    try {
+        await resend.emails.send({
+            from: 'Ps. Gustavo Caro <newsletter@psgustavocaro.cl>',
+            to: email,
+            subject: '¡Bienvenido a mi Newsletter! 🌿',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #333;">
+                    <h1 style="color: #0891b2;">¡Hola ${name || ''}!</h1>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">Gracias por suscribirte a mi newsletter sobre salud mental y bienestar.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">A partir de ahora, recibirás periódicamente consejos, reflexiones y novedades que te ayudarán en tu proceso de autoconocimiento y cuidado emocional.</p>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                    <p style="font-size: 0.9rem; color: #666;">Si en algún momento deseas dejar de recibir estos correos, puedes responder a este email solicitando la baja.</p>
+                    <p style="font-size: 1rem; margin-top: 30px;">
+                        Atentamente,<br />
+                        <strong>Ps. Gustavo Caro</strong><br />
+                        <span style="color: #0891b2;">Psicólogo Clínico con Enfoque TCC</span>
+                    </p>
+                </div>
+            `,
+        });
+    } catch (error) {
+        console.error('Error sending newsletter welcome email:', error);
+    }
+}

@@ -46,47 +46,35 @@ function PaymentSuccessContent() {
 
     return (
         <div className={styles.container}>
-            <div className={`${styles.card} ${booking?.eventTypeId ? styles.largeCard : ''}`}>
-                <div className={styles.successIcon}>✅</div>
-                <h1 className={styles.title}>¡Pago Recibido con Éxito!</h1>
+            <div className={styles.card}>
+                <div className={styles.successIcon}>✨</div>
+                <h1 className={styles.title}>¡Reserva Confirmada!</h1>
 
-                {booking?.eventTypeId ? (
-                    <div className={styles.calendarSection}>
-                        <p className={styles.description}>
-                            Para finalizar, <strong>asegura tu hora de atención</strong> seleccionando el horario que más te acomode:
-                        </p>
-                        <div className={styles.calendarWrapper}>
-                            <Cal
-                                calLink={booking.eventTypeId}
-                                style={{ width: "100%", height: "100%", overflow: "scroll" }}
-                                config={{
-                                    name: booking.name,
-                                    email: booking.email,
-                                    theme: "light"
-                                }}
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <p className={styles.description}>
-                            Tu pago ha sido confirmado exitosamente. Hemos enviado a tu correo electrónico:
-                        </p>
-                        <ul className={styles.list}>
-                            <li>📅 Confirmación de tu reserva</li>
-                            <li>🔗 Link de acceso (si aplica)</li>
-                            <li>📑 Tu boleta de honorarios electrónica</li>
-                        </ul>
-                    </>
-                )}
+                <p className={styles.description}>
+                    Hola <strong>{booking?.name}</strong>, tu pago ha sido procesado correctamente.
+                </p>
+
+                <div className={styles.infoBox}>
+                    <p>📅 <strong>Cita Agendada:</strong> Revisa tu correo electrónico para ver los detalles del horario y el link de Google Meet.</p>
+                    <p>📧 <strong>Correo de confirmación:</strong> Enviado a {booking?.email}</p>
+                    <p>📑 <strong>Boleta Electrónica:</strong> Adjunta en tu correo.</p>
+                </div>
+
+                <div className={styles.nextSteps}>
+                    <h3>Siguiente paso muy importante:</h3>
+                    <p>Para aprovechar al máximo nuestra sesión, por favor completa tu ficha clínica (Anamnesis). Te tomará solo 3 minutos.</p>
+                    <Link href="/pago/anamnesis" className="btn-primary" style={{ width: '100%', marginTop: '16px' }}>
+                        Completar Anamnesis ahora
+                    </Link>
+                </div>
 
                 <div className={styles.orderInfo}>
-                    <span>Número de orden:</span>
+                    <span>ID de Operación:</span>
                     <strong>{orderId}</strong>
                 </div>
+
                 <div className={styles.actions}>
-                    <Link href="/" className="btn-primary">Volver al inicio</Link>
-                    <Link href="/pago/anamnesis" className="btn-outline">Completar anamnesis</Link>
+                    <Link href="/" className="btn-outline">Volver al inicio</Link>
                 </div>
             </div>
         </div>

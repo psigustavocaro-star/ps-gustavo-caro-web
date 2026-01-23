@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Booking.module.css';
-import Cal from "@calcom/embed-react";
+import Cal, { getCalApi } from "@calcom/embed-react";
 import { calendarConfig } from '@/lib/config/services';
 
 type BookingStep = 'intro' | 'reason' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
@@ -24,6 +24,20 @@ export default function Booking() {
         medications: '',
         history: ''
     });
+
+    useEffect(() => {
+        (async function () {
+            const cal = await getCalApi();
+            cal("on", {
+                action: "bookingSuccessful",
+                callback: (e: any) => {
+                    console.log('Cal.com: Booking successful', e);
+                    // Avanzar automáticamente al paso de pago tras agendar
+                    setStep('payment');
+                }
+            });
+        })();
+    }, []);
 
     // Validar email
     const isValidEmail = (email: string) => {
@@ -279,7 +293,7 @@ export default function Booking() {
                             </div>
 
                             <p className={styles.disclaimer} style={{ marginBottom: '24px' }}>
-                                Una vez agendada tu cita en el calendario de arriba, haz clic en continuar para proceder al pago.
+                                Una vez confirmada tu hora en el calendario, avanzarás automáticamente al pago para asegurar tu reserva.
                             </p>
 
                             <div className={styles.buttonGroup}>
