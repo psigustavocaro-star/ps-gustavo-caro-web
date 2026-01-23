@@ -1,0 +1,55 @@
+.hero {
+    padding: 120px 0 60px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+    text-align: center;
+}
+
+.title {
+    font-size: 3rem;
+    color: var(--primary-dark);
+    margin-bottom: 20px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--foreground-light);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.calendarSection {
+    padding: 60px 0 100px;
+    background-color: white;
+}
+
+.calendarCard {
+    max-width: 1000px;
+    margin: 0 auto 40px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+}
+
+.info {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 24px;
+    background: #f8fafc;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--foreground-light);
+}
+
+.info a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.2rem;
+    }
+}

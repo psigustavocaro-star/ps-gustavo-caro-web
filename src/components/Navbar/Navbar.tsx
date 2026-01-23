@@ -13,6 +13,7 @@ export default function Navbar() {
                     <li><Link href="/#sobre-mi" className={styles.navLink}>Sobre mí</Link></li>
                     <li><Link href="/#servicios" className={styles.navLink}>Servicios</Link></li>
                     <li><Link href="/blog" className={styles.navLink}>Blog</Link></li>
+                    <li><Link href="/calendario" className={styles.navLink}>Disponibilidad</Link></li>
                     <li><Link href="/#faq" className={styles.navLink}>FAQ</Link></li>
                     <li><Link href="/#contacto" className={styles.navLink}>Contacto</Link></li>
                 </ul>

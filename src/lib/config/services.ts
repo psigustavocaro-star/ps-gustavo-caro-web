@@ -61,9 +61,9 @@ export const calendarConfig = {
     calcom: {
         apiKey: process.env.CALCOM_API_KEY || '',
         eventTypes: {
-            sesion: process.env.CALCOM_EVENT_SESION_ID || '',
-            planMensual: process.env.CALCOM_EVENT_PACK_ID || '',
-            evaluacion: process.env.CALCOM_EVENT_EVALUACION_ID || '',
+            sesion: process.env.NEXT_PUBLIC_CALCOM_EVENT_SESION_ID || '',
+            planMensual: process.env.NEXT_PUBLIC_CALCOM_EVENT_PACK_ID || '',
+            evaluacion: process.env.NEXT_PUBLIC_CALCOM_EVENT_EVALUACION_ID || '',
         }
     },
 

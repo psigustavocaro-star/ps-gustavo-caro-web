@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
                     amount,
                     reason: motivo || '',
                     details: detalles || '',
+                    appointmentDate: body.appointmentDate || null,
                     status: 'PENDING',
                 }
             });

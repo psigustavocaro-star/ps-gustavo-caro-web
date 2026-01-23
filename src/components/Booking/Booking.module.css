@@ -15,13 +15,14 @@
 }
 
 .stepContent {
-    animation: fadeIn 0.5s ease;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
 
     to {
@@ -111,8 +112,97 @@
     border-radius: var(--radius);
     font-size: 1rem;
     font-family: inherit;
-    transition: var(--transition);
     background: #fafafa;
+    color: #1e293b;
+    transform: translateZ(0);
+}
+
+.customSelectWrapper {
+    position: relative;
+    width: 100%;
+    user-select: none;
+}
+
+.customSelectTrigger {
+    width: 100%;
+    padding: 16px 20px;
+    background: #fafafa;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+.customSelectTrigger.open {
+    border-color: #0891b2;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.1);
+}
+
+.arrowIcon {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #64748b;
+    border-bottom: 2px solid #64748b;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+    margin-top: -4px;
+}
+
+.customSelectTrigger.open .arrowIcon {
+    transform: rotate(-135deg);
+    margin-top: 4px;
+}
+
+.customSelectOptions {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    overflow: hidden;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.customOption {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #475569;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.customOption:hover {
+    background-color: #f0fdfa;
+    color: #0891b2;
+}
+
+.customOption.selected {
+    background-color: #0891b2;
+    color: white;
 }
 
 .input:focus,
@@ -151,6 +241,42 @@
     border-radius: var(--radius-lg);
     margin-bottom: 32px;
     border: 1px solid #99f6e4;
+}
+
+.appointmentSummary {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.summaryLabel {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--foreground-light);
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summaryContent p {
+    font-size: 1.1rem;
+    color: var(--foreground);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.summaryContent p:last-child {
+    margin-bottom: 0;
+}
+
+.summaryNote {
+    font-size: 0.85rem;
+    color: var(--primary);
+    margin-top: 10px;
 }
 
 .priceRow {

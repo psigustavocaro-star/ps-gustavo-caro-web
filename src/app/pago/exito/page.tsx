@@ -10,7 +10,7 @@ import Cal, { getCalApi } from "@calcom/embed-react";
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('order') || 'N/A';
-    const [booking, setBooking] = useState<{ serviceType: string, eventTypeId: string, name: string, email: string } | null>(null);
+    const [booking, setBooking] = useState<{ serviceType: string, eventTypeId: string, name: string, email: string, appointmentDate?: string } | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -55,7 +55,7 @@ function PaymentSuccessContent() {
                 </p>
 
                 <div className={styles.infoBox}>
-                    <p>📅 <strong>Cita Agendada:</strong> Revisa tu correo electrónico para ver los detalles del horario y el link de Google Meet.</p>
+                    <p>📅 <strong>Cita Agendada:</strong> {booking?.appointmentDate || 'Confirmada (revisa tu email para el horario)'}</p>
                     <p>📧 <strong>Correo de confirmación:</strong> Enviado a {booking?.email}</p>
                     <p>📑 <strong>Boleta Electrónica:</strong> Adjunta en tu correo.</p>
                 </div>

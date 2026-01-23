@@ -21,6 +21,7 @@ export async function GET(
                 status: true,
                 name: true,
                 email: true,
+                appointmentDate: true,
             }
         });
 

@@ -20,6 +20,7 @@ model Booking {
   status      String   @default("PENDING") // PENDING, PAID, FAILED
   reason      String?
   details     String?
+  appointmentDate String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

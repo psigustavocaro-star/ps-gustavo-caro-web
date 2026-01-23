@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Booking.module.css';
 import Cal, { getCalApi } from "@calcom/embed-react";
+import CalendarEmbed from './CalendarEmbed';
 import { calendarConfig } from '@/lib/config/services';
 
 type BookingStep = 'intro' | 'reason' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
@@ -12,6 +13,7 @@ export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
     const [isProcessing, setIsProcessing] = useState(false);
     const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
+    const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [formData, setFormData] = useState({
         serviceType: 'sesion' as 'sesion' | 'planMensual' | 'evaluacion',
         reason: '',
@@ -32,6 +34,17 @@ export default function Booking() {
                 action: "bookingSuccessful",
                 callback: (e: any) => {
                     console.log('Cal.com: Booking successful', e);
+
+                    // Capturar fecha y hora de la cita
+                    const startTime = e.data.booking.startTime;
+                    if (startTime) {
+                        const dateObj = new Date(startTime);
+                        setBookingDetails({
+                            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                            time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+                        });
+                    }
+
                     // Avanzar automáticamente al paso de pago tras agendar
                     setStep('payment');
                 }
@@ -88,6 +101,7 @@ export default function Booking() {
                     detalles: formData.details,
                     phone: formData.phone,
                     newsletter: formData.newsletter,
+                    appointmentDate: bookingDetails.date ? `${bookingDetails.date} ${bookingDetails.time}` : undefined,
                 }),
             });
 
@@ -138,8 +152,23 @@ export default function Booking() {
         else if (step === 'payment') setStep('schedule');
     };
 
+    const [isReasonOpen, setIsReasonOpen] = useState(false);
+    const reasons = [
+        { value: 'ansiedad', label: 'Ansiedad o Estrés' },
+        { value: 'depresion', label: 'Estado de ánimo bajo' },
+        { value: 'salud-mental', label: 'Salud Mental General' },
+        { value: 'pareja', label: 'Terapia de Pareja' },
+        { value: 'infantil', label: 'Atención Infantil / Adolescente' },
+        { value: 'otro', label: 'Otro motivo' }
+    ];
+
+    const handleSelectReason = (value: string) => {
+        setFormData({ ...formData, reason: value });
+        setIsReasonOpen(false);
+    };
+
     return (
-        <section id="agendar" className={styles.booking}>
+        <section id="agendar" className={styles.booking} style={{ scrollMarginTop: '100px' }}>
             <div className="container">
                 <div className={styles.bookingCard}>
                     {step === 'intro' && (
@@ -179,22 +208,36 @@ export default function Booking() {
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>¿Cómo te sientes hoy?</h2>
                             <p className={styles.stepDesc}>Tus respuestas son 100% confidenciales.</p>
+
                             <div className={styles.formGroup}>
                                 <label>Motivo principal de consulta</label>
-                                <select
-                                    className={styles.input}
-                                    value={formData.reason}
-                                    onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                                >
-                                    <option value="">Selecciona una opción</option>
-                                    <option value="ansiedad">Ansiedad o Estrés</option>
-                                    <option value="depresion">Estado de ánimo bajo</option>
-                                    <option value="salud-mental">Salud Mental General</option>
-                                    <option value="pareja">Terapia de Pareja</option>
-                                    <option value="infantil">Atención Infantil / Adolescente</option>
-                                    <option value="otro">Otro motivo</option>
-                                </select>
+                                <div className={styles.customSelectWrapper}>
+                                    <div
+                                        className={`${styles.customSelectTrigger} ${isReasonOpen ? styles.open : ''}`}
+                                        onClick={() => setIsReasonOpen(!isReasonOpen)}
+                                    >
+                                        <span>
+                                            {reasons.find(r => r.value === formData.reason)?.label || 'Selecciona una opción'}
+                                        </span>
+                                        <div className={styles.arrowIcon}></div>
+                                    </div>
+
+                                    {isReasonOpen && (
+                                        <div className={styles.customSelectOptions}>
+                                            {reasons.map((r) => (
+                                                <div
+                                                    key={r.value}
+                                                    className={`${styles.customOption} ${formData.reason === r.value ? styles.selected : ''}`}
+                                                    onClick={() => handleSelectReason(r.value)}
+                                                >
+                                                    {r.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+
                             <div className={styles.formGroup}>
                                 <label>Cuéntame brevemente qué te trae por acá</label>
                                 <textarea
@@ -280,15 +323,11 @@ export default function Booking() {
                             <p className={styles.stepDesc}>Selecciona el día y hora que más te acomode para nuestra sesión.</p>
 
                             <div className={styles.calendarContainer}>
-                                <Cal
-                                    calLink={calendarConfig.calcom.eventTypes[formData.serviceType]}
-                                    style={{ width: "100%", height: "500px", overflow: "scroll" }}
-                                    config={{
-                                        name: formData.name,
-                                        email: formData.email,
-                                        theme: "light",
-                                        layout: "month_view"
-                                    }}
+                                <CalendarEmbed
+                                    serviceType={formData.serviceType}
+                                    name={formData.name}
+                                    email={formData.email}
+                                    height="500px"
                                 />
                             </div>
 
@@ -307,6 +346,17 @@ export default function Booking() {
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Reserva y Pago Seguro</h2>
                             <p className={styles.stepDesc}>El valor de la sesión es de $40.000 CLP. El pago es 100% seguro.</p>
+                            {bookingDetails.date && (
+                                <div className={styles.appointmentSummary}>
+                                    <span className={styles.summaryLabel}>Cita agendada para:</span>
+                                    <div className={styles.summaryContent}>
+                                        <p>📅 {bookingDetails.date}</p>
+                                        <p>⏰ {bookingDetails.time} (Hora Chile)</p>
+                                    </div>
+                                    <p className={styles.summaryNote}>Tu cita quedará confirmada al procesar el pago.</p>
+                                </div>
+                            )}
+
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>
                                     <span>{

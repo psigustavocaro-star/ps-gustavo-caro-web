@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate && (prisma migrate deploy || echo 'Migration failed, but proceeding with build')"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",
