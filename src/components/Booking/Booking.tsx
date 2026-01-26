@@ -14,6 +14,7 @@ export default function Booking() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
+    const [calBookingId, setCalBookingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         serviceType: 'sesion' as 'sesion' | 'planMensual' | 'evaluacion',
         reason: '',
@@ -27,8 +28,34 @@ export default function Booking() {
         history: ''
     });
 
-    // El calendario ahora aparece DESPUÉS del pago exitoso
-    // El callback de Cal.com ya no es necesario aquí
+    useEffect(() => {
+        (async function () {
+            const cal = await getCalApi();
+            cal("on", {
+                action: "bookingSuccessful",
+                callback: (e: any) => {
+                    console.log('Cal.com: Booking initiated (requires confirmation)', e);
+
+                    // Capturar el ID único del agendamiento
+                    const bookingId = e.data.bookingId;
+                    setCalBookingId(bookingId);
+
+                    // Capturar fecha y hora para el resumen
+                    const startTime = e.data.booking.startTime;
+                    if (startTime) {
+                        const dateObj = new Date(startTime);
+                        setBookingDetails({
+                            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                            time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+                        });
+                    }
+
+                    // Avanzar automáticamente al pago
+                    setStep('payment');
+                }
+            });
+        })();
+    }, []);
 
     // Validar email
     const isValidEmail = (email: string) => {
@@ -79,6 +106,7 @@ export default function Booking() {
                     detalles: formData.details,
                     phone: formData.phone,
                     newsletter: formData.newsletter,
+                    calBookingId: calBookingId, // Vincular el ID de Cal.com
                 }),
             });
 
@@ -296,16 +324,10 @@ export default function Booking() {
 
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Revisa mi disponibilidad</h2>
-                            <p className={styles.stepDesc}>Echa un vistazo a las horas disponibles. <strong>Una vez que pagues</strong>, podrás reservar oficialmente tu espacio.</p>
+                            <h2 className={styles.stepTitle}>Selecciona tu horario</h2>
+                            <p className={styles.stepDesc}>Elige el día y hora que más te acomode. <strong>Tu reserva se confirmará automáticamente tras el pago.</strong></p>
 
                             <div className={styles.calendarContainer}>
-                                <div className={styles.calendarLock}>
-                                    <div className={styles.lockMessage}>
-                                        <span>🔒 Vista de Disponibilidad</span>
-                                        <p>Para reservar tu cupo oficialmente, primero debes procesar el pago.</p>
-                                    </div>
-                                </div>
                                 <CalendarEmbed
                                     serviceType={formData.serviceType}
                                     name={formData.name}
@@ -315,12 +337,11 @@ export default function Booking() {
                             </div>
 
                             <div className={styles.infoNote}>
-                                <p>💡 <strong>Importante:</strong> Para asegurar tu sesión y recibir el link de acceso, el primer paso es procesar el pago. Luego de pagar, serás redirigido para fijar tu hora definitivamente.</p>
+                                <p>💡 <strong>¿Cómo funciona?</strong> Al elegir tu hora, serás redirigido al pago. Una vez confirmado, recibirás el link de Google Meet y los detalles en tu email de inmediato.</p>
                             </div>
 
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
                             </div>
                         </div>
                     )}

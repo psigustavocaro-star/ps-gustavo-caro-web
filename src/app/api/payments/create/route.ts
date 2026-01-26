@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
             serviceType = 'sesion',
             motivo,
             detalles,
+            calBookingId,
         } = body;
 
         if (!email || !name) {
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
                     reason: motivo || '',
                     details: detalles || '',
                     appointmentDate: body.appointmentDate || null,
+                    calBookingId: calBookingId || null,
                     status: 'PENDING',
                 }
             });
@@ -90,9 +92,10 @@ export async function POST(request: NextRequest) {
             optional: {
                 clientName: name,
                 motivo: motivo || '',
-                detalles: detalles || '',
+                details: detalles || '',
                 serviceType,
                 phone: body.phone || '',
+                calBookingId: calBookingId || '',
             },
         });
 

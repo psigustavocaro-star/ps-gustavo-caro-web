@@ -56,6 +56,15 @@ export async function POST(request: NextRequest) {
                 console.error('Error updating booking status in DB:', dbError);
             }
 
+            // Confirmar agendamiento en Cal.com si existe
+            const calBookingId = optionalFields.calBookingId;
+            if (calBookingId) {
+                const { confirmCalBooking } = await import('@/lib/services/calcom');
+                await confirmCalBooking(calBookingId).catch(err =>
+                    console.error('Error confirming Cal.com booking during flow callback:', err)
+                );
+            }
+
             // Enviar confirmación de cita detallada por email
             const { sendBookingConfirmation } = await import('@/lib/services/mail');
             await sendBookingConfirmation({
