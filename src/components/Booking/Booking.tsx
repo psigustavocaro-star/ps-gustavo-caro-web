@@ -25,32 +25,36 @@ export default function Booking() {
         newsletter: true,
         age: '',
         medications: '',
-        history: ''
+        history: '',
+        rawStartTime: '', // Guardar el ISO string para la API
+        calEventTypeId: null as number | null
     });
 
     useEffect(() => {
         (async function () {
             const cal = await getCalApi();
-            cal("on", {
-                action: "bookingSuccessful",
+            (cal as any)("on", {
+                action: "selectedTime",
                 callback: (e: any) => {
-                    console.log('Cal.com: Booking initiated (requires confirmation)', e);
+                    console.log('Cal.com: Time selected', e);
 
-                    // Capturar el ID único del agendamiento
-                    const bookingId = e.data.bookingId;
-                    setCalBookingId(bookingId);
+                    const startTime = e.data.startTime;
+                    const eventTypeId = e.data.eventTypeId;
 
-                    // Capturar fecha y hora para el resumen
-                    const startTime = e.data.booking.startTime;
                     if (startTime) {
                         const dateObj = new Date(startTime);
                         setBookingDetails({
                             date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
                             time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
                         });
+                        setFormData(prev => ({
+                            ...prev,
+                            rawStartTime: startTime,
+                            calEventTypeId: eventTypeId
+                        }));
                     }
 
-                    // Avanzar automáticamente al pago
+                    // Saltar inmediatamente al pago sin mostrar el formulario de Cal.com
                     setStep('payment');
                 }
             });
@@ -106,7 +110,8 @@ export default function Booking() {
                     detalles: formData.details,
                     phone: formData.phone,
                     newsletter: formData.newsletter,
-                    calBookingId: calBookingId, // Vincular el ID de Cal.com
+                    appointmentDate: formData.rawStartTime,
+                    calEventTypeId: formData.calEventTypeId, // El ID numérico
                 }),
             });
 
@@ -325,7 +330,7 @@ export default function Booking() {
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Selecciona tu horario</h2>
-                            <p className={styles.stepDesc}>Elige el día y hora que más te acomode. <strong>Tu reserva se confirmará automáticamente tras el pago.</strong></p>
+                            <p className={styles.stepDesc}>Haz clic en el día y la hora que prefieras. <strong>Tu reserva se confirmará automáticamente tras el pago.</strong></p>
 
                             <div className={styles.calendarContainer}>
                                 <CalendarEmbed
@@ -334,10 +339,6 @@ export default function Booking() {
                                     email={formData.email}
                                     height="650px"
                                 />
-                            </div>
-
-                            <div className={styles.infoNote}>
-                                <p>💡 <strong>¿Cómo funciona?</strong> Al elegir tu hora, serás redirigido al pago. Una vez confirmado, recibirás el link de Google Meet y los detalles en tu email de inmediato.</p>
                             </div>
 
                             <div className={styles.buttonGroup}>
@@ -349,7 +350,7 @@ export default function Booking() {
                     {step === 'payment' && (
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Confirma tu Reserva</h2>
-                            <p className={styles.stepDesc}>Al completar el pago, tu cita quedará confirmada y recibirás un email con todos los detalles.</p>
+                            <p className={styles.stepDesc}>Vas a agendar tu sesión para el <strong>{bookingDetails.date}</strong> a las <strong>{bookingDetails.time}</strong>.</p>
 
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>

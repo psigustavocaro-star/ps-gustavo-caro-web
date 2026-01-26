@@ -56,13 +56,35 @@ export async function POST(request: NextRequest) {
                 console.error('Error updating booking status in DB:', dbError);
             }
 
-            // Confirmar agendamiento en Cal.com si existe
-            const calBookingId = optionalFields.calBookingId;
-            if (calBookingId) {
-                const { confirmCalBooking } = await import('@/lib/services/calcom');
-                await confirmCalBooking(calBookingId).catch(err =>
-                    console.error('Error confirming Cal.com booking during flow callback:', err)
-                );
+            // Crear agendamiento en Cal.com si tenemos los datos necesarios
+            const calEventTypeId = optionalFields.calEventTypeId;
+            const appointmentDate = optionalFields.appointmentDate;
+
+            if (calEventTypeId && appointmentDate) {
+                const { createCalBooking } = await import('@/lib/services/calcom');
+                const calResult = await createCalBooking({
+                    eventTypeId: parseInt(calEventTypeId),
+                    start: appointmentDate,
+                    name: clientName,
+                    email: clientEmail,
+                    notes: optionalFields.details || ''
+                }).catch(err => {
+                    console.error('Error creating Cal.com booking during flow callback:', err);
+                    return { success: false, bookingId: null }; // Add null to satisfy types
+                });
+
+                if (calResult.success && (calResult as any).bookingId) {
+                    // Guardar el ID de la reserva real en la DB
+                    try {
+                        const { default: prisma } = await import('@/lib/db');
+                        await prisma.booking.update({
+                            where: { orderId: orderId },
+                            data: { calBookingId: (calResult as any).bookingId.toString() }
+                        });
+                    } catch (e) {
+                        console.error('Error updating calBookingId in DB:', e);
+                    }
+                }
             }
 
             // Enviar confirmación de cita detallada por email
@@ -72,7 +94,7 @@ export async function POST(request: NextRequest) {
                 email: clientEmail,
                 phone: optionalFields.phone,
                 reason: optionalFields.motivo,
-                details: optionalFields.detalles,
+                details: optionalFields.details,
                 amount,
                 orderId,
             });

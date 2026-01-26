@@ -22,7 +22,8 @@ model Booking {
   details     String?
   appointmentDate String?
   calBookingId    String?
-  createdAt   DateTime @default(now())
+  calEventTypeId  Int?
+  createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
