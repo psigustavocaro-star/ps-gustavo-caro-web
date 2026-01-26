@@ -1,5 +1,6 @@
 .faq {
-    background-color: var(--surface);
+    padding: 120px 0;
+    background-color: #fafbfc;
 }
 
 .header {
@@ -8,7 +9,7 @@
 }
 
 .accordion {
-    max-width: 800px;
+    max-width: 850px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -16,43 +17,88 @@
 }
 
 .item {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.item:hover {
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
 }
 
 .question {
     width: 100%;
-    padding: 24px;
+    padding: 24px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: none;
+    border: none;
     text-align: left;
-    background-color: var(--surface);
+    font-size: 1.15rem;
     font-weight: 600;
-    color: #000000;
-    font-size: 1.1rem;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: color 0.2s ease;
 }
 
-.item:hover {
-    border-color: var(--primary-light);
-}
-
-.answer {
-    padding: 0 24px 24px;
-    color: #334155;
-    line-height: 1.6;
+.question:hover {
+    color: var(--primary);
 }
 
 .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #f0fdfa;
+    color: var(--primary);
+    border-radius: 50%;
     font-size: 1.2rem;
-    color: var(--secondary);
-    transition: var(--transition);
+    font-weight: 400;
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
+.item.open .icon {
+    transform: rotate(180deg);
+    background-color: var(--primary);
+    color: white;
+}
+
+.answerWrapper {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+    background: white;
+}
+
+.item.open .answerWrapper {
+    max-height: 500px;
+    padding-bottom: 24px;
+}
+
+.answer {
+    padding: 0 32px 32px;
+    color: var(--foreground-light);
+    line-height: 1.7;
+    font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+    .faq {
+        padding: 80px 0;
+    }
+
     .question {
-        background-color: var(--surface);
+        padding: 20px 24px;
+        font-size: 1.05rem;
+    }
+
+    .answer {
+        padding: 0 24px 24px;
     }
 }

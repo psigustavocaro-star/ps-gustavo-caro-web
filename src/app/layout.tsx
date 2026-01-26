@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import WhatsAppButton from "@/components/Floating/WhatsAppButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,8 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>
+      <body style={{ position: 'relative' }}>
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );

@@ -34,22 +34,25 @@ export default function FAQ() {
                 </div>
 
                 <div className={styles.accordion}>
-                    {faqs.map((faq, index) => (
-                        <div key={index} className={styles.item}>
-                            <button
-                                className={styles.question}
-                                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                            >
-                                {faq.q}
-                                <span className={styles.icon}>{openIndex === index ? '−' : '+'}</span>
-                            </button>
-                            {openIndex === index && (
-                                <div className={styles.answer}>
-                                    {faq.a}
+                    {faqs.map((faq, index) => {
+                        const isOpen = openIndex === index;
+                        return (
+                            <div key={index} className={`${styles.item} ${isOpen ? styles.open : ''}`}>
+                                <button
+                                    className={styles.question}
+                                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                                >
+                                    {faq.q}
+                                    <span className={styles.icon}>{isOpen ? '−' : '+'}</span>
+                                </button>
+                                <div className={styles.answerWrapper}>
+                                    <div className={styles.answer}>
+                                        {faq.a}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </section>
