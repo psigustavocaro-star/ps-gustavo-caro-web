@@ -46,7 +46,8 @@ export default function CalendarEmbed({
                     name,
                     email,
                     theme: "light",
-                    layout: "month_view"
+                    layout: "month_view",
+                    hideEventTypeDetails: "true"
                 }}
             />
         </div>

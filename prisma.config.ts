@@ -8,10 +8,4 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  datasource: {
-    // Usar el pooler para runtime
-    url: process.env.DATABASE_URL || "",
-    // Usar la directa para migraciones (aunque falle localmente, Vercel la usará)
-    directUrl: process.env.DIRECT_URL || "",
-  },
 });
