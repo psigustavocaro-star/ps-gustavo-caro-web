@@ -111,6 +111,14 @@
     text-align: left;
 }
 
+.calendarSection {
+    margin-bottom: 40px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
 .nextSteps h3 {
     color: var(--primary-dark);
     margin-bottom: 12px;

@@ -27,30 +27,8 @@ export default function Booking() {
         history: ''
     });
 
-    useEffect(() => {
-        (async function () {
-            const cal = await getCalApi();
-            cal("on", {
-                action: "bookingSuccessful",
-                callback: (e: any) => {
-                    console.log('Cal.com: Booking successful', e);
-
-                    // Capturar fecha y hora de la cita
-                    const startTime = e.data.booking.startTime;
-                    if (startTime) {
-                        const dateObj = new Date(startTime);
-                        setBookingDetails({
-                            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                            time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
-                        });
-                    }
-
-                    // Avanzar automáticamente al paso de pago tras agendar
-                    setStep('payment');
-                }
-            });
-        })();
-    }, []);
+    // El calendario ahora aparece DESPUÉS del pago exitoso
+    // El callback de Cal.com ya no es necesario aquí
 
     // Validar email
     const isValidEmail = (email: string) => {
@@ -101,7 +79,6 @@ export default function Booking() {
                     detalles: formData.details,
                     phone: formData.phone,
                     newsletter: formData.newsletter,
-                    appointmentDate: bookingDetails.date ? `${bookingDetails.date} ${bookingDetails.time}` : undefined,
                 }),
             });
 
@@ -138,10 +115,10 @@ export default function Booking() {
         else if (step === 'reason') setStep('contact');
         else if (step === 'contact') {
             if (validateContact()) {
-                setStep('schedule');
+                setStep('schedule'); // Ver disponibilidad primero
             }
         }
-        else if (step === 'schedule') setStep('payment');
+        else if (step === 'schedule') setStep('payment'); // Luego pagar
         else if (step === 'success') setStep('anamnesis');
     };
 
@@ -170,7 +147,7 @@ export default function Booking() {
     return (
         <section id="agendar" className={styles.booking} style={{ scrollMarginTop: '100px' }}>
             <div className="container">
-                <div className={styles.bookingCard}>
+                <div className={`${styles.bookingCard} ${step === 'schedule' ? styles.wideCard : ''}`}>
                     {step === 'intro' && (
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>¿Qué necesitas hoy?</h2>
@@ -312,28 +289,34 @@ export default function Booking() {
                             </div>
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary">Siguiente: Agendar hora</button>
+                                <button onClick={handleNext} className="btn-primary">Ver disponibilidad</button>
                             </div>
                         </div>
                     )}
 
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Reserva tu horario</h2>
-                            <p className={styles.stepDesc}>Selecciona el día y hora que más te acomode para nuestra sesión.</p>
+                            <h2 className={styles.stepTitle}>Revisa mi disponibilidad</h2>
+                            <p className={styles.stepDesc}>Echa un vistazo a las horas disponibles. <strong>Una vez que pagues</strong>, podrás reservar oficialmente tu espacio.</p>
 
                             <div className={styles.calendarContainer}>
+                                <div className={styles.calendarLock}>
+                                    <div className={styles.lockMessage}>
+                                        <span>🔒 Vista de Disponibilidad</span>
+                                        <p>Para reservar tu cupo oficialmente, primero debes procesar el pago.</p>
+                                    </div>
+                                </div>
                                 <CalendarEmbed
                                     serviceType={formData.serviceType}
                                     name={formData.name}
                                     email={formData.email}
-                                    height="500px"
+                                    height="650px"
                                 />
                             </div>
 
-                            <p className={styles.disclaimer} style={{ marginBottom: '24px' }}>
-                                Una vez confirmada tu hora en el calendario, avanzarás automáticamente al pago para asegurar tu reserva.
-                            </p>
+                            <div className={styles.infoNote}>
+                                <p>💡 <strong>Importante:</strong> Para asegurar tu sesión y recibir el link de acceso, el primer paso es procesar el pago. Luego de pagar, serás redirigido para fijar tu hora definitivamente.</p>
+                            </div>
 
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
@@ -344,18 +327,8 @@ export default function Booking() {
 
                     {step === 'payment' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Reserva y Pago Seguro</h2>
-                            <p className={styles.stepDesc}>El valor de la sesión es de $40.000 CLP. El pago es 100% seguro.</p>
-                            {bookingDetails.date && (
-                                <div className={styles.appointmentSummary}>
-                                    <span className={styles.summaryLabel}>Cita agendada para:</span>
-                                    <div className={styles.summaryContent}>
-                                        <p>📅 {bookingDetails.date}</p>
-                                        <p>⏰ {bookingDetails.time} (Hora Chile)</p>
-                                    </div>
-                                    <p className={styles.summaryNote}>Tu cita quedará confirmada al procesar el pago.</p>
-                                </div>
-                            )}
+                            <h2 className={styles.stepTitle}>Confirma tu Reserva</h2>
+                            <p className={styles.stepDesc}>Al completar el pago, tu cita quedará confirmada y recibirás un email con todos los detalles.</p>
 
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>
