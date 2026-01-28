@@ -1,9 +1,17 @@
+'use client';
+
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
-import CalendarEmbed from "@/components/Booking/CalendarEmbed";
+import CustomCalendar from "@/components/Booking/CustomCalendar";
 import styles from "./calendario.module.css";
 
 export default function CalendarPage() {
+    // Solo mostrar disponibilidad sin acción
+    const handleViewOnly = (date: Date, time: string) => {
+        // Redirigir al formulario de reserva principal
+        window.location.href = '/#agendar';
+    };
+
     return (
         <main>
             <Navbar />
@@ -19,7 +27,10 @@ export default function CalendarPage() {
             <section className={styles.calendarSection}>
                 <div className="container">
                     <div className={styles.calendarCard}>
-                        <CalendarEmbed height="700px" />
+                        <CustomCalendar
+                            onSelectDateTime={handleViewOnly}
+                            bookedSlots={[]}
+                        />
                     </div>
                     <div className={styles.info}>
                         <p><strong>Nota:</strong> Este calendario es solo para consulta. Para asegurar tu hora y recibir la boleta electrónica, por favor utiliza el <a href="/#agendar">formulario de reserva principal</a>.</p>
