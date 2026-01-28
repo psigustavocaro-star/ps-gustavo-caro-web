@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Booking.module.css';
-import Cal, { getCalApi } from "@calcom/embed-react";
-import CalendarEmbed from './CalendarEmbed';
-import { calendarConfig } from '@/lib/config/services';
+import CustomCalendar from './CustomCalendar';
 
 type BookingStep = 'intro' | 'reason' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
 
@@ -30,36 +28,25 @@ export default function Booking() {
         calEventTypeId: null as number | null
     });
 
-    useEffect(() => {
-        (async function () {
-            const cal = await getCalApi();
-            (cal as any)("on", {
-                action: "selectedTime",
-                callback: (e: any) => {
-                    console.log('Cal.com: Time selected', e);
+    // Handler para cuando el usuario selecciona fecha y hora en el calendario custom
+    const handleDateTimeSelection = (date: Date, time: string) => {
+        const dateObj = new Date(date);
+        const [hours, minutes] = time.split(':').map(Number);
+        dateObj.setHours(hours, minutes, 0, 0);
 
-                    const startTime = e.data.startTime;
-                    const eventTypeId = e.data.eventTypeId;
+        setBookingDetails({
+            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+            time: time
+        });
 
-                    if (startTime) {
-                        const dateObj = new Date(startTime);
-                        setBookingDetails({
-                            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                            time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
-                        });
-                        setFormData(prev => ({
-                            ...prev,
-                            rawStartTime: startTime,
-                            calEventTypeId: eventTypeId
-                        }));
-                    }
+        setFormData(prev => ({
+            ...prev,
+            rawStartTime: dateObj.toISOString()
+        }));
 
-                    // Saltar inmediatamente al pago sin mostrar el formulario de Cal.com
-                    setStep('payment');
-                }
-            });
-        })();
-    }, []);
+        // Ir a la anamnesis después de confirmar la cita
+        setStep('anamnesis');
+    };
 
     // Validar email
     const isValidEmail = (email: string) => {
@@ -148,18 +135,19 @@ export default function Booking() {
         else if (step === 'reason') setStep('contact');
         else if (step === 'contact') {
             if (validateContact()) {
-                setStep('schedule'); // Ver disponibilidad primero
+                setStep('payment'); // Ir directo al pago
             }
         }
-        else if (step === 'schedule') setStep('payment'); // Luego pagar
-        else if (step === 'success') setStep('anamnesis');
+        else if (step === 'payment') setStep('processing'); // Procesar pago
+        else if (step === 'success') setStep('schedule'); // Después del pago, agendar
+        else if (step === 'schedule') setStep('anamnesis'); // Después de agendar, anamnesis
     };
 
     const handleBack = () => {
         if (step === 'reason') setStep('intro');
         else if (step === 'contact') setStep('reason');
-        else if (step === 'schedule') setStep('contact');
-        else if (step === 'payment') setStep('schedule');
+        else if (step === 'payment') setStep('contact');
+        else if (step === 'schedule') setStep('success'); // Volver al éxito del pago
     };
 
     const [isReasonOpen, setIsReasonOpen] = useState(false);
@@ -322,35 +310,29 @@ export default function Booking() {
                             </div>
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary">Ver disponibilidad</button>
+                                <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
                             </div>
                         </div>
                     )}
 
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Selecciona tu horario</h2>
-                            <p className={styles.stepDesc}>Haz clic en el día y la hora que prefieras. <strong>Tu reserva se confirmará automáticamente tras el pago.</strong></p>
+                            <h2 className={styles.stepTitle}>🎉 ¡Pago confirmado!</h2>
+                            <p className={styles.stepDesc}>Ahora selecciona el día y hora para tu sesión. <strong>Tu cita quedará reservada inmediatamente.</strong></p>
 
                             <div className={styles.calendarContainer}>
-                                <CalendarEmbed
-                                    serviceType={formData.serviceType}
-                                    name={formData.name}
-                                    email={formData.email}
-                                    height="650px"
+                                <CustomCalendar
+                                    onSelectDateTime={handleDateTimeSelection}
+                                    bookedSlots={[]}
                                 />
-                            </div>
-
-                            <div className={styles.buttonGroup}>
-                                <button onClick={handleBack} className="btn-secondary">← Volver</button>
                             </div>
                         </div>
                     )}
 
                     {step === 'payment' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Confirma tu Reserva</h2>
-                            <p className={styles.stepDesc}>Vas a agendar tu sesión para el <strong>{bookingDetails.date}</strong> a las <strong>{bookingDetails.time}</strong>.</p>
+                            <h2 className={styles.stepTitle}>Confirma tu Pago</h2>
+                            <p className={styles.stepDesc}>Después del pago podrás seleccionar el día y horario de tu sesión.</p>
 
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>
@@ -379,7 +361,7 @@ export default function Booking() {
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary" disabled={isProcessing}>← Volver</button>
                                 <button onClick={handleStartPayment} className="btn-primary" disabled={isProcessing}>
-                                    {isProcessing ? 'Procesando...' : 'Pagar y Confirmar Cita'}
+                                    {isProcessing ? 'Procesando...' : 'Pagar con Flow 💳'}
                                 </button>
                             </div>
                             <p className={styles.disclaimer}>Al continuar aceptas los términos de servicio y política de privacidad.</p>

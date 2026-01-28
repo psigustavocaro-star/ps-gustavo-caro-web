@@ -43,11 +43,9 @@ export default function CalendarEmbed({
                 calLink={calLink}
                 style={{ width: "100%", height: "100%", overflow: "scroll" }}
                 config={{
-                    name,
-                    email,
                     theme: "light",
                     layout: "month_view",
-                    hideEventTypeDetails: "true"
+                    hideEventTypeDetails: true
                 }}
             />
         </div>

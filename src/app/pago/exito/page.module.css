@@ -140,3 +140,30 @@
         flex-direction: column;
     }
 }
+
+/* Detalles de cita confirmada */
+.appointmentDetails {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(34, 197, 94, 0.08));
+    border: 2px solid rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
+    padding: 24px 32px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.detailRow {
+    font-size: 1.1rem;
+    color: var(--foreground);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detailRow:last-child {
+    margin-bottom: 0;
+}
+
+.detailRow strong {
+    color: #059669;
+}

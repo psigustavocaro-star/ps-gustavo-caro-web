@@ -1,0 +1,353 @@
+/* ============================================
+   CUSTOM CALENDAR - Premium Design
+   Paleta moderna integrada
+   ============================================ */
+
+.calendarContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   CALENDAR HEADER
+   ============================================ */
+
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.monthTitle {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--foreground);
+    text-transform: capitalize;
+    letter-spacing: -0.01em;
+}
+
+.navButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--foreground);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.navButton:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.navButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   WEEK DAYS HEADER
+   ============================================ */
+
+.weekDays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.weekDay {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--foreground-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0;
+}
+
+/* ============================================
+   DAYS GRID
+   ============================================ */
+
+.daysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.dayCell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--foreground);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    position: relative;
+}
+
+.dayCell:hover:not(:disabled):not(.dayEmpty):not(.dayPast):not(.dayUnavailable) {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+    color: var(--primary);
+}
+
+.dayCell.dayEmpty {
+    cursor: default;
+}
+
+.dayCell.dayToday {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.dayCell.dayToday::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--primary);
+}
+
+.dayCell.dayPast,
+.dayCell.dayUnavailable {
+    color: var(--foreground-muted);
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.dayCell.dayAvailable {
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(52, 211, 153, 0.06) 100%);
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+.dayCell.daySelected {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+    transform: scale(1.05);
+}
+
+.dayCell.daySelected::after {
+    display: none;
+}
+
+/* ============================================
+   TIME SLOTS
+   ============================================ */
+
+.timeSlotsContainer {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 1px solid rgba(79, 70, 229, 0.08);
+}
+
+.timeSlotsTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timeSlotsTitle span {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.timeSlotsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+}
+
+.timeSlot {
+    padding: 12px 8px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-align: center;
+}
+
+.timeSlot:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(139, 92, 246, 0.04) 100%);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.timeSlot.timeSlotSelected {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+    transform: translateY(-2px);
+}
+
+.timeSlot:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.noSlots {
+    text-align: center;
+    padding: 24px;
+    color: var(--foreground-muted);
+    font-style: italic;
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   SELECTION SUMMARY
+   ============================================ */
+
+.selectionSummary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(52, 211, 153, 0.06) 100%);
+    border: 2px solid rgba(5, 150, 105, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+}
+
+.summaryInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.summaryDate {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--foreground);
+    text-transform: capitalize;
+}
+
+.summaryTime {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+.confirmButton {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    border: none;
+    border-radius: var(--radius-full);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.25);
+}
+
+.confirmButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingText {
+    color: var(--foreground-muted);
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 480px) {
+    .calendarContainer {
+        gap: 1rem;
+    }
+
+    .dayCell {
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .timeSlotsGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .timeSlot {
+        padding: 10px 6px;
+        font-size: 0.85rem;
+    }
+
+    .selectionSummary {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .summaryInfo {
+        text-align: center;
+    }
+
+    .confirmButton {
+        width: 100%;
+    }
+}
