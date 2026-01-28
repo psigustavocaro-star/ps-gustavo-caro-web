@@ -44,8 +44,8 @@ export default function Booking() {
             rawStartTime: dateObj.toISOString()
         }));
 
-        // Ir a la anamnesis después de confirmar la cita
-        setStep('anamnesis');
+        // Ir al pago después de seleccionar la cita
+        setStep('payment');
     };
 
     // Validar email
@@ -135,19 +135,19 @@ export default function Booking() {
         else if (step === 'reason') setStep('contact');
         else if (step === 'contact') {
             if (validateContact()) {
-                setStep('payment'); // Ir directo al pago
+                setStep('schedule'); // Ir al calendario primero
             }
         }
+        else if (step === 'schedule') setStep('payment'); // Después del calendario, pagar
         else if (step === 'payment') setStep('processing'); // Procesar pago
-        else if (step === 'success') setStep('schedule'); // Después del pago, agendar
-        else if (step === 'schedule') setStep('anamnesis'); // Después de agendar, anamnesis
+        else if (step === 'success') setStep('anamnesis'); // Después del pago exitoso, anamnesis
     };
 
     const handleBack = () => {
         if (step === 'reason') setStep('intro');
         else if (step === 'contact') setStep('reason');
-        else if (step === 'payment') setStep('contact');
-        else if (step === 'schedule') setStep('success'); // Volver al éxito del pago
+        else if (step === 'schedule') setStep('contact');
+        else if (step === 'payment') setStep('schedule');
     };
 
     const [isReasonOpen, setIsReasonOpen] = useState(false);
@@ -310,15 +310,15 @@ export default function Booking() {
                             </div>
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary">Continuar al pago</button>
+                                <button onClick={handleNext} className="btn-primary">Seleccionar horario</button>
                             </div>
                         </div>
                     )}
 
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>🎉 ¡Pago confirmado!</h2>
-                            <p className={styles.stepDesc}>Ahora selecciona el día y hora para tu sesión. <strong>Tu cita quedará reservada inmediatamente.</strong></p>
+                            <h2 className={styles.stepTitle}>Selecciona tu horario</h2>
+                            <p className={styles.stepDesc}>Elige el día y hora que mejor te acomode. <strong>Al confirmar, pasarás al pago.</strong></p>
 
                             <div className={styles.calendarContainer}>
                                 <CustomCalendar
@@ -331,8 +331,8 @@ export default function Booking() {
 
                     {step === 'payment' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Confirma tu Pago</h2>
-                            <p className={styles.stepDesc}>Después del pago podrás seleccionar el día y horario de tu sesión.</p>
+                            <h2 className={styles.stepTitle}>Confirma tu Reserva</h2>
+                            <p className={styles.stepDesc}>Tu cita: <strong>{bookingDetails.date}</strong> a las <strong>{bookingDetails.time}</strong></p>
 
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>

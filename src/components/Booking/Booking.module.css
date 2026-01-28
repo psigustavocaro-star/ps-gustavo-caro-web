@@ -1,26 +1,26 @@
 /* ============================================
-   BOOKING SECTION - Diseño Integrado Premium
-   Sección fluida anclada a la página
+   BOOKING SECTION - Diseño Integrado
+   Paleta Calipso/Cyan
    ============================================ */
 
 .booking {
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+    background: var(--background);
     padding: 80px 0 100px;
     position: relative;
     overflow: hidden;
 }
 
-/* Decoración de fondo sutil */
+/* Textura de fondo sutil */
 .booking::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 800px;
-    height: 400px;
-    background: radial-gradient(ellipse at center, rgba(79, 70, 229, 0.04) 0%, transparent 70%);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(8, 145, 178, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(13, 148, 136, 0.03) 0%, transparent 50%);
     pointer-events: none;
 }
 
@@ -35,6 +35,8 @@
     background: transparent;
     text-align: center;
     transition: max-width 0.4s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .wideCard {
@@ -96,7 +98,7 @@
     flex-direction: column;
     padding: 20px 24px;
     background: var(--surface);
-    border: 2px solid var(--border-light);
+    border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     transition: var(--transition-smooth);
     cursor: pointer;
@@ -131,22 +133,22 @@
 }
 
 .serviceOption:hover {
-    border-color: var(--border);
+    border-color: var(--primary-light);
     box-shadow: var(--shadow-sm);
 }
 
 .serviceOption.active {
     border-color: var(--primary);
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
-    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.1);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.03) 0%, rgba(13, 148, 136, 0.02) 100%);
+    box-shadow: 0 4px 20px rgba(8, 145, 178, 0.12);
 }
 
 .serviceOption.active::before {
-    background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+    background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
 }
 
 .serviceOption.active strong {
-    color: var(--primary);
+    color: var(--primary-dark);
 }
 
 /* ============================================
@@ -274,8 +276,8 @@
 }
 
 .customOption:hover {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(139, 92, 246, 0.04) 100%);
-    color: var(--primary);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(13, 148, 136, 0.04) 100%);
+    color: var(--primary-dark);
 }
 
 .customOption.selected {
@@ -310,7 +312,7 @@
     padding: 28px;
     border-radius: var(--radius-xl);
     margin-bottom: 28px;
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow-md);
 }
 
@@ -328,10 +330,7 @@
 
 .priceRow strong {
     font-size: 1.75rem;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary);
     font-weight: 800;
 }
 
@@ -370,12 +369,12 @@
 }
 
 .infoBox {
-    background: linear-gradient(135deg, rgba(5, 150, 105, 0.04) 0%, rgba(52, 211, 153, 0.04) 100%);
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.04) 0%, rgba(8, 145, 178, 0.04) 100%);
     padding: 24px;
     border-radius: var(--radius-lg);
     margin-bottom: 28px;
     text-align: left;
-    border: 1px solid rgba(5, 150, 105, 0.1);
+    border: 1px solid rgba(13, 148, 136, 0.1);
 }
 
 .infoBox p {
@@ -403,7 +402,7 @@
     padding: 24px;
     background: var(--surface);
     border-radius: var(--radius-xl);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
 }
 
@@ -490,8 +489,8 @@
    ============================================ */
 
 .appointmentSummary {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
-    border: 1px solid rgba(79, 70, 229, 0.1);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.04) 0%, rgba(13, 148, 136, 0.03) 100%);
+    border: 1px solid rgba(8, 145, 178, 0.12);
     border-radius: var(--radius-lg);
     padding: 20px 24px;
     margin-bottom: 24px;
@@ -526,7 +525,7 @@
 }
 
 .infoNote {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.04) 0%, transparent 100%);
     padding: 16px 20px;
     border-radius: var(--radius);
     border-left: 3px solid var(--primary);

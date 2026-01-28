@@ -1,6 +1,5 @@
 /* ============================================
-   CUSTOM CALENDAR - Premium Design
-   Paleta moderna integrada
+   CUSTOM CALENDAR - Paleta Calipso
    ============================================ */
 
 .calendarContainer {
@@ -40,7 +39,7 @@
     border: none;
     border-radius: var(--radius);
     background: var(--surface);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border);
     color: var(--foreground);
     cursor: pointer;
     transition: var(--transition-smooth);
@@ -49,7 +48,7 @@
 }
 
 .navButton:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(13, 148, 136, 0.04) 100%);
     border-color: var(--primary);
     color: var(--primary);
 }
@@ -107,8 +106,8 @@
 }
 
 .dayCell:hover:not(:disabled):not(.dayEmpty):not(.dayPast):not(.dayUnavailable) {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
-    color: var(--primary);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.1) 0%, rgba(13, 148, 136, 0.08) 100%);
+    color: var(--primary-dark);
 }
 
 .dayCell.dayEmpty {
@@ -138,15 +137,15 @@
 }
 
 .dayCell.dayAvailable {
-    background: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(52, 211, 153, 0.06) 100%);
-    color: var(--secondary);
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(8, 145, 178, 0.06) 100%);
+    color: var(--secondary-dark);
     font-weight: 600;
 }
 
 .dayCell.daySelected {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
-    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 16px rgba(8, 145, 178, 0.35);
     transform: scale(1.05);
 }
 
@@ -159,10 +158,10 @@
    ============================================ */
 
 .timeSlotsContainer {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.03) 0%, rgba(13, 148, 136, 0.02) 100%);
     border-radius: var(--radius-lg);
     padding: 20px;
-    border: 1px solid rgba(79, 70, 229, 0.08);
+    border: 1px solid rgba(8, 145, 178, 0.1);
 }
 
 .timeSlotsTitle {
@@ -201,16 +200,16 @@
 
 .timeSlot:hover:not(:disabled) {
     border-color: var(--primary);
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(139, 92, 246, 0.04) 100%);
-    color: var(--primary);
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.04) 0%, rgba(13, 148, 136, 0.03) 100%);
+    color: var(--primary-dark);
     transform: translateY(-2px);
 }
 
 .timeSlot.timeSlotSelected {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-color: transparent;
     color: white;
-    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 16px rgba(8, 145, 178, 0.3);
     transform: translateY(-2px);
 }
 
@@ -236,8 +235,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(52, 211, 153, 0.06) 100%);
-    border: 2px solid rgba(5, 150, 105, 0.15);
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.06) 0%, rgba(8, 145, 178, 0.04) 100%);
+    border: 2px solid rgba(13, 148, 136, 0.15);
     border-radius: var(--radius-lg);
     padding: 16px 20px;
 }
@@ -272,12 +271,12 @@
     font-weight: 700;
     cursor: pointer;
     transition: var(--transition-smooth);
-    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.25);
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.25);
 }
 
 .confirmButton:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
 }
 
 /* ============================================
