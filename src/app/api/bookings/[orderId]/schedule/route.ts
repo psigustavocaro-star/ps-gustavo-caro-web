@@ -19,9 +19,9 @@ export async function POST(
             );
         }
 
-        // Buscar la reserva por orderId (flowOrderNumber)
+        // Buscar la reserva por orderId
         const booking = await prisma.booking.findFirst({
-            where: { flowOrderNumber: orderId }
+            where: { orderId: orderId }
         });
 
         if (!booking) {
@@ -35,8 +35,8 @@ export async function POST(
         const updatedBooking = await prisma.booking.update({
             where: { id: booking.id },
             data: {
-                appointmentDate: new Date(appointmentDate),
-                status: 'scheduled'
+                appointmentDate: appointmentDate, // Ya es string en el schema
+                status: 'SCHEDULED'
             }
         });
 
