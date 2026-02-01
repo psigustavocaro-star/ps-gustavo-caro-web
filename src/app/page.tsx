@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar/Navbar";
 import Hero from "@/components/Hero/Hero";
-import TrustBadges from "@/components/TrustBadges/TrustBadges";
+import TrustBar from "@/components/TrustBar/TrustBar";
 import About from "@/components/About/About";
 import Services from "@/components/Services/Services";
 import Testimonials from "@/components/Testimonials/Testimonials";
@@ -16,7 +16,7 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
-      <TrustBadges />
+      <TrustBar />
       <About />
       <Services />
       <Testimonials />

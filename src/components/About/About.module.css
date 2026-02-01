@@ -1,13 +1,13 @@
 .about {
-    background-color: var(--surface);
+    padding: 120px 0;
     position: relative;
-    overflow: hidden;
+    background: transparent;
 }
 
 .aboutContent {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 100px;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 80px;
     align-items: center;
 }
 
@@ -23,42 +23,37 @@
 
 .gridImage {
     width: 100%;
-    height: 360px;
+    height: 400px;
     object-fit: cover;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    transition: var(--transition-slow);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.1);
+    /* No border for a more modern 'raw' image look or very subtle */
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .gridImage:first-child {
     margin-top: 40px;
 }
 
-.gridImage:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-}
-
 .floatingCard {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    color: #0f172a;
-    padding: 28px 32px;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    max-width: 260px;
-    border: 1px solid rgba(8, 145, 178, 0.1);
+    bottom: -30px;
+    right: -10px;
+    background: white;
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    max-width: 240px;
+    z-index: 2;
+    border-left: 4px solid var(--primary);
 }
 
 .floatingTitle {
     font-size: 1.1rem;
     font-weight: 800;
+    color: var(--primary);
     margin-bottom: 8px;
     display: block;
-    color: #0891b2;
 }
 
 .floatingText {
@@ -68,62 +63,102 @@
 }
 
 .sectionTitle {
-    font-size: 2.8rem;
-    margin-bottom: 32px;
-    color: #000000;
+    font-size: clamp(2.2rem, 4vw, 2.8rem);
+    margin-bottom: 24px;
+    color: var(--foreground);
     letter-spacing: -0.02em;
+    font-weight: 800;
+    line-height: 1.2;
 }
 
 .subtitle {
-    color: #0891b2;
-    font-weight: 700;
+    color: var(--primary);
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 0.2em;
     display: block;
     margin-bottom: 16px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
 }
 
 .text {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--foreground-light);
     margin-bottom: 24px;
     line-height: 1.8;
 }
 
-.advantageGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    margin-top: 48px;
-}
-
-.advantageItem {
+/* Elite Expertise List */
+.expertiseList {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 24px;
-    background: #f8fafc;
-    border-radius: var(--radius);
-    transition: var(--transition);
+    gap: 16px;
+    margin-top: 40px;
 }
 
-.advantageItem:hover {
-    background: #f1f5f9;
+.expertiseItem {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(8, 145, 178, 0.08);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
 }
 
-.advantageTitle {
+.expertiseItem:hover {
+    background: white;
+    border-color: var(--primary-light);
+    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.05);
+}
+
+.expertIcon {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-glow);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.blendLogo {
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    filter: grayscale(1);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.expertiseItem:hover .blendLogo {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+.checkIcon {
+    color: var(--primary);
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.expertText {
+    display: flex;
+    flex-direction: column;
+}
+
+.expertTitle {
+    font-size: 1rem;
     font-weight: 800;
-    color: #0891b2;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    color: var(--foreground);
+    margin-bottom: 2px;
 }
 
-.advantageText {
-    font-size: 0.95rem;
-    color: var(--foreground-light);
-    line-height: 1.5;
+.expertDesc {
+    font-size: 0.9rem;
+    color: var(--foreground-muted);
+    line-height: 1.4;
 }
 
 @media (max-width: 992px) {
@@ -132,15 +167,7 @@
         gap: 60px;
     }
 
-    .floatingCard {
-        position: relative;
-        bottom: 0;
-        right: 0;
-        margin-top: 32px;
-        max-width: 100%;
-    }
-
-    .gridImage:first-child {
-        margin-top: 0;
+    .gridImage {
+        height: 350px;
     }
 }

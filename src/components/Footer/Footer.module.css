@@ -1,126 +1,143 @@
 .footer {
-    background: linear-gradient(180deg, #0c4a6e 0%, #082f49 100%);
+    background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
     color: white;
-    padding: 100px 20px 40px;
+    padding: 140px 0 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.2), transparent);
 }
 
 .footerContent {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1fr;
-    gap: 60px;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 80px;
     margin-bottom: 80px;
 }
 
 .brand h3 {
     color: white;
     margin-bottom: 24px;
-    font-size: 1.6rem;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
 .logoDot {
-    color: #22d3ee;
+    color: var(--accent);
 }
 
 .description {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
     line-height: 1.8;
-    max-width: 280px;
+    max-width: 320px;
+}
+
+.description strong {
+    color: var(--primary-light);
 }
 
 .footerLinks h4 {
     color: white;
-    margin-bottom: 28px;
-    font-size: 1rem;
+    margin-bottom: 32px;
+    font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.2em;
 }
 
 .linkList {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
 }
 
 .linkItem {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.95rem;
-    transition: var(--transition);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    transition: var(--transition-smooth);
     font-weight: 500;
     display: inline-block;
 }
 
 .linkItem:hover {
-    color: #22d3ee;
-    transform: translateX(4px);
+    color: var(--accent);
+    transform: translateX(6px);
+}
+
+.contactInfo h4 {
+    color: white;
+    margin-bottom: 32px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
 }
 
 .contactInfo p {
-    color: rgba(255, 255, 255, 0.75);
-    margin-bottom: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 18px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.95rem;
+    gap: 12px;
+    font-size: 1rem;
 }
 
 .bottomBar {
-    padding-top: 40px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 24px;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
+    gap: 32px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
 }
 
 .legalLinks {
     display: flex;
-    gap: 32px;
-}
-
-.legalLinks a {
-    color: rgba(255, 255, 255, 0.5);
-    transition: var(--transition);
-}
-
-.legalLinks a:hover {
-    color: #22d3ee;
-}
-
-.crisis {
-    color: rgba(255, 255, 255, 0.6);
+    gap: 24px;
+    align-items: center;
     font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
 }
 
-.crisis a {
-    color: #fbbf24;
-    font-weight: 600;
+@media (max-width: 1200px) {
+    .footerContent {
+        gap: 40px;
+    }
 }
 
 @media (max-width: 992px) {
     .footerContent {
         grid-template-columns: 1fr 1fr;
-        gap: 48px;
+        gap: 60px;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .footer {
-        text-align: center;
-        padding-top: 60px;
+        padding-top: 100px;
     }
 
     .footerContent {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 50px;
+        text-align: center;
     }
 
     .description {
-        max-width: 100%;
+        margin: 0 auto;
     }
 
     .contactInfo p {
@@ -132,8 +149,7 @@
         text-align: center;
     }
 
-    .legalLinks {
-        flex-direction: column;
-        gap: 12px;
+    .linkItem:hover {
+        transform: translateY(-2px);
     }
 }

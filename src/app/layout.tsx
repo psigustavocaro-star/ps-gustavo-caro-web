@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   },
 };
 
+import SmoothScroll from "@/components/Providers/SmoothScroll";
+import InteractiveBackground from "@/components/Interactive/InteractiveBackground";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,8 +24,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body style={{ position: 'relative' }}>
-        {children}
-        <WhatsAppButton />
+        <InteractiveBackground />
+        <SmoothScroll>
+          {children}
+          <WhatsAppButton />
+        </SmoothScroll>
       </body>
     </html>
   );

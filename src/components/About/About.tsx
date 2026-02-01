@@ -1,11 +1,21 @@
+'use client';
+
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+import Reveal from '../Animations/Reveal';
 import styles from './About.module.css';
 
 export default function About() {
     return (
         <section id="sobre-mi" className={styles.about}>
             <div className={`container ${styles.aboutContent}`}>
-                <div className={styles.imageContainer}>
+                <motion.div
+                    className={styles.imageContainer}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
                     <div className={styles.imageGrid}>
                         <Image
                             src="/images/gustavo-1-hq.jpg"
@@ -26,33 +36,55 @@ export default function About() {
                             className={styles.gridImage}
                         />
                     </div>
-                    <div className={styles.floatingCard}>
+                    <motion.div
+                        className={styles.floatingCard}
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4, duration: 0.6 }}
+                    >
                         <span className={styles.floatingTitle}>Especialista en TCC</span>
                         <p className={styles.floatingText}>Salud Mental con experiencia clínica en diversas zonas de nuestro país.</p>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
-                <div className={styles.textContent}>
+                <motion.div
+                    className={styles.textContent}
+                    initial={{ opacity: 0, x: 30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
                     <span className={styles.subtitle}>Mi Enfoque Humano y Científico</span>
-                    <h2 className={styles.sectionTitle}>Entender tu mente para sanar tu corazón.</h2>
+                    <Reveal><h2 className={styles.sectionTitle}>Entender tu mente para sanar tu corazón.</h2></Reveal>
                     <p className={styles.text}>
-                        Como psicólogo clínico con un fuerte <strong>enfoque TCC</strong> (Cognitivo Conductual), mi práctica se centra en herramientas concretas y efectivas. He tenido la oportunidad de trabajar en diversas zonas de Chile, lo que me ha dado una visión amplia y empática de las distintas realidades de salud mental.
+                        Soy psicólogo clínico con <strong>Especialización en Terapia Cognitivo Conductual (TCC)</strong> por la Universidad de Chile. Mi práctica integra la evidencia científica con el uso de instrumentos de alta precisión diagnóstica, como las certificaciones en <strong>ADOS-2</strong> (Autismo) y <strong>WISC-V</strong> (Inteligencia), permitiendo un abordaje integral en niños, adolescentes y adultos.
                     </p>
                     <p className={styles.text}>
-                        Mi compromiso con cada paciente es absoluto. No eres un número, eres una persona buscando equilibrio y bienestar. Mi especialización en salud mental me permite acompañarte con la rigurosidad técnica necesaria, pero siempre desde la calidez y el respeto profundo.
+                        Con postgrados en Salud Mental del Adolescente y Adicciones (UCC), mi enfoque es resolutivo y humano. Mi compromiso es brindarte un espacio de seguridad y rigor técnico, donde la ciencia de la conducta se pone al servicio de tu bienestar y autonomía emocional.
                     </p>
 
-                    <div className={styles.advantageGrid}>
-                        <div className={styles.advantageItem}>
-                            <span className={styles.advantageTitle}>Especialización</span>
-                            <p className={styles.advantageText}>Formación continua en salud mental y abordaje de diversas crisis emocionales.</p>
+                    <div className={styles.expertiseList}>
+                        <div className={styles.expertiseItem}>
+                            <div className={styles.expertIcon}>
+                                <Image src="/images/logo-uchile.png" alt="U. de Chile" width={45} height={45} className={styles.blendLogo} />
+                            </div>
+                            <div className={styles.expertText}>
+                                <span className={styles.expertTitle}>Especialidad en TCC</span>
+                                <p className={styles.expertDesc}>Formación de postítulo en la Universidad de Chile, bajo estándares de evidencia científica.</p>
+                            </div>
                         </div>
-                        <div className={styles.advantageItem}>
-                            <span className={styles.advantageTitle}>Seguridad Emocional</span>
-                            <p className={styles.advantageText}>Un espacio donde te sientas validado, escuchado y profundamente respetado.</p>
+                        <div className={styles.expertiseItem}>
+                            <div className={styles.expertIcon}>
+                                <div className={styles.checkIcon}>✓</div>
+                            </div>
+                            <div className={styles.expertText}>
+                                <span className={styles.expertTitle}>Trayectoria Clínica</span>
+                                <p className={styles.expertDesc}>Años de experiencia en salud mental pública y privada a lo largo del país.</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </section>
     );

@@ -4,7 +4,7 @@
    ============================================ */
 
 .booking {
-    background: var(--background);
+    background: transparent;
     padding: 80px 0 100px;
     position: relative;
     overflow: hidden;

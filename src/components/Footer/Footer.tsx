@@ -53,6 +53,9 @@ export default function Footer() {
 
                 <div className={styles.bottomBar}>
                     <p>© {year} Ps. Gustavo Caro. Todos los derechos reservados.</p>
+                    <div className={styles.adminLink}>
+                        <Link href="/admingustavo">Acceso Admin</Link>
+                    </div>
                     <div className={styles.legalLinks}>
                         <p>No atender urgencias por este medio. En caso de crisis llame al *4141.</p>
                     </div>

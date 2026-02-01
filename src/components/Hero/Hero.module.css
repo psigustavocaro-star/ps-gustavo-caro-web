@@ -6,7 +6,7 @@
     min-height: 90vh;
     position: relative;
     overflow: hidden;
-    background: var(--background);
+    background: transparent;
 }
 
 .heroContent {
@@ -20,30 +20,20 @@
 
 .textContent {
     max-width: 700px;
-    animation: fadeInUp 0.8s ease-out;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+/* Retirado para usar Framer Motion */
 
 .topBadge {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 20px;
-    background-color: #f0fdfa;
-    border-radius: 30px;
-    margin-bottom: 28px;
-    border: 1px solid #99f6e4;
+    padding: 8px 18px;
+    background-color: var(--primary-glow);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    margin-bottom: 24px;
+    border: 1px solid rgba(8, 145, 178, 0.1);
 }
 
 .heartIcon {
@@ -67,8 +57,19 @@
     }
 }
 
+.logoWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uniLogo {
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
 .badgeText {
-    color: #0d9488;
+    color: var(--primary);
     font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -143,7 +144,12 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.imageTilt {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .imageInner {
@@ -151,10 +157,12 @@
     width: 100%;
     max-width: 440px;
     aspect-ratio: 0.8 / 1;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-2xl);
     overflow: hidden;
     box-shadow: var(--shadow-xl);
-    border: 8px solid white;
+    border: 12px solid white;
+    transform: rotate(1deg);
+    /* Transition and hover removed to avoid conflict with InteractiveTilt */
 }
 
 .mainImage {

@@ -1,0 +1,127 @@
+.trustBar {
+    width: 100%;
+    padding: 60px 0;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.topRow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+}
+
+.label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--primary);
+    opacity: 0.7;
+}
+
+.logoGrid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.logoItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+}
+
+.logo {
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.5;
+    transition: all 0.4s ease;
+    mix-blend-mode: multiply;
+}
+
+.logoItem:hover .logo {
+    filter: grayscale(0);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.bottomRow {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.certList {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.certBadge {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    padding: 12px 24px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.check {
+    color: var(--primary);
+    font-weight: 900;
+}
+
+.certName {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+@media (max-width: 992px) {
+    .logoGrid {
+        gap: 40px;
+    }
+
+    .logoItem {
+        height: 40px;
+    }
+}
+
+@media (max-width: 640px) {
+    .logoGrid {
+        gap: 24px;
+    }
+
+    .certList {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .certBadge {
+        width: 100%;
+        justify-content: center;
+    }
+}
