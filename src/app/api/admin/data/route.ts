@@ -7,9 +7,6 @@ export async function GET() {
         const bookings = await prisma.booking.findMany({
             orderBy: {
                 createdAt: 'desc'
-            },
-            include: {
-                // Esto dependerá de cómo se relacione en el futuro, por ahora hacemos una consulta inteligente
             }
         });
 
