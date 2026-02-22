@@ -36,7 +36,7 @@ export default function InteractiveBackground() {
                     y: scrollY1,
                     top: '20%',
                     left: '10%',
-                    background: 'radial-gradient(circle, var(--primary-light) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle, var(--primary-light) 0%, rgba(34, 211, 238, 0.4) 30%, rgba(34, 211, 238, 0.1) 60%, transparent 80%)',
                 }}
             />
             <motion.div
@@ -46,7 +46,7 @@ export default function InteractiveBackground() {
                     y: scrollY2,
                     top: '60%',
                     right: '10%',
-                    background: 'radial-gradient(circle, var(--accent-light) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle, var(--accent-light) 0%, rgba(103, 232, 249, 0.3) 40%, transparent 85%)',
                 }}
             />
             <motion.div
@@ -56,7 +56,7 @@ export default function InteractiveBackground() {
                     y: useTransform(scrollY, [0, 1000], [0, -50]),
                     bottom: '10%',
                     left: '40%',
-                    background: 'radial-gradient(circle, var(--secondary-light) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle, var(--secondary-light) 0%, rgba(45, 212, 191, 0.3) 30%, transparent 80%)',
                 }}
             />
         </div>

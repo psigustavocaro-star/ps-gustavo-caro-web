@@ -9,6 +9,19 @@
     margin-bottom: 80px;
 }
 
+.tag {
+    display: inline-block;
+    background: var(--primary-glow);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+}
+
 .subtitle {
     font-size: 1.125rem;
     color: var(--foreground-light);
@@ -21,44 +34,46 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
     max-width: var(--container-width);
     margin: 0 auto;
 }
 
 .card {
-    background: white;
-    padding: 48px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    padding: 36px;
     border-radius: var(--radius-2xl);
-    border: 1px solid var(--border-light);
+    border: var(--glass-border);
     display: flex;
     flex-direction: column;
     height: 100%;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-lg);
     border-color: var(--primary-light);
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .stars {
     display: flex;
     gap: 4px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     color: #f59e0b;
-    /* Golden */
-    font-size: 0.8rem;
+    font-size: 0.75rem;
 }
 
 .text {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     color: var(--foreground-light);
-    line-height: 1.8;
-    margin-bottom: 40px;
+    line-height: 1.7;
+    margin-bottom: 32px;
     flex-grow: 1;
     font-weight: 450;
     font-style: italic;
@@ -67,15 +82,22 @@
 .footer {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding-top: 24px;
+    gap: 14px;
+    padding-top: 20px;
     border-top: 1px solid #f1f5f9;
 }
 
 .avatar {
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    object-fit: cover;
-    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
 }
 
 .info {
@@ -86,15 +108,30 @@
 .name {
     font-weight: 700;
     color: var(--foreground);
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .role {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--primary);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+.disclaimer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 48px;
+    color: var(--foreground-muted);
+    font-size: 0.85rem;
+}
+
+.disclaimer svg {
+    color: var(--primary);
+    opacity: 0.6;
 }
 
 @media (max-width: 1200px) {
@@ -111,5 +148,10 @@
 
     .card {
         padding: 32px;
+    }
+
+    .disclaimer {
+        flex-direction: column;
+        text-align: center;
     }
 }

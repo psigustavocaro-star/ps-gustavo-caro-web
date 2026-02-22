@@ -12,7 +12,7 @@ export default function Footer() {
     }, []);
 
     return (
-        <footer className={styles.footer}>
+        <footer className={styles.footer} id="contacto">
             <div className="container">
                 <div className={styles.footerContent}>
                     <div className={styles.brand}>
@@ -45,7 +45,12 @@ export default function Footer() {
 
                     <div className={styles.contactInfo}>
                         <h4>Contacto</h4>
-                        <p>📧 contacto@psgustavocaro.cl</p>
+                        <p>
+                            📧 <a href="mailto:psi.gustavocaro@gmail.com" className={styles.contactLink}>psi.gustavocaro@gmail.com</a>
+                        </p>
+                        <p>
+                            📱 <a href="https://wa.me/56922409953" target="_blank" rel="noopener noreferrer" className={styles.contactLink}>+56 9 2240 9953</a>
+                        </p>
                         <p>📍 Atención 100% Online</p>
                         <p>🇨🇱 Santiago, Chile</p>
                     </div>

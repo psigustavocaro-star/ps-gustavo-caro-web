@@ -4,8 +4,8 @@ import styles from './BlogSection.module.css';
 import { blogPosts } from '@/lib/data/blog';
 
 export default function BlogSection() {
-    // Tomar los últimos 3 posts
-    const latestPosts = blogPosts.slice(0, 3);
+    // Mostrar todos los posts ordenados por fecha descendente
+    const latestPosts = [...blogPosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return (
         <section className={styles.blog} id="blog">

@@ -4,6 +4,8 @@ interface InvoiceData {
     clientRut?: string;
     clientName: string;
     clientEmail: string;
+    clientAddress?: string;
+    clientCommune?: string;
     amount: number;
     description: string;
     paymentMethod: string;
@@ -111,21 +113,62 @@ async function generateBsaleInvoice(data: InvoiceData): Promise<InvoiceResult> {
 }
 
 /**
- * Genera boleta directamente con SII (requiere certificado digital)
+ * Genera boleta directamente con SII (vía SimpleAPI)
  */
 async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
-    // Esta integración requiere:
-    // 1. Certificado digital del SII
-    // 2. Firma electrónica del DTE
-    // 3. Envío al SII y timbraje
+    const { simpleapi, emisor } = invoiceConfig;
 
-    // Por complejidad, se recomienda usar un proveedor como Bsale/Facele
-    console.log('SII Direct integration requires digital certificate setup');
+    if (!simpleapi.apiKey || !simpleapi.siiClave) {
+        console.error('SimpleAPI config missing');
+        return generateManualInvoice(data);
+    }
 
-    return {
-        success: false,
-        error: 'Integración SII directa requiere configuración de certificado digital. Use Bsale o Facele.',
-    };
+    try {
+        const response = await fetch('https://api.simpleapi.cl/api/v1/bhe/emitir', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${simpleapi.apiKey}`
+            },
+            body: JSON.stringify({
+                emisor: {
+                    rut: emisor.rut.replace(/\./g, ''),
+                    clave: simpleapi.siiClave
+                },
+                receptor: {
+                    rut: data.clientRut ? data.clientRut.replace(/\./g, '') : '66666666-6',
+                    nombre: data.clientName,
+                    email: data.clientEmail,
+                    domicilio: data.clientAddress || 'Santiago',
+                    comuna: data.clientCommune || 'Santiago'
+                },
+                detalles: [
+                    {
+                        nombre: data.description,
+                        valor: data.amount
+                    }
+                ],
+                pago_provision_mensual: 1 // El contribuyente emisor se encarga de la retención
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.exito) {
+            throw new Error(result.mensaje || 'Error en SimpleAPI');
+        }
+
+        return {
+            success: true,
+            invoiceNumber: result.numero.toString(),
+            invoiceUrl: result.pdf_url,
+        };
+
+    } catch (error) {
+        console.error('SimpleAPI SII invoice error:', error);
+        // Silently fallback to manual to not break the user flow after payment
+        return generateManualInvoice(data);
+    }
 }
 
 /**
@@ -154,17 +197,32 @@ export async function sendInvoiceEmail(
     invoiceNumber: string,
     clientName: string
 ): Promise<boolean> {
-    // Integración con servicio de email (Resend, SendGrid, etc.)
-    // Por ahora, log para desarrollo
-    console.log(`Sending invoice ${invoiceNumber} to ${email}: ${invoiceUrl}`);
+    try {
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // TODO: Implementar envío real de email
-    // await resend.emails.send({
-    //     from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
-    //     to: email,
-    //     subject: `Tu boleta de sesión - ${invoiceNumber}`,
-    //     html: `<p>Hola ${clientName}, adjunto tu boleta...</p>`,
-    // });
+        await resend.emails.send({
+            from: 'Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
+            to: email,
+            subject: `Tu boleta de sesión - N°${invoiceNumber}`,
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                    <h2 style="color: #0891b2;">¡Hola ${clientName}!</h2>
+                    <p>Adjunto a este correo encontrarás el link para descargar tu boleta de honorarios electrónica correspondiente a tu sesión.</p>
+                    <div style="margin: 30px 0; padding: 20px; background: #f0f9ff; border-radius: 8px; text-align: center;">
+                        <a href="${invoiceUrl}" style="background: #0891b2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver/Descargar Boleta</a>
+                    </div>
+                    <p>Si tienes problemas con el botón, puedes copiar y lanzar este link en tu navegador:</p>
+                    <p style="font-size: 0.8rem; color: #666;">${invoiceUrl}</p>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                    <p>Atentamente,<br />Ps. Gustavo Caro</p>
+                </div>
+            `,
+        });
 
-    return true;
+        return true;
+    } catch (error) {
+        console.error('Error sending invoice email:', error);
+        return false;
+    }
 }

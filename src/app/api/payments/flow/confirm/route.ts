@@ -29,8 +29,11 @@ export async function POST(request: NextRequest) {
             const invoice = await generateInvoice({
                 clientEmail,
                 clientName,
+                clientRut: optionalFields.clientRut,
+                clientAddress: optionalFields.clientAddress,
+                clientCommune: optionalFields.clientCommune,
                 amount,
-                description: 'Sesión de Psicoterapia Online - Ps. Gustavo Caro',
+                description: 'ATENCION PSICOLOGICA ONLINE Y PRESENCIAL A ADULTOS Y ADOLESCENTES',
                 paymentMethod: paymentStatus.paymentData?.media || 'Webpay',
                 commerceOrder: orderId,
             });
@@ -50,7 +53,12 @@ export async function POST(request: NextRequest) {
             try {
                 await prisma.booking.update({
                     where: { orderId: orderId },
-                    data: { status: 'PAID' }
+                    data: {
+                        status: 'PAID',
+                        rut: optionalFields.clientRut,
+                        address: optionalFields.clientAddress,
+                        commune: optionalFields.clientCommune
+                    }
                 });
             } catch (dbError) {
                 console.error('Error updating booking status in DB:', dbError);

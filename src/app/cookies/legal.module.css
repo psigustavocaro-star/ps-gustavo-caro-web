@@ -1,0 +1,133 @@
+.legalPage {
+    padding-top: 120px;
+    padding-bottom: 60px;
+    min-height: 100vh;
+    background: var(--background);
+}
+
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    background: white;
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+.content h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    color: var(--foreground);
+    margin-bottom: 12px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.updated {
+    font-size: 0.9rem;
+    color: var(--foreground-muted);
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.content section {
+    margin-bottom: 40px;
+}
+
+.content h2 {
+    font-size: 1.4rem;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+    font-weight: 700;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.content section:first-of-type h2 {
+    border-top: none;
+    padding-top: 0;
+}
+
+.content h3 {
+    font-size: 1.1rem;
+    color: var(--foreground);
+    margin-top: 20px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.content p {
+    font-size: 1rem;
+    color: var(--foreground-light);
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+.content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.content li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: var(--foreground-light);
+    line-height: 1.6;
+}
+
+.content li::before {
+    content: '•';
+    position: absolute;
+    left: 8px;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.content li strong {
+    color: var(--foreground);
+    font-weight: 600;
+}
+
+.content strong {
+    color: var(--foreground);
+    font-weight: 600;
+}
+
+.warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    padding: 16px 20px;
+    border-radius: 8px;
+    color: #92400e !important;
+    font-weight: 500;
+}
+
+.highlight {
+    background: var(--primary-glow);
+    border-left: 4px solid var(--primary);
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .legalPage {
+        padding-top: 100px;
+    }
+
+    .content {
+        padding: 40px 24px;
+        border-radius: var(--radius-xl);
+    }
+
+    .content h1 {
+        font-size: 1.8rem;
+    }
+
+    .content h2 {
+        font-size: 1.2rem;
+    }
+}

@@ -101,16 +101,18 @@
     align-items: center;
     gap: 20px;
     padding: 20px 24px;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(8, 145, 178, 0.08);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
     border-radius: var(--radius-lg);
-    transition: all 0.3s ease;
+    transition: var(--transition-smooth);
 }
 
 .expertiseItem:hover {
-    background: white;
+    background: rgba(255, 255, 255, 0.6);
     border-color: var(--primary-light);
-    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.05);
+    box-shadow: var(--shadow-sm);
 }
 
 .expertIcon {
@@ -127,7 +129,7 @@
 .blendLogo {
     object-fit: contain;
     mix-blend-mode: multiply;
-    filter: grayscale(1);
+    filter: grayscale(1) brightness(1.1) contrast(1.1);
     opacity: 0.7;
     transition: all 0.3s ease;
 }

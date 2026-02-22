@@ -12,16 +12,19 @@
 
 .blob {
     position: absolute;
-    width: 600px;
-    height: 600px;
+    width: 800px;
+    height: 800px;
     border-radius: 50%;
-    filter: blur(80px);
+    /* Eliminamos blur porque es muy costoso para la CPU sin aceleración */
+    will-change: transform;
+    pointer-events: none;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 @media (max-width: 768px) {
     .blob {
-        width: 300px;
-        height: 300px;
-        filter: blur(40px);
+        width: 400px;
+        height: 400px;
     }
 }

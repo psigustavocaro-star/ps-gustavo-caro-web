@@ -65,47 +65,65 @@ export default function Credentials() {
                     <Reveal><h2 className={styles.title}>Acreditación Académica</h2></Reveal>
                 </div>
 
-                <div className={styles.sliderContainer}>
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentIndex}
-                            className={`${styles.slideItem} ${certifications[currentIndex].featured ? styles.featuredSlide : ''}`}
-                            initial={{ opacity: 0, x: 20, filter: "blur(10px)" }}
-                            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                            exit={{ opacity: 0, x: -20, filter: "blur(10px)" }}
-                            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                        >
-                            <div className={styles.logoArea}>
-                                <Image
-                                    src={certifications[currentIndex].logo}
-                                    alt={certifications[currentIndex].institution}
-                                    width={80}
-                                    height={80}
-                                    className={styles.slideLogo}
-                                />
-                            </div>
+                <div className={styles.sliderWrapper}>
+                    <button
+                        className={`${styles.navButton} ${styles.prevButton}`}
+                        onClick={() => setCurrentIndex((prev) => (prev - 1 + certifications.length) % certifications.length)}
+                        aria-label="Anterior"
+                    >
+                        ←
+                    </button>
 
-                            <div className={styles.contentArea}>
-                                <div className={styles.metaInfo}>
-                                    <span className={styles.slideYear}>{certifications[currentIndex].year}</span>
-                                    {certifications[currentIndex].featured && <span className={styles.featuredBadge}>Destacado</span>}
+                    <div className={styles.sliderContainer}>
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentIndex}
+                                className={`${styles.slideItem} ${certifications[currentIndex].featured ? styles.featuredSlide : ''}`}
+                                initial={{ opacity: 0, x: 20, filter: "blur(10px)" }}
+                                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                                exit={{ opacity: 0, x: -20, filter: "blur(10px)" }}
+                                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                            >
+                                <div className={styles.logoArea}>
+                                    <Image
+                                        src={certifications[currentIndex].logo}
+                                        alt={certifications[currentIndex].institution}
+                                        width={80}
+                                        height={80}
+                                        className={styles.slideLogo}
+                                    />
                                 </div>
-                                <h3 className={styles.slideTitle}>{certifications[currentIndex].title}</h3>
-                                <p className={styles.slideInstitution}>{certifications[currentIndex].institution}</p>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
 
-                    {/* Indicadores visuales */}
-                    <div className={styles.indicators}>
-                        {certifications.map((_, index) => (
-                            <div
-                                key={index}
-                                className={`${styles.dot} ${index === currentIndex ? styles.activeDot : ''}`}
-                                onClick={() => setCurrentIndex(index)}
-                            />
-                        ))}
+                                <div className={styles.contentArea}>
+                                    <div className={styles.metaInfo}>
+                                        <span className={styles.slideYear}>{certifications[currentIndex].year}</span>
+                                        {certifications[currentIndex].featured && <span className={styles.featuredBadge}>Destacado</span>}
+                                    </div>
+                                    <h3 className={styles.slideTitle}>{certifications[currentIndex].title}</h3>
+                                    <p className={styles.slideInstitution}>{certifications[currentIndex].institution}</p>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Indicadores visuales */}
+                        <div className={styles.indicators}>
+                            {certifications.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`${styles.dot} ${index === currentIndex ? styles.activeDot : ''}`}
+                                    onClick={() => setCurrentIndex(index)}
+                                />
+                            ))}
+                        </div>
                     </div>
+
+                    <button
+                        className={`${styles.navButton} ${styles.nextButton}`}
+                        onClick={() => setCurrentIndex((prev) => (prev + 1) % certifications.length)}
+                        aria-label="Siguiente"
+                    >
+                        →
+                    </button>
                 </div>
 
                 <div className={styles.trustBar}>

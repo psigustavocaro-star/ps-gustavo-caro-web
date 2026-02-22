@@ -1,0 +1,317 @@
+.page {
+    padding-top: 100px;
+    background: var(--background);
+}
+
+/* Hero Section */
+.hero {
+    padding: 80px 0 120px;
+}
+
+.heroContent {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.heroText {
+    max-width: 600px;
+}
+
+.tag {
+    display: inline-block;
+    background: var(--primary-glow);
+    color: var(--primary);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 24px;
+}
+
+.heroText h1 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--foreground);
+    line-height: 1.15;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+}
+
+.intro {
+    font-size: 1.15rem;
+    color: var(--foreground-light);
+    line-height: 1.8;
+    margin-bottom: 32px;
+}
+
+.cta {
+    display: flex;
+    gap: 16px;
+}
+
+.heroImage {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.portrait {
+    border-radius: var(--radius-2xl);
+    object-fit: cover;
+    box-shadow: 0 20px 50px rgba(8, 145, 178, 0.15);
+    border: 8px solid white;
+}
+
+/* Philosophy Section */
+.philosophy {
+    padding: 100px 0;
+    background: white;
+}
+
+.philosophyContent h2 {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: var(--foreground);
+    margin-bottom: 60px;
+}
+
+.philosophyGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+
+.philosophyCard {
+    padding: 40px;
+    background: var(--background);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-light);
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+
+.philosophyCard:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(8, 145, 178, 0.1);
+}
+
+.cardIcon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.philosophyCard h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin-bottom: 16px;
+}
+
+.philosophyCard p {
+    font-size: 0.95rem;
+    color: var(--foreground-light);
+    line-height: 1.7;
+}
+
+/* Credentials Section */
+.credentials {
+    padding: 100px 0;
+    background: var(--background);
+}
+
+.credentials h2 {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: var(--foreground);
+    margin-bottom: 60px;
+}
+
+.credentialsList {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.credentialItem {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 28px 32px;
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-light);
+    transition: var(--transition-smooth);
+}
+
+.credentialItem:hover {
+    border-color: var(--primary-light);
+    box-shadow: 0 10px 30px rgba(8, 145, 178, 0.08);
+}
+
+.credentialIcon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-glow);
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+
+.credentialInfo h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin-bottom: 4px;
+}
+
+.credentialInfo p {
+    font-size: 0.9rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Experience Section */
+.experience {
+    padding: 100px 0;
+    background: white;
+}
+
+.experienceContent {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.experienceContent h2 {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: var(--foreground);
+    margin-bottom: 32px;
+}
+
+.experienceText p {
+    font-size: 1.1rem;
+    color: var(--foreground-light);
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 48px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border-light);
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.statNumber {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: 0.9rem;
+    color: var(--foreground-muted);
+    margin-top: 8px;
+}
+
+/* CTA Section */
+.ctaSection {
+    padding: 100px 0;
+    background: var(--background);
+}
+
+.ctaCard {
+    text-align: center;
+    padding: 60px;
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.05) 0%, rgba(34, 211, 238, 0.08) 100%);
+    border-radius: var(--radius-2xl);
+    border: 1px solid rgba(8, 145, 178, 0.1);
+}
+
+.ctaCard h2 {
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    font-weight: 800;
+    color: var(--foreground);
+    margin-bottom: 16px;
+}
+
+.ctaCard p {
+    font-size: 1.1rem;
+    color: var(--foreground-light);
+    max-width: 500px;
+    margin: 0 auto 32px auto;
+    line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .heroContent {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        text-align: center;
+    }
+
+    .heroText {
+        max-width: 100%;
+    }
+
+    .heroImage {
+        justify-content: center;
+        order: -1;
+    }
+
+    .portrait {
+        max-width: 350px;
+    }
+
+    .philosophyGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .credentialsList {
+        grid-template-columns: 1fr;
+    }
+
+    .cta {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding-top: 80px;
+    }
+
+    .hero {
+        padding: 40px 0 80px;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .ctaCard {
+        padding: 40px 24px;
+    }
+}

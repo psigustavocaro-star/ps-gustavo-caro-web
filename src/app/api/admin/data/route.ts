@@ -10,7 +10,11 @@ export async function GET() {
             }
         });
 
-        // Simulamos el join para esta fase inicial rápido
+        // Obtenemos los suscriptores del newsletter
+        const newsletter = await prisma.newsletter.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+
         const anamnesis = await prisma.anamnesis.findMany();
 
         const enrichedBookings = bookings.map((b: any) => ({
@@ -18,7 +22,11 @@ export async function GET() {
             anamnesis: anamnesis.find((a: any) => a.email.toLowerCase() === b.email.toLowerCase())
         }));
 
-        return NextResponse.json({ success: true, bookings: enrichedBookings });
+        return NextResponse.json({
+            success: true,
+            bookings: enrichedBookings,
+            newsletter
+        });
     } catch (error) {
         console.error('Admin API error:', error);
         return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });

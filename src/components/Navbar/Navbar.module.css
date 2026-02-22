@@ -3,18 +3,20 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 80px;
-    background-color: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border-bottom: var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    height: 85px;
+    background: rgba(255, 255, 255, 0.85);
+    /* Menos transparente para efecto ventana */
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 10px 30px -10px rgba(0, 0, 0, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
     z-index: 1000;
     display: flex;
     align-items: center;
-    transition: var(--transition-smooth);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    /* Para contener el efecto bokeh */
 }
 
 /* Efecto Bokeh / Espejo Moderno */
@@ -26,56 +28,50 @@
     height: 100%;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.4;
+    overflow: hidden;
 }
 
 .bokehItem {
     position: absolute;
-    width: 150px;
-    height: 150px;
     border-radius: 50%;
-    filter: blur(40px);
-    background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
-    animation: float 20s infinite linear;
+    filter: blur(50px);
+    opacity: 0.6;
+    animation: move 25s infinite alternate ease-in-out;
 }
 
 .bokehItem:nth-child(1) {
-    top: -50px;
-    left: 10%;
+    width: 250px;
+    height: 250px;
     background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+    top: -125px;
+    left: 10%;
 }
 
 .bokehItem:nth-child(2) {
-    bottom: -50px;
-    right: 15%;
+    width: 200px;
+    height: 200px;
     background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+    bottom: -100px;
+    right: 15%;
     animation-delay: -5s;
 }
 
 .bokehItem:nth-child(3) {
-    top: 20px;
-    left: 50%;
-    width: 100px;
-    height: 100px;
+    width: 180px;
+    height: 180px;
     background: radial-gradient(circle, var(--secondary-light) 0%, transparent 70%);
+    top: -50px;
+    left: 50%;
     animation-delay: -10s;
 }
 
-@keyframes float {
-    0% {
-        transform: translate(0, 0) rotate(0deg);
+@keyframes move {
+    from {
+        transform: translate(0, 0) scale(1);
     }
 
-    33% {
-        transform: translate(30px, 10px) rotate(120deg);
-    }
-
-    66% {
-        transform: translate(-20px, 20px) rotate(240deg);
-    }
-
-    100% {
-        transform: translate(0, 0) rotate(360deg);
+    to {
+        transform: translate(40px, 20px) scale(1.1);
     }
 }
 
@@ -88,9 +84,37 @@
     z-index: 1;
 }
 
+.left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.menuToggle {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(8, 145, 178, 0.08);
+    border-radius: 12px;
+    transition: var(--transition-smooth);
+}
+
+.menuToggle:hover {
+    background: rgba(8, 145, 178, 0.15);
+    transform: scale(1.05);
+}
+
+.burgerLine {
+    width: 24px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
 .logo {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: var(--foreground);
     display: flex;
@@ -100,7 +124,7 @@
 }
 
 .logoDot {
-    color: var(--accent);
+    color: var(--primary);
 }
 
 .navLinks {
@@ -117,54 +141,22 @@
     transition: var(--transition-smooth);
 }
 
-.navLink::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    transition: var(--transition-smooth);
-    transform: translateX(-50%);
-    border-radius: 2px;
-}
-
 .navLink:hover {
     color: var(--primary);
-}
-
-.navLink:hover::after {
-    width: 20px;
 }
 
 .cta {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white !important;
-    padding: 10px 24px;
+    padding: 12px 28px;
     border-radius: var(--radius-full);
     font-weight: 600;
     font-size: 0.9rem;
-    box-shadow: var(--shadow-primary);
-    /* Transition removed to let Framer Motion handle it */
-}
-
-.cta:hover {
-    box-shadow: 0 8px 20px rgba(8, 145, 178, 0.4);
+    box-shadow: 0 10px 20px -5px rgba(8, 145, 178, 0.3);
 }
 
 @media (max-width: 992px) {
     .navLinks {
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .navLinks {
         display: none;
-    }
-
-    .navbar {
-        height: 70px;
     }
 }

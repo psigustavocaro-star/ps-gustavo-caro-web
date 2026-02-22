@@ -1,0 +1,389 @@
+.floatingDock {
+    position: fixed;
+    top: 45%;
+    /* Ligeramente más arriba del centro */
+    left: calc(50% - 700px);
+    /* Un poco más de espacio (antes 660px) */
+    transform: translateY(-50%);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+}
+
+.nav {
+    background: rgba(255, 255, 255, 0.9);
+    /* Más opaco para visibilidad máxima */
+    backdrop-filter: blur(25px) saturate(200%);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    border: 1px solid rgba(8, 145, 178, 0.2);
+    border-radius: 50px;
+    padding: 16px 12px;
+    box-shadow:
+        0 20px 40px -10px rgba(8, 145, 178, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: var(--transition-smooth);
+}
+
+.links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
+}
+
+.dockLink {
+    width: 52px;
+    /* Más grande para mayor visibilidad */
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--primary);
+    font-weight: 400;
+    /* Removido el negrita */
+    font-size: 1rem;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.1);
+    border: 1px solid var(--border-light);
+}
+
+.iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.dockLink:hover .iconWrapper {
+    transform: scale(1.1);
+}
+
+.dockLink:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.15) translateX(5px);
+    box-shadow: 0 12px 24px rgba(8, 145, 178, 0.4);
+}
+
+.tooltip {
+    position: absolute;
+    left: 100%;
+    margin-left: 20px;
+    background: var(--primary-dark);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-15px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.dockLink:hover .tooltip {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Efecto indicador de "activo" o pulsante para destacar presencia */
+.dockLink::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--primary-light);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.dockLink:hover::after {
+    transform: scale(1.3);
+    opacity: 0;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.linkWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.activeLink {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+.popover {
+    position: absolute;
+    left: calc(100% + 15px);
+    bottom: 60px;
+    width: 320px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 24px;
+    box-shadow:
+        0 20px 50px -12px rgba(8, 145, 178, 0.25),
+        0 0 0 1px rgba(8, 145, 178, 0.1);
+    padding: 24px;
+    z-index: 1002;
+    overflow: visible;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Triángulo decorativo */
+.popover::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    bottom: 20px;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid rgba(255, 255, 255, 0.98);
+}
+
+.popoverHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.popoverHeader h4 {
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin: 0;
+    font-weight: 700;
+}
+
+.closeBtn {
+    background: rgba(8, 145, 178, 0.1);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--primary);
+    cursor: pointer;
+    line-height: 1;
+    transition: var(--transition-smooth);
+}
+
+.closeBtn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.popoverContent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.popoverEmail {
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+    background: rgba(8, 145, 178, 0.05);
+    padding: 12px 16px;
+    border-radius: 12px;
+    word-break: break-all;
+    border: 1px solid rgba(8, 145, 178, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.popoverActions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.whatsappBtn {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+    padding: 14px;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.whatsappBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+}
+
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(8, 145, 178, 0.2), transparent);
+    margin: 8px 0;
+}
+
+.reminder {
+    font-size: 0.85rem;
+    color: var(--foreground-light);
+    text-align: center;
+    line-height: 1.4;
+}
+
+.bookingBtn {
+    background: var(--primary);
+    color: white;
+    padding: 14px;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
+}
+
+.bookingBtn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(8, 145, 178, 0.4);
+}
+
+@media (max-width: 1350px) {
+    .floatingDock {
+        left: 20px;
+    }
+
+    .popover {
+        left: calc(100% + 10px);
+        bottom: 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    .floatingDock {
+        left: 12px;
+    }
+
+    .dockLink {
+        width: 46px;
+        height: 46px;
+    }
+
+    .popover {
+        width: 280px;
+        padding: 20px;
+    }
+}
+
+/* Mobile: Transform to bottom tab bar */
+@media (max-width: 768px) {
+    .floatingDock {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100%;
+        padding: 0 16px 16px 16px;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .nav {
+        flex-direction: row;
+        border-radius: 24px;
+        padding: 12px 16px;
+        gap: 8px;
+        justify-content: space-around;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow:
+            0 -10px 40px rgba(0, 0, 0, 0.1),
+            0 0 0 1px rgba(255, 255, 255, 0.8);
+    }
+
+    .links {
+        flex-direction: row;
+        gap: 4px;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .linkWrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .dockLink {
+        width: 44px;
+        height: 44px;
+    }
+
+    .tooltip {
+        display: none !important;
+    }
+
+    .popover {
+        position: fixed;
+        left: 16px !important;
+        right: 16px !important;
+        bottom: 100px !important;
+        width: auto !important;
+        transform: none !important;
+    }
+
+    .popover::after {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .floatingDock {
+        padding: 0 12px 12px 12px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+
+    .dockLink {
+        width: 40px;
+        height: 40px;
+    }
+
+    .dockLink svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .popover {
+        left: 12px !important;
+        right: 12px !important;
+        padding: 16px;
+    }
+}

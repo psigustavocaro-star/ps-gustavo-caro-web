@@ -13,12 +13,13 @@
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
-    color: #000000;
+    color: var(--foreground);
     letter-spacing: -0.02em;
+    font-weight: 800;
 }
 
 .title span {
-    color: #0891b2;
+    color: var(--primary);
 }
 
 .pillars {
@@ -30,16 +31,20 @@
 
 .pillar {
     padding: 48px 32px;
-    background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-    transition: var(--transition);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-smooth);
+    border: var(--glass-border);
 }
 
 .pillar:hover {
     transform: translateY(-8px);
-    box-shadow: var(--shadow-hover);
+    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.6);
+    border-color: var(--primary-light);
 }
 
 .icon {
@@ -51,7 +56,8 @@
 .pillar h3 {
     font-size: 1.3rem;
     margin-bottom: 16px;
-    color: #000000;
+    color: var(--foreground);
+    font-weight: 800;
 }
 
 .pillar p {
@@ -64,27 +70,39 @@
     max-width: 700px;
     margin: 0 auto;
     padding: 60px;
-    background: linear-gradient(135deg, #0c4a6e 0%, #0e7490 100%);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
     color: white;
     border-radius: var(--radius-xl);
     position: relative;
     box-shadow: var(--shadow-xl);
+    overflow: hidden;
+}
+
+.quoteCard::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    pointer-events: none;
 }
 
 .quoteCard blockquote {
     font-size: 1.4rem;
     font-style: italic;
-    font-family: var(--font-serif);
     margin-bottom: 24px;
     line-height: 1.5;
     position: relative;
     z-index: 2;
+    font-weight: 500;
 }
 
 .quoteCard cite {
     font-style: normal;
     font-weight: 700;
-    color: #67e8f9;
+    color: var(--primary-light);
     text-transform: uppercase;
     letter-spacing: 2px;
     font-size: 0.85rem;

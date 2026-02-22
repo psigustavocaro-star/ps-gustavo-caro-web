@@ -73,7 +73,7 @@ export async function sendBookingConfirmation(data: {
             `,
         });
 
-        // Enviar al Paciente (Opcional por ahora, pero recomendado)
+        // Enviar al Paciente
         await resend.emails.send({
             from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
             to: email,
@@ -93,6 +93,64 @@ export async function sendBookingConfirmation(data: {
         });
     } catch (error) {
         console.error('Error sending confirmation emails:', error);
+    }
+}
+
+export async function sendFreeBookingConfirmation(data: {
+    name: string;
+    email: string;
+    phone?: string;
+    reason: string;
+    details: string;
+    orderId: string;
+    serviceType: string;
+}) {
+    const { name, email, phone, reason, details, orderId, serviceType } = data;
+    const serviceName = serviceType === 'primeraConsulta' ? 'Primera Consulta Gratuita' : 'Sesión Inicial de Evaluación';
+
+    try {
+        // Enviar a Gustavo
+        await resend.emails.send({
+            from: 'Sistema Ps. Gustavo Caro <sistema@psgustavocaro.cl>',
+            to: 'psi.gustavocaro@gmail.com',
+            subject: `🆓 NUEVA SESIÓN GRATIS: ${name}`,
+            html: `
+                <h1>Nueva Reserva Gratuita</h1>
+                <p>Un paciente ha agendado una sesión sin costo.</p>
+                <hr />
+                <h2>Datos del Paciente</h2>
+                <p><strong>Nombre:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Teléfono:</strong> ${phone || 'No proporcionado'}</p>
+                <p><strong>Motivo:</strong> ${reason}</p>
+                <p><strong>Detalles:</strong> ${details}</p>
+                <hr />
+                <p><strong>Servicio:</strong> ${serviceName}</p>
+                <p><strong>ID Orden:</strong> ${orderId}</p>
+            `,
+        });
+
+        // Enviar al Paciente
+        await resend.emails.send({
+            from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
+            to: email,
+            subject: `Confirmación de Reserva Gratuita - Ps. Gustavo Caro`,
+            html: `
+                <h1>Hola ${name},</h1>
+                <p>Tu sesión gratuita ha sido agendada con éxito.</p>
+                <p>He recibido tus datos y me pondré en contacto contigo pronto para enviarte el link de nuestra sesión de ${serviceType === 'primeraConsulta' ? '20' : '15-20'} minutos.</p>
+                <p><strong>Detalles de tu reserva:</strong></p>
+                <ul>
+                    <li><strong>Servicio:</strong> ${serviceName}</li>
+                    <li><strong>Costo:</strong> $0 (Gratis)</li>
+                    <li><strong>ID de Reserva:</strong> ${orderId}</li>
+                </ul>
+                <p>Si tienes alguna consulta, puedes responder a este correo.</p>
+                <p>Nos vemos pronto,<br />Ps. Gustavo Caro</p>
+            `,
+        });
+    } catch (error) {
+        console.error('Error sending free confirmation emails:', error);
     }
 }
 
@@ -130,25 +188,26 @@ export async function sendAnamnesisData(data: {
 
 export async function sendNewsletterWelcome(email: string, name?: string) {
     try {
+        const { newsletterSequence } = await import('@/lib/config/newsletter-content');
+        const firstEmail = newsletterSequence[0];
+
         await resend.emails.send({
             from: 'Ps. Gustavo Caro <newsletter@psgustavocaro.cl>',
             to: email,
-            subject: '¡Bienvenido a mi Newsletter! 🌿',
-            html: `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #333;">
-                    <h1 style="color: #0891b2;">¡Hola ${name || ''}!</h1>
-                    <p style="font-size: 1.1rem; line-height: 1.6;">Gracias por suscribirte a mi newsletter sobre salud mental y bienestar.</p>
-                    <p style="font-size: 1.1rem; line-height: 1.6;">A partir de ahora, recibirás periódicamente consejos, reflexiones y novedades que te ayudarán en tu proceso de autoconocimiento y cuidado emocional.</p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-                    <p style="font-size: 0.9rem; color: #666;">Si en algún momento deseas dejar de recibir estos correos, puedes responder a este email solicitando la baja.</p>
-                    <p style="font-size: 1rem; margin-top: 30px;">
-                        Atentamente,<br />
-                        <strong>Ps. Gustavo Caro</strong><br />
-                        <span style="color: #0891b2;">Psicólogo Clínico con Enfoque TCC</span>
-                    </p>
-                </div>
-            `,
+            subject: firstEmail.subject,
+            html: firstEmail.content(name || 'amigo/a'),
         });
+
+        // Actualizar en DB que ya recibió la bienvenida (paso 1)
+        const { default: prisma } = await import('@/lib/db');
+        await prisma.newsletter.update({
+            where: { email },
+            data: {
+                currentStep: 1,
+                lastSentAt: new Date()
+            }
+        });
+
     } catch (error) {
         console.error('Error sending newsletter welcome email:', error);
     }

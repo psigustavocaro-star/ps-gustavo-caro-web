@@ -17,6 +17,33 @@
     text-align: center;
 }
 
+@media (max-width: 640px) {
+    .bottomBar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .linkItem:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Footer Admin Link styles */
+.adminLink {
+    margin-top: 10px;
+}
+
+.adminLink a {
+    color: rgba(255, 255, 255, 0.05);
+    font-size: 0.7rem;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.adminLink a:hover {
+    color: rgba(255, 255, 255, 0.3);
+}
+
 .loginTitle {
     font-size: 2rem;
     font-weight: 800;
@@ -86,6 +113,53 @@
 .headerInfo p {
     color: #64748b;
     font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.tabs {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.tabBtn {
+    padding: 10px 20px;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tabActive {
+    background: var(--primary);
+    color: white;
+}
+
+.headerBtns {
+    display: flex;
+    gap: 12px;
+}
+
+.backBtn {
+    padding: 10px 20px;
+    background: white;
+    color: #64748b;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
 }
 
 .logoutBtn {
@@ -156,6 +230,24 @@
 
 .phone {
     color: var(--primary) !important;
+}
+
+.rut {
+    font-family: monospace;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem !important;
+    width: fit-content;
+}
+
+.badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 .statusBadge {

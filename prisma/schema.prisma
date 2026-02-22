@@ -15,6 +15,9 @@ model Booking {
   name        String
   email       String
   phone       String?
+  rut         String?
+  address     String?
+  commune     String?
   serviceType String
   amount      Int
   status      String   @default("PENDING") // PENDING, PAID, FAILED
@@ -38,9 +41,11 @@ model Anamnesis {
 }
 
 model Newsletter {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String?
+  active      Boolean  @default(true)
+  currentStep Int      @default(0) // Indica en qué correo de la secuencia va (0 a 24)
+  lastSentAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
 }

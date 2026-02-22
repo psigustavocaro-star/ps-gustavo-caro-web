@@ -17,16 +17,18 @@
 }
 
 .item {
-    background: white;
-    border: 1px solid #f1f5f9;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(8, 145, 178, 0.1);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-smooth);
 }
 
 .item:hover {
-    border-color: #e2e8f0;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-sm);
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .question {
@@ -39,10 +41,10 @@
     border: none;
     text-align: left;
     font-size: 1.15rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--foreground);
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: var(--transition-smooth);
 }
 
 .question:hover {
@@ -55,12 +57,12 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    background-color: #f0fdfa;
+    background-color: var(--primary-glow);
     color: var(--primary);
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     font-size: 1.2rem;
     font-weight: 400;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: var(--transition-smooth);
 }
 
 .item.open .icon {
@@ -72,20 +74,18 @@
 .answerWrapper {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
-    background: white;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item.open .answerWrapper {
     max-height: 500px;
-    padding-bottom: 24px;
 }
 
 .answer {
     padding: 0 32px 32px;
     color: var(--foreground-light);
-    line-height: 1.7;
-    font-size: 1.05rem;
+    line-height: 1.8;
+    font-size: 1rem;
 }
 
 @media (max-width: 768px) {

@@ -82,9 +82,228 @@
 }
 
 /* ============================================
-   SERVICE SELECTOR
+   SERVICE SELECTOR - New Design
    ============================================ */
 
+.introCard {
+    max-width: 900px;
+}
+
+.serviceSection {
+    margin-bottom: 40px;
+    text-align: left;
+}
+
+.sectionLabel {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.sectionNote {
+    font-size: 0.9rem;
+    color: var(--foreground-muted);
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+/* ============================================
+   SERVICE SELECTOR - Minimalist List
+   ============================================ */
+
+.serviceList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.serviceItem {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    text-align: left;
+    gap: 20px;
+}
+
+.serviceItem:hover {
+    border-color: var(--primary-light);
+    background: var(--surface);
+    transform: translateX(4px);
+}
+
+.serviceItem.active {
+    border-color: var(--primary);
+    background: linear-gradient(90deg, rgba(8, 145, 178, 0.05) 0%, transparent 100%);
+    box-shadow: var(--shadow-sm);
+}
+
+.serviceRadio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+    transition: var(--transition-smooth);
+}
+
+.serviceItem.active .serviceRadio {
+    border-color: var(--primary);
+    background: var(--primary);
+}
+
+.serviceItem.active .serviceRadio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.serviceMainInfo {
+    flex-grow: 1;
+}
+
+.serviceTopLine {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.serviceItem strong {
+    font-size: 1rem;
+    color: var(--foreground);
+    font-weight: 700;
+}
+
+.miniBadge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.miniBadge.free {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.miniBadge.pack {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.miniBadge.save {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* New Special Button Styles */
+.specialSessionWrapper {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: rgba(8, 145, 178, 0.03);
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--primary-light);
+}
+
+.specialSessionLabel {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 20px 0 12px;
+    display: block;
+}
+
+.specialButton {
+    border-left: 4px solid var(--primary);
+    background: #fff;
+}
+
+.highlight {
+    background: linear-gradient(90deg, rgba(8, 145, 178, 0.05) 0%, transparent 100%);
+    border-left: 4px solid var(--primary);
+}
+
+.serviceItem .serviceDesc {
+    font-size: 0.85rem;
+    color: var(--foreground-muted);
+    margin: 0;
+}
+
+.servicePricing {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.serviceItem .price {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.serviceItem .duration {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--foreground-muted);
+}
+
+@media (max-width: 768px) {
+    .serviceItem {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .serviceItem .serviceDesc {
+        display: none;
+        /* Hide desc on mobile list for extreme minimalism if needed, or just keep it */
+    }
+
+    .servicePricing {
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .serviceItem .serviceDesc {
+        display: block;
+        font-size: 0.8rem;
+    }
+
+    .serviceItem {
+        flex-wrap: wrap;
+    }
+
+    .servicePricing {
+        width: 100%;
+        text-align: left;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* Legacy - keep for compatibility */
 .serviceSelector {
     display: grid;
     grid-template-columns: 1fr;
@@ -149,6 +368,23 @@
 
 .serviceOption.active strong {
     color: var(--primary-dark);
+}
+
+@media (max-width: 900px) {
+    .serviceGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .serviceGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .serviceCard {
+        min-height: auto;
+        padding: 20px 16px;
+    }
 }
 
 /* ============================================
@@ -594,5 +830,144 @@
 
     .priceRow strong {
         font-size: 1.5rem;
+    }
+}
+
+.featureList {
+    list-style: none;
+    padding: 20px;
+    margin: 20px 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    background: rgba(8, 145, 178, 0.03);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(8, 145, 178, 0.08);
+}
+
+.featureList li {
+    font-size: 0.85rem;
+    color: var(--primary-dark);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 640px) {
+    .featureList {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+}
+
+/* Coupon Section */
+.couponSection {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(8, 145, 178, 0.04) 0%, rgba(13, 148, 136, 0.02) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(8, 145, 178, 0.1);
+    backdrop-filter: blur(4px);
+}
+
+.couponInputWrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.couponInput {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+    color: var(--foreground);
+}
+
+.couponInput:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px var(--primary-glow);
+    outline: none;
+}
+
+.couponBtn {
+    padding: 12px 20px;
+    background: var(--foreground);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.couponBtn:hover {
+    background: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+}
+
+.couponBtn:active {
+    transform: translateY(0);
+}
+
+.couponSuccess {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #059669;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 6px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.couponError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #dc2626;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 6px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success States Polish */
+.successIcon {
+    font-size: 5rem;
+    margin-bottom: 24px;
+    line-height: 1;
+    filter: drop-shadow(0 0 15px rgba(8, 145, 178, 0.2));
+    animation: pulseIcon 2s infinite alternate ease-in-out;
+}
+
+@keyframes pulseIcon {
+    from {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(8, 145, 178, 0.2));
+    }
+
+    to {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 20px rgba(8, 145, 178, 0.4));
     }
 }

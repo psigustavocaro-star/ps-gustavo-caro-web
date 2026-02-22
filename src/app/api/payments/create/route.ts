@@ -31,17 +31,48 @@ export async function POST(request: NextRequest) {
         let subject: string;
 
         switch (serviceType) {
-            case 'planMensual':
-                amount = paymentConfig.pricing.planMensual;
-                subject = 'Pack de 4 Sesiones Integrativas';
+            case 'primeraConsulta':
+                amount = paymentConfig.pricing.primeraConsulta;
+                subject = 'Primera Consulta (Gratis)';
                 break;
-            case 'evaluacion':
-                amount = paymentConfig.pricing.evaluacion;
-                subject = 'Evaluación Neuropsicológica';
+            case 'packSesiones':
+                amount = paymentConfig.pricing.packSesiones;
+                subject = 'Pack de 4 Sesiones';
                 break;
+            case 'evalTDAH':
+                amount = paymentConfig.pricing.evalTDAH;
+                subject = 'Evaluación TDAH Adulto';
+                break;
+            case 'evalAutismo':
+                amount = paymentConfig.pricing.evalAutismo;
+                subject = 'Evaluación TEA (Autismo)';
+                break;
+            case 'evalInteligencia':
+                amount = paymentConfig.pricing.evalInteligencia;
+                subject = 'Evaluación Intelectual';
+                break;
+            case 'evalNeuropsicologica':
+                amount = paymentConfig.pricing.evalNeuropsicologica;
+                subject = 'Evaluación Neuropsicológica Completa';
+                break;
+            case 'evalEmocional':
+                amount = paymentConfig.pricing.evalEmocional;
+                subject = 'Evaluación Socioemocional';
+                break;
+            case 'sesion':
             default:
                 amount = paymentConfig.pricing.sesionIndividual;
                 subject = 'Sesión de Psicoterapia Online';
+        }
+
+        // Aplicar cupón si existe
+        if (body.coupon) {
+            const coupon = body.coupon.toUpperCase();
+            if (coupon === 'TEST100') {
+                amount = 0;
+            } else if (coupon === 'GUSTAVO10') {
+                amount = Math.max(0, amount - 10000);
+            }
         }
 
         // Generar ID único de orden
@@ -55,7 +86,9 @@ export async function POST(request: NextRequest) {
                     orderId: commerceOrder,
                     name,
                     email,
-                    phone: body.phone || '',
+                    rut: body.rut || '',
+                    address: body.address || '',
+                    commune: body.commune || '',
                     serviceType,
                     amount,
                     reason: motivo || '',
@@ -97,6 +130,9 @@ export async function POST(request: NextRequest) {
                 phone: body.phone || '',
                 appointmentDate: body.appointmentDate || '',
                 calEventTypeId: calEventTypeId || '',
+                clientRut: body.rut || '',
+                clientAddress: body.address || '',
+                clientCommune: body.commune || '',
             },
         });
 

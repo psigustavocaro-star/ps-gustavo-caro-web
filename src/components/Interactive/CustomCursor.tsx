@@ -64,7 +64,6 @@ export default function CustomCursor() {
                 animate={{
                     scale: isHovering ? (cursorType === 'image' ? 3 : 2.5) : 1,
                     backgroundColor: isHovering ? 'rgba(8, 145, 178, 0.15)' : 'rgba(8, 145, 178, 0.2)',
-                    backdropFilter: isHovering ? 'blur(4px)' : 'blur(0px)',
                     border: isHovering ? '1px solid rgba(8, 145, 178, 0.4)' : '1px solid rgba(8, 145, 178, 0.2)',
                 }}
             />

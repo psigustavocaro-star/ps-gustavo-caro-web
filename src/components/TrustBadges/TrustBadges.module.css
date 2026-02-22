@@ -17,38 +17,42 @@
     align-items: center;
     text-align: center;
     padding: 48px 32px;
-    background: #ffffff;
-    border-radius: 24px;
-    border: 1px solid #f1f5f9;
-    transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: var(--radius-2xl);
+    border: var(--glass-border);
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-sm);
 }
 
 .badge:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
-    border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .iconWrapper {
     width: 80px;
     height: 80px;
-    background: color-mix(in srgb, var(--accent), transparent 92%);
+    background: var(--primary-glow);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     margin-bottom: 24px;
-    transition: all 0.4s ease;
+    transition: var(--transition-smooth);
 }
 
 .badge:hover .iconWrapper {
     transform: scale(1.1) rotate(5deg);
-    background: color-mix(in srgb, var(--accent), transparent 85%);
+    background: rgba(8, 145, 178, 0.15);
 }
 
 .icon {
     font-size: 2.5rem;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 4px 6px rgba(13, 148, 136, 0.1));
 }
 
 .text {
@@ -59,14 +63,14 @@
 
 .text strong {
     font-size: 1.2rem;
-    color: #1e293b;
+    color: var(--foreground);
     font-weight: 800;
     letter-spacing: -0.01em;
 }
 
 .text span {
     font-size: 0.95rem;
-    color: #64748b;
+    color: var(--foreground-light);
     line-height: 1.5;
 }
 
