@@ -60,6 +60,15 @@ export const metadata: Metadata = {
     description: "Especialista en Terapia Cognitivo Conductual. Atención online profesional.",
     images: ["/og-image.jpg"]
   },
+  icons: {
+    icon: [
+      { url: '/icon.png' },
+      new URL('/icon.png', 'https://psgustavocaro.cl'),
+    ],
+    apple: [
+      { url: '/apple-icon.png' },
+    ],
+  },
   robots: {
     index: true,
     follow: true,
