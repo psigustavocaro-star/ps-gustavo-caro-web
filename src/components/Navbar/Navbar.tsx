@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Magnetic from '../Common/Magnetic';
 import styles from './Navbar.module.css';
 
@@ -42,6 +43,7 @@ export default function Navbar() {
             <div className={`container ${styles.navContainer}`}>
                 <div className={styles.left}>
                     <Link href="/" className={styles.logo} onClick={closeMenu}>
+                        <Image src="/icon.png?v=5" alt="Logo Ps. Gustavo Caro" width={44} height={44} className={styles.logoImage} />
                         Ps. Gustavo Caro<span className={styles.logoDot}>.</span>
                     </Link>
                 </div>
