@@ -62,11 +62,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico?v=4' },
-      { url: '/icon.png?v=4', type: 'image/png' }
+      { url: '/favicon.ico?v=5' },
+      { url: '/icon.png?v=5', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-icon.png?v=4' },
+      { url: '/apple-icon.png?v=5' },
     ],
   },
   robots: {
