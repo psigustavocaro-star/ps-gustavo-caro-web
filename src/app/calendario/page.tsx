@@ -9,7 +9,7 @@ export default function CalendarPage() {
     // Solo mostrar disponibilidad sin acción
     const handleViewOnly = (date: Date, time: string) => {
         // Redirigir al formulario de reserva principal
-        window.location.href = '/#agendar';
+        window.location.href = '/agendar';
     };
 
     return (
@@ -33,7 +33,7 @@ export default function CalendarPage() {
                         />
                     </div>
                     <div className={styles.info}>
-                        <p><strong>Nota:</strong> Este calendario es solo para consulta. Para asegurar tu hora y recibir la boleta electrónica, por favor utiliza el <a href="/#agendar">formulario de reserva principal</a>.</p>
+                        <p><strong>Nota:</strong> Este calendario es solo para consulta. Para asegurar tu hora y recibir la boleta electrónica, por favor utiliza el <a href="/agendar">formulario de reserva principal</a>.</p>
                     </div>
                 </div>
             </section>

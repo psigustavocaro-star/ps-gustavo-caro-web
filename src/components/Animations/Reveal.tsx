@@ -13,20 +13,20 @@ export default function Reveal({ children, delay = 0.2 }: RevealProps) {
         <div style={{ position: "relative", overflow: "hidden" }}>
             <motion.div
                 initial={{
-                    y: 40,
+                    y: 30,
                     opacity: 0,
-                    filter: "blur(10px)"
+                    scale: 0.98
                 }}
                 whileInView={{
                     y: 0,
                     opacity: 1,
-                    filter: "blur(0px)"
+                    scale: 1
                 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-50px" }}
                 transition={{
-                    duration: 1.2,
+                    duration: 0.8,
                     delay: delay,
-                    ease: [0.22, 1, 0.36, 1] // Quintic out for extremely smooth deceleration
+                    ease: [0.16, 1, 0.3, 1] // Custom butter-smooth easing
                 }}
             >
                 {children}

@@ -30,7 +30,7 @@ export default function Footer() {
                             <li><Link href="/#sobre-mi" className={styles.linkItem}>Sobre mí</Link></li>
                             <li><Link href="/blog" className={styles.linkItem}>Blog</Link></li>
                             <li><Link href="/#servicios" className={styles.linkItem}>Servicios</Link></li>
-                            <li><Link href="/#agendar" className={styles.linkItem}>Agendar sesión</Link></li>
+                            <li><Link href="/agendar" className={styles.linkItem}>Agendar sesión</Link></li>
                         </ul>
                     </div>
 

@@ -15,18 +15,18 @@ export default function Hero() {
             <div className={`container ${styles.heroContent}`}>
                 <motion.div
                     className={styles.textContent}
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: -20, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 >
                     <motion.div
                         className={styles.topBadge}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
+                        transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
                     >
                         <div className={styles.logoWrapper}>
-                            <Image src="/images/logo-uchile.png" alt="U. de Chile" width={40} height={40} className={styles.uniLogo} />
+                            <Image src="/images/logo-uchile.png" alt="U. de Chile" width={40} height={40} className={styles.uniLogo} unoptimized={true} />
                         </div>
                         <span className={styles.badgeText}>Especializado en terapia cognitivo conductual TCC</span>
                     </motion.div>
@@ -43,7 +43,7 @@ export default function Hero() {
 
                     <div className={styles.actions}>
                         <Magnetic>
-                            <Link href="#agendar" className="btn-primary">
+                            <Link href="/agendar" className="btn-primary">
                                 Agendar sesión ahora
                             </Link>
                         </Magnetic>

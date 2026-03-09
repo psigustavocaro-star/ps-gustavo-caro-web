@@ -18,7 +18,7 @@ export default function BlogCTA({
             <h3 className={styles.title}>{title}</h3>
             <p className={styles.description}>{description}</p>
             <div className={styles.actions}>
-                <Link href="/#agendar" className={styles.primaryBtn}>
+                <Link href="/agendar" className={styles.primaryBtn}>
                     Agendar una sesión
                 </Link>
                 <a

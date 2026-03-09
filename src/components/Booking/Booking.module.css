@@ -250,6 +250,16 @@
 .servicePricing {
     text-align: right;
     flex-shrink: 0;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s;
+    white-space: nowrap;
+}
+
+.serviceItem.active .servicePricing {
+    max-width: 150px;
+    opacity: 1;
 }
 
 .serviceItem .price {
@@ -273,10 +283,9 @@
 
     .serviceItem .serviceDesc {
         display: none;
-        /* Hide desc on mobile list for extreme minimalism if needed, or just keep it */
     }
 
-    .servicePricing {
+    .serviceItem.active .servicePricing {
         min-width: 80px;
     }
 }
@@ -293,13 +302,23 @@
 
     .servicePricing {
         width: 100%;
+        max-width: 100%;
         text-align: left;
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px dashed var(--border);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        max-height: 0;
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+        transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s, padding 0.3s;
+    }
+
+    .serviceItem.active .servicePricing {
+        max-height: 100px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--border);
     }
 }
 
@@ -405,6 +424,7 @@
 }
 
 .input,
+.select,
 .textarea {
     width: 100%;
     padding: 14px 18px;
@@ -415,9 +435,21 @@
     background: var(--surface);
     color: var(--foreground);
     transition: var(--transition-smooth);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
 }
 
 .input:focus,
+.select:focus,
 .textarea:focus {
     outline: none;
     border-color: var(--primary);

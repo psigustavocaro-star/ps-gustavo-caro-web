@@ -18,10 +18,10 @@ export interface AvailabilityConfig {
 }
 
 // Duración de cada sesión en minutos
-export const SESSION_DURATION = 50;
+export const SESSION_DURATION = 45;
 
 // Tiempo de descanso entre sesiones en minutos
-export const BREAK_BETWEEN_SESSIONS = 10;
+export const BREAK_BETWEEN_SESSIONS = 5;
 
 // Días de anticipación mínima para agendar (no se puede agendar para hoy)
 export const MIN_ADVANCE_DAYS = 1;
@@ -39,36 +39,31 @@ export const weeklyAvailability: AvailabilityConfig = {
     1: { // Lunes
         enabled: true,
         slots: [
-            { start: '09:00', end: '13:00' },
-            { start: '15:00', end: '19:00' }
+            { start: '18:30', end: '21:45' }
         ]
     },
     2: { // Martes
         enabled: true,
         slots: [
-            { start: '09:00', end: '13:00' },
-            { start: '15:00', end: '19:00' }
+            { start: '18:30', end: '21:45' }
         ]
     },
     3: { // Miércoles
         enabled: true,
         slots: [
-            { start: '09:00', end: '13:00' },
-            { start: '15:00', end: '19:00' }
+            { start: '18:30', end: '21:45' }
         ]
     },
     4: { // Jueves
         enabled: true,
         slots: [
-            { start: '09:00', end: '13:00' },
-            { start: '15:00', end: '19:00' }
+            { start: '18:30', end: '21:45' }
         ]
     },
     5: { // Viernes
         enabled: true,
         slots: [
-            { start: '09:00', end: '13:00' },
-            { start: '15:00', end: '17:00' }
+            { start: '18:30', end: '21:45' }
         ]
     },
     6: { // Sábado

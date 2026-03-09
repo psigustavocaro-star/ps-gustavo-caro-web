@@ -5,7 +5,7 @@ import Image from 'next/image';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 
-type BookingStep = 'intro' | 'reason' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
+type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
 
 export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
@@ -14,7 +14,7 @@ export default function Booking() {
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [calBookingId, setCalBookingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
-        serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional',
+        serviceType: 'primeraConsulta' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
         reason: '',
         details: '',
         name: '',
@@ -37,7 +37,7 @@ export default function Booking() {
     // Efecto para scroll automático al inicio de la sección cuando cambia el paso
     useEffect(() => {
         // No scrollear en el primer render ni cuando vuelve a intro desde afuera
-        if (step !== 'intro' || formData.reason !== '') {
+        if (step !== 'intro') {
             const element = document.getElementById('agendar');
             if (element) {
                 const offset = 100; // Ajuste para el navbar sticky
@@ -68,12 +68,8 @@ export default function Booking() {
             rawStartTime: dateObj.toISOString()
         }));
 
-        // Si es gratuito, ir directamente a éxito (procesando -> éxito)
-        if (formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree')) {
-            setStep('payment'); // Mostramos confirmación antes, pero el botón dirá "Confirmar Gratis"
-        } else {
-            setStep('payment');
-        }
+        // Redirigir siempre a rellenar datos de contacto después de escoger bloque horario.
+        setStep('contact');
     };
 
     // Validar email
@@ -160,7 +156,7 @@ export default function Booking() {
                     address: formData.address,
                     commune: formData.commune,
                     serviceType: formData.serviceType,
-                    motivo: formData.reason,
+                    motivo: formData.reason || formData.details,
                     detalles: formData.details,
                     appointmentDate: formData.rawStartTime,
                     calEventTypeId: formData.calEventTypeId,
@@ -200,39 +196,27 @@ export default function Booking() {
     };
 
     const handleNext = () => {
-        if (step === 'intro') setStep('reason');
-        else if (step === 'reason') setStep('contact');
+        if (step === 'intro') setStep('schedule'); // De seleccionar servicio -> escoger horario directamente
+        else if (step === 'schedule') setStep('contact'); // De horario -> datos personales
         else if (step === 'contact') {
             if (validateContact()) {
-                setStep('schedule'); // Ir al calendario primero
+                setStep('payment'); // De datos personales -> confirmar y pagar
             }
         }
-        else if (step === 'schedule') setStep('payment'); // Después del calendario, pagar
-        else if (step === 'payment') setStep('processing'); // Procesar pago
-        else if (step === 'success') setStep('anamnesis'); // Después del pago exitoso, anamnesis
+        else if (step === 'payment') setStep('processing');
+        else if (step === 'success') setStep('anamnesis');
     };
 
     const handleBack = () => {
-        if (step === 'reason') setStep('intro');
-        else if (step === 'contact') setStep('reason');
-        else if (step === 'schedule') setStep('contact');
-        else if (step === 'payment') setStep('schedule');
+        if (step === 'schedule') setStep('intro');
+        else if (step === 'contact') setStep('schedule');
+        else if (step === 'payment') setStep('contact');
     };
-
-    const [isReasonOpen, setIsReasonOpen] = useState(false);
-    const reasons = [
-        { value: 'ansiedad', label: 'Ansiedad o Estrés' },
-        { value: 'depresion', label: 'Estado de ánimo bajo' },
-        { value: 'salud-mental', label: 'Salud Mental General' },
-        { value: 'pareja', label: 'Terapia de Pareja' },
-        { value: 'infantil', label: 'Atención Infantil / Adolescente' },
-        { value: 'otro', label: 'Otro motivo' }
-    ];
 
     const calculateFinalPrice = () => {
         let basePrice = 0;
         switch (formData.serviceType) {
-            case 'sesion': basePrice = 40000; break;
+            case 'sesion': basePrice = 36000; break;
             case 'packSesiones': basePrice = 140000; break;
             case 'evalTDAH': basePrice = 180000; break;
             case 'evalAutismo': basePrice = 220000; break;
@@ -259,7 +243,7 @@ export default function Booking() {
     };
     const resetForm = () => {
         setFormData({
-            serviceType: 'sesion',
+            serviceType: 'primeraConsulta',
             reason: '',
             details: '',
             name: '',
@@ -281,10 +265,7 @@ export default function Booking() {
         setStep('intro');
     };
 
-    const handleSelectReason = (value: string) => {
-        setFormData({ ...formData, reason: value });
-        setIsReasonOpen(false);
-    };
+
 
     return (
         <section id="agendar" className={styles.booking} style={{ scrollMarginTop: '100px' }}>
@@ -295,238 +276,41 @@ export default function Booking() {
                             <h2 className={styles.stepTitle}>¿Qué necesitas hoy?</h2>
                             <p className={styles.stepDesc}>Selecciona el tipo de servicio para comenzar tu agendamiento.</p>
 
-                            {/* Sección: Psicoterapia */}
-                            <div className={styles.serviceSection}>
-                                <h3 className={styles.sectionLabel}>Psicoterapia TCC</h3>
-                                <p className={styles.sectionNote}>Terapia basada en evidencia con seguimiento personalizado</p>
-                                <div className={styles.serviceList}>
-                                    <button
-                                        className={`${styles.serviceItem} ${styles.highlight} ${formData.serviceType === 'primeraConsulta' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'primeraConsulta' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Primera Consulta (Gratis)</strong>
-                                                <span className={`${styles.miniBadge} ${styles.free}`}>Reserva Directa</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Sesión inicial de evaluación y encuadre (20 minutos). Se agenda directamente sin costo.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>GRATIS</span>
-                                            <span className={styles.duration}>20 min</span>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'sesion' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'sesion' })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Sesión Individual</strong>
-                                            </div>
-                                            <p className={styles.serviceDesc}>TCC personalizada con asesoría vía email post-sesión.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$40.000</span>
-                                            <span className={styles.duration}>45 min</span>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'packSesiones' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'packSesiones' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Pack 4 Sesiones</strong>
-                                                <span className={`${styles.miniBadge} ${styles.save}`}>Ahorras $20.000</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Proceso continuo con seguimiento y materiales.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$140.000</span>
-                                            <span className={styles.duration}>Mes completo</span>
-                                        </div>
-                                    </button>
-                                </div>
+                            <div className={styles.formGroup}>
+                                <label>Servicio a agendar *</label>
+                                <select
+                                    className={`${styles.input} ${styles.select}`}
+                                    value={formData.serviceType}
+                                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as any })}
+                                >
+                                    <option value="" disabled>Selecciona un servicio...</option>
+                                    <optgroup label="Psicoterapia TCC">
+                                        <option value="primeraConsulta">Primera Consulta Inicial (Gratis) - 20 min</option>
+                                        <option value="sesion">Sesión Individual de Psicoterapia - $36.000</option>
+                                        <option value="packSesiones">Pack 4 Sesiones Mensual - $140.000</option>
+                                    </optgroup>
+                                    <optgroup label="Evaluaciones Clínicas (Incluyen Entrevista Gratis)">
+                                        <option value="evalFreeNeuro">Entrevista Inicial (OBLIGATORIA Evaluaciones) - GRATIS</option>
+                                        <option value="evalTDAH">Paso 2: Evaluación TDAH Adulto - $180.000</option>
+                                        <option value="evalAutismo">Paso 2: Evaluación Espectro Autista (TEA) - $220.000</option>
+                                        <option value="evalNeuropsicologica">Paso 2: Evaluación Neuropsicológica Completa - $240.000</option>
+                                        <option value="evalInteligencia">Paso 2: Evaluación Intelectual (WAIS/WISC) - $160.000</option>
+                                        <option value="evalEmocional">Paso 2: Evaluación Socioemocional - $140.000</option>
+                                    </optgroup>
+                                </select>
                             </div>
 
-                            {/* Sección: Evaluaciones Neuropsicológicas */}
-                            <div className={styles.serviceSection}>
-                                <h3 className={styles.sectionLabel}>Evaluaciones Neuropsicológicas</h3>
-                                <p className={styles.sectionNote}>Incluyen informe profesional impreso y digital</p>
-                                <div className={styles.serviceList}>
-                                    <div className={styles.specialSessionWrapper}>
-                                        <h4 className={styles.specialSessionLabel}>Paso 1: Entrevista Inicial (Obligatoria)</h4>
-                                        <button
-                                            className={`${styles.serviceItem} ${styles.specialButton} ${formData.serviceType.startsWith('evalFree') ? styles.active : ''}`}
-                                            onClick={() => setFormData({ ...formData, serviceType: 'evalFreeNeuro' as any })}
-                                        >
-                                            <div className={styles.serviceRadio}></div>
-                                            <div className={styles.serviceMainInfo}>
-                                                <div className={styles.serviceTopLine}>
-                                                    <strong>Sesión Inicial Gratuita</strong>
-                                                    <span className={`${styles.miniBadge} ${styles.free}`}>Agendamiento Especial</span>
-                                                </div>
-                                                <p className={styles.serviceDesc}>Obligatoria para todas las evaluaciones. Breve sesión (15-20 min) para anamnesis previa a iniciar el proceso pagado.</p>
-                                            </div>
-                                            <div className={styles.servicePricing}>
-                                                <span className={styles.price}>GRATIS</span>
-                                            </div>
-                                        </button>
-                                    </div>
-
-                                    <h4 className={styles.specialSessionLabel}>Paso 2: Pack de Evaluación (Post-Entrevista)</h4>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'evalTDAH' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'evalTDAH' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Evaluación TDAH Adulto</strong>
-                                                <span className={`${styles.miniBadge} ${styles.pack}`}>Pack Pagado</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Proceso completo después de la sesión inicial. Incluye Escalas ASRS, CAARS y pruebas CPT.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$180.000</span>
-                                            <span className={styles.duration}>4 sesiones</span>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'evalAutismo' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'evalAutismo' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Evaluación TEA</strong>
-                                                <span className={`${styles.miniBadge} ${styles.pack}`}>Pack Pagado</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Proceso completo después de la sesión inicial. Incluye ADOS-2, ADI-R y análisis funcional.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$220.000</span>
-                                            <span className={styles.duration}>4 sesiones</span>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'evalInteligencia' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'evalInteligencia' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Evaluación Intelectual</strong>
-                                                <span className={`${styles.miniBadge} ${styles.pack}`}>Pack Pagado</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Proceso completo después de la sesión inicial. Incluye WISC-V o WAIS-IV con perfil cognitivo.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$160.000</span>
-                                            <span className={styles.duration}>4 sesiones</span>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'evalNeuropsicologica' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'evalNeuropsicologica' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Evaluación Neuropsicológica</strong>
-                                                <span className={`${styles.miniBadge} ${styles.pack}`}>Pack Pagado</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Proceso completo después de la sesión inicial. Incluye batería completa de funciones cognitivas.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$240.000</span>
-                                            <span className={styles.duration}>5 sesiones</span>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        className={`${styles.serviceItem} ${formData.serviceType === 'evalEmocional' ? styles.active : ''}`}
-                                        onClick={() => setFormData({ ...formData, serviceType: 'evalEmocional' as any })}
-                                    >
-                                        <div className={styles.serviceRadio}></div>
-                                        <div className={styles.serviceMainInfo}>
-                                            <div className={styles.serviceTopLine}>
-                                                <strong>Evaluación Socioemocional</strong>
-                                                <span className={`${styles.miniBadge} ${styles.pack}`}>Pack Pagado</span>
-                                            </div>
-                                            <p className={styles.serviceDesc}>Proceso completo después de la sesión inicial. Incluye tests proyectivos e inventarios clínicos.</p>
-                                        </div>
-                                        <div className={styles.servicePricing}>
-                                            <span className={styles.price}>$140.000</span>
-                                            <span className={styles.duration}>4 sesiones</span>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <button onClick={handleNext} className="btn-primary">Continuar</button>
+                            <button
+                                onClick={handleNext}
+                                className="btn-primary"
+                                disabled={formData.serviceType === ''}
+                            >
+                                Seleccionar Servicio para Continuar
+                            </button>
                         </div>
                     )}
 
-                    {step === 'reason' && (
-                        <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>¿Cómo te sientes hoy?</h2>
-                            <p className={styles.stepDesc}>Tus respuestas son 100% confidenciales.</p>
 
-                            <div className={styles.formGroup}>
-                                <label>Motivo principal de consulta</label>
-                                <div className={styles.customSelectWrapper}>
-                                    <div
-                                        className={`${styles.customSelectTrigger} ${isReasonOpen ? styles.open : ''}`}
-                                        onClick={() => setIsReasonOpen(!isReasonOpen)}
-                                    >
-                                        <span>
-                                            {reasons.find(r => r.value === formData.reason)?.label || 'Selecciona una opción'}
-                                        </span>
-                                        <div className={styles.arrowIcon}></div>
-                                    </div>
-
-                                    {isReasonOpen && (
-                                        <div className={styles.customSelectOptions}>
-                                            {reasons.map((r) => (
-                                                <div
-                                                    key={r.value}
-                                                    className={`${styles.customOption} ${formData.reason === r.value ? styles.selected : ''}`}
-                                                    onClick={() => handleSelectReason(r.value)}
-                                                >
-                                                    {r.label}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label>Cuéntame brevemente qué te trae por acá</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    placeholder="Libre de expresarte..."
-                                    value={formData.details}
-                                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                                />
-                            </div>
-                            <div className={styles.buttonGroup}>
-                                <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary" disabled={!formData.reason}>Siguiente</button>
-                            </div>
-                        </div>
-                    )}
 
                     {step === 'contact' && (
                         <div className={styles.stepContent}>
@@ -545,6 +329,16 @@ export default function Booking() {
                                     }}
                                 />
                                 {errors.name && <span className={styles.errorText}>{errors.name}</span>}
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label>Motivo de consulta (opcional)</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    placeholder="Cuéntame brevemente qué te trae por acá (Ansiedad, Terapia de pareja, etc.)"
+                                    value={formData.details}
+                                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                                />
                             </div>
                             <div className={styles.formGroup}>
                                 <label>Email *</label>
@@ -630,7 +424,7 @@ export default function Booking() {
                             </div>
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary">Seleccionar horario</button>
+                                <button onClick={handleNext} className="btn-primary">Continuar al resumen y pago</button>
                             </div>
                         </div>
                     )}

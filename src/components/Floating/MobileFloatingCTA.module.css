@@ -1,0 +1,55 @@
+.floatingWrapper {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    z-index: 998;
+    /* Below mobile menu and WhatsApp button */
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+    pointer-events: none;
+    display: none;
+    /* Hidden by default on desktop */
+    width: 90%;
+    max-width: 350px;
+}
+
+.floatingWrapper.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.floatingButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: var(--radius-full);
+    font-size: 1.1rem;
+    font-weight: 700;
+    box-shadow: 0 8px 32px rgba(8, 145, 178, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    text-decoration: none;
+    width: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.floatingButton:active {
+    transform: scale(0.98);
+}
+
+.icon {
+    font-size: 1.2rem;
+}
+
+/* Only shape this for mobile screens */
+@media (max-width: 820px) {
+    .floatingWrapper {
+        display: block;
+    }
+}

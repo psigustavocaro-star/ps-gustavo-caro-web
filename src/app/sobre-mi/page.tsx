@@ -26,7 +26,7 @@ export default function SobreMiPage() {
                                 evidencia científica, en un espacio donde te sientas escuchado sin juicios.
                             </p>
                             <div className={styles.cta}>
-                                <Link href="/#agendar" className="btn-primary">
+                                <Link href="/agendar" className="btn-primary">
                                     Agendar una sesión
                                 </Link>
                             </div>
@@ -161,7 +161,7 @@ export default function SobreMiPage() {
                             Agendar una sesión es simple. Elige el horario que mejor te acomode
                             y comencemos a trabajar juntos en tu bienestar.
                         </p>
-                        <Link href="/#agendar" className="btn-primary btn-lg">
+                        <Link href="/agendar" className="btn-primary btn-lg">
                             Agendar mi primera sesión
                         </Link>
                     </div>

@@ -18,7 +18,7 @@ export const paymentConfig = {
     // Configuración de precios en CLP
     pricing: {
         // Sesiones de psicoterapia
-        sesionIndividual: 40000,     // CLP - Sesión individual (45 min)
+        sesionIndividual: 36000,     // CLP - Sesión individual (45 min)
         primeraConsulta: 0,          // CLP - Primera sesión GRATIS
         packSesiones: 140000,        // CLP - Pack 4 sesiones (ahorro de $20.000)
 

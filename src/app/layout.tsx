@@ -77,6 +77,10 @@ export const metadata: Metadata = {
   },
 };
 
+import SmoothScroll from "@/components/Providers/SmoothScroll";
+import InteractiveBackground from "@/components/Interactive/InteractiveBackground";
+import MobileFloatingCTA from "@/components/Floating/MobileFloatingCTA";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -147,10 +151,14 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${dmSans.variable}`}>
+        <InteractiveBackground />
         <Providers>
           <Sidebar />
-          {children}
-          <WhatsAppButton />
+          <SmoothScroll>
+            {children}
+            <MobileFloatingCTA />
+            <WhatsAppButton />
+          </SmoothScroll>
         </Providers>
       </body>
     </html>
