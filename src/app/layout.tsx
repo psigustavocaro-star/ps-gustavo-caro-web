@@ -62,11 +62,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.png' },
-      new URL('/icon.png', 'https://psgustavocaro.cl'),
+      { url: '/favicon.ico?v=4' },
+      { url: '/icon.png?v=4', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-icon.png' },
+      { url: '/apple-icon.png?v=4' },
     ],
   },
   robots: {
