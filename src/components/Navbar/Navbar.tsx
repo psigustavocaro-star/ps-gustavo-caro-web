@@ -43,7 +43,7 @@ export default function Navbar() {
             <div className={`container ${styles.navContainer}`}>
                 <div className={styles.left}>
                     <Link href="/" className={styles.logo} onClick={closeMenu}>
-                        <Image src="/icon.png?v=5" alt="Logo Ps. Gustavo Caro" width={44} height={44} className={styles.logoImage} />
+                        <Image src="/icon.png?v=5" alt="Logo Ps. Gustavo Caro" width={44} height={44} className={styles.logoImage} unoptimized={true} />
                         Ps. Gustavo Caro<span className={styles.logoDot}>.</span>
                     </Link>
                 </div>
