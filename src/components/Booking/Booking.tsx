@@ -14,7 +14,7 @@ export default function Booking() {
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [calBookingId, setCalBookingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
-        serviceType: 'primeraConsulta' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
+        serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
         reason: '',
         details: '',
         name: '',
@@ -243,7 +243,7 @@ export default function Booking() {
     };
     const resetForm = () => {
         setFormData({
-            serviceType: 'primeraConsulta',
+            serviceType: 'sesion',
             reason: '',
             details: '',
             name: '',
@@ -283,20 +283,8 @@ export default function Booking() {
                                     value={formData.serviceType}
                                     onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as any })}
                                 >
-                                    <option value="" disabled>Selecciona un servicio...</option>
-                                    <optgroup label="Psicoterapia TCC">
-                                        <option value="primeraConsulta">Primera Consulta Inicial (Gratis) - 20 min</option>
-                                        <option value="sesion">Sesión Individual de Psicoterapia - $36.000</option>
-                                        <option value="packSesiones">Pack 4 Sesiones Mensual - $140.000</option>
-                                    </optgroup>
-                                    <optgroup label="Evaluaciones Clínicas (Incluyen Entrevista Gratis)">
-                                        <option value="evalFreeNeuro">Entrevista Inicial (OBLIGATORIA Evaluaciones) - GRATIS</option>
-                                        <option value="evalTDAH">Paso 2: Evaluación TDAH Adulto - $180.000</option>
-                                        <option value="evalAutismo">Paso 2: Evaluación Espectro Autista (TEA) - $220.000</option>
-                                        <option value="evalNeuropsicologica">Paso 2: Evaluación Neuropsicológica Completa - $240.000</option>
-                                        <option value="evalInteligencia">Paso 2: Evaluación Intelectual (WAIS/WISC) - $160.000</option>
-                                        <option value="evalEmocional">Paso 2: Evaluación Socioemocional - $140.000</option>
-                                    </optgroup>
+                                    <option value="sesion">Sesión Individual de Psicoterapia - $36.000</option>
+                                    <option value="packSesiones">Pack 4 Sesiones Mensuales - $140.000</option>
                                 </select>
                             </div>
 
