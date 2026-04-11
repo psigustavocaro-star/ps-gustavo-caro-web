@@ -41,21 +41,22 @@ export default function Hero() {
                         Hola, soy Gustavo Caro, Psicólogo Clínico con <strong>Especialización en Terapia Cognitivo Conductual</strong> por la Universidad de Chile. Experto en salud mental con herramientas concretas para tu bienestar emocional.
                     </p>
 
-                    <div className={styles.actions}>
+                    <div className={styles.actions} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '16px' }}>
                         <Magnetic>
-                            <Link href="/agendar" className="btn-primary">
-                                Agendar sesión ahora
+                            <Link href="/agendar" className="btn-primary" style={{ padding: '16px 36px', fontSize: '1.1rem', width: '100%', textAlign: 'center', boxShadow: '0 10px 25px -5px rgba(8, 145, 178, 0.4)' }}>
+                                Agendar hora de consulta
                             </Link>
                         </Magnetic>
-                        <Link href="#sobre-mi" className="btn-outline">
-                            Conoce mi enfoque
-                        </Link>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--foreground-light)', margin: 0, fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            Boleta automática reembolsable en Isapres y Seguros
+                        </p>
                     </div>
 
-                    <div className={styles.trustFooter}>
-                        <span className={styles.trustItem}>✓ Escucha activa sin juicios</span>
-                        <span className={styles.trustItem}>✓ Rigor científico</span>
-                        <span className={styles.trustItem}>✓ Procesos 100% humanos</span>
+                    <div className={styles.trustFooter} style={{ marginTop: '24px' }}>
+                        <span className={styles.trustItem}>✓ Emisión inmediata SII</span>
+                        <span className={styles.trustItem}>✓ Facilidad de pago online</span>
+                        <span className={styles.trustItem}>✓ TCC Basada en evidencia</span>
                     </div>
                 </motion.div>
 
