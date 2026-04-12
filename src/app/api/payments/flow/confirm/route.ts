@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
             if (booking.calEventTypeId && booking.appointmentDate) {
                 const { createCalBooking } = await import('@/lib/services/calcom');
                 const calResult = await createCalBooking({
-                    eventTypeId: parseInt(booking.calEventTypeId),
+                    eventTypeId: Number(booking.calEventTypeId),
                     start: booking.appointmentDate,
                     name: clientName,
                     email: clientEmail,
