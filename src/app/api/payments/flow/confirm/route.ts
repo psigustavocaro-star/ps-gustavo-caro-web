@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
             await sendBookingConfirmation({
                 name: clientName,
                 email: clientEmail,
-                phone: booking.rut, // Note: no phone in db schema right now?
+                phone: booking.rut || undefined, // Note: no phone in db schema right now?
                 reason: booking.reason || undefined,
                 details: booking.details || undefined,
                 amount,
