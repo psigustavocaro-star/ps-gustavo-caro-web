@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         if (body.coupon) {
             const coupon = body.coupon.toUpperCase();
             if (coupon === 'TEST100') {
-                amount = 0;
+                amount = 350; // Monto mínimo seguro para Webpay/Flow
             } else if (coupon === 'GUSTAVO10') {
                 amount = Math.max(0, amount - 10000);
             }
