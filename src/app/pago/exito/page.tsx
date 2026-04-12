@@ -20,20 +20,25 @@ function PaymentSuccessContent() {
             fetch(`/api/bookings/${orderId}`)
                 .then(res => res.json())
                 .then(data => {
-                    setBooking(data);
-                    // Si ya tiene fecha de cita, mostrar confirmación
-                    if (data?.appointmentDate) {
-                        setAppointmentConfirmed(true);
-                        const dateObj = new Date(data.appointmentDate);
-                        setSelectedDateTime({
-                            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                            time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
-                        });
+                    if (data.error || !data.serviceType) {
+                        setBooking(null);
+                    } else {
+                        setBooking(data);
+                        // Si ya tiene fecha de cita, mostrar confirmación
+                        if (data?.appointmentDate) {
+                            setAppointmentConfirmed(true);
+                            const dateObj = new Date(data.appointmentDate);
+                            setSelectedDateTime({
+                                date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                                time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+                            });
+                        }
                     }
                     setLoading(false);
                 })
                 .catch(err => {
                     console.error('Error loading booking:', err);
+                    setBooking(null);
                     setLoading(false);
                 });
         } else {
