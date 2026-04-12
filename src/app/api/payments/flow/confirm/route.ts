@@ -18,20 +18,30 @@ export async function POST(request: NextRequest) {
 
         // Status 2 = Pagado exitosamente
         if (paymentStatus.status === 2) {
-            // Almacenar el campo opcional si viene en el status
-            const clientEmail = paymentStatus.email;
-            const amount = paymentStatus.amount;
             const orderId = paymentStatus.commerceOrder;
-            const optionalFields = (paymentStatus as any).optional ? JSON.parse((paymentStatus as any).optional) : {};
-            const clientName = optionalFields.clientName || 'Paciente';
+            
+            // Obtener la información completa guardada en nuestra DB antes del pago
+            const { default: prisma } = await import('@/lib/db');
+            const booking = await prisma.booking.findUnique({
+                where: { orderId }
+            });
 
-            // Generar boleta automáticamente
+            if (!booking) {
+                console.error(`ERROR: No se encontró boleta en DB para la orden ${orderId}`);
+                return NextResponse.json({ error: 'Order not found in DB' }, { status: 404 });
+            }
+
+            const clientEmail = booking.email;
+            const clientName = booking.name;
+            const amount = paymentStatus.amount;
+
+            // Generar boleta automáticamente con datos de la DB
             const invoice = await generateInvoice({
                 clientEmail,
                 clientName,
-                clientRut: optionalFields.clientRut,
-                clientAddress: optionalFields.clientAddress,
-                clientCommune: optionalFields.clientCommune,
+                clientRut: booking.rut || undefined,
+                clientAddress: booking.address || undefined,
+                clientCommune: booking.commune || undefined,
                 amount,
                 description: 'ATENCION PSICOLOGICA ONLINE Y PRESENCIAL A ADULTOS Y ADOLESCENTES',
                 paymentMethod: paymentStatus.paymentData?.media || 'Webpay',
@@ -49,42 +59,31 @@ export async function POST(request: NextRequest) {
             }
 
             // Actualizar estado en la base de datos
-            const { default: prisma } = await import('@/lib/db');
             try {
                 await prisma.booking.update({
                     where: { orderId: orderId },
-                    data: {
-                        status: 'PAID',
-                        rut: optionalFields.clientRut,
-                        address: optionalFields.clientAddress,
-                        commune: optionalFields.clientCommune
-                    }
+                    data: { status: 'PAID' }
                 });
             } catch (dbError) {
                 console.error('Error updating booking status in DB:', dbError);
             }
 
-            // Crear agendamiento en Cal.com si tenemos los datos necesarios
-            const calEventTypeId = optionalFields.calEventTypeId;
-            const appointmentDate = optionalFields.appointmentDate;
-
-            if (calEventTypeId && appointmentDate) {
+            // Crear agendamiento en Cal.com si tenemos los datos en la DB
+            if (booking.calEventTypeId && booking.appointmentDate) {
                 const { createCalBooking } = await import('@/lib/services/calcom');
                 const calResult = await createCalBooking({
-                    eventTypeId: parseInt(calEventTypeId),
-                    start: appointmentDate,
+                    eventTypeId: parseInt(booking.calEventTypeId),
+                    start: booking.appointmentDate,
                     name: clientName,
                     email: clientEmail,
-                    notes: optionalFields.details || ''
+                    notes: booking.details || ''
                 }).catch(err => {
                     console.error('Error creating Cal.com booking during flow callback:', err);
-                    return { success: false, bookingId: null }; // Add null to satisfy types
+                    return { success: false, bookingId: null }; 
                 });
 
                 if (calResult.success && (calResult as any).bookingId) {
-                    // Guardar el ID de la reserva real en la DB
                     try {
-                        const { default: prisma } = await import('@/lib/db');
                         await prisma.booking.update({
                             where: { orderId: orderId },
                             data: { calBookingId: (calResult as any).bookingId.toString() }
@@ -100,9 +99,9 @@ export async function POST(request: NextRequest) {
             await sendBookingConfirmation({
                 name: clientName,
                 email: clientEmail,
-                phone: optionalFields.phone,
-                reason: optionalFields.motivo,
-                details: optionalFields.details,
+                phone: booking.rut, // Note: no phone in db schema right now?
+                reason: booking.reason || undefined,
+                details: booking.details || undefined,
                 amount,
                 orderId,
             });
