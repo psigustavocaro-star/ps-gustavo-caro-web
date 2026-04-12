@@ -365,8 +365,10 @@
     }
 
     .popover {
-        left: 12px !important;
-        right: 12px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        max-width: 320px !important;
         padding: 16px;
     }
 }
