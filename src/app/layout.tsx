@@ -165,7 +165,7 @@ export default function RootLayout({
           <Sidebar />
           <SmoothScroll>
             {children}
-            <MobileFloatingCTA />
+            {/* <MobileFloatingCTA /> Se omite porque el Sidebar navega abajo en mobile */}
             <WhatsAppButton />
           </SmoothScroll>
         </Providers>

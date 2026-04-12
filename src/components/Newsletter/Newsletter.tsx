@@ -46,6 +46,8 @@ export default function Newsletter() {
                     <form className={styles.form} onSubmit={handleSubmit}>
                         <div className={styles.inputGroup}>
                             <input
+                                id="newsletter-email"
+                                name="email"
                                 type="email"
                                 placeholder="tu@email.com"
                                 value={email}

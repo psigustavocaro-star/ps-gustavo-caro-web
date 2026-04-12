@@ -41,14 +41,16 @@ export default function Hero() {
                         Hola, soy Gustavo Caro, Psicólogo Clínico con <strong>Especialización en Terapia Cognitivo Conductual</strong> por la Universidad de Chile. Experto en salud mental con herramientas concretas para tu bienestar emocional.
                     </p>
 
-                    <div className={styles.actions} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '16px' }}>
-                        <Magnetic>
-                            <Link href="/agendar" className="btn-primary" style={{ padding: '16px 36px', fontSize: '1.1rem', width: '100%', textAlign: 'center', boxShadow: '0 10px 25px -5px rgba(8, 145, 178, 0.4)' }}>
-                                Agendar hora de consulta
-                            </Link>
-                        </Magnetic>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--foreground-light)', margin: 0, fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <div className={styles.actions}>
+                        <div className={styles.buttonWrapper}>
+                            <Magnetic>
+                                <Link href="/agendar" className="btn-primary">
+                                    Agendar hora de consulta
+                                </Link>
+                            </Magnetic>
+                        </div>
+                        <p className={styles.invoiceNoteText}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.invoiceIcon}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             Boleta automática reembolsable en Isapres y Seguros
                         </p>
                     </div>
@@ -77,7 +79,6 @@ export default function Hero() {
                                 unoptimized={true}
                                 className={styles.mainImage}
                                 style={{ objectFit: 'cover', objectPosition: 'center' }}
-                                priority
                             />
                         </div>
                     </InteractiveTilt>

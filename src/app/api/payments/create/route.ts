@@ -117,22 +117,19 @@ export async function POST(request: NextRequest) {
         }
 
         // Crear pago en Flow
+        // Nota: El parámetro "optional" de Flow tiene un límite estricto de caracteres (~255).
+        // Evitamos enviar campos de texto libre (detalles, motivo, dirección) para evitar el Error 400.
+        // Toda la información completa ya quedó guardada y segura en nuestra Base de Datos bajo el commerceOrder.
         const payment = await createFlowPayment({
             amount,
             email,
             subject,
             commerceOrder,
             optional: {
-                clientName: name,
-                motivo: motivo || '',
-                details: detalles || '',
+                clientName: name.substring(0, 30),
                 serviceType,
-                phone: body.phone || '',
-                appointmentDate: body.appointmentDate || '',
-                calEventTypeId: calEventTypeId || '',
-                clientRut: body.rut || '',
-                clientAddress: body.address || '',
-                clientCommune: body.commune || '',
+                phone: body.phone ? body.phone.substring(0, 20) : '',
+                clientRut: body.rut ? body.rut.substring(0, 15) : '',
             },
         });
 

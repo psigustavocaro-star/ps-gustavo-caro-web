@@ -55,6 +55,7 @@ export default function TrustBar() {
                                         width={inst.width}
                                         height={50}
                                         className={styles.logo}
+                                        style={{ width: 'auto', height: 'auto' }}
                                     />
                                 </motion.div>
                             ))}

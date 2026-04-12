@@ -279,6 +279,8 @@ export default function Booking() {
                             <div className={styles.formGroup}>
                                 <label>Servicio a agendar *</label>
                                 <select
+                                    id="serviceType"
+                                    name="serviceType"
                                     className={`${styles.input} ${styles.select}`}
                                     value={formData.serviceType}
                                     onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as any })}
@@ -307,6 +309,8 @@ export default function Booking() {
                             <div className={styles.formGroup}>
                                 <label>Nombre completo *</label>
                                 <input
+                                    id="name"
+                                    name="name"
                                     type="text"
                                     className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
                                     placeholder="Tu nombre completo"
@@ -322,6 +326,8 @@ export default function Booking() {
                             <div className={styles.formGroup}>
                                 <label>Motivo de consulta (opcional)</label>
                                 <textarea
+                                    id="details"
+                                    name="details"
                                     className={styles.textarea}
                                     placeholder="Cuéntame brevemente qué te trae por acá (Ansiedad, Terapia de pareja, etc.)"
                                     value={formData.details}
@@ -331,6 +337,8 @@ export default function Booking() {
                             <div className={styles.formGroup}>
                                 <label>Email *</label>
                                 <input
+                                    id="email"
+                                    name="email"
                                     type="email"
                                     className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
                                     placeholder="tu@email.com"
@@ -345,6 +353,8 @@ export default function Booking() {
                             <div className={styles.formGroup}>
                                 <label>Teléfono (opcional)</label>
                                 <input
+                                    id="phone"
+                                    name="phone"
                                     type="tel"
                                     className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
                                     placeholder="+56 9 1234 5678"
@@ -359,6 +369,8 @@ export default function Booking() {
                             <div className={styles.formGroup}>
                                 <label>RUT (Para tu boleta) *</label>
                                 <input
+                                    id="rut"
+                                    name="rut"
                                     type="text"
                                     className={`${styles.input} ${errors.rut ? styles.inputError : ''}`}
                                     placeholder="12.345.678-9"
@@ -374,6 +386,8 @@ export default function Booking() {
                                 <div className={styles.formGroup}>
                                     <label>Domicilio (Dirección) *</label>
                                     <input
+                                        id="address"
+                                        name="address"
                                         type="text"
                                         className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
                                         placeholder="Ej: Av. Providencia 1234, Depto 41"
@@ -388,6 +402,8 @@ export default function Booking() {
                                 <div className={styles.formGroup}>
                                     <label>Comuna *</label>
                                     <input
+                                        id="commune"
+                                        name="commune"
                                         type="text"
                                         className={`${styles.input} ${errors.commune ? styles.inputError : ''}`}
                                         placeholder="Ej: Providencia"
@@ -403,6 +419,8 @@ export default function Booking() {
                             <div className={styles.formGroupCheckbox}>
                                 <label className={styles.checkboxLabel}>
                                     <input
+                                        id="newsletter"
+                                        name="newsletter"
                                         type="checkbox"
                                         checked={formData.newsletter}
                                         onChange={(e) => setFormData({ ...formData, newsletter: e.target.checked })}
@@ -459,6 +477,8 @@ export default function Booking() {
                                     <div className={styles.couponSection}>
                                         <div className={styles.couponInputWrapper}>
                                             <input
+                                                id="coupon"
+                                                name="coupon"
                                                 type="text"
                                                 placeholder="¿Tienes un cupón?"
                                                 className={styles.couponInput}
@@ -539,6 +559,8 @@ export default function Booking() {
                                 <div className={styles.formGroup}>
                                     <label>Edad</label>
                                     <input
+                                        id="age"
+                                        name="age"
                                         type="number"
                                         className={styles.input}
                                         value={formData.age}
@@ -548,6 +570,8 @@ export default function Booking() {
                                 <div className={styles.formGroup}>
                                     <label>¿Tomas algún medicamento?</label>
                                     <input
+                                        id="medications"
+                                        name="medications"
                                         type="text"
                                         className={styles.input}
                                         placeholder="Sí/No, cuáles..."
@@ -558,6 +582,8 @@ export default function Booking() {
                                 <div className={styles.formGroup}>
                                     <label>Antecedentes familiares relevantes</label>
                                     <textarea
+                                        id="history"
+                                        name="history"
                                         className={styles.textarea}
                                         value={formData.history}
                                         onChange={(e) => setFormData({ ...formData, history: e.target.value })}
