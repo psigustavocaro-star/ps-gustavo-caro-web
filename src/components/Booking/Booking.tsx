@@ -52,6 +52,25 @@ export default function Booking() {
         }
     }, [step]);
 
+    // Efecto para mapear el Tipo de Servicio con su ID numérico de Cal.com
+    useEffect(() => {
+        const calEventMap: Record<string, number> = {
+            'sesion': 1612024,            // Reemplazar con tus IDs reales de Cal.com
+            'primeraConsulta': 1612025,
+            'packSesiones': 1612026,
+            'evalTDAH': 1612027,
+            'evalAutismo': 1612028,
+            'evalInteligencia': 1612029,
+            'evalNeuropsicologica': 1612030,
+            'evalEmocional': 1612031
+        };
+
+        const targetId = calEventMap[formData.serviceType] || null;
+        if (targetId !== formData.calEventTypeId) {
+            setFormData(prev => ({ ...prev, calEventTypeId: targetId }));
+        }
+    }, [formData.serviceType]);
+
     // Handler para cuando el usuario selecciona fecha y hora en el calendario custom
     const handleDateTimeSelection = (date: Date, time: string) => {
         const dateObj = new Date(date);

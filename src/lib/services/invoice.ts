@@ -123,6 +123,14 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
         return generateManualInvoice(data);
     }
 
+    const formatRut = (rut: string) => {
+        let clean = rut.replace(/\./g, '').replace(/\s/g, '');
+        if (!clean.includes('-') && clean.length > 1) {
+            return clean.slice(0, -1) + '-' + clean.slice(-1);
+        }
+        return clean;
+    };
+
     try {
         const response = await fetch('https://api.simpleapi.cl/api/v1/bhe/emitir', {
             method: 'POST',
@@ -132,11 +140,11 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
             },
             body: JSON.stringify({
                 emisor: {
-                    rut: emisor.rut.replace(/\./g, ''),
+                    rut: formatRut(emisor.rut),
                     clave: simpleapi.siiClave
                 },
                 receptor: {
-                    rut: data.clientRut ? data.clientRut.replace(/\./g, '') : '66666666-6',
+                    rut: data.clientRut ? formatRut(data.clientRut) : '66666666-6',
                     nombre: data.clientName,
                     email: data.clientEmail,
                     domicilio: data.clientAddress || 'Santiago',
