@@ -126,14 +126,6 @@ function PaymentSuccessContent() {
                     <p>🔗 <strong>Link de sesión:</strong> Recibirás el enlace de videollamada 24 horas antes.</p>
                 </div>
 
-                <div className={styles.nextSteps}>
-                    <h3>Siguiente paso (opcional pero recomendado):</h3>
-                    <p>Para aprovechar al máximo nuestra primera sesión y entender tu caso, puedes dejar lista tu ficha clínica confidencial ahora.</p>
-                    <Link href={`/pago/anamnesis?order=${orderId}`} className="btn-primary" style={{ display: 'inline-block', marginTop: '16px' }}>
-                        Completar Ficha Inicial
-                    </Link>
-                </div>
-
                 <div className={styles.orderInfo}>
                     <span>ID de Orden Flow:</span>
                     <strong>{orderId}</strong>
