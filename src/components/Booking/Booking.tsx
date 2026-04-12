@@ -213,19 +213,21 @@ export default function Booking() {
         else if (step === 'payment') setStep('contact');
     };
 
-    const calculateFinalPrice = () => {
-        let basePrice = 0;
+    const calculateFinalPriceWithoutCoupon = () => {
         switch (formData.serviceType) {
-            case 'sesion': basePrice = 36000; break;
-            case 'packSesiones': basePrice = 140000; break;
-            case 'evalTDAH': basePrice = 180000; break;
-            case 'evalAutismo': basePrice = 220000; break;
-            case 'evalInteligencia': basePrice = 160000; break;
-            case 'evalNeuropsicologica': basePrice = 240000; break;
-            case 'evalEmocional': basePrice = 140000; break;
-            default: basePrice = 0;
+            case 'sesion': return 36000;
+            case 'packSesiones': return 140000;
+            case 'evalTDAH': return 180000;
+            case 'evalAutismo': return 220000;
+            case 'evalInteligencia': return 160000;
+            case 'evalNeuropsicologica': return 240000;
+            case 'evalEmocional': return 140000;
+            default: return 0;
         }
+    };
 
+    const calculateFinalPrice = () => {
+        const basePrice = calculateFinalPriceWithoutCoupon();
         if (appliedCoupon.status === 'valid') {
             return Math.max(0, basePrice - appliedCoupon.discount);
         }
@@ -234,7 +236,8 @@ export default function Booking() {
 
     const handleApplyCoupon = () => {
         if (formData.coupon.toUpperCase() === 'TEST100') {
-            setAppliedCoupon({ status: 'valid', discount: 1000000 }); // Descuento total
+            const basePrice = calculateFinalPriceWithoutCoupon();
+            setAppliedCoupon({ status: 'valid', discount: basePrice > 350 ? basePrice - 350 : 0 });
         } else if (formData.coupon.toUpperCase() === 'GUSTAVO10') {
             setAppliedCoupon({ status: 'valid', discount: 10000 });
         } else {
