@@ -196,21 +196,29 @@ export default function Booking() {
     };
 
     const handleNext = () => {
-        if (step === 'intro') setStep('schedule'); // De seleccionar servicio -> escoger horario directamente
-        else if (step === 'schedule') setStep('contact'); // De horario -> datos personales
-        else if (step === 'contact') {
-            if (validateContact()) {
-                setStep('payment'); // De datos personales -> confirmar y pagar
-            }
-        }
-        else if (step === 'payment') setStep('processing');
-        else if (step === 'success') setStep('anamnesis');
+        import('react').then(({ startTransition }) => {
+            startTransition(() => {
+                if (step === 'intro') setStep('schedule');
+                else if (step === 'schedule') setStep('contact');
+                else if (step === 'contact') {
+                    if (validateContact()) {
+                        setStep('payment');
+                    }
+                }
+                else if (step === 'payment') setStep('processing');
+                else if (step === 'success') setStep('anamnesis');
+            });
+        });
     };
 
     const handleBack = () => {
-        if (step === 'schedule') setStep('intro');
-        else if (step === 'contact') setStep('schedule');
-        else if (step === 'payment') setStep('contact');
+        import('react').then(({ startTransition }) => {
+            startTransition(() => {
+                if (step === 'schedule') setStep('intro');
+                else if (step === 'contact') setStep('schedule');
+                else if (step === 'payment') setStep('contact');
+            });
+        });
     };
 
     const calculateFinalPriceWithoutCoupon = () => {
