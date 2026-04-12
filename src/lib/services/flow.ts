@@ -29,7 +29,7 @@ export async function createFlowPayment(params: FlowPaymentParams): Promise<Flow
         amount: params.amount,
         email: params.email,
         urlConfirmation: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/flow/confirm`,
-        urlReturn: paymentConfig.urls.success,
+        urlReturn: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/flow/return`,
         optional: JSON.stringify(params.optional || {}),
     };
 
