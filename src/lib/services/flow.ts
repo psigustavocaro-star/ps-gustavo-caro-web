@@ -104,10 +104,13 @@ export async function getFlowPaymentStatus(token: string): Promise<{
     const response = await fetch(`${flow.apiUrl}/payment/getStatus?apiKey=${flow.apiKey}&token=${token}&s=${signature}`);
 
     if (!response.ok) {
-        throw new Error('Error getting payment status');
+        const errorText = await response.text();
+        console.error('Flow getStatus Error:', response.status, errorText);
+        throw new Error(`Error getting payment status: ${errorText}`);
     }
 
-    return response.json();
+    const dataResult = await response.json();
+    return dataResult;
 }
 
 /**
