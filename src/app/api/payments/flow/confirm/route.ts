@@ -32,30 +32,29 @@ export async function POST(request: NextRequest) {
 
         // Obtener estado del pago
         const paymentStatus = await getFlowPaymentStatus(token);
-
-        console.log('Flow payment status:', paymentStatus);
+        console.log(`API Flow: Procesando orden ${paymentStatus.commerceOrder} (Status: ${paymentStatus.status})`);
 
         // Status 2 = Pagado exitosamente
         if (paymentStatus.status === 2) {
             const orderId = paymentStatus.commerceOrder;
+            const auditData: any = { orderId, steps: {} };
             
             try {
-                // Obtener la información completa guardada en nuestra DB antes del pago
+                // 1. Base de Datos
                 const { default: prisma } = await import('@/lib/db');
-                const booking = await prisma.booking.findUnique({
-                    where: { orderId }
-                });
+                const booking = await prisma.booking.findUnique({ where: { orderId } });
 
                 if (!booking) {
-                    console.error(`ERROR: No se encontró boleta en DB para la orden ${orderId}`);
-                    return NextResponse.json({ error: 'Order not found in DB' }, { status: 404 });
+                    console.error(`Flow Webhook: Orden ${orderId} no existe en DB`);
+                    return NextResponse.json({ received: true });
                 }
+                auditData.steps.database = 'OK';
 
                 const clientEmail = booking.email;
                 const clientName = booking.name;
                 const amount = paymentStatus.amount;
 
-                // Generar boleta automáticamente con datos de la DB
+                // 2. SII / SimpleAPI
                 try {
                     const invoice = await generateInvoice({
                         clientEmail,
@@ -64,30 +63,34 @@ export async function POST(request: NextRequest) {
                         clientAddress: booking.address || undefined,
                         clientCommune: booking.commune || undefined,
                         amount,
-                        description: 'ATENCION PSICOLOGICA ONLINE Y PRESENCIAL A ADULTOS Y ADOLESCENTES',
+                        description: 'ATENCION PSICOLOGICA ONLINE Y PRESENCIAL',
                         paymentMethod: paymentStatus.paymentData?.media || 'Webpay',
                         commerceOrder: orderId,
                     });
 
                     if (invoice.success && invoice.invoiceUrl) {
                         await sendInvoiceEmail(clientEmail, invoice.invoiceUrl, invoice.invoiceNumber || orderId, clientName);
+                        auditData.steps.invoice = `OK (${invoice.invoiceNumber})`;
+                    } else {
+                        auditData.steps.invoice = `FALLÓ (${invoice.error || 'Generada Manual'})`;
                     }
-                    console.log(`Boleta procesada: ${invoice.invoiceNumber}`);
-                } catch (invoiceErr) {
-                    console.error('Invoice generation critical error:', invoiceErr);
+                } catch (invoiceErr: any) {
+                    console.error('Invoice logic crashed:', invoiceErr.message);
+                    auditData.steps.invoice = `CRASH: ${invoiceErr.message}`;
                 }
 
-                // Actualizar estado en la base de datos
+                // 3. Marcar como Pagado
                 try {
                     await prisma.booking.update({
-                        where: { orderId: orderId },
+                        where: { orderId },
                         data: { status: 'PAID' }
                     });
-                } catch (dbError) {
-                    console.error('Error updating booking status in DB:', dbError);
+                    auditData.steps.db_update = 'OK';
+                } catch (e: any) {
+                    auditData.steps.db_update = `ERROR: ${e.message}`;
                 }
 
-                // Crear agendamiento en Cal.com
+                // 4. Cal.com
                 if (booking.calEventTypeId && booking.appointmentDate) {
                     try {
                         const { createCalBooking } = await import('@/lib/services/calcom');
@@ -96,42 +99,48 @@ export async function POST(request: NextRequest) {
                             start: booking.appointmentDate,
                             name: clientName,
                             email: clientEmail,
-                            notes: booking.details || ''
                         });
-
-                        if (calResult.success && (calResult as any).bookingId) {
-                            await prisma.booking.update({
-                                where: { orderId: orderId },
-                                data: { calBookingId: (calResult as any).bookingId.toString() }
-                            });
-                        }
-                    } catch (calErr) {
-                        console.error('Error creating Cal.com booking during flow callback:', calErr);
+                        auditData.steps.calcom = calResult.success ? `OK (${calResult.bookingId})` : `FALLÓ (${calResult.error})`;
+                    } catch (calErr: any) {
+                        auditData.steps.calcom = `CRASH: ${calErr.message}`;
                     }
                 }
 
-                // Enviar confirmación de cita detallada por email
+                // 5. Email de Confirmación Final (Resend)
                 try {
                     const { sendBookingConfirmation } = await import('@/lib/services/mail');
                     await sendBookingConfirmation({
                         name: clientName,
                         email: clientEmail,
-                        phone: booking.phone || booking.rut || '', 
+                        phone: booking.phone || '',
                         reason: booking.reason || '',
                         details: booking.details || '',
                         amount,
                         orderId,
                     });
-                } catch (mailErr) {
-                    console.error('Error sending confirmation email:', mailErr);
+                    auditData.steps.resend = 'OK';
+                } catch (mailErr: any) {
+                    auditData.steps.resend = `ERROR: ${mailErr.message}`;
                 }
 
-                console.log(`✅ Pago confirmado completamente: ${orderId}`);
-            } catch (blockError) {
-                console.error('CRITICAL CONFIRMATION ERROR:', blockError);
-                // Even if internal logic failed, we MUST return 200 OK to flow so it doesn't retry forever or send warning emails
+                // 6. ENVIAR AUDITORÍA AL PROFESIONAL (Debug)
+                try {
+                    const { Resend } = await import('resend');
+                    const resend = new Resend(process.env.RESEND_API_KEY);
+                    await resend.emails.send({
+                        from: 'Web Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
+                        to: 'psi.gustavocaro@gmail.com',
+                        subject: `📊 Auditoría Pago: ${orderId}`,
+                        html: `<pre>${JSON.stringify(auditData, null, 2)}</pre>`
+                    });
+                } catch (e) {}
+
+                console.log(`✅ Webhook finalizado con auditoría para ${orderId}`);
+            } catch (blockError: any) {
+                console.error('Master confirmation block failed:', blockError.message);
             }
         } else if (paymentStatus.status === 3 || paymentStatus.status === 4) {
+            // ... (resto igual)
             const orderId = paymentStatus.commerceOrder;
             try {
                 const { default: prisma } = await import('@/lib/db');
@@ -139,22 +148,12 @@ export async function POST(request: NextRequest) {
                     where: { orderId: orderId },
                     data: { status: 'FAILED' }
                 });
-            } catch (dbError) {
-                console.error('Error updating failed booking status in DB:', dbError);
-            }
-            console.log(`❌ Pago no completado: ${paymentStatus.statusMessage}`);
-        } else {
-            console.log(`⏳ Pago pendiente o en otro estado: ${paymentStatus.status}`);
+            } catch (e) {}
         }
 
-        // Flow espera un 200 OK
         return NextResponse.json({ received: true });
-
     } catch (error: any) {
-        console.error('Flow confirmation TOP LEVEL error:', {
-            message: error?.message,
-            stack: error?.stack
-        });
-        return NextResponse.json({ received: true }); // Prevent Flow from spamming 500 error emails
+        console.error('Flow confirmation TOP LEVEL error:', error.message);
+        return NextResponse.json({ received: true });
     }
 }
