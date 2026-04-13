@@ -72,7 +72,12 @@ export async function POST(request: NextRequest) {
                         await sendInvoiceEmail(clientEmail, invoice.invoiceUrl, invoice.invoiceNumber || orderId, clientName);
                         auditData.steps.invoice = `OK (${invoice.invoiceNumber})`;
                     } else {
-                        auditData.steps.invoice = `FALLÓ (${invoice.error || 'Generada Manual'})`;
+                        const { generateManualInvoice } = await import('@/lib/services/invoice');
+                        await generateManualInvoice({
+                            clientEmail, clientName, amount, commerceOrder: orderId,
+                            description: 'ATENCION PSICOLOGICA',
+                            paymentMethod: paymentStatus.paymentData?.media || 'Webpay'
+                        });
                     }
                 } catch (invoiceErr: any) {
                     console.error('Invoice logic crashed:', invoiceErr.message);

@@ -163,7 +163,9 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
         const result = await response.json();
 
         if (!response.ok || !result.exito) {
-            throw new Error(result.mensaje || 'Error en SimpleAPI');
+            const errorMsg = result.mensaje || result.error || 'Error en SimpleAPI';
+            console.error('SimpleAPI SII Error Response:', result);
+            return { success: false, error: errorMsg };
         }
 
         return {
@@ -172,17 +174,16 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
             invoiceUrl: result.pdf_url,
         };
 
-    } catch (error) {
-        console.error('SimpleAPI SII invoice error:', error);
-        // Silently fallback to manual to not break the user flow after payment
-        return generateManualInvoice(data);
+    } catch (error: any) {
+        console.error('SimpleAPI SII invoice exception:', error);
+        return { success: false, error: `Exception: ${error.message}` };
     }
 }
 
 /**
  * Fallback: Registra la venta y notifica para generar boleta manual
  */
-async function generateManualInvoice(data: InvoiceData): Promise<InvoiceResult> {
+export async function generateManualInvoice(data: InvoiceData): Promise<InvoiceResult> {
     // Guardar en base de datos o archivo para procesamiento manual
     console.log('Manual invoice pending:', data);
 
