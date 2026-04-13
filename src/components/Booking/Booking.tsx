@@ -55,14 +55,14 @@ export default function Booking() {
     // Efecto para mapear el Tipo de Servicio con su ID numérico de Cal.com
     useEffect(() => {
         const calEventMap: Record<string, number> = {
-            'sesion': 1612024,            // Reemplazar con tus IDs reales de Cal.com
-            'primeraConsulta': 1612025,
-            'packSesiones': 1612026,
-            'evalTDAH': 1612027,
-            'evalAutismo': 1612028,
-            'evalInteligencia': 1612029,
-            'evalNeuropsicologica': 1612030,
-            'evalEmocional': 1612031
+            'sesion': 4479069,
+            'primeraConsulta': 4479069, // Si no tienes un ID para esta, usamos el mismo de sesión por ahora
+            'packSesiones': 4479093,
+            'evalTDAH': 4479069,
+            'evalAutismo': 4479069,
+            'evalInteligencia': 4479069,
+            'evalNeuropsicologica': 4479069,
+            'evalEmocional': 4479069
         };
 
         const targetId = calEventMap[formData.serviceType] || null;
