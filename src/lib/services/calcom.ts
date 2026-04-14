@@ -30,10 +30,11 @@ export async function createCalBooking(params: {
                 eventTypeId: params.eventTypeId,
                 attendee: {
                     name: params.name,
-                    email: params.email,
-                    timeZone: 'America/Santiago',
-                    language: 'es'
-                }
+                    email: params.email
+                },
+                timeZone: 'America/Santiago',
+                language: 'es',
+                metadata: {}
             })
         });
 
