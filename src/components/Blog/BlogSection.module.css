@@ -1,49 +1,53 @@
 .blog {
-    padding: 100px 0;
-    background: var(--surface);
+    padding: 160px 0;
+    background: #ffffff;
     position: relative;
     overflow: hidden;
 }
 
 .header {
-    text-align: center;
-    max-width: 900px;
-    margin: 0 auto 80px;
-    padding: 0 40px;
+    text-align: left; /* Shift look to left-aligned editorial */
+    max-width: var(--container-width);
+    margin: 0 auto 100px;
+    padding: 0 60px;
 }
 
 .title {
-    font-size: clamp(3rem, 7vw, 4.5rem);
+    font-size: clamp(4rem, 10vw, 7rem);
     font-weight: 900;
     color: var(--foreground);
-    margin-bottom: 24px;
-    letter-spacing: -0.05em;
-    line-height: 0.95;
-    background: linear-gradient(135deg, var(--foreground) 0%, var(--primary-dark) 100%);
+    margin-bottom: 32px;
+    letter-spacing: -0.06em;
+    line-height: 0.85;
+    background: linear-gradient(to right, var(--primary-dark) 0%, var(--primary) 50%, var(--foreground) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-    font-size: 1.35rem;
-    color: var(--foreground-light);
-    line-height: 1.5;
+    font-size: 1.6rem;
+    color: var(--foreground-muted);
+    max-width: 800px;
+    line-height: 1.4;
     font-weight: 500;
+    border-left: 6px solid var(--primary-light);
+    padding-left: 30px;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 48px;
-    /* Spacing for sidebar on very large screens */
-    padding: 0 40px;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 80px 60px;
+    padding: 0 60px;
+    max-width: var(--container-width);
+    margin: 0 auto;
 }
 
 .card {
-    background: white;
-    border-radius: 40px;
-    overflow: hidden;
-    border: 1px solid var(--border-light);
+    background: transparent;
+    border-radius: 0; /* Modern brutalist/editorial look */
+    overflow: visible;
+    border: none;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
@@ -51,15 +55,16 @@
 }
 
 .card:hover {
-    transform: translateY(-16px) scale(1.02);
-    box-shadow: 0 40px 80px rgba(8, 145, 178, 0.15);
-    border-color: var(--primary-light);
+    transform: translateY(-20px);
 }
 
 .imageWrapper {
     position: relative;
     aspect-ratio: 16 / 9;
     overflow: hidden;
+    border-radius: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.15);
 }
 
 .image {
@@ -88,59 +93,74 @@
 }
 
 .content {
-    padding: 32px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
 .date {
-    font-size: 0.85rem;
-    color: var(--foreground-muted);
-    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--primary);
+    font-weight: 800;
     margin-bottom: 12px;
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--primary-light);
 }
 
 .postTitle {
-    font-size: 1.6rem;
-    font-weight: 800;
-    line-height: 1.25;
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.1;
     color: var(--foreground);
     margin-bottom: 20px;
-    letter-spacing: -0.03em;
-    transition: color 0.3s ease;
+    letter-spacing: -0.05em;
+    transition: all 0.3s ease;
 }
 
 .card:hover .postTitle {
     color: var(--primary);
+    transform: translateX(10px);
 }
 
 .excerpt {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     color: var(--foreground-light);
-    line-height: 1.6;
-    margin-bottom: 24px;
+    line-height: 1.5;
+    margin-bottom: 32px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-weight: 450;
+    font-weight: 500;
 }
 
 .readMore {
     margin-top: auto;
-    font-weight: 800;
-    color: var(--primary);
+    font-weight: 900;
+    color: var(--foreground);
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: gap 0.3s ease;
-    text-decoration: none;
+    gap: 12px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: underline;
+    text-underline-offset: 8px;
+    transition: all 0.3s ease;
 }
 
 .readMore:hover {
-    gap: 12px;
+    color: var(--primary);
+    gap: 20px;
 }
 
 .readMore:hover span {
