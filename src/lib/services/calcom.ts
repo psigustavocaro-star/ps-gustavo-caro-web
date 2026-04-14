@@ -21,21 +21,18 @@ export async function createCalBooking(params: {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'cal-api-version': '2024-06-11'
+                'Authorization': apiKey, // En v2 con API Key se manda directo
             },
             body: JSON.stringify({
-                data: {
-                    start: params.start,
-                    eventTypeId: params.eventTypeId,
-                    attendee: {
-                        name: params.name,
-                        email: params.email
-                    },
-                    timeZone: 'America/Santiago',
-                    language: 'es',
-                    metadata: {}
-                }
+                start: params.start,
+                eventTypeId: params.eventTypeId,
+                attendee: {
+                    name: params.name,
+                    email: params.email
+                },
+                timeZone: 'America/Santiago',
+                language: 'es',
+                metadata: {}
             })
         });
 

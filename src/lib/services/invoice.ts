@@ -132,7 +132,7 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
     };
 
     try {
-        const response = await fetch('https://api.simpleapi.cl/api/v1/bhe/emitir/', {
+        const response = await fetch('https://api.simpleapi.cl/api/v1/bhe/emitir', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -159,12 +159,15 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
                 pago_provision_mensual: 1 // El contribuyente emisor se encarga de la retención
             })
         });
+
+        const rawText = await response.text();
+        console.log('SimpleAPI Response:', rawText);
+
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`SimpleAPI HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+            throw new Error(`SimpleAPI HTTP ${response.status}: ${rawText.substring(0, 500)}`);
         }
 
-        const result = await response.json();
+        const result = JSON.parse(rawText);
 
         if (!response.ok || !result.exito) {
             const errorMsg = result.mensaje || result.error || 'Error en SimpleAPI';
