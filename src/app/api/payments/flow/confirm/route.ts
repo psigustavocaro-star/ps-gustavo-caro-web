@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
                         await sendInvoiceEmail(clientEmail, invoice.invoiceUrl, invoice.invoiceNumber || orderId, clientName);
                         auditData.steps.invoice = `OK (${invoice.invoiceNumber})`;
                     } else {
+                        auditData.steps.invoice = `AUTOMÁTICA FALLÓ: ${invoice.error || 'Desconocido'}. Generando aviso manual...`;
                         const { generateManualInvoice } = await import('@/lib/services/invoice');
                         await generateManualInvoice({
                             clientEmail, clientName, amount, commerceOrder: orderId,

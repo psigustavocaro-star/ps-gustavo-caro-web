@@ -165,7 +165,7 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
         if (!response.ok || !result.exito) {
             const errorMsg = result.mensaje || result.error || 'Error en SimpleAPI';
             console.error('SimpleAPI SII Error Response:', result);
-            return { success: false, error: errorMsg };
+            return { success: false, error: `${errorMsg} (Raw: ${JSON.stringify(result)})` };
         }
 
         return {
