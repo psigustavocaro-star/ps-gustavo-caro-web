@@ -111,39 +111,193 @@
 }
 
 /* ============================================
-   SERVICE SELECTOR - Minimalist List
+   STEPPER - Multi-step indicator
    ============================================ */
 
-.serviceList {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.serviceItem {
+.stepper {
     display: flex;
     align-items: center;
-    padding: 16px 20px;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    transition: var(--transition-smooth);
-    cursor: pointer;
-    text-align: left;
-    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    padding: 0 10%;
+    position: relative;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.serviceItem:hover {
-    border-color: var(--primary-light);
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.stepNumber {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     background: var(--surface);
-    transform: translateX(4px);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--foreground-muted);
+    transition: all 0.3s ease;
 }
 
-.serviceItem.active {
+.stepLabel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--foreground-muted);
+    white-space: nowrap;
+}
+
+.stepLine {
+    flex-grow: 1;
+    height: 2px;
+    background: var(--border);
+    margin: 0 10px;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.activeStep .stepNumber {
     border-color: var(--primary);
-    background: linear-gradient(90deg, rgba(8, 145, 178, 0.05) 0%, transparent 100%);
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 0 0 4px var(--primary-glow);
+}
+
+.activeStep .stepLabel {
+    color: var(--primary);
+}
+
+.completedStep .stepNumber {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #166534;
+}
+
+.completedStep .stepLabel {
+    color: #166534;
+}
+
+/* ============================================
+   SERVICE CARDS
+   ============================================ */
+
+.serviceCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.serviceCard {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.serviceCard:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(8, 145, 178, 0.08);
+}
+
+.activeCard {
+    border-color: var(--primary);
+    background: linear-gradient(180deg, rgba(8, 145, 178, 0.02) 0%, white 100%);
+    box-shadow: 0 12px 30px rgba(8, 145, 178, 0.12);
+}
+
+.activeCard::after {
+    content: '✓ Seleccionado';
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    background: var(--primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
     box-shadow: var(--shadow-sm);
 }
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.cardIcon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.cardBadge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--surface);
+    padding: 4px 10px;
+    border-radius: 100px;
+    color: var(--foreground-muted);
+}
+
+.cardTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--foreground);
+    margin-bottom: 12px;
+}
+
+.cardText {
+    font-size: 0.9rem;
+    color: var(--foreground-light);
+    line-height: 1.6;
+    margin-bottom: auto;
+}
+
+.cardPrice {
+    margin-top: 24px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+.cardPrice span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--foreground-muted);
+}
+
+.footerActions {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+}
+
 
 .serviceRadio {
     width: 20px;

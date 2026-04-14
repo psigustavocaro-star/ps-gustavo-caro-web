@@ -301,32 +301,73 @@ export default function Booking() {
         <section id="agendar" className={styles.booking} style={{ scrollMarginTop: '100px' }}>
             <div className="container">
                 <div className={`${styles.bookingCard} ${step === 'schedule' ? styles.wideCard : ''} ${step === 'intro' ? styles.introCard : ''}`}>
+                    {/* Stepper Visual */}
+                    {['intro', 'schedule', 'contact', 'payment'].includes(step) && (
+                        <div className={styles.stepper}>
+                            <div className={`${styles.step} ${step === 'intro' ? styles.activeStep : ''} ${['schedule', 'contact', 'payment', 'success'].includes(step) ? styles.completedStep : ''}`}>
+                                <span className={styles.stepNumber}>1</span>
+                                <span className={styles.stepLabel}>Servicio</span>
+                            </div>
+                            <div className={styles.stepLine}></div>
+                            <div className={`${styles.step} ${step === 'schedule' ? styles.activeStep : ''} ${['contact', 'payment', 'success'].includes(step) ? styles.completedStep : ''}`}>
+                                <span className={styles.stepNumber}>2</span>
+                                <span className={styles.stepLabel}>Horario</span>
+                            </div>
+                            <div className={styles.stepLine}></div>
+                            <div className={`${styles.step} ${step === 'contact' ? styles.activeStep : ''} ${['payment', 'success'].includes(step) ? styles.completedStep : ''}`}>
+                                <span className={styles.stepNumber}>3</span>
+                                <span className={styles.stepLabel}>Registro</span>
+                            </div>
+                            <div className={styles.stepLine}></div>
+                            <div className={`${styles.step} ${step === 'payment' ? styles.activeStep : ''} ${['success'].includes(step) ? styles.completedStep : ''}`}>
+                                <span className={styles.stepNumber}>4</span>
+                                <span className={styles.stepLabel}>Pago</span>
+                            </div>
+                        </div>
+                    )}
+
                     {step === 'intro' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>¿Qué necesitas hoy?</h2>
-                            <p className={styles.stepDesc}>Selecciona el tipo de servicio para comenzar tu agendamiento.</p>
+                            <h2 className={styles.stepTitle}>¿Cómo te gustaría comenzar?</h2>
+                            <p className={styles.stepDesc}>Selecciona el enfoque que mejor se adapte a tu situación actual.</p>
 
-                            <div className={styles.formGroup}>
-                                <label>Servicio a agendar *</label>
-                                <select
-                                    id="serviceType"
-                                    name="serviceType"
-                                    className={`${styles.input} ${styles.select}`}
-                                    value={formData.serviceType}
-                                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as any })}
+                            <div className={styles.serviceCards}>
+                                <div 
+                                    className={`${styles.serviceCard} ${formData.serviceType === 'sesion' ? styles.activeCard : ''}`}
+                                    onClick={() => setFormData({ ...formData, serviceType: 'sesion' })}
                                 >
-                                    <option value="sesion">Sesión Individual de Psicoterapia - $36.000</option>
-                                    <option value="packSesiones">Pack 4 Sesiones Mensuales - $140.000</option>
-                                </select>
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.cardIcon}>🧠</div>
+                                        <div className={styles.cardBadge}>Individual</div>
+                                    </div>
+                                    <h3 className={styles.cardTitle}>Psicoterapia Individual</h3>
+                                    <p className={styles.cardText}>Atención personalizada focalizada en tus procesos emocionales, ansiedad o bienestar general.</p>
+                                    <div className={styles.cardPrice}>$36.000 <span>/ sesión</span></div>
+                                </div>
+
+                                <div 
+                                    className={`${styles.serviceCard} ${formData.serviceType === 'packSesiones' ? styles.activeCard : ''}`}
+                                    onClick={() => setFormData({ ...formData, serviceType: 'packSesiones' })}
+                                >
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.cardIcon}>📦</div>
+                                        <div className={styles.cardBadge}>Ahorro</div>
+                                    </div>
+                                    <h3 className={styles.cardTitle}>Pack 4 Sesiones</h3>
+                                    <p className={styles.cardText}>Continuidad terapéutica asegurada con un plan mensual. Ideal para procesos profundos.</p>
+                                    <div className={styles.cardPrice}>$140.000 <span>/ mes</span></div>
+                                </div>
                             </div>
 
-                            <button
-                                onClick={handleNext}
-                                className="btn-primary"
-                                disabled={formData.serviceType === ''}
-                            >
-                                Seleccionar Servicio para Continuar
-                            </button>
+                            <div className={styles.footerActions}>
+                                <button
+                                    onClick={handleNext}
+                                    className="btn-primary"
+                                    disabled={formData.serviceType === ''}
+                                >
+                                    Continuar al Calendario →
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -468,13 +509,22 @@ export default function Booking() {
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Selecciona tu horario</h2>
-                            <p className={styles.stepDesc}>Elige el día y hora que mejor te acomode. <strong>Al confirmar, pasarás al pago.</strong></p>
+                            <div className={styles.appointmentSummary}>
+                                <span className={styles.summaryLabel}>Servicio Seleccionado</span>
+                                <div className={styles.summaryContent}>
+                                    <p>{formData.serviceType === 'sesion' ? 'Psicoterapia Individual' : 'Pack 4 Sesiones'}</p>
+                                </div>
+                            </div>
 
                             <div className={styles.calendarContainer}>
                                 <CustomCalendar
                                     onSelectDateTime={handleDateTimeSelection}
                                     bookedSlots={[]}
                                 />
+                            </div>
+
+                            <div className={styles.footerActions}>
+                                <button onClick={handleBack} className="btn-secondary">← Cambiar Servicio</button>
                             </div>
                         </div>
                     )}
@@ -532,10 +582,15 @@ export default function Booking() {
                                         </div>
                                         <div className={styles.securityBadges}>
                                             <span>🔒 Pago seguro con Flow</span>
-                                            <span>📑 Boleta automática</span>
+                                            <span>📑 Boleta Manual Electrónica</span>
+                                        </div>
+                                        <div className={styles.infoBox} style={{marginTop: '20px', fontSize: '0.85rem'}}>
+                                            <p><strong>Paciente:</strong> {formData.name}</p>
+                                            <p><strong>Email:</strong> {formData.email}</p>
+                                            <p><strong>RUT:</strong> {formData.rut}</p>
                                         </div>
                                         <p className={styles.invoiceNote}>
-                                            Tu boleta de honorarios electrónica será enviada automáticamente a tu email tras confirmar el pago.
+                                            Tras confirmar tu pago, el profesional recibirá una notificación para generar y enviarte manualmente tu boleta de honorarios a tu correo electrónico.
                                         </p>
                                     </>
                                 )}
