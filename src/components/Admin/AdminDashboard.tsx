@@ -192,7 +192,7 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td>
                                                     <div className={styles.dateInfo}>
-                                                        <strong>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })}</strong>
+                                                        <strong>{new Date((b.appointmentDate || b.createdAt) as string).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })}</strong>
                                                         <span className={`${styles.statusBadge} ${styles[b.status.toLowerCase()]}`}>
                                                             {b.status === 'PAID' ? 'PAGADO ✓' : 'PENDIENTE'}
                                                         </span>

@@ -7,6 +7,7 @@ export async function GET() {
             where: {
                 status: 'PAID',
                 appointmentDate: {
+                    not: null,
                     gte: new Date().toISOString() // Solo futuras
                 }
             },
@@ -17,6 +18,9 @@ export async function GET() {
 
         // Formatear al formato que CustomCalendar espera: 'YYYY-MM-DD HH:MM'
         const occupiedSlots = bookings.map(b => {
+            // TypeScript safety check (though already filtered in query)
+            if (!b.appointmentDate) return null;
+            
             const date = new Date(b.appointmentDate);
             const yyyy = date.getFullYear();
             const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -24,7 +28,8 @@ export async function GET() {
             const hh = String(date.getHours()).padStart(2, '0');
             const min = String(date.getMinutes()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-        });
+        }).filter((slot): slot is string => slot !== null);
+
 
         return NextResponse.json({ success: true, occupiedSlots });
     } catch (error) {
