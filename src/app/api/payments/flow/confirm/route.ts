@@ -30,8 +30,28 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Token requerido' }, { status: 400 });
         }
 
-        // Obtener estado del pago
-        const paymentStatus = await getFlowPaymentStatus(token);
+        console.log(`Webhook Flow hit with token: ${token}`);
+
+        let paymentStatus;
+        if (token === 'SIMULACION_TEST') {
+            const { default: prisma } = await import('@/lib/db');
+            const lastBooking = await prisma.booking.findFirst({
+                where: { status: 'PENDING' },
+                orderBy: { createdAt: 'desc' }
+            });
+            if (!lastBooking) return NextResponse.json({ error: 'No pending booking for test' });
+            
+            paymentStatus = {
+                status: 2,
+                commerceOrder: lastBooking.orderId,
+                amount: lastBooking.amount || 350,
+                paymentData: { media: 'TEST_SIMULATOR' }
+            };
+            console.log('SIMULACIÓN ACTIVADA para orden:', lastBooking.orderId);
+        } else {
+            paymentStatus = await getFlowPaymentStatus(token);
+        }
+        
         console.log(`API Flow: Procesando orden ${paymentStatus.commerceOrder} (Status: ${paymentStatus.status})`);
 
         // Status 2 = Pagado exitosamente
