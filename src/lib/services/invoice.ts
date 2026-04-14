@@ -159,6 +159,10 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
                 pago_provision_mensual: 1 // El contribuyente emisor se encarga de la retención
             })
         });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`SimpleAPI HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+        }
 
         const result = await response.json();
 

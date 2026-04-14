@@ -45,7 +45,8 @@ export async function createCalBooking(params: {
             return { success: true, bookingId };
         } else {
             console.error('CALCOM: Error al crear booking v2:', data);
-            return { success: false, error: data.message || data.error?.message || 'Error cal.com v2' };
+            const errorDetail = JSON.stringify(data);
+            return { success: false, error: `Cal.com v2 Error: ${response.status} - ${errorDetail}` };
         }
     } catch (error: any) {
         console.error('CALCOM: Error crítico de red v2:', error.message);
