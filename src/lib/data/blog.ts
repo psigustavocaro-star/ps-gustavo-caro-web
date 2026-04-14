@@ -1,3 +1,10 @@
+export interface BlogResource {
+    id: string;
+    title: string;
+    description: string;
+    content: string; // Contenido para el PDF
+}
+
 export interface BlogPost {
     slug: string;
     title: string;
@@ -7,11 +14,7 @@ export interface BlogPost {
     author: string;
     category: 'Salud Mental' | 'Neurodiversidad' | 'Ansiedad' | 'Opinión' | 'Recursos';
     image: string;
-    resources?: {
-        title: string;
-        description: string;
-        link: string;
-    }[];
+    resources?: BlogResource[];
 }
 
 export const blogPosts: BlogPost[] = [
@@ -226,9 +229,10 @@ export const blogPosts: BlogPost[] = [
         `,
         resources: [
             {
+                id: 'guia-respiracion',
                 title: 'Guía de Respiración Diafragmática',
-                description: 'PDF paso a paso para regular tu sistema nervioso.',
-                link: '#'
+                description: 'PDF paso a paso para regular tu sistema nervioso de forma inmediata.',
+                content: 'La respiración diafragmática es una herramienta poderosa para calmar el sistema nervioso simpático. \n\nInstrucciones: \n1. Coloca una mano en tu pecho y otra en tu abdomen. \n2. Inhala profundamente por la nariz durante 4 segundos, sintiendo cómo tu abdomen se expande (la mano en tu pecho no debe moverse). \n3. Mantén el aire por 2 segundos. \n4. Exhala lentamente por la boca en 6 segundos. \n5. Repite este ciclo por 5 minutos o hasta que sientas que tu ritmo cardíaco disminuye.'
             }
         ]
     }
