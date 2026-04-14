@@ -132,7 +132,7 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
     };
 
     try {
-        const response = await fetch('https://api.simpleapi.cl/api/v1/bhe/emitir', {
+        const response = await fetch('https://api.simpleapi.cl/v1/bhe/emitir', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
