@@ -132,7 +132,7 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
     };
 
     try {
-        const response = await fetch('https://api.simpleapi.cl/api/v1/ventas/emitir', {
+        const response = await fetch('https://api.simpleapi.cl/api/v1/bhe/emitir', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -146,18 +146,18 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
                 },
                 receptor: {
                     rut: data.clientRut ? formatRut(data.clientRut) : '66666666-6',
-                    razon_social: data.clientName,
-                    direccion: data.clientAddress || 'Santiago',
+                    nombre: data.clientName,
+                    email: data.clientEmail,
+                    domicilio: data.clientAddress || 'Santiago',
                     comuna: data.clientCommune || 'Santiago'
                 },
-                items: [
+                detalles: [
                     {
                         nombre: data.description || 'ATENCION PSICOLOGICA',
-                        cantidad: 1,
-                        precio: data.amount
+                        valor: data.amount
                     }
                 ],
-                tipo_dte: 39
+                pago_provision_mensual: 1
             })
         });
 
