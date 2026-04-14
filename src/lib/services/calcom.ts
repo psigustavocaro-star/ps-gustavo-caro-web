@@ -14,44 +14,42 @@ export async function createCalBooking(params: {
     }
 
     try {
-        console.log(`CALCOM: Creando reserva v2 para ${params.email} en tipo ${params.eventTypeId}`);
+        console.log(`CALCOM: Creando reserva v1 para ${params.email} en tipo ${params.eventTypeId}`);
 
         const cleanStart = params.start.split('.')[0] + 'Z'; 
 
         const body = {
-            start: cleanStart,
             eventTypeId: params.eventTypeId,
-            attendee: {
+            start: cleanStart,
+            responses: {
                 name: params.name,
                 email: params.email
             },
             timeZone: 'America/Santiago',
-            language: 'es',
-            metadata: {}
+            language: 'es'
         };
 
-        const response = await fetch(`https://api.cal.com/v2/bookings`, {
+        const response = await fetch(`https://api.cal.com/v1/bookings?apiKey=${apiKey}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(body)
         });
 
         const data = await response.json();
 
-        if (response.ok && data.status === 'success') {
-            const bookingId = data.data.id;
-            console.log(`CALCOM: Booking v2 creado exitosamente. ID: ${bookingId}`);
+        if (response.ok) {
+            const bookingId = data.id || data.booking?.id;
+            console.log(`CALCOM: Booking v1 creado exitosamente. ID: ${bookingId}`);
             return { success: true, bookingId, sentBody: body };
         } else {
-            console.error('CALCOM: Error al crear booking v2:', data);
+            console.error('CALCOM: Error al crear booking v1:', data);
             const errorDetail = JSON.stringify(data);
-            return { success: false, error: `Cal.com v2 Error: ${response.status} - ${errorDetail}`, sentBody: body };
+            return { success: false, error: `Cal.com v1 Error: ${response.status} - ${errorDetail}`, sentBody: body };
         }
     } catch (error: any) {
-        console.error('CALCOM: Error crítico de red v2:', error.message);
+        console.error('CALCOM: Error crítico de red v1:', error.message);
         return { success: false, error: error.message };
     }
 }

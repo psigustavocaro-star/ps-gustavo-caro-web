@@ -102,6 +102,7 @@ async function processConfirmation(token: string) {
                             email: clientEmail,
                         });
                         auditData.steps.calcom = calResult.success ? `OK (${calResult.bookingId})` : `FALLÓ (${calResult.error})`;
+                        if (calResult.sentBody) auditData.calcomBody = calResult.sentBody;
                     } catch (calErr: any) {
                         auditData.steps.calcom = `CRASH: ${calErr.message}`;
                     }
