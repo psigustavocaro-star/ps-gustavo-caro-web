@@ -19,17 +19,20 @@ export async function createCalBooking(params: {
         // Cal.com API v2 Create Booking
         const cleanStart = params.start.split('.')[0] + 'Z'; // Quitar milisegundos
 
+        const response = await fetch(`https://api.cal.com/v2/bookings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
             body: JSON.stringify({
-                data: {
-                    start: cleanStart,
-                    eventTypeId: params.eventTypeId,
-                    attendee: {
-                        name: params.name,
-                        email: params.email
-                    },
+                start: cleanStart,
+                eventTypeId: params.eventTypeId,
+                attendee: {
+                    name: params.name,
+                    email: params.email,
                     timeZone: 'America/Santiago',
-                    language: 'es',
-                    metadata: {}
+                    language: 'es'
                 }
             })
         });

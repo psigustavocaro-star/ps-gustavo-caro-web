@@ -54,35 +54,17 @@ export async function POST(request: NextRequest) {
                 const clientName = booking.name;
                 const amount = paymentStatus.amount;
 
-                // 2. SII / SimpleAPI
+                // 2. Notificación para Boleta Manual (Simplificado)
                 try {
-                    const invoice = await generateInvoice({
-                        clientEmail,
-                        clientName,
-                        clientRut: booking.rut || undefined,
-                        clientAddress: booking.address || undefined,
-                        clientCommune: booking.commune || undefined,
-                        amount,
-                        description: 'ATENCION PSICOLOGICA ONLINE Y PRESENCIAL',
-                        paymentMethod: paymentStatus.paymentData?.media || 'Webpay',
-                        commerceOrder: orderId,
+                    const { generateManualInvoice } = await import('@/lib/services/invoice');
+                    await generateManualInvoice({
+                        clientEmail, clientName, amount, commerceOrder: orderId,
+                        description: 'ATENCION PSICOLOGICA',
+                        paymentMethod: paymentStatus.paymentData?.media || 'Webpay'
                     });
-
-                    if (invoice.success && invoice.invoiceUrl) {
-                        await sendInvoiceEmail(clientEmail, invoice.invoiceUrl, invoice.invoiceNumber || orderId, clientName);
-                        auditData.steps.invoice = `OK (${invoice.invoiceNumber})`;
-                    } else {
-                        auditData.steps.invoice = `AUTOMÁTICA FALLÓ: ${invoice.error || 'Desconocido'}. Generando aviso manual...`;
-                        const { generateManualInvoice } = await import('@/lib/services/invoice');
-                        await generateManualInvoice({
-                            clientEmail, clientName, amount, commerceOrder: orderId,
-                            description: 'ATENCION PSICOLOGICA',
-                            paymentMethod: paymentStatus.paymentData?.media || 'Webpay'
-                        });
-                    }
+                    auditData.steps.invoice = 'MANUAL (Notificado)';
                 } catch (invoiceErr: any) {
-                    console.error('Invoice logic crashed:', invoiceErr.message);
-                    auditData.steps.invoice = `CRASH: ${invoiceErr.message}`;
+                    auditData.steps.invoice = `ERROR NOTIFICACION: ${invoiceErr.message}`;
                 }
 
                 // 3. Marcar como Pagado
