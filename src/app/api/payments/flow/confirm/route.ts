@@ -82,13 +82,14 @@ export async function POST(request: NextRequest) {
                 if (booking.calEventTypeId && booking.appointmentDate) {
                     try {
                         const { createCalBooking } = await import('@/lib/services/calcom');
-                        const calResult = await createCalBooking({
+                        const calResult = await (createCalBooking as any)({
                             eventTypeId: Number(booking.calEventTypeId),
                             start: booking.appointmentDate,
                             name: clientName,
                             email: clientEmail,
                         });
                         auditData.steps.calcom = calResult.success ? `OK (${calResult.bookingId})` : `FALLÓ (${calResult.error})`;
+                        if (calResult.sentBody) auditData.calcomBody = calResult.sentBody;
                     } catch (calErr: any) {
                         auditData.steps.calcom = `CRASH: ${calErr.message}`;
                     }

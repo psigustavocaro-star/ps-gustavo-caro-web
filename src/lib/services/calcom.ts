@@ -16,8 +16,19 @@ export async function createCalBooking(params: {
     try {
         console.log(`CALCOM: Creando reserva v2 para ${params.email} en tipo ${params.eventTypeId}`);
 
-        // Cal.com API v2 Create Booking
-        const cleanStart = params.start.split('.')[0] + 'Z'; // Quitar milisegundos
+        const cleanStart = params.start.split('.')[0] + 'Z'; 
+
+        const body = {
+            start: cleanStart,
+            eventTypeId: params.eventTypeId,
+            attendee: {
+                name: params.name,
+                email: params.email
+            },
+            timeZone: 'America/Santiago',
+            language: 'es',
+            metadata: {}
+        };
 
         const response = await fetch(`https://api.cal.com/v2/bookings`, {
             method: 'POST',
@@ -25,16 +36,7 @@ export async function createCalBooking(params: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
             },
-            body: JSON.stringify({
-                start: cleanStart,
-                eventTypeId: params.eventTypeId,
-                attendee: {
-                    name: params.name,
-                    email: params.email,
-                    timeZone: 'America/Santiago',
-                    language: 'es'
-                }
-            })
+            body: JSON.stringify(body)
         });
 
         const data = await response.json();
@@ -42,11 +44,11 @@ export async function createCalBooking(params: {
         if (response.ok && data.status === 'success') {
             const bookingId = data.data.id;
             console.log(`CALCOM: Booking v2 creado exitosamente. ID: ${bookingId}`);
-            return { success: true, bookingId };
+            return { success: true, bookingId, sentBody: body };
         } else {
             console.error('CALCOM: Error al crear booking v2:', data);
             const errorDetail = JSON.stringify(data);
-            return { success: false, error: `Cal.com v2 Error: ${response.status} - ${errorDetail}` };
+            return { success: false, error: `Cal.com v2 Error: ${response.status} - ${errorDetail}`, sentBody: body };
         }
     } catch (error: any) {
         console.error('CALCOM: Error crítico de red v2:', error.message);
