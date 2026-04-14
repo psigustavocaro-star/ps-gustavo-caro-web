@@ -1,5 +1,5 @@
 .about {
-    padding: 120px 0;
+    padding: var(--section-padding);
     position: relative;
     background: transparent;
 }
@@ -7,7 +7,7 @@
 .aboutContent {
     display: grid;
     grid-template-columns: 0.9fr 1.1fr;
-    gap: 80px;
+    gap: clamp(40px, 8vw, 100px);
     align-items: center;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .sectionTitle {
-    font-size: clamp(2.2rem, 4vw, 2.8rem);
+    font-size: var(--font-size-h2);
     margin-bottom: 24px;
     color: var(--foreground);
     letter-spacing: -0.02em;
@@ -78,11 +78,11 @@
     letter-spacing: 0.2em;
     display: block;
     margin-bottom: 16px;
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
 }
 
 .text {
-    font-size: 1.1rem;
+    font-size: var(--font-size-base);
     color: var(--foreground-light);
     margin-bottom: 24px;
     line-height: 1.8;

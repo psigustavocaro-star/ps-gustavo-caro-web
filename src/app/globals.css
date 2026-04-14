@@ -48,8 +48,15 @@
   --font-body: 'Inter', sans-serif;
 
   /* Spacing */
-  --section-padding: 100px 20px;
-  --container-width: 1200px;
+  --section-padding: clamp(60px, 10vw, 120px) 24px;
+  --container-width: 1240px;
+
+  /* Typography Fluid Tokens */
+  --font-size-h1: clamp(2.5rem, 6vw, 4.2rem);
+  --font-size-h2: clamp(2rem, 5vw, 3rem);
+  --font-size-h3: clamp(1.5rem, 3vw, 2.25rem);
+  --font-size-base: clamp(1rem, 1vw + 0.1rem, 1.1rem);
+  --font-size-sm: clamp(0.85rem, 0.9vw, 0.95rem);
 
   /* Premium Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -180,10 +187,11 @@ section {
    ============================================ */
 
 .section-title {
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin-bottom: 16px;
+  font-size: var(--font-size-h2);
+  margin-bottom: clamp(12px, 2vw, 24px);
   color: var(--foreground);
   font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .section-subtitle {
