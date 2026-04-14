@@ -25,7 +25,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-04-10',
         author: 'Ps. Gustavo Caro',
         category: 'Ansiedad',
-        image: 'https://images.unsplash.com/photo-1595181829241-e374d6c4e09a?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_ansiedad_santiago_1776137206965.png',
         content: `
             <p>Para muchos santiaguinos, el día no comienza en la oficina, sino en el andén de la Línea 1 o la Línea 4. El Metro de Santiago, aunque eficiente, representa uno de los mayores desafíos diarios para quienes lidian con ansiedad social o hipersensibilidad sensorial.</p>
             
@@ -50,7 +50,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-04-08',
         author: 'Ps. Gustavo Caro',
         category: 'Neurodiversidad',
-        image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_tdah_oficina_1776137223131.png',
         content: `
             <p>El TDAH en adultos no es "falta de voluntad", es una diferencia en la arquitectura química del cerebro. En barrios como el Golf o Nueva Las Condes (Sanhattan), las expectativas de productividad son altísimas y muy rígidas.</p>
             
@@ -68,7 +68,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-04-05',
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
-        image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_familias_estigma_1776138828568.png',
         content: `
             <p>Históricamente, en Chile hemos tenido una cultura de "ponerle el hombro" a todo. Aunque esto nos ha hecho resilientes ante terremotos, nos ha hecho muy crueles ante los "terremotos internos".</p>
             
@@ -79,8 +79,20 @@ export const blogPosts: BlogPost[] = [
         `
     },
     {
+        slug: 'ritmo-frenetico-santiago-cortisol',
+        title: 'Vivir a mil: El impacto del ritmo santiaguino en tu cortisol',
+        excerpt: 'Nuestra ciudad se mueve rápido, y nuestro cuerpo paga el precio con inflamación y estrés crónico.',
+        date: '2024-03-28',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: '/blog_ritmo_estres_santiago_1776138845888.png',
+        content: `
+            <p>El estrés no es solo mental, es bioquímico. El cortisol alto de forma constante nos enferma. En Santiago, vivimos en un estado de alerta perenne.</p>
+        `
+    },
+    {
         slug: 'invierno-gris-santiago-depresion',
-        title: 'El invierno gris de Santiago: Combatiendo el Trastorno Afectivo Estacional',
+        title: 'El invierno gris de Santiago: Trastorno Afectivo Estacional',
         excerpt: 'La falta de luz solar en los meses de invierno en la capital chilena tiene un efecto directo en nuestra serotonina.',
         date: '2024-04-01',
         author: 'Ps. Gustavo Caro',
@@ -97,25 +109,13 @@ export const blogPosts: BlogPost[] = [
         `
     },
     {
-        slug: 'ritmo-frenetico-santiago-cortisol',
-        title: 'Vivir a mil: El impacto del ritmo santiaguino en tu cortisol',
-        excerpt: 'Nuestra ciudad se mueve rápido, y nuestro cuerpo paga el precio con inflamación y estrés crónico.',
-        date: '2024-03-28',
-        author: 'Ps. Gustavo Caro',
-        category: 'Salud Mental',
-        image: 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?q=80&w=1200&auto=format&fit=crop',
-        content: `
-            <p>El estrés no es solo mental, es bioquímico. El cortisol alto de forma constante nos enferma. En Santiago, vivimos en un estado de alerta perenne.</p>
-        `
-    },
-    {
         slug: 'higiene-sueno-ciudad-luces',
         title: 'Dormir en la ciudad que nunca se apaga',
         excerpt: 'Cómo la contaminación lumínica y el ruido de Santiago afectan tu higiene del sueño y cómo recuperar tus noches.',
         date: '2024-03-25',
         author: 'Ps. Gustavo Caro',
         category: 'Recursos',
-        image: 'https://images.unsplash.com/photo-1519003722824-192d9920188d?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_sleep_urban_night_lights_1776139123834.png',
         content: `
             <p>El sueño es el taller de reparación de tu mente. Si no duermes bien, tu capacidad de regular emociones cae drásticamente.</p>
         `
@@ -127,7 +127,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-03-20',
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
-        image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_santiago_mountain_resilience_premium_1776139093323.png',
         content: `
             <p>La resiliencia no es aguantar hasta romperse, es la capacidad de doblarse y volver a la forma original, con nuevos aprendizajes.</p>
         `
@@ -139,7 +139,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-03-15',
         author: 'Ps. Gustavo Caro',
         category: 'Neurodiversidad',
-        image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_school_classroom_inclusion_1776139110804.png',
         content: `
             <p>El sistema escolar actual en Chile está diseñado para un "promedio" que no existe. Los niños con TDAH o TEA son a menudo catalogados como problemas cuando el problema es el molde.</p>
         `
@@ -170,12 +170,12 @@ export const blogPosts: BlogPost[] = [
     },
     {
         slug: 'ansiedad-redes-sociales-adolescentes',
-        title: 'Generación Ansiedad: Redes sociales en los colegios de Santiago',
+        title: 'Generación Ansiedad: Redes sociales en colegios de Santiago',
         excerpt: 'El impacto de la comparación constante y el cyberbullying en la salud mental de nuestros jóvenes.',
         date: '2024-03-01',
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
-        image: 'https://images.unsplash.com/photo-1516726817505-f5ed17dc4803?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_social_media_anxiety_conceptual_1776139176516.png',
         content: `
             <p>Las redes sociales son el nuevo patio de recreo, pero uno que nunca cierra y donde la opinión de miles puede pesarte.</p>
         `
@@ -187,7 +187,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-02-25',
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
-        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_impostor_syndrome_reflection_1776139190697.png',
         content: `
             <p>Sentir que vas a ser "descubierto" como un fraude es más común de lo que crees, especialmente en entornos competitivos.</p>
         `
@@ -199,7 +199,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-02-20',
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
-        image: 'https://images.unsplash.com/photo-1499209974431-9eaa37a11144?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_self_care_psychology_therapeutic_1776139205529.png',
         content: `
             <p>Ser terapeuta en Chile implica navegar un sistema de salud precario y muchas veces desolador. El autocuidado no es opcional, es ético.</p>
         `
