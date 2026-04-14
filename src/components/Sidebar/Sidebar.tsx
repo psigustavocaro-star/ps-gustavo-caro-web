@@ -4,6 +4,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
 
 const navLinks = [
@@ -42,6 +43,9 @@ const navLinks = [
 
 export default function Sidebar() {
     const [showContact, setShowContact] = useState(false);
+    const pathname = usePathname();
+
+    if (pathname.includes('/admingustavo')) return null;
 
     const toggleContact = (e: React.MouseEvent) => {
         e.preventDefault();

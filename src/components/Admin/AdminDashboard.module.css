@@ -1,260 +1,272 @@
-.loginContainer {
+.dashboard {
+    display: flex;
     min-height: 100vh;
+    background: #f8fafc;
+    color: #1e293b;
+    font-family: var(--font-body);
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar {
+    width: 260px;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.sidebarBrand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    margin-bottom: 40px;
+}
+
+.logoMini {
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f1f5f9;
-    padding: 20px;
-}
-
-.loginCard {
-    background: white;
-    padding: 60px;
-    border-radius: 32px;
-    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 480px;
-    text-align: center;
-}
-
-@media (max-width: 640px) {
-    .bottomBar {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .linkItem:hover {
-        transform: translateY(-2px);
-    }
-}
-
-/* Footer Admin Link styles */
-.adminLink {
-    margin-top: 10px;
-}
-
-.adminLink a {
-    color: rgba(255, 255, 255, 0.05);
-    font-size: 0.7rem;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.adminLink a:hover {
-    color: rgba(255, 255, 255, 0.3);
-}
-
-.loginTitle {
-    font-size: 2rem;
     font-weight: 800;
-    margin-bottom: 12px;
-    color: #1e293b;
+    font-size: 0.9rem;
 }
 
-.loginForm {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.input {
-    width: 100%;
-    padding: 16px 24px;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.input:focus {
-    outline: none;
-    border-color: var(--primary);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.1);
-}
-
-.loginBtn {
-    margin-top: 8px;
-    width: 100%;
-    padding: 16px;
-    background: var(--primary);
-    color: white;
-    border-radius: 12px;
-    border: none;
+.sidebarBrand span {
     font-weight: 700;
     font-size: 1.1rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+    letter-spacing: -0.01em;
 }
 
-.loginBtn:active {
-    transform: scale(0.98);
-}
-
-.dashboard {
-    min-height: 100vh;
-    background: #f8fafc;
-}
-
-.header {
-    background: white;
-    padding: 24px 40px;
+.sidebarNav {
+    flex: 1;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e2e8f0;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 12px;
 }
 
-.headerInfo h1 {
-    font-size: 1.5rem;
-    font-weight: 800;
-}
-
-.headerInfo p {
-    color: #64748b;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-}
-
-.tabs {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.tabBtn {
-    padding: 10px 20px;
-    background: #f1f5f9;
-    color: #64748b;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.tabActive {
-    background: var(--primary);
-    color: white;
-}
-
-.headerBtns {
-    display: flex;
-    gap: 12px;
-}
-
-.backBtn {
-    padding: 10px 20px;
-    background: white;
-    color: #64748b;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 0.9rem;
+.navItem {
     display: flex;
     align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: #94a3b8;
+    font-weight: 500;
+    font-size: 0.95rem;
     transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    text-decoration: none;
 }
 
-.backBtn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+.navItem:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.navActive {
+    color: white;
+    background: var(--primary) !important;
+}
+
+.sidebarFooter {
+    padding: 0 12px;
 }
 
 .logoutBtn {
-    padding: 10px 20px;
-    background: #f1f5f9;
-    color: #64748b;
-    border-radius: 8px;
-    border: none;
+    width: 100%;
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.main {
+.logoutBtn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.mainContent {
+    flex: 1;
+    margin-left: 260px;
     padding: 40px;
 }
 
-.tableWrapper {
+.mainHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.mainTitle {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.mainSubtitle {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.refreshBtn {
+    padding: 10px;
     background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.refreshBtn:hover {
+    background: #f1f5f9;
+}
+
+/* ============================================
+   STATS GRID
+   ============================================ */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.statCard {
+    background: white;
+    padding: 24px;
     border-radius: 20px;
     border: 1px solid #e2e8f0;
-    overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.statLabel {
+    display: block;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* ============================================
+   DATA LISTS
+   ============================================ */
+.contentWrapper {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    padding: 32px;
+}
+
+.listHeader {
+    margin-bottom: 24px;
+}
+
+.listHeader h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.listHeader p {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.tableResponsive {
+    overflow-x: auto;
 }
 
 .table {
     width: 100%;
     border-collapse: collapse;
-    text-align: left;
 }
 
 .table th {
+    text-align: left;
+    padding: 12px 16px;
     background: #f8fafc;
-    padding: 16px 24px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: #475569;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid #e2e8f0;
+    color: #64748b;
+    border-radius: 8px;
 }
 
 .table td {
-    padding: 24px;
+    padding: 20px 16px;
     border-bottom: 1px solid #f1f5f9;
-    vertical-align: top;
 }
 
-.dateCell {
-    font-weight: 600;
-    color: #64748b;
+.patientCell {
+    min-width: 250px;
 }
 
-.patientInfo {
+.patientMain {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.patientInfo strong {
-    color: #1e293b;
-    font-size: 1.05rem;
+.patientMain strong {
+    font-size: 1rem;
+    color: #0f172a;
 }
 
-.patientInfo span {
+.patientMain span {
+    font-size: 0.85rem;
     color: #64748b;
-    font-size: 0.9rem;
 }
 
-.phone {
+.phoneLink {
     color: var(--primary) !important;
+    font-weight: 600;
 }
 
-.rut {
-    font-family: monospace;
-    background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.8rem !important;
-    width: fit-content;
-}
-
-.badge {
-    background: #e0f2fe;
-    color: #0369a1;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 700;
+.dateInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .statusBadge {
-    padding: 6px 12px;
+    padding: 4px 10px;
     border-radius: 100px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
+    width: fit-content;
 }
 
 .paid {
@@ -267,23 +279,206 @@
     color: #92400e;
 }
 
-.detailsContent {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #475569;
-    max-width: 400px;
+.failed {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
-.anamnesisSection {
-    margin-top: 12px;
+.serviceBadge {
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.detailsCell {
+    min-width: 300px;
+}
+
+.detailsBox {
     background: #f8fafc;
     padding: 12px;
     border-radius: 12px;
+    font-size: 0.9rem;
 }
 
-.empty {
+.anamnesisPill {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+.progressInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 150px;
+}
+
+.progressInfo span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.progressBar {
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+/* ============================================
+   LOGIN STYLES
+   ============================================ */
+.loginContainer {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f9fa;
+    padding: 24px;
+}
+
+.loginCard {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    padding: 48px;
+    border-radius: 32px;
+    box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.1);
+}
+
+.loginHeader {
     text-align: center;
-    padding: 100px;
-    color: #94a3b8;
-    font-style: italic;
+    margin-bottom: 32px;
+}
+
+.logoCircle {
+    width: 56px;
+    height: 56px;
+    background: var(--primary);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 auto 16px;
+}
+
+.loginTitle {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.loginDesc {
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.inputGroup label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.input {
+    padding: 12px 16px;
+    border: 2px solid #f1f5f9;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.1);
+}
+
+.loginBtn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.loginBtn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    gap: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f1f5f9;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+    }
+    .sidebarBrand span, .navItem span, .sidebarFooter {
+        display: none;
+    }
+    .mainContent {
+        margin-left: 80px;
+    }
 }

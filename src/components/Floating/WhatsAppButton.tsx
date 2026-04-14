@@ -1,8 +1,12 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import styles from './WhatsAppButton.module.css';
 
 export default function WhatsAppButton() {
+    const pathname = usePathname();
+    if (pathname.includes('/admingustavo')) return null;
+
     // Reemplaza con tu número real
     const phoneNumber = "56922409953";
     const message = encodeURIComponent("Hola Gustavo, me gustaría agendar una hora o realizar una consulta.");
