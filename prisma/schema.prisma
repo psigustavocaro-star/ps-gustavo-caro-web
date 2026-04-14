@@ -49,3 +49,12 @@ model Newsletter {
   lastSentAt  DateTime @default(now())
   createdAt   DateTime @default(now())
 }
+
+model EmailTemplate {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
