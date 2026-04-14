@@ -136,6 +136,7 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'Authorization': `Bearer ${simpleapi.apiKey}`
             },
             body: JSON.stringify({
@@ -152,22 +153,27 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
                 },
                 detalles: [
                     {
-                        nombre: data.description,
+                        nombre: data.description || 'ATENCION PSICOLOGICA',
                         valor: data.amount
                     }
                 ],
-                pago_provision_mensual: 1 // El contribuyente emisor se encarga de la retención
+                pago_provision_mensual: 1
             })
         });
 
         const rawText = await response.text();
-        console.log('SimpleAPI Response:', rawText);
+        console.log('SimpleAPI Raw text response:', rawText);
 
         if (!response.ok) {
-            throw new Error(`SimpleAPI HTTP ${response.status}: ${rawText.substring(0, 500)}`);
+            throw new Error(`SimpleAPI HTTP ${response.status}: ${rawText.substring(0, 500) || 'Empty body'}`);
         }
 
-        const result = JSON.parse(rawText);
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (e) {
+            throw new Error(`SimpleAPI response not JSON: ${rawText.substring(0, 100)}`);
+        }
 
         if (!response.ok || !result.exito) {
             const errorMsg = result.mensaje || result.error || 'Error en SimpleAPI';
