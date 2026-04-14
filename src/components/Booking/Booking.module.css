@@ -28,86 +28,28 @@
    CONTENEDOR PRINCIPAL
    ============================================ */
 
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+
 .bookingCard {
+    width: 95%;
     max-width: 680px;
     margin: 0 auto;
     padding: 0;
     background: transparent;
     text-align: center;
-    transition: max-width 0.4s ease;
+    transition: all 0.4s ease;
     position: relative;
     z-index: 1;
 }
 
 .wideCard {
-    max-width: 800px;
-}
-
-/* ============================================
-   STEP CONTENT
-   ============================================ */
-
-.stepContent {
-    animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes fadeSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.stepTitle {
-    font-size: clamp(1.75rem, 4vw, 2.25rem);
-    margin-bottom: 12px;
-    color: var(--foreground);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-}
-
-.stepDesc {
-    font-size: 1.05rem;
-    color: var(--foreground-light);
-    margin-bottom: 40px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.7;
-}
-
-/* ============================================
-   SERVICE SELECTOR - New Design
-   ============================================ */
-
-.introCard {
     max-width: 900px;
 }
 
-.serviceSection {
-    margin-bottom: 40px;
-    text-align: left;
-}
-
-.sectionLabel {
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--primary);
-    margin-bottom: 8px;
-}
-
-.sectionNote {
-    font-size: 0.9rem;
-    color: var(--foreground-muted);
-    margin-bottom: 16px;
-    font-style: italic;
+.introCard {
+    max-width: 950px;
 }
 
 /* ============================================
@@ -118,10 +60,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 48px;
-    padding: 0 10%;
+    margin-bottom: clamp(24px, 5vw, 48px);
+    padding: 0 5%;
     position: relative;
-    max-width: 600px;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -130,29 +72,29 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     position: relative;
     z-index: 2;
     transition: all 0.3s ease;
 }
 
 .stepNumber {
-    width: 32px;
-    height: 32px;
+    width: clamp(28px, 4vw, 36px);
+    height: clamp(28px, 4vw, 36px);
     border-radius: 50%;
     background: var(--surface);
     border: 2px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--foreground-muted);
     transition: all 0.3s ease;
 }
 
 .stepLabel {
-    font-size: 0.7rem;
+    font-size: clamp(0.6rem, 1.5vw, 0.7rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -162,33 +104,36 @@
 
 .stepLine {
     flex-grow: 1;
-    height: 2px;
+    height: 1px;
     background: var(--border);
-    margin: 0 10px;
-    margin-bottom: 24px;
+    margin: 0 8px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 1;
 }
 
-.activeStep .stepNumber {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 0 0 4px var(--primary-glow);
+@media (max-width: 1024px) {
+    .bookingCard {
+        max-width: 90%;
+    }
+    
+    .stepper {
+        padding: 0;
+    }
 }
 
-.activeStep .stepLabel {
-    color: var(--primary);
-}
-
-.completedStep .stepNumber {
-    background: #dcfce7;
-    border-color: #22c55e;
-    color: #166534;
-}
-
-.completedStep .stepLabel {
-    color: #166534;
+@media (max-width: 768px) {
+    .stepLabel {
+        display: none;
+    }
+    
+    .stepLine {
+        margin-bottom: 0;
+    }
+    
+    .stepper {
+        margin-bottom: 32px;
+    }
 }
 
 /* ============================================
@@ -197,8 +142,8 @@
 
 .serviceCards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(16px, 3vw, 24px);
     margin-bottom: 40px;
 }
 
@@ -206,7 +151,7 @@
     background: white;
     border: 2px solid var(--border);
     border-radius: var(--radius-xl);
-    padding: 32px 24px;
+    padding: clamp(20px, 4vw, 32px) clamp(16px, 3vw, 24px);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: left;
@@ -215,6 +160,7 @@
     flex-direction: column;
     height: 100%;
 }
+
 
 .serviceCard:hover {
     border-color: var(--primary-light);
