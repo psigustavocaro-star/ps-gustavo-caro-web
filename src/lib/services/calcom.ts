@@ -14,42 +14,39 @@ export async function createCalBooking(params: {
     }
 
     try {
-        console.log(`CALCOM: Creando reserva v1 para ${params.email} en tipo ${params.eventTypeId}`);
+        console.log(`CALCOM: Creando reserva v2 para ${params.email} en tipo ${params.eventTypeId}`);
 
-        const cleanStart = params.start.split('.')[0] + 'Z'; 
-
-        const body = {
-            eventTypeId: params.eventTypeId,
-            start: cleanStart,
-            responses: {
-                name: params.name,
-                email: params.email
-            },
-            timeZone: 'America/Santiago',
-            language: 'es'
-        };
-
-        const response = await fetch(`https://api.cal.com/v1/bookings?apiKey=${apiKey}`, {
+        const response = await fetch(`https://api.cal.com/v2/bookings`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'cal-api-version': '2024-08-13'
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({
+                eventTypeId: params.eventTypeId,
+                start: params.start, // params.start ya viene con .000Z de la DB/Frontend
+                attendee: {
+                    name: params.name,
+                    email: params.email,
+                    timeZone: 'America/Santiago'
+                }
+            })
         });
 
         const data = await response.json();
 
-        if (response.ok) {
-            const bookingId = data.id || data.booking?.id;
-            console.log(`CALCOM: Booking v1 creado exitosamente. ID: ${bookingId}`);
-            return { success: true, bookingId, sentBody: body };
+        if (response.ok && (data.status === 'success' || response.status === 201)) {
+            const bookingId = data.data?.id || data.id;
+            console.log(`CALCOM: Booking v2 creado exitosamente. ID: ${bookingId}`);
+            return { success: true, bookingId };
         } else {
-            console.error('CALCOM: Error al crear booking v1:', data);
+            console.error('CALCOM: Error al crear booking v2:', data);
             const errorDetail = JSON.stringify(data);
-            return { success: false, error: `Cal.com v1 Error: ${response.status} - ${errorDetail}`, sentBody: body };
+            return { success: false, error: `Cal.com v2 Error: ${response.status} - ${errorDetail}` };
         }
     } catch (error: any) {
-        console.error('CALCOM: Error crítico de red v1:', error.message);
+        console.error('CALCOM: Error crítico de red v2:', error.message);
         return { success: false, error: error.message };
     }
 }
