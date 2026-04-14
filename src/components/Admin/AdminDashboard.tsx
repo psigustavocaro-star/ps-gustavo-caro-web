@@ -16,7 +16,7 @@ export default function AdminDashboard() {
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         // Credenciales solicitadas por el usuario
-        if (email.toLowerCase() === 'psi.gustavocaro@gmail.com' && password === 'gacarom154941') {
+        if (email.toLowerCase() === 'psi.gustavocaro@gmail.com' && password === 'gudaxgudax1.') {
             setIsAuthenticated(true);
             fetchData();
         } else {
