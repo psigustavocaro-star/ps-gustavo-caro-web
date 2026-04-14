@@ -1,235 +1,235 @@
-export interface BlogResource {
-    id: string;
-    title: string;
-    description: string;
-    content: string;
-}
-
 export interface BlogPost {
     slug: string;
     title: string;
     excerpt: string;
     content: string;
     date: string;
-    category: string;
-    image: string;
     author: string;
-    resources?: BlogResource[];
+    category: 'Salud Mental' | 'Neurodiversidad' | 'Ansiedad' | 'Opinión' | 'Recursos';
+    image: string;
+    resources?: {
+        title: string;
+        description: string;
+        link: string;
+    }[];
 }
 
 export const blogPosts: BlogPost[] = [
     {
-        slug: 'habilidades-parentales-era-hiperconectividad',
-        title: 'Criar en un Mundo Digital: El Desafío de Reconectar en la Era de las Pantallas',
-        excerpt: 'Una reflexión profunda sobre cómo la tecnología ha mediado el vínculo entre padres e hijos, y cómo podemos recuperar la presencia real en un hogar que parece cada vez más hiperconectado.',
-        content: `
-            <p>Muchas veces, mientras converso con padres y madres en la consulta, termino escuchando una frase que surge cargada de nostalgia y de muchísimo cansancio emocional: antes criar parecía ser más fácil. Y aunque la memoria a veces nos engaña y solemos idealizar el pasado, en este caso hay una verdad innegable desde el punto de vista biológico y social. Nunca antes en toda la historia de la humanidad habíamos tenido que competir de forma tan directa por la atención de nuestros hijos. Estamos compitiendo contra algoritmos que fueron meticulosamente diseñados en Silicon Valley por miles de ingenieros con un solo propósito: capturar y secuestrar la atención de nuestros niños, y de paso, también la nuestra.</p>
-            
-            <p>La parentalidad en pleno 2026 ya no se trata solamente de poner reglas sobre a qué hora hay que irse a la cama o de enseñar modales en la mesa. Hoy en día, criar implica gestionar la arquitectura afectiva de todo un núcleo familiar dentro de un ecosistema que es casi puramente digital. He visto en mi práctica clínica cómo lo que yo llamo la "presencia interrumpida" va generando grietas profundas en las relaciones. Ese acto tan sutil de mirar el celular de reojo mientras nuestro hijo nos está contando lo que le pasó en el colegio, o revisar una notificación mientras cenamos, genera una herida invisible en ellos. Poco a poco empezamos a plantarles la idea de que nosotros, sus figuras de apego prioritarias, no somos lo suficientemente interesantes como para competir con ese mensaje de WhatsApp que acaba de llegar. Es duro, pero como adultos también somos víctimas de esta dopamina rápida y barata. Reconocer nuestra propia vulnerabilidad frente a las pantallas es el verdadero punto de partida para una crianza más consciente.</p>
-
-            <h2>El Secuestro de la Atención</h2>
-            <p>Pensemos por un momento en lo que sucede en el cerebro en desarrollo. Cuando un niño o un adolescente se sumerge durante horas en un flujo infinito de contenido de gratificación hiper rápida, su corteza prefrontal entra en una especie de letargo. La corteza prefrontal es esa área tan sofisticada de nuestro cerebro humano encargada de cosas vitales como la paciencia, la planificación, el control de los impulsos y la empatía por el otro. Sin embargo, ¿por qué un niño querría esperar a ver cómo florece una planta o invertir horas intentando terminar un rompecabezas complejo, si puede tener una explosión de dopamina, colores y sonidos perfectamente curados cada tres segundos con solo deslizar el dedo en TikTok o Reels?</p>
-            
-            <p>Lo que estamos haciendo, muchas veces sin darnos cuenta, es entrenar a esos cerebros infantiles y adolescentes para la inmediatez absoluta. Y la paradoja es que luego les exigimos que sean capaces de regularse emocionalmente ante la más mínima frustración de la vida cotidiana. Pero la vida real no ocurre en tres segundos. La vida real exige espera, silencios y aburrimiento. Les estamos exigiendo una paciencia que sus cerebros han dejado de practicar. Es una pelea tremendamente desigual.</p>
-
-            <p>Desde la psicología clínica, mi invitación nunca es a que los padres se conviertan en rígidos policías digitales. La tecnología ya está aquí y no va a desaparecer. Prohibir por completo las pantallas muchas veces solo empuja a los niños al ocultamiento y destruye la confianza. La propuesta es distinta: tenemos que pasar a ser mentores digitales. Necesitamos empezar a medir nuestras interacciones y, más importante aún, atrevernos a crear lo que llamo "oasis de desconexión" dentro de nuestra propia casa. Son espacios de tiempo y lugares físicos donde permitimos que entre el aburrimiento. Porque, aunque le tengamos pánico a que nuestros hijos se aburran, es precisamente en la vastedad del aburrimiento donde florece el autoconocimiento, la imaginación orgánica y la verdadera creatividad.</p>
-
-            <h2>Reconstruyendo el Vínculo en el Aquí y el Ahora</h2>
-            <p>Me gustaría ser claro con algo: la tecnología es una excelente herramienta para buscar información, para estudiar o para divertirnos un rato, pero es un pésimo refugio para nuestras carencias emocionales. El inmenso desafío que tenemos hoy por delante es recuperar la profundidad de las miradas. Volver a jugar solo por el hecho de jugar, sin grabar un video del momento para subirlo a redes sociales. Retomar las conversaciones sobre la mesa que no buscan arreglar nada específico ni tener la razón, sino que apuntan simplemente a acompañarnos y escucharnos.</p>
-            
-            <p>Criar de esta manera hoy en día es casi un acto de resistencia contracultural. Es atrevernos a decidir radicalmente que, al menos durante esos treinta minutos en los que estamos cenando juntos, las urgencias del mundo entero pueden quedarse esperando en la puerta, simplemente porque las personas más importantes para nosotros están sentadas justo ahí, frente a nuestros ojos, esperando ser vistas.</p>
-
-            <p>Por esto mismo, en mis sesiones terapéuticas, mi enfoque va más allá del comportamiento aislado del niño o del adolescente. Trabajamos con el sistema de la familia en su conjunto. Un hijo que no logra sentirse genuinamente visto, escuchado o valorado en su hogar, inevitablemente terminará buscando ese reflejo, esa validación humana, en el pozo profundo e infinito de internet. Mi esfuerzo clínico es brindar herramientas para que vuelvas a mirar a tu hijo con genuina curiosidad, y para que él logre aprender a reconocer su propio valor humano a través de los ojos de sus padres, y no a través de una pantalla fría de cristal líquido.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Turkle, S. (2015). <em>Alone Together: Why We Expect More from Technology and Less from Each Other</em>. Basic Books.</li>
-                <li>Lembke, A. (2021). <em>Dopamine Nation: Finding Balance in the Age of Indulgence</em>. Dutton.</li>
-                <li>Haidt, J. (2024). <em>The Anxious Generation: How the Great Rewiring of Childhood Is Causing an Epidemic of Mental Illness</em>. Penguin Press.</li>
-            </ul>
-        `,
-        date: '2026-02-05',
-        category: 'Parentalidad',
-        image: '/blog/soledad-digital.png',
-        author: 'Ps. Gustavo Caro'
-    },
-    {
-        slug: 'salud-mental-docente-chile-claves',
-        title: 'El Peso del Aula: Reflexiones sobre el Agotamiento y la Vocación Docente en Chile',
-        excerpt: 'Ser profesor hoy en el Chile actual se ha convertido en un acto de equilibrio y contención emocional casi sobrehumana. Una mirada profunda al burnout y a cómo repensar la labor educacional.',
-        content: `
-            <p>En el curso de mis años atendiendo a personas en consulta, he notado un patrón inequívoco cuando recibo a alguien que se dedica a la enseñanza. Muchas veces, lo primero que se vuelve evidente en la sala no es el simple cansancio físico o las ojeras, sino algo muchísimo más profundo, una especie de peso invisible. Hablo de una fatiga que va desde lo mental hasta lo moral: la fatiga por compasión. Y es que ejercer la labor docente en Chile ha ido experimentando un giro muy doloroso en las últimas décadas. Pasamos de una figura revestida de admiración social a presenciar a un profesional abrumado por una presión institucional y comunitaria que parece no darle un segundo de respiro.</p>
-            
-            <p>Hoy, el profesor de un colegio municipalizado o privado no se limita de manera exclusiva a enseñar el teorema de Pitágoras o las fechas de la Independencia. Se le exige tácitamente ejercer como un muro de contención psicológica frente a las crisis emocionales del alumnado. Sirve de mediador constante en las rupturas familiares. Y debe navegar, sin tiempo ni recursos extra, por unas exigencias burocráticas enormes que, irónicamente, consumen la energía que deberían destinar a aquello por lo que estudiaron pedagogía: el trabajo real con los estudiantes en la sala de clases.</p>
-
-            <h2>De la Sobrevivencia a la Resiliencia Real</h2>
-            <p>Lo que habitualmente denominamos como "Burnout", o síndrome de desgaste profesional, no tiene que leerse bajo ninguna circunstancia como una derrota o una falla individual vinculada a la falta de resiliencia del profesional. Todo lo contrario. El burnout es la consecuencia predecible y lógica de someter a nuestro sistema nervioso central a una exigencia que constantemente sobrepasa la infraestructura de recursos disponibles. Cuando el profesor detecta una alta demanda emocional a diario, sin reciprocidad sistémica, el cuerpo percibe la situación como una amenaza prolongada de la que no puede escapar alegremente. No es que al docente le haya fallado la vocación, es que su vocación está erosionando silenciosamente sus pilares biológicos a causa de un estrés de naturaleza crónica.</p>
-            
-            <p>Dentro de los procesos de psicoterapia en mi consulta, un primer gran paso es intentar que el profesor recupere su punto de gravedad, su centro vital. Pasa con demasiada frecuencia, abrumados por el fuerte componente de ayuda social de la profesión, que los profesores se olvidan del principio humano más básico de todos: para poder iluminar o cuidar el camino de otros, yo necesito ser un refugio sólido y seguro en mi propio territorio interno. Desde conceptos provenientes de terapias basadas en evidencia, intentamos desarmar de a poco ese pensamiento trágico y extendido que dicta que un pedagogo bueno y noble es el que lo sacrifica, literalmente, todo hasta terminar completamente vacío. Eso, además de injusto para la persona, es una falacia insostenible en el largo plazo.</p>
-
-            <h2>Hacia un Autocuidado con Sentido Profundo</h2>
-            <p>Si reflexionamos a fondo, el autocuidado real dista muchísimo de las frases prefabricadas sobre cómo tomarse un café los fines de semana o hacerse masajes, como nos intenta vender cierta publicidad. Efectivamente, eso ayuda. Sin embargo, el autocuidado esencial para sobrevivir a la docencia moderna es la habilidad asertiva de saber decir "no". Es trazar límites saludables y tangibles a las responsabilidades y a las exigencias que superan nuestros topes de capacidad emocional. Debemos cambiar el paradigma y comprender que aprender a establecer fronteras no significa perder vocación o volverse un mal docente; significa volverse alguien un poco más sabio respecto a sus límites humanos de actuación diaria.</p>
-            
-            <p>El bienestar emocional es, quizás, la más valiosa de las herramientas pedagógicas a implementar en cualquier sala de clases del país, puesto que si desde la cabecera no se transmite tranquilidad interna, difícilmente el alumnado logrará retener materias o sentirse acogido. El propósito de un trabajo paralelo con orientación clínica es servir de guía y apoyo en esta suerte de retorno vocacional, ayudando al profesor a redescubrir lo que lo llevó a elegir esa carrera, pero dotándolo esta vez del blindaje mental adecuado para poder transitar su vocación durante las décadas futuras sin tener que dejar su salud olvidada en los pasillos de un colegio.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Maslach, C., & Leiter, M. P. (2016). <em>Understanding the burnout experience: Recent research and its implications for psychiatry</em>. World Psychiatry.</li>
-                <li>Jennings, P. A. (2015). <em>Mindfulness for Teachers: A Guide for Peace and Productivity in the Classroom</em>. Norton.</li>
-                <li>Ministerio de Educación Chile (2024). Estrategia Nacional de Salud Mental Docente.</li>
-            </ul>
-        `,
-        date: '2026-01-15',
-        category: 'Educación',
-        image: '/blog/school-mental-health.png',
-        author: 'Ps. Gustavo Caro'
-    },
-    {
-        slug: 'mindfulness-compasion-terapia-cognitiva',
-        title: 'La Revolución de la Amabilidad: Sentar las Bases de la Autocompasión Clínica',
-        excerpt: 'Suele ocurrir que solemos ser los peores críticos y jueces de nosotros mismos. Entender cómo la autocompasión y la terapia pueden silenciar nuestra voz destructiva para dar paso al aprendizaje real.',
-        content: `
-            <p>A nivel social en occidente, en el cual por supuesto estamos profundamente integrados, hemos forjado nuestra cultura bajo el paraguas y el culto ciego a la productividad imparable. Desde pequeños se nos viene adoctrinando bajo la creencia casi religiosa de que la única vía verdadera hacia el éxito, ya sea este profesional o personal, viene dictaminada por la rectitud imperturbable y por blandir continuamente un látigo crítico contra nuestras propias acciones. A causa de esta dinámica, en mi trabajo diario de atención me enfrento continuamente a pacientes mentalmente agotados, totalmente exprimidos por la incansable actividad de una pequeña voz interna cuyo patrón está configurado para no estar jamás satisfecha, sin importar los lauros que la persona pueda conseguir externamente. Es justamente en el pico máximo de esa hostilidad mental interna, donde herramientas psicológicas como el Mindfulness y las técnicas de Compasión pierden la connotación espiritual o mística que popularmente se les adjudica, pasando a tomar un rol fundamental y puramente clínico.</p>
-
-            <p>Para desmitificarlo inmediatamente, integrar atención plena o mindfulness a nivel terapéutico nada tiene que ver con lograr algo biológicamente imposible como "poner nuestra mente maravillosamente en blanco" para luego de eso levitar sutilmente a diez centímetros sobre el piso. En su acepción puramente científica, aplicar estas herramientas significa simplemente generar el hábito progresivo y sostenido en el tiempo de observar cómo van germinando nuestros pensamientos perjudiciales, detectando los torbellinos cognitivos justo antes de vernos irreversiblemente envueltos en la angustia que deviene de ellos. La diferencia, por minúscula que a veces parezca al comienzo, es monumental en su trasfondo neurológico. Romper el paradigma de "Soy un rotundo fracaso y nada tiene arreglo" para transicionar paulatinamente hacia la reflexión "Ahora mismo, dentro de mi cabeza, estoy experimentando el pensamiento fugaz de que soy un rotundo fracaso". Es justo el establecimiento de ese brevísimo pero crucial distanciamiento mental donde las estrategias logran afiatarse y donde empieza el proceso real de desactivación ansiosa en todo nuestro sistema interno corporal.</p>
-
-            <h2>Hacia la Ciencia Real y Concreta de Tratarte Mejor</h2>
-            <p>Cuando trabajamos temas relacionados a la llamada autocompasión clínica basada en evidencia científica reciente, es clave separarla emocionalmente del concepto simple de "lástima por nosotros mismos" y distanciarse drásticamente de justificar cualquier mala actitud alegando mera benevolencia interior pasiva y cegata. Si nos adentramos a lo microscópico, ser autocompasivos se traduce a un muy avanzado sistema centralizado de regulación biológica frente a las crisis emocionales internas en las que la vida irremediablemente, día tras día, nos irá sometiendo. Al aplicarlo en sesiones mediante protocolos controlados, lo que de facto genera es una disminución ostensible de la hormona del estrés, o cortisol, dando paso al incremento sutil en la concentración de sistemas como el de la oxitocina, abarcando así un sentimiento integral biológico que remeda un sistema fundamental humano de absoluta seguridad. En retrospectiva no es una ciencia incomprensible; simple y llanamente es tratar nuestros fallos del día a día de una manera objetiva, pero utilizando el mismo calibre de bondad empática constructiva con la que intentaríamos aconsejar con calma a un muy querido amigo que atraviesa una severa racha de aflicción emocional profunda e incontrolable.</p>
-
-            <p>Como terapeutas hoy integramos herramientas como la compasión a los protocolos consolidados y pragmáticos, como la Terapia Cognitivo Conductual, precisamente porque a fin de cuentas la ciencia comprobable a lo largo de décadas ya nos determinó sin lugar a debate alguno algo que ya sabíamos a ciegas sobre el tema de los pacientes y los fallos: las más profundas reestructuraciones y mejoras en nuestra paz emocional en la etapa media y final de nuestra vida, casi nunca se originan alimentando permanentemente el odio ciego en nuestro fuero interno, sino estableciendo la idea profunda, simple pero real de la humanidad; la certeza tajante de saber que sufriremos ineludiblemente porque todos tropezamos en muchísimos aspectos a largo plazo y la premisa base de que el error propio, por abismal que pueda hacernos sentir, en última instancia, nunca debería quitarnos bajo norma alguna la libertad inherente a volver a cimentar desde un piso seguro nuestro crecimiento psicológico progresivo futuro.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Neff, K. D. (2011). <em>Self-Compassion: The Proven Power of Being Kind to Yourself</em>. William Morrow.</li>
-                <li>Germer, C. K. (2009). <em>The Mindful Path to Self-Compassion</em>. Guilford Press.</li>
-                <li>Gilbert, P. (2010). <em>The Compassionate Mind</em>. Constable.</li>
-            </ul>
-        `,
-        date: '2026-02-02',
-        category: 'Bienestar',
-        image: '/blog/mindfulness.png',
-        author: 'Ps. Gustavo Caro'
-    },
-    {
-        slug: 'estres-financiero-salud-mental-estrategias',
-        title: 'El Dinero en la Mente: Los Costos Invisibles del Estrés y la Presión Económica Cotidiana',
-        excerpt: 'Cómo la ansiedad incesante generada por el espectro de la inseguridad económica altera silenciosamente los patrones y funciones biológicas desde el cerebro.',
-        content: `
-            <p>Es bastante irónico y revelador pensar al respecto sobre cómo la materia financiera y administrativa del capital sigue ubicándose dentro de los tabúes más sagrados presentes dentro del mismísimo y privado reciento de una consulta psicológica contemporánea cualquiera en este país. Con regularidad, las personas en sus sesiones van ahondando progresivamente pero con firmeza ante mí acerca de toda el amplio espectro general y enredado de su propia psiquis, tocando terrenos ásperos, traumas duros infantiles en etapas base del propio entendimiento o hasta vulneraciones extremas impensadas de intimidad oculta emocional de sus biografías, aunque sin chistar ni titubear un solo segundo pero todo eso de pronto se transforma en un mutismo silente e incontenible cuando decido poner el acento en el terreno práctico del factor administrativo financiero en lo del mes del individuo, algo real, tocable pero inmanente de ocultar la profunda verguenza moral a modo estructural por miedo al juicio evaluativo exterior directo. Pese a este escenario repetitivo en sesión a nivel estadístico chileno e incansables análisis poblacionales transversales al respecto revelan hace mucho sin asombrarse un dictamen empírico devastador, señalando de paso los niveles abismales sostenibles en los índices basales ansiosos-depresivos reportados en estratos sociales de múltiples rangos poblacionales dependientes a base de sobregiros asfixiantes o tarjetas de crédito del retail del individuo moderno promedio actual de manera prolongada sistemática incansable</p>
-
-            <p>En el nivel estricto del procesamiento psicodinámico neurofísico nos encontraremos siempre bajo situaciones en las cuales, mientras el paciente permanezca sumergido crónicamente en realidades repletas de alta inestabilidad pecuniaria en Chile asimilables a pautas interdependientes a constantes deudas usureras impagables sin fin el sistema interno de respuestas cognitivas superiores colindantes de corte evolutivo va migrando paulatinamente sin aviso a modo general y profundo hacia una constante fase silente invisible a modo "visión estricta microscópica aguda". El fenómeno en su síntesis pura hace que una visión sistémica planificadora y proyectiva macro ambiental hacia un horizonte medio temporal a un lapso regular, con respecto a variables en el plano personal-laborales quede erradicada temporalmente bajo presiones y demandas adaptativas estresoras urgentes diarias impidiendo observar escenarios con claridez frente a las posibilidades alternativas a sortear a lo largo de este mismo estado opresor. El sujeto, atrapado biológicamente en el incesante torbellino reactivo no evidencia, como los demás asumen banalmente, carencias burdas e ignorantes ligadas al "no saber llevar una hoja excel o planillas ordenadas en su celular de administración" o desmerecer simple y ramplonamente el contexto, lo real radica al observar en cámara lenta un encéfalo estallado y asediado crónicamente carente de espacios que decanta sus impulsos hacia vías ineficientes destructivas de compensación ante lo incontrolable a una tasa que el cuerpo no logra depurar en el plano material actual.</p>
-
-            <h2>Comprender en Consulta las Variables Ocultas Frente a Los Movimientos</h2>
-            <p>Durante la psicoterapia, y en general las exploraciones relativas sobre temas psicosociales ahondamos detenidamente pero con profundidad el mapeo base sentimental del individuo promedio arraigado mediante un sistema de creencias limitantes de dependencia frente al vil capital material al respecto. Me he dado a la tarea usual de explorar incisivamente al ir cuestionando lo que dicho individuo ve detrás al referirse al papel moneda u ahorros frente a un objeto de cambio en la realidad base del paciente como representación de qué realmente al fin, el estatus? tranquilidad? autopercepción o base personal como resguardo biográfico ante contingencias incalculables reales ajenas al deseo de compra superficial. A base de una constante experiencia frente a este cuestionario de variables los comportamientos referidos a una fuga constante e irreflexiva compulsiva inagotable no son nada muy ajeno o distanciado clínicamente referido y estudiado en otras aristas respecto a una base y estrategia sumamente imperfecta carente de dirección para lograr estabilizar impulsos o traumas encadenados profundos y crónicos pasados y llenar el inmenso hueco que deja la depresión al buscar un cimiento seguro falso para reestructurar identidades de paso que el fondo nunca ha logrado realmente ser purificado interior.</p>
-
-            <p>Es gracias a que implementamos herramientas como las que componen la vertiente cognitiva-conductual o similares esquemas integrativos logramos ubicar e hilar con precisión empírica objetiva frente al espejo aquellos momentos exactísimos precisos o "puntos de ebullición sentimentales invisibles" escondidos detrás que nos gatillan a cometer dichas inestabilidades financieras futuras inminentes para contradecirlas, y progresivamente transmutarlas entrenando tolerancia en nuestros umbrales a bases del aguante ante las molestias biológicas intrínsecas del no comprar o consumir, para ir fundando y cementando con paciencia paso por paso nuevos umbrales bases identitarios estables y seguros frente a la no dependencia directa basada de las fluctuaciones matemáticas en un monitor sobre nuestras limitadas e intangibles billeteras modernas sin tampoco omitir ingenuamente e ilusoriamente nuestra compleja situación dentro del sistema real país adverso en materia y desigualdad evidente general al unísono macroeconómico sistémico donde vivimos.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Klontz, B., & Klontz, T. (2011). <em>Mind Over Money: Overcoming the Money Disorders that Threaten Our Financial Health</em>. Broadway Books.</li>
-                <li>Richardson, T., et al. (2013). <em>The relationship between personal unsecured debt and mental health: A systematic review and meta-analysis</em>. Clinical Psychology Review.</li>
-                <li>Meltzer, H., et al. (2011). <em>Personal debt and suicidal ideation</em>. Public Health.</li>
-            </ul>
-        `,
-        date: '2026-02-04',
-        category: 'Psicoeconomía',
-        image: '/blog/burnout-chile.png',
-        author: 'Ps. Gustavo Caro'
-    },
-    {
-        slug: 'ansiedad-en-santiago-tratamiento-tcc',
-        title: 'El Ritmo Sintético y Desigual de la Ciudad Actual: Terapia Ante la Alta Ansiedad Adaptativa',
-        excerpt: 'Cómo las inmensas infraestructuras urbanas se han entrelazado y asimilado en nuestras profundidades psicológicas mediante impulsos de vigilancia extrema constante generalizada a diarios por la mera supervivencia moderna adaptativa',
-        content: `
-            <p>Es un fenómeno sumamente fascinante si comenzamos de pronto a frenarnos tan siquiera unos pequeños minutos al paso en el cruce del centro de Providencia repleto de transeúntes aglomerados y autos incontrolables en el día e invertimos la actitud para pasar a detenernos sigilosamente y escrutar más allá de lo evidente los semblantes mudos y rígidos o simplemente el nivel general en que la humanidad se agolpa sin sentido para no dejar ni respirar al que está en frente a su entorno circundante material para lograr evadir inminente el presente frente a los infinitos retrasos que este caótico entramado impone ciego en cada amanecer y término de mes sin tregua hacia un final predecible, monótono. Acostumbro a analizar, siendo psicólogo sumergido dentro, observando perplejo no solo un gentío masivo hiper apurado impaciente sino adentrarme e imaginar cómo ese cúmulo y ruido interrumpe los procesos inobservables neurofísicos basales como sistemas completos de respuestas adaptativas interpersonales arrojados al límite mediante alarmas de híper vigilancia en estado rojo permanente que nuestro delicado y milenario organismo interno instintivo primitivo jamás anticipó tener que estar asimilando dentro del corto intervalo de la llamada nueva era y a la altísima e insalubre celeridad estresora a las exigencias para con un individuo bajo la inmensidad gris en particular hoy día actual interconectado globalizado masivo asfixiante abrumador sin pausas y suplicando aliviarse del terror incierto silencioso e invisible de estar en sociedad.</p>
-
-            <p>Durante la psicoterapia y especialmente dentro del desarrollo al enfrentar directamente o desenrollar el nudo general base del pánico el interrogante mayoritariamente que azota y tortura al que visita con urgencia sus peores dudas o lamentos dolorosos es aquel desesperanzador y ciego mantra interno incansable y estresante y limitante exclamando a secas profundamente angustiado "¿y porque me ocurre a mí?" sobre la ansiedad aguda, a sabiendas yo procedo con cuidado dando énfasis desde primer momento ante algo no muy distante sino al fomento hacia un profundo entendimiento amoroso para dar bienvenida pacíficamente dándole valor inquebrantable desde bases que invitan simplemente primeramente hacia una acogida radical la postura general comprensible frente al fenómeno de alarma como algo valioso. Sugerir sopesablemente una figuración de que al fin nuestro organismo y encéfalo funcionan análogo un fiel e invencible aliado de contención sin descanso de guardia general el cual sin mediación ninguna evalúa ruidos presiones e incertidumbre caótica estruendosa en conjunto para decidir y prever amenazas inexistentes sin pensar detonando cada sistema de resguardo interior por pánico por asegurar sobrevivencias que hoy sólo están dictadas bajo percepciones frente a un estrés financiero deudas y estatus ficticio del cual nuestro pilar general ignora de raíz pues al fin no diferencia en sí entre ser atacados inminente contra el futuro irreal temido por el propio devenir constante y amenazante.</p>
-
-            <h2>Desmantelar Laberintos Internos Mentales Progresivamente Sólido a Base Firme Estructurada Cierta Clara Con Evidencias</h2>
-            <p>Dentro e interior de nosotros como sujetos urbanos la percepción general moderna para esta constante del miedo asume matices particulares muy distintivos de base ligada a una continua espiral rumiante sobre llegar al sueldo base a saldar en fechas límites todo asfixiante lo enmarcado general de cómo a uno se le cataloga observándolo exterior bajo estratos competentes evaluativos de gran envergadura desconectándose al final abismal en desconexiones abrumantes entre sí. Como seres inmersos pasamos las noches siendo víctimas abrumadoras incuestionables inmersos bajo pensamientos condicionantes a través de interrogativas ficticias y catastróficas como los insondables e imparables y terribles "y si de pronto pierdo los trabajos" y si la otra persona se alejaría sin decir perdiéndose o cosas de menor pero devastadores cuantías relativas los cuales para colmo no resultarán en abstractas variables para deprimirnos simplemente si no comandos profundos muy reales asimilados como directrices biológicas severas imperativas dictadas para acelerarnos ciegos a las cavidades y vísceras con palpitaciones desenfrenadas incontroladas arruinándonos físicamente sin siquiera advertirlo</p>
-
-            <p>Usando bases robustas desde una arista clínica basada netamente a favor y proveniente del andamiaje TCC evito a ciencia de promover ilusoriamente algo para "eliminar y suprimir la emoción y suprimir a base farmacológica estupefaciente y suprimir todo esto de pronto de forma milagrosa irreal general". Ese approach superficial sería desmantelar nuestro propio cuerpo del inmenso y necesario equipo biológico interno, la TCC interviene guiando los procesos e instando la forma hacia la "reestructuración cognitiva incesante del fenómeno irreal y reeducar los pilares basales del proceso neuro", se va evaluando los temblores incuestionados e instamos a distinguir y repasar a nivel metódico exhaustivamente frente una eventual gran presión limitante ficticia irreal vs inminencias empíricas y peligros inminentes probados mediante juicios y refutaciones objetivas alejando a la generalizada masa social para enseñarte a ir a contra corriente para observar y derribar tu mismo esquizontes ficticios irreales destructivos.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Hofmann, S. G. (2012). <em>An Introduction to Modern CBT: Psychological Solutions to Mental Health Problems</em>. Wiley-Blackwell.</li>
-                <li>Beck, J. S. (2020). <em>Cognitive Behavior Therapy: Basics and Beyond</em>. Guilford Press.</li>
-                <li>Leahy, R. L. (2017). <em>The Worry Cure: Seven Steps to Stop Worry from Stopping You</em>. Piatkus.</li>
-            </ul>
-        `,
-        date: '2026-02-06',
+        slug: 'ansiedad-social-metro-santiago',
+        title: 'Sobrevivir a la hora punta: Ansiedad social en el Metro de Santiago',
+        excerpt: 'Cómo el hacinamiento y el ruido del transporte público afectan nuestro sistema nervioso y qué técnicas usar en el momento.',
+        date: '2024-04-10',
+        author: 'Ps. Gustavo Caro',
         category: 'Ansiedad',
-        image: '/blog/anxiety-tcc.png',
-        author: 'Ps. Gustavo Caro'
+        image: 'https://images.unsplash.com/photo-1595181829241-e374d6c4e09a?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>Para muchos santiaguinos, el día no comienza en la oficina, sino en el andén de la Línea 1 o la Línea 4. El Metro de Santiago, aunque eficiente, representa uno de los mayores desafíos diarios para quienes lidian con ansiedad social o hipersensibilidad sensorial.</p>
+            
+            <h3>El impacto del hacinamiento</h3>
+            <p>Cuando estamos rodeados de desconocidos en un espacio reducido, nuestro cerebro reptiliano puede interpretar la situación como una amenaza. El contacto físico involuntario, el ruido de los frenos y la falta de espacio personal disparan los niveles de cortisol.</p>
+            
+            <h3>Opinión: La ciudad no nos cuida</h3>
+            <p>Personalmente, creo que hemos normalizado un nivel de estrés urbano que es insostenible. No se trata solo de "llegar a la hora", se trata de cómo llegamos. Llegar con el pulso a cien y la respiración cortada condiciona todo nuestro desempeño laboral y emocional.</p>
+            
+            <h3>Técnicas de choque en el vagón</h3>
+            <ul>
+                <li><strong>La técnica 5-4-3-2-1:</strong> Identifica 5 cosas que ves, 4 que tocas, 3 que oyes, 2 que hueles y 1 que saboreas. Ayuda a anclarte al presente.</li>
+                <li><strong>Cancelación de ruido:</strong> Invertir en buenos audífonos no es un lujo, es una herramienta de salud mental.</li>
+                <li><strong>Respiración cuadrada:</strong> Inhala en 4, mantén en 4, exhala en 4, mantén en 4.</li>
+            </ul>
+        `
     },
     {
-        slug: 'depresion-tratamiento-activacion-conductual-chile',
-        title: 'El Laberinto de Exigencias Grises: Repensar Las Profundas Raíces del Trastorno Depresivo e Iniciativa a La Retomada Biográfica',
-        excerpt: 'Dejar el falso estereotipo hacia un lado sobre flojera crónica social estigmatizante y reeducar las bases bajo entender la desconexiones profundas del cómo a través de bases firmes las microacciones van volviendo los trazos coloridos en la apatía del sujeto.',
+        slug: 'tdah-adulto-oficinas-santiago',
+        title: 'TDAH Adulto: El desafío invisible en Sanhattan',
+        excerpt: 'Trabajar en los centros financieros de Santiago exige una atención lineal que el cerebro neurodivergente a veces no puede dar.',
+        date: '2024-04-08',
+        author: 'Ps. Gustavo Caro',
+        category: 'Neurodiversidad',
+        image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&auto=format&fit=crop',
         content: `
-            <p>No acostumbro ni pretendo intentar diagnosticar ni establecer a base fría como psiquiatras a los individuos e imponer de forma aséptica y burda rótulos carentes que generalizan en todo. Acostumbro en cambio y tiendo mediante profundizaciones usar analogías comprensivas junto con pacientes que acuden donde indico referirme hacia una especie de inmersión frente al dolor ajeno referida simple pero duramente como experimentar un gran deslavado silencioso o pérdida extrema sensorial en la profundidad biográfica frente a "desvanecer poco a poco el rango colores de nuestras pasiones pasadas hasta tornar aburridamente la gama de grises de todo alrededor". Cuesta admitir para nosotros los chilenos inmersos y muy sujetos frente al estatus y de que se deba a flaqueamientos mentales abstractos a debilidades abstractas éticas moralistas estigmas sobre presuntas faltas del espíritu luchador sin más bases racionales si no una merma de las facultades profundas en rangos orgánicos neuro receptores de retribuciones bajo el entorno y percepciones frente a estímulos que ya no satisfacen el sentido base del cerebro, al final el pilar central agobiado evalúa abrumadas desdichas decidiendo pausar actividades en un afán extremo general conservador orgánico como hibernando al percibir a su entorno como terreno árido, inerte doloroso fútil y en donde todo esfuerzo y ganas ya carecerá realmente del impacto inicial prometido.</p>
-
-            <p>Y he aquí una tremenda falla a todo el engranaje social nacional con respectos al silencio ahogado de los trastornos aflictivos con mayor recurrencia dentro los rangos de las políticas públicas y del tabú del "tener que tirar y seguir remando hacia adelante a pesar del nulo motivo" donde toda exigencia frente a mostrarse incólumemente perfectos siempre impone el callar el trauma en lo profundo enmudeciéndonos social y herméticamente todo bajo lo personal y la privacidad íntima del consultorio privado, todo para el final de facto notar sistemáticamente una gran merma de todos cómo estas dolencias de origen aflictivo no sólo remiten fallos al individuo u estamentos o de índole en desconexiones neurológicas sino al de un síntoma de desconexiones inmensas de la matriz social frente al accionar en un entorno empobrecedor estresador agudo para interactuar biológicamente sano e integrativamente de donde venimos y fuimos empujados por simple conformismo y desganas extremadas frente el coste mental que involucra o requiere.</p>
-
-            <h2>Hilar Fino El Ciclo Silente Hacia la Activación Empírica Comprobable Orgánica Frente a las Fuerzas Interiores</h2>
-            <p>Hay un elemento incansable en crueldad e irrenunciable cuando los estamentos se anulan progresivamente sistemáticamente como lo son bajo un patrón vicioso frente las lógicas inerciales sin fuerza al interior que te empuja irremisible a la paralisis. Y el fundamento base o mecanismo interno se fundamenta incuestionable a que a un momento que "experimento profunda desidia, luego rehúso en base a la tristeza e inmovilidades biológicas ejecutar la más mínima obra y a que entonces ya carecemos general e interior del estímulo a nivel bases e internos los pilares neuro reestructurándose hacia el sedentarismo o letargias lo cual nos castigan profundamente sin clemencias bajo presiones dolorosamente peores frente el autojuicio limitando la voluntad irremisible de los pilares cognitivos orgánicos estructurales biográficos de nuestras ganas vitales de manera muy general". Bajo estas ataduras imposibles, instar tontamente o recurrir falsamente desde afuera pidiendo o intentando suplirlo desde de que "pensar en positivo o verle del lado blanco alegre y florido de manera forzada superficialmente eufórico todo al lado exterior para salir adelante por voluntad propia y mágica inasible ilusoria inestable" carece en sus profundidades todo asidero. Y en mi consulta a los pacientes indico de que de facto recurramos a los cimientos muy puros referidos y empíricos en base fuertes y probadas desde orígenes conductistas profundizados integrativos enmarcados en Acitvación Físicos Conductuales</p>
-
-            <p>Implementar las líneas de base y matrices desde acitvación nos arrojan a paradigmas subversivos basales e irreverencial simple para el dolor y es lo de proceder en contra la intuicion y de a las meras expectativas subjetivas emocionales pasivas esperando tener un golpe interno o ganas para hacerlo sino al enroque frontal actuando como paso en orden inverso absoluto e innegable de ejecutar y arremeter el hecho biológico en bruto aun sin atesorar ninguna inmensa llamarada emocional afirmativa inminente dentro de su fuero interior como detonador, simplemente hacer y avanzar para luego empíricamente recibir todo del empuje y afianzar las bases retro alimenticias comprobables en base forzar una biológica respuesta general exterior inalterable y decir simple y categóricamente nuestro pilar base de estamos vivos retomando el timón hacia terrenos sanos con nuestra propia inercia motora de las realidades diarias materiales e interpersonales.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Martell, C. R., Dimidjian, S., & Herman-Dunn, R. (2010). <em>Behavioral Activation for Depression: A Clinician's Guide</em>. Guilford Press.</li>
-                <li>Cuijpers, P., et al. (2023). <em>The efficacy of behavioral activation for depression: A meta-analysis</em>. Journal of Affective Disorders.</li>
-            </ul>
-        `,
-        date: '2026-02-07',
-        category: 'Depresión',
-        image: '/blog/healthy-relationships.png',
-        author: 'Ps. Gustavo Caro'
+            <p>El TDAH en adultos no es "falta de voluntad", es una diferencia en la arquitectura química del cerebro. En barrios como el Golf o Nueva Las Condes (Sanhattan), las expectativas de productividad son altísimas y muy rígidas.</p>
+            
+            <h3>¿Por qué es más difícil en Santiago?</h3>
+            <p>Nuestra cultura laboral todavía castiga mucho al que no sigue el ritmo tradicional. Las oficinas abiertas (open office) son el enemigo número uno de la concentración para alguien con TDAH.</p>
+            
+            <h3>Estrategias de adaptación</h3>
+            <p>Si eres neurodivergente en este entorno, necesitas crear tu propio "ecosistema de foco". El uso de bloqueadores de tiempo y la técnica Pomodoro adaptada son vitales.</p>
+        `
     },
     {
-        slug: 'tdah-adulto-estrategia-gestion-dopamina',
-        title: 'Las Turbinas Que Nunca Apagan: Comprendiendo de Raíz Los Entramados Neurodivergentes TDAH en Tiempos de Excesivos Estímulos',
-        excerpt: 'Cómo ir dilucidando los laberintos ocultos sobre los inestables e irregulares filtros en función del estímulo más las estigmatizadas cargas pesadas sociales, y ver la biología oculta en un sistema.',
+        slug: 'estigma-salud-mental-familias-chilenas',
+        title: 'El "no sea flojo": Rompiendo el estigma en la familia chilena',
+        excerpt: 'Por qué a las familias en Chile les cuesta tanto entender que la depresión no es falta de ánimo, sino una enfermedad real.',
+        date: '2024-04-05',
+        author: 'Ps. Gustavo Caro',
+        category: 'Opinión',
+        image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200&auto=format&fit=crop',
         content: `
-            <p>Con frecuencia indeseada incesante e inevitable en las jornadas veo pacientes al venir de frente por asesorías arrastrando cargas inmensas y enormes fardos estigmáticos frente juicios y críticas implacables destructivas lapidarios ajenas bajo preceptos irremisibles como el catalogarse eternos indolentes o simplemente personas vagas y desinteresadas en los campos pragmáticos u organizacionales y frente al mero hecho en la base en sus responsabilidades de forma negligente y flojos sin fin irremisibles y desmotivados indolentes generales al entorno propio o social pero desde allí el cimiento clínico es la de arrojar un salvavidas analítico comprensivo inmediato limpiando desordenadas preconcepciones generalistas sesgadas enjuiciadoras sociales, en sí todo esos estigmas e imperativos en su lugar el enfoque de origen clínico en esencia los encuadra empírica no a flojera abstracta ni flaqueamientos si no lisa llanamente por concepto general empírico a las enormes fallas y deficiencias neuro ejecutivas integrativas o mermadas y diferentes bases. Porque y es que los organismos funcionales bases encéfalos con el tipo de características ligadas intrincadamente y en rangos del padecido no es carencia pura ligada a la retentiva al desgano carencias hacia un trabajo de atención en si sino la configuración base difiere frente el filtro neurológico frente a estimulo y priorización difiere abismal y drásticamente y estructural frente o comparados frente con rangos llamados por convención normativos y frente neuro tipicidades generalizados poblacionales de un sistema actual encuadrado y opresivo adverso ajeno sordo desentonado e insensible al de la variabilidad o el de un sistema cognitivo.</p>
-
-            <p>Tengamos muy de forma general por idea de un engranaje base u operística una suerte en banda enorme orquestada muy afinada para ir ejecutándose con un alto y enorme pilar maestro a modo o de suerte en el rol como director de obra frente a esta organización, este sujeto el individuo a modo general neuro típico base y pre fontal decide el transito preciso hacia cual sección ejecuta cual violín irrumpe con gran presencia al minuto o en silenciar con precisión estricta a trompetistas y clarines sin demoramientos fallos u omisiones indeseadas dentro pero para un sujeto inmerso a los laberintos neurodivergentes de a los procesos ligados TDAH en la adultez los músicos o procesos bases si están sumamente entrenados brillantes al punto con mucha energía dispuestos pero es el conductor encargado general que intermite e instintivo su directriz base, no coordina el pulso o los estigmas o le pierde energía de paso la batuta o en distracciones extremas dejándolo el desastre como un caos y sinfonía agotadora e increíble donde el estrés y gran frustración no deviene a base o a partir de carencias e inhibición base a nivel falta al nivel la sinfonía creadora inagotable asombrosamente sino por que se abruman bajo carencias u organizaciones generales estruendosas muy dolorosas biológicamente agotables o drenantes a sus energías bases y profundamente estigmatizantes para uno como individuo adulto inserto al ámbito en lo productivo moderno riguroso o las responsabilidades familiares del ser.</p>
-
-            <h2>Hambre Y Cimientos Bases De La Gran Dopamina Inatrapable Furtiva Insesante Voraz Intensa Del Estímulo Central Estructural De A La Divergencia Inestables e Impaciente</h2>
-            <p>Para encauzar al origen o para de construir los entresijos de las variables enmarcadas adultas ligados fuertemente al espectro ligado el gran y clave origen esencial reside netamente central y sin tapujo los elementos bioquímicas frente a funciones dopaminérgicas intrínsecamente y funcional muy estructural. Como general base en sí todos y aquel cerebro adscrito fuertemente reside hambriento perpetuo frente incesantes olas buscando afianzar a tope su estímulo en chispazos y la gratificación esencial originaria biológica. Motivo fundamental frente y donde a tareas basales rutinarias operarios o fojas o rutinas estamentes monótonos u fojas farragosas en sí desencadenan por rechazo basal asfixiando por cansancio a un nivel físico extenuante agobiantes análogamente como obligarnos biológicamente escalar de cero muros interminables, y a su reverso en caso proyectos adrenalínicos en crisis e imprevisibilidades se activan sistemas dormidos logrando fijaciones agudísimas como híper focalizado sobre un asunto inagotablemente y exhaustivos hiper eficientes e incomparables en lo rápido por la intensa de las chispa e impulso generador intrínseco al estar dentro sumidos profundamente enfocados irreales casi místicos.</p>
-
-            <p>En el plano clínico profundo u desde frentes con soportes desde orientados hacia fojas terapias integradas en base los elementos o pilares la vertiente cognitivo nuestra labor directriz en mi sillón como guía mi pretensión en ninguna vertiente está orientadas hacia fojas supresoras ni estamentos y de homogeneización para "arreglar al cerebro ni obligarlo de encuadrar su accionar" hacia normas imperantes inasequibles si no apuntando con fuerza a afiatar herramientas ajenas de soporte andamiaje general como un factor extrínsecos muy sólides fuertes, construyendo de paso y si el encéfalo e impulso y su dirección orquestadas bases del comando no rinde con efectividad intrínseca entonces vamos cimentando de los andamiajes como sistemas externos generalizados directivos organizados o estrategias de la gestión ambiental de las dinámicos reguladores, lográndose aplaque el gran caos mental permitiendo destellar profundamente todas inmensidad orquestales artísticas u racionales ocultos dentro sin necesidad en que agoten sistemáticamente crónicamente en sus pilares e incesante esfuerzo ni de verse agotados sistemáticamente mental física emocional a largo inminente plano general biográfico personal o desbordarse ante rutinas de la adultez diaria inagotable insípida demandante general obligatoria estructuralmente asfixiantes o aplastar creatividades e iniciativas u agobiarse.</p>
-
-            <h2>Referencias Académicas</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Barkley, R. A. (2012). <em>Executive Functions: What They Are, How They Work, and Why They Evolved</em>. Guilford Press.</li>
-                <li>Brown, T. E. (2013). <em>A New Understanding of ADHD in Children and Adults</em>. Routledge.</li>
-            </ul>
-        `,
-        date: '2026-01-05',
-        category: 'Neurodivergencia',
-        image: '/blog/tdah-adulto.png',
-        author: 'Ps. Gustavo Caro'
+            <p>Históricamente, en Chile hemos tenido una cultura de "ponerle el hombro" a todo. Aunque esto nos ha hecho resilientes ante terremotos, nos ha hecho muy crueles ante los "terremotos internos".</p>
+            
+            <h3>La validación emocional</h3>
+            <p>Escuchar a un hijo o a una pareja decir que se siente mal y responder con "pero si tienes todo", es una forma de invalidación que profundiza el problema.</p>
+            
+            <p>Es hora de entender que la salud mental es tan física como una pierna rota. No le pedirías a alguien con la pierna quebrada que corra una maratón solo con "ánimo".</p>
+        `
     },
     {
-        slug: 'ley-salud-mental-integral-chile-2026',
-        title: 'Los Entramados Esbozos y Reflejos En A La Nueva Ley de la Salud en Materia Legal Integral Mental Chilena Este Nuevo Año y Cómo y Cuál Refiere o Implica En Base Proteger Los Diagnósticos De En Las Sociedades o Poblaciones Pacientes En Sus Tiempos A Futuros',
-        excerpt: 'Cómo el nuevo proyecto y el gran andamiaje estatutario viene al final y para siempre a reestructurar e intentar brindar pilares justos a vacíos normativos injustos frente inequidades biológicas invisibles desprotegidos sociales de siglos por inmensas deudas e insensibilidades y de proteger general las debilidades mentales ante presiones mercantiles inagotables o estamentos estatales ineficientes',
+        slug: 'invierno-gris-santiago-depresion',
+        title: 'El invierno gris de Santiago: Combatiendo el Trastorno Afectivo Estacional',
+        excerpt: 'La falta de luz solar en los meses de invierno en la capital chilena tiene un efecto directo en nuestra serotonina.',
+        date: '2024-04-01',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: 'https://images.unsplash.com/photo-1478144592103-258228292733?q=80&w=1200&auto=format&fit=crop',
         content: `
-            <p>Con de la entrada en vigor desde el inicio y de la ejecución y en promulgación ya y todo al andar fojas u plazos integradas a la naciente actual Ley Salud las normativas para la Salud y materias Mental Integral chilena que presenciamos al vivo para un actual y para nuestro dos mil veintiséis resulta e innegablemente al ser hito o los hitos mas cúlmines e inmarcesibles e hitos históricos gigantes y monumentales legislativamente y protectivamente resguardados jamás conseguidos ni de vistos por asomo décadas, este encumbramiento estructural u armazón normativas resitúa por completo frente y por delante las brechas al colocar en balanzas a los de orígenes de materias con raíces biológicas y de psicologías orgánicas y sistémicas y de integraciones a paridades absolutas sin fisuras con dolencias estigmatizantes históricas frente innegables mermas biográficas estructurales y de mermados padecientes frente las brechas financieras que antaños sepultaban y de mermaban de plano opciones generales básicas para y desde estamentos general en los cimientos públicos estatales insensibles ignorantes.</p>
-
-            <p>En el plano clínico profundo u desde frentes con soportes desde orientados hacia fojas terapias integradas en base los elementos para nosotros como terapeutas psicólogos nacionales el nuevo marco nos brinda y facilita una vasta enorme cantidad en continuidades y viabilidades estables para y en los procesos profundos y tratamientos ya sean intensivos biográficos extensos ya que desde y de afianzar la continuidad por equidad o reembolsos estables monetarios para a un tratamiento al largo tiempo del proceso como al velar férreo desde estamentos normados bases desde al cuidado en contra a los abusivos intrusismos en los campos administrativos, y en bases proteccionistas de los fueros y autonomía inalterables bases del diagnóstico clínico fojas u juicios e imposiciones frente entidades o fojas ajenas y presiones corporativas económicas de cimientos isapres aseguradoras burocráticas u fojas de la gran empresa financiera. Garantía base protección irremisible en estigmas historiales e preexistencias imposibles o a fallidos vacíos estructurales al amparo biográfico doloroso y la garantía en tiempos sin aplazo incesante a las mermadas infames listas largas espera sistema país.</p>
-
-            <h2>Referencias Legales</h2>
-            <ul style="font-size: 0.9rem; color: #666; font-family: inherit;">
-                <li>Biblioteca del Congreso Nacional de Chile (2026). <em>Ley N° 21.XXX sobre Salud Mental Integral</em>.</li>
-                <li>Colegio de Psicólogos de Chile (2025). Análisis técnico del proyecto de ley de salud mental.</li>
+            <p>Santiago tiene inviernos con mucha polución y poca luz. Esto genera lo que llamamos Trastorno Afectivo Estacional (TAE).</p>
+            <h3>Síntomas comunes</h3>
+            <ul>
+                <li>Ganas de comer carbohidratos en exceso.</li>
+                <li>Dormir más de lo habitual y no sentirse descansado.</li>
+                <li>Irritabilidad y retiro social.</li>
             </ul>
+        `
+    },
+    {
+        slug: 'ritmo-frenetico-santiago-cortisol',
+        title: 'Vivir a mil: El impacto del ritmo santiaguino en tu cortisol',
+        excerpt: 'Nuestra ciudad se mueve rápido, y nuestro cuerpo paga el precio con inflamación y estrés crónico.',
+        date: '2024-03-28',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>El estrés no es solo mental, es bioquímico. El cortisol alto de forma constante nos enferma. En Santiago, vivimos en un estado de alerta perenne.</p>
+        `
+    },
+    {
+        slug: 'higiene-sueno-ciudad-luces',
+        title: 'Dormir en la ciudad que nunca se apaga',
+        excerpt: 'Cómo la contaminación lumínica y el ruido de Santiago afectan tu higiene del sueño y cómo recuperar tus noches.',
+        date: '2024-03-25',
+        author: 'Ps. Gustavo Caro',
+        category: 'Recursos',
+        image: 'https://images.unsplash.com/photo-1519003722824-192d9920188d?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>El sueño es el taller de reparación de tu mente. Si no duermes bien, tu capacidad de regular emociones cae drásticamente.</p>
+        `
+    },
+    {
+        slug: 'resiliencia-aprender-de-las-crisis',
+        title: 'Más que sobrevivir: Resiliencia ante las crisis en Chile',
+        excerpt: 'Desde desastres naturales hasta crisis sociales, los chilenos somos expertos en levantarnos. Pero ¿a qué costo emocional?',
+        date: '2024-03-20',
+        author: 'Ps. Gustavo Caro',
+        category: 'Opinión',
+        image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>La resiliencia no es aguantar hasta romperse, es la capacidad de doblarse y volver a la forma original, con nuevos aprendizajes.</p>
+        `
+    },
+    {
+        slug: 'neurodivergencia-sistema-escolar-chileno',
+        title: 'Encasillados: La neurodivergencia en el sistema escolar chileno',
+        excerpt: 'Opinión sobre por qué nuestras escuelas necesitan urgentemente adaptarse a distintas formas de aprender.',
+        date: '2024-03-15',
+        author: 'Ps. Gustavo Caro',
+        category: 'Neurodiversidad',
+        image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>El sistema escolar actual en Chile está diseñado para un "promedio" que no existe. Los niños con TDAH o TEA son a menudo catalogados como problemas cuando el problema es el molde.</p>
+        `
+    },
+    {
+        slug: 'como-elegir-psicologo-chile',
+        title: 'No todos son para ti: Cómo elegir un buen psicólogo en Chile',
+        excerpt: 'Guía práctica para encontrar un profesional que realmente se ajuste a tus necesidades y valores.',
+        date: '2024-03-10',
+        author: 'Ps. Gustavo Caro',
+        category: 'Recursos',
+        image: 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>La alianza terapéutica es el factor más importante para que una terapia funcione. No te quedes con alguien si no sientes esa conexión.</p>
+        `
+    },
+    {
+        slug: 'mitos-terapia-conductual-cognitiva',
+        title: 'Mitos y realidades de la Terapia TCC',
+        excerpt: '¿Es verdad que es solo para síntomas superficiales? Desmitificando el enfoque más respaldado por la ciencia.',
+        date: '2024-03-05',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: 'https://images.unsplash.com/photo-1454165833968-4e76589653ef?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>La TCC no es solo cambiar pensamientos, es cambiar la forma en que nos relacionamos con nuestra propia experiencia.</p>
+        `
+    },
+    {
+        slug: 'ansiedad-redes-sociales-adolescentes',
+        title: 'Generación Ansiedad: Redes sociales en los colegios de Santiago',
+        excerpt: 'El impacto de la comparación constante y el cyberbullying en la salud mental de nuestros jóvenes.',
+        date: '2024-03-01',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: 'https://images.unsplash.com/photo-1516726817505-f5ed17dc4803?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>Las redes sociales son el nuevo patio de recreo, pero uno que nunca cierra y donde la opinión de miles puede pesarte.</p>
+        `
+    },
+    {
+        slug: 'sindrome-impostor-emprendedores',
+        title: 'El impostor en la oficina: El síndrome del impostor en Chile',
+        excerpt: 'Por qué a los profesionales chilenos les cuesta tanto creerse el cuento y cómo afecta su crecimiento.',
+        date: '2024-02-25',
+        author: 'Ps. Gustavo Caro',
+        category: 'Opinión',
+        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>Sentir que vas a ser "descubierto" como un fraude es más común de lo que crees, especialmente en entornos competitivos.</p>
+        `
+    },
+    {
+        slug: 'autocuidado-psicologos-chilenos',
+        title: '¿Quién cuida al que cuida? El autocuidado en psicología',
+        excerpt: 'Reflexión personal sobre los desafíos de sostener el dolor ajeno día tras día.',
+        date: '2024-02-20',
+        author: 'Ps. Gustavo Caro',
+        category: 'Opinión',
+        image: 'https://images.unsplash.com/photo-1499209974431-9eaa37a11144?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>Ser terapeuta en Chile implica navegar un sistema de salud precario y muchas veces desolador. El autocuidado no es opcional, es ético.</p>
+        `
+    },
+    {
+        slug: 'salud-mental-no-es-lujo',
+        title: 'Por qué la salud mental no debería ser un lujo en Chile',
+        excerpt: 'Opinión crítica sobre el acceso a psicoterapia y la necesidad de mejores políticas públicas.',
+        date: '2024-02-15',
+        author: 'Ps. Gustavo Caro',
+        category: 'Opinión',
+        image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>Pagar por salud mental no debería significar dejar de pagar el arriendo. El acceso Universal es una deuda histórica en nuestro país.</p>
+        `
+    },
+    {
+        slug: 'herramientas-tcc-manejo-panico',
+        title: 'Kit de emergencia: Herramientas TCC para el manejo de pánico',
+        excerpt: 'Recursos prácticos para usar durante un ataque de ansiedad o pánico.',
+        date: '2024-02-10',
+        author: 'Ps. Gustavo Caro',
+        category: 'Recursos',
+        image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop',
+        content: `
+            <p>Los ataques de pánico son aterradores pero inofensivos. Aquí te explico cómo navegar la tormenta.</p>
         `,
-        date: '2026-02-01',
-        category: 'Legislación',
-        image: '/blog/neuro-chile.png',
-        author: 'Ps. Gustavo Caro'
+        resources: [
+            {
+                title: 'Guía de Respiración Diafragmática',
+                description: 'PDF paso a paso para regular tu sistema nervioso.',
+                link: '#'
+            }
+        ]
     }
 ];
