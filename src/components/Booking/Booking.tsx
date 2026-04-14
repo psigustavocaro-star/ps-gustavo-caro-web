@@ -13,6 +13,7 @@ export default function Booking() {
     const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string; rut?: string; address?: string; commune?: string }>({});
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [calBookingId, setCalBookingId] = useState<string | null>(null);
+    const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
         reason: '',
@@ -33,6 +34,22 @@ export default function Booking() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
+
+    // Fetch occupied slots from DB
+    useEffect(() => {
+        const fetchOccupied = async () => {
+            try {
+                const res = await fetch('/api/bookings/occupied');
+                const data = await res.json();
+                if (data.success) {
+                    setOccupiedSlots(data.occupiedSlots);
+                }
+            } catch (err) {
+                console.error('Error fetching occupied slots:', err);
+            }
+        };
+        fetchOccupied();
+    }, []);
 
     // Efecto para scroll automático al inicio de la sección cuando cambia el paso
     useEffect(() => {
@@ -519,7 +536,7 @@ export default function Booking() {
                             <div className={styles.calendarContainer}>
                                 <CustomCalendar
                                     onSelectDateTime={handleDateTimeSelection}
-                                    bookedSlots={[]}
+                                    bookedSlots={occupiedSlots}
                                 />
                             </div>
 
