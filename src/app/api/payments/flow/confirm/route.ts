@@ -40,10 +40,9 @@ async function processConfirmation(token: string) {
         if (token === 'SIMULACION_TEST') {
             const { default: prisma } = await import('@/lib/db');
             const lastBooking = await prisma.booking.findFirst({
-                where: { status: 'PENDING' },
                 orderBy: { createdAt: 'desc' }
             });
-            if (!lastBooking) return NextResponse.json({ error: 'No pending booking for test' });
+            if (!lastBooking) return NextResponse.json({ error: 'No booking found' });
             
             paymentStatus = {
                 status: 2,
