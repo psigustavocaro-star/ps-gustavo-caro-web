@@ -136,6 +136,46 @@
     }
 }
 
+.stepTitle {
+    font-size: var(--font-size-h2);
+    margin-bottom: 12px;
+    color: var(--foreground);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.stepDesc {
+    font-size: var(--font-size-base);
+    color: var(--foreground-light);
+    margin-bottom: clamp(32px, 6vw, 48px);
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+}
+
+.serviceSection {
+    text-align: left;
+    margin-bottom: 32px;
+    padding-left: 4px;
+}
+
+.sectionLabel {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--primary);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.sectionNote {
+    font-size: 1rem;
+    color: var(--foreground-muted);
+    line-height: 1.5;
+}
+
 /* ============================================
    SERVICE CARDS
    ============================================ */

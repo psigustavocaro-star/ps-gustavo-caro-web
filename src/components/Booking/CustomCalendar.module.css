@@ -144,17 +144,30 @@
 }
 
 .dayCell.dayAvailable {
-    background: linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(8, 145, 178, 0.06) 100%);
-    color: var(--secondary-dark);
+    background: transparent;
+    color: var(--foreground);
     font-weight: 600;
+}
+
+.dayCell.dayAvailable:hover {
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.12) 0%, rgba(8, 145, 178, 0.1) 100%);
+    color: var(--primary-dark);
+    transform: translateY(-1px);
 }
 
 .dayCell.daySelected {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    color: white;
+    color: white !important;
     box-shadow: 0 4px 16px rgba(8, 145, 178, 0.35);
     transform: scale(1.05);
+    z-index: 2;
 }
+
+.dayCell.daySelected:hover {
+    box-shadow: 0 6px 20px rgba(8, 145, 178, 0.45);
+    transform: scale(1.08);
+}
+
 
 .dayCell.daySelected::after {
     display: none;

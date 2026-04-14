@@ -16,20 +16,53 @@ export async function GET() {
             }
         });
 
-        // Formatear al formato que CustomCalendar espera: 'YYYY-MM-DD HH:MM'
-        const occupiedSlots = bookings.map(b => {
-            // TypeScript safety check (though already filtered in query)
-            if (!b.appointmentDate) return null;
+        const formatInSantiago = (dateStr: string | Date) => {
+            const date = new Date(dateStr);
+            // Formatear a YYYY-MM-DD HH:mm en America/Santiago
+            const santiagoDate = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Santiago',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(date);
             
-            const date = new Date(b.appointmentDate);
-            const yyyy = date.getFullYear();
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const dd = String(date.getDate()).padStart(2, '0');
-            const hh = String(date.getHours()).padStart(2, '0');
-            const min = String(date.getMinutes()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+            // santiagoDate viene como "YYYY-MM-DD, HH:mm"
+            return santiagoDate.replace(',', '');
+        };
+
+        const occupiedFromDB = bookings.map(b => {
+            if (!b.appointmentDate) return null;
+            return formatInSantiago(b.appointmentDate);
         }).filter((slot): slot is string => slot !== null);
 
+        // Fetch from Cal.com if API key exists
+        let occupiedFromCal: string[] = [];
+        const calKey = process.env.CALCOM_API_KEY;
+        if (calKey) {
+            try {
+                const calRes = await fetch('https://api.cal.com/v2/bookings', {
+                    headers: {
+                        'Authorization': `Bearer ${calKey}`,
+                        'cal-api-version': '2024-08-13'
+                    }
+                });
+                const calData = await calRes.json();
+                
+                if (calRes.ok && calData.status === 'success') {
+                    occupiedFromCal = (calData.data || []).map((b: any) => {
+                        return formatInSantiago(b.start);
+                    });
+                }
+            } catch (err) {
+                console.error('Error fetching from Cal.com:', err);
+            }
+        }
+
+        // Combinar y eliminar duplicados
+        const occupiedSlots = Array.from(new Set([...occupiedFromDB, ...occupiedFromCal]));
 
         return NextResponse.json({ success: true, occupiedSlots });
     } catch (error) {

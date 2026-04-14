@@ -348,6 +348,11 @@ export default function Booking() {
                             <h2 className={styles.stepTitle}>¿Cómo te gustaría comenzar?</h2>
                             <p className={styles.stepDesc}>Selecciona el enfoque que mejor se adapte a tu situación actual.</p>
 
+                            <div className={styles.serviceSection}>
+                                <h3 className={styles.sectionLabel}>Servicios Clínicos Especializados</h3>
+                                <p className={styles.sectionNote}>Atención individual o planes mensuales con beneficios.</p>
+                            </div>
+
                             <div className={styles.serviceCards}>
                                 <div 
                                     className={`${styles.serviceCard} ${formData.serviceType === 'sesion' ? styles.activeCard : ''}`}
