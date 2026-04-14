@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getFlowPaymentStatus, verifyFlowSignature } from '@/lib/services/flow';
-import { generateInvoice, sendInvoiceEmail } from '@/lib/services/invoice';
+import { getFlowPaymentStatus } from '@/lib/services/flow';
+
+export async function GET(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
+    if (token === 'SIMULACION_TEST') {
+        return processConfirmation(token);
+    }
+    return NextResponse.json({ error: 'Manual trigger not allowed' }, { status: 403 });
+}
 
 export async function POST(request: NextRequest) {
     try {
         let token = '';
-
-        // Leemos todo como texto plano para evitar crash de 'request.formData()' en NextJS Edge
         const rawText = await request.text();
-
-        // 1. Intentar parsearlo como URLSearchParams (application/x-www-form-urlencoded)
         try {
             const params = new URLSearchParams(rawText);
-            if (params.has('token')) {
-                token = params.get('token') as string;
-            }
+            if (params.has('token')) token = params.get('token') as string;
         } catch (e) {}
-
-        // 2. Fallback si lo manda como JSON
+        
         if (!token) {
             try {
                 const jsonObj = JSON.parse(rawText);
@@ -25,13 +26,16 @@ export async function POST(request: NextRequest) {
             } catch (e) {}
         }
 
-        if (!token) {
-            console.error('API Flow Confirm: No token found in payload:', rawText);
-            return NextResponse.json({ error: 'Token requerido' }, { status: 400 });
-        }
+        if (!token) return NextResponse.json({ error: 'Token requerido' }, { status: 400 });
 
-        console.log(`Webhook Flow hit with token: ${token}`);
+        return processConfirmation(token);
+    } catch (error: any) {
+        return NextResponse.json({ received: true });
+    }
+}
 
+async function processConfirmation(token: string) {
+    try {
         let paymentStatus;
         if (token === 'SIMULACION_TEST') {
             const { default: prisma } = await import('@/lib/db');
@@ -47,34 +51,25 @@ export async function POST(request: NextRequest) {
                 amount: lastBooking.amount || 350,
                 paymentData: { media: 'TEST_SIMULATOR' }
             };
-            console.log('SIMULACIÓN ACTIVADA para orden:', lastBooking.orderId);
         } else {
             paymentStatus = await getFlowPaymentStatus(token);
         }
-        
-        console.log(`API Flow: Procesando orden ${paymentStatus.commerceOrder} (Status: ${paymentStatus.status})`);
 
-        // Status 2 = Pagado exitosamente
         if (paymentStatus.status === 2) {
             const orderId = paymentStatus.commerceOrder;
             const auditData: any = { orderId, steps: {} };
             
             try {
-                // 1. Base de Datos
                 const { default: prisma } = await import('@/lib/db');
                 const booking = await prisma.booking.findUnique({ where: { orderId } });
 
-                if (!booking) {
-                    console.error(`Flow Webhook: Orden ${orderId} no existe en DB`);
-                    return NextResponse.json({ received: true });
-                }
+                if (!booking) return NextResponse.json({ received: true });
                 auditData.steps.database = 'OK';
 
                 const clientEmail = booking.email;
                 const clientName = booking.name;
                 const amount = paymentStatus.amount;
 
-                // 2. Notificación para Boleta Manual (Simplificado)
                 try {
                     const { generateManualInvoice } = await import('@/lib/services/invoice');
                     await generateManualInvoice({
@@ -87,7 +82,6 @@ export async function POST(request: NextRequest) {
                     auditData.steps.invoice = `ERROR NOTIFICACION: ${invoiceErr.message}`;
                 }
 
-                // 3. Marcar como Pagado
                 try {
                     await prisma.booking.update({
                         where: { orderId },
@@ -98,7 +92,6 @@ export async function POST(request: NextRequest) {
                     auditData.steps.db_update = `ERROR: ${e.message}`;
                 }
 
-                // 4. Cal.com
                 if (booking.calEventTypeId && booking.appointmentDate) {
                     try {
                         const { createCalBooking } = await import('@/lib/services/calcom');
@@ -109,13 +102,11 @@ export async function POST(request: NextRequest) {
                             email: clientEmail,
                         });
                         auditData.steps.calcom = calResult.success ? `OK (${calResult.bookingId})` : `FALLÓ (${calResult.error})`;
-                        if (calResult.sentBody) auditData.calcomBody = calResult.sentBody;
                     } catch (calErr: any) {
                         auditData.steps.calcom = `CRASH: ${calErr.message}`;
                     }
                 }
 
-                // 5. Email de Confirmación Final (Resend)
                 try {
                     const { sendBookingConfirmation } = await import('@/lib/services/mail');
                     await sendBookingConfirmation({
@@ -132,37 +123,22 @@ export async function POST(request: NextRequest) {
                     auditData.steps.resend = `ERROR: ${mailErr.message}`;
                 }
 
-                // 6. ENVIAR AUDITORÍA AL PROFESIONAL (Debug)
                 try {
                     const { Resend } = await import('resend');
                     const resend = new Resend(process.env.RESEND_API_KEY);
                     await resend.emails.send({
                         from: 'Web Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
                         to: 'psi.gustavocaro@gmail.com',
-                        subject: `📊 Auditoría Pago: ${orderId}`,
+                        subject: `📊 Auditoría [SIMULACIÓN]: ${orderId}`,
                         html: `<pre>${JSON.stringify(auditData, null, 2)}</pre>`
                     });
                 } catch (e) {}
 
-                console.log(`✅ Webhook finalizado con auditoría para ${orderId}`);
-            } catch (blockError: any) {
-                console.error('Master confirmation block failed:', blockError.message);
-            }
-        } else if (paymentStatus.status === 3 || paymentStatus.status === 4) {
-            // ... (resto igual)
-            const orderId = paymentStatus.commerceOrder;
-            try {
-                const { default: prisma } = await import('@/lib/db');
-                await prisma.booking.update({
-                    where: { orderId: orderId },
-                    data: { status: 'FAILED' }
-                });
-            } catch (e) {}
+            } catch (blockError: any) {}
         }
-
-        return NextResponse.json({ received: true });
+        
+        return NextResponse.json({ received: true, simulated: token === 'SIMULACION_TEST' });
     } catch (error: any) {
-        console.error('Flow confirmation TOP LEVEL error:', error.message);
         return NextResponse.json({ received: true });
     }
 }
