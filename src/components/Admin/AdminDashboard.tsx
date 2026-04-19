@@ -105,15 +105,22 @@ export default function AdminDashboard() {
     if (!isAuthenticated) {
         return (
             <div className={styles.loginWrapper}>
+                <div className={styles.movingBackground}></div>
                 <div className={styles.loginCard}>
-                    <div className={styles.pulseLogo}>GC</div>
-                    <h1>Módulo Administrativo</h1>
-                    <p>Ingresa tus credenciales maestras para continuar.</p>
-                    <form onSubmit={handleLogin} style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
-                        <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Maestro" required />
+                    <div className={styles.pulseLogo}>
+                        <div className={styles.logoCore}>GC</div>
+                        <div className={styles.pulseRing}></div>
+                    </div>
+                    <h1>Elite Clinical Access</h1>
+                    <p>Módulo de gestión de alto rendimiento. Ingresa tus credenciales maestras para proceder.</p>
+                    <form onSubmit={handleLogin} style={{display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', z-index: 5}}>
+                        <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Identificador Maestro" required />
                         <input className={styles.inputMain} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave de Seguridad" required />
-                        <button type="submit" className={styles.primaryButton}>Desbloquear Panel</button>
+                        <button type="submit" className={styles.primaryButton}>Desbloquear Suite</button>
                     </form>
+                    <div style={{marginTop: '40px'}}>
+                        <Link href="/" style={{color: '#475569', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>← Volver al Portal Público</Link>
+                    </div>
                 </div>
             </div>
         );
