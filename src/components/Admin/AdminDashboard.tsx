@@ -128,16 +128,20 @@ export default function AdminDashboard() {
         #admin-panel strong, #admin-panel span, #admin-panel label, #admin-panel p,
         #admin-login-root h1, #admin-login-root h2, #admin-login-root h3, #admin-login-root p, 
         #admin-login-root label, #admin-login-root span, #admin-login-root div, #admin-login-root strong {
-            color: white !important;
+            color: var(--text-main) !important;
         }
         #admin-panel [class*="mainSubtitle"],
         #admin-panel [class*="statLabel"],
         #admin-panel [class*="breadcrumb"],
         #admin-login-root p {
-            color: rgba(255,255,255,0.7) !important;
+            color: var(--text-muted) !important;
         }
         #admin-panel table th {
-            color: rgba(255,255,255,0.5) !important;
+            color: var(--text-muted) !important;
+            opacity: 0.8;
+        }
+        #admin-panel table td {
+            color: var(--text-main) !important;
         }
     `;
 
@@ -152,40 +156,38 @@ export default function AdminDashboard() {
                 </div>
                 <div className={styles.loginCard}>
                     <div className={styles.loginHeader}>
-                        <div className={styles.logoCircle} style={{ color: '#ffffff' }}>GC</div>
-                        <h1 className={styles.loginTitle} style={{ color: '#ffffff' }}>Sistema de Gestión Caro</h1>
-                        <p className={styles.loginDesc} style={{ color: '#94a3b8' }}>Identificación profesional requerida.</p>
+                        <div className={styles.logoCircle}>GC</div>
+                        <h1 className={styles.loginTitle}>Sistema de Gestión Caro</h1>
+                        <p className={styles.loginDesc}>Identificación profesional requerida.</p>
                     </div>
                     <form onSubmit={handleLogin} className={styles.loginForm}>
                         <div className={styles.inputGroup}>
-                            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>Usuario Maestro</label>
+                            <label style={{ display: 'block', marginBottom: '8px' }}>Usuario Maestro</label>
                             <input
                                 type="email"
                                 className={styles.input}
                                 placeholder="psi.gustavocaro@gmail.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                style={{ color: '#ffffff' }}
                                 autoFocus
                                 required
                             />
                         </div>
                         <div className={styles.inputGroup}>
-                            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>Clave de Acceso</label>
+                            <label style={{ display: 'block', marginBottom: '8px' }}>Clave de Acceso</label>
                             <input
                                 type="password"
                                 className={styles.input}
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                style={{ color: '#ffffff' }}
                                 required
                             />
                         </div>
                         <button type="submit" className={styles.loginBtn}>Entrar al Panel →</button>
                     </form>
                     <div className={styles.loginFooter}>
-                        <Link href="/" style={{ color: '#94a3b8' }}>← Volver a la Web Principal</Link>
+                        <Link href="/">← Volver a la Web Principal</Link>
                     </div>
                 </div>
             </div>
