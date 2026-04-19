@@ -156,15 +156,16 @@
 }
 
 .dayCell.daySelected {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
     color: white !important;
-    box-shadow: 0 4px 16px rgba(8, 145, 178, 0.35);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35) !important;
     transform: scale(1.05);
     z-index: 2;
+    border: none !important;
 }
 
 .dayCell.daySelected:hover {
-    box-shadow: 0 6px 20px rgba(8, 145, 178, 0.45);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
     transform: scale(1.08);
 }
 
@@ -226,10 +227,10 @@
 }
 
 .timeSlot.timeSlotSelected {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    border-color: transparent;
-    color: white;
-    box-shadow: 0 4px 16px rgba(8, 145, 178, 0.3);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    border-color: transparent !important;
+    color: white !important;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3) !important;
     transform: translateY(-2px);
 }
 
