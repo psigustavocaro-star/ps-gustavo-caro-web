@@ -4,6 +4,14 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './AdminDashboard.module.css';
 import Link from 'next/link';
 
+const CHILE_REGIONS = [
+    'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
+    'Valparaíso', 'Metropolitana de Santiago', 'O\'Higgins', 'Maule', 
+    'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
+];
+
+const COUNTRIES = ['Chile', 'México', 'Colombia', 'España', 'Perú', 'Argentina', 'Otro'];
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState('');
@@ -13,11 +21,14 @@ export default function AdminDashboard() {
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing'>('patients');
     const [isLoading, setIsLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState<any>(null);
     const [selectedPatient, setSelectedPatient] = useState<any>(null);
     const [templates, setTemplates] = useState<any[]>([]);
     const [editingTemplate, setEditingTemplate] = useState<any>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
     const [aiPrompt, setAiPrompt] = useState('');
     
     const editorRef = useRef<HTMLDivElement>(null);
@@ -37,36 +48,83 @@ export default function AdminDashboard() {
         finally { setIsLoading(false); }
     };
 
+    const handleUpdatePatient = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/admin/patients', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editData),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✓ Base de datos actualizada');
+                setIsEditing(false);
+                setSelectedPatient(editData);
+                fetchData();
+            }
+        } catch (err) { alert('Error de red'); }
+        finally { setIsLoading(false); }
+    };
+
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         if (email.toLowerCase() === 'psi.gustavocaro@gmail.com' && password === 'gudaxgudax1.') {
             setIsAuthenticated(true);
             fetchData();
         } else {
-            alert('Credenciales inválidas');
+            alert('Acceso Denegado');
         }
     };
 
     const generateAIContent = async () => {
-        if (!aiPrompt) return alert('Especifica un tema clínico');
+        if (!aiPrompt) return alert('Especifica el tema clínico');
         setIsLoading(true);
-        
         setTimeout(() => {
             const library: any = {
-                'ansiedad': { t: 'Protocolos de Manejo Cognitivo para Ansiedad', c: '<h2>Enfoque Clínico</h2><p>La ansiedad clínica requiere una intervención estructurada...</p><ul><li>Regulación autonómica</li><li>Reestructuración del pensamiento</li><li>Exposición sistemática</li></ul>' },
+                'ansiedad': { t: 'Protocolos de Manejo Cognitivo para Ansiedad', c: '<h2>Enfoque Clínico</h2><p>La ansiedad clínica requiere una intervención estructurada...</p><ul><li>Regulación autonómica</li><li>Reestructuración del pensamiento</li><li>Exposición sistemática</li></ul><img src="https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0" />' },
                 'depresion': { t: 'Actualización en Activación Conductual', c: '<h2>Estrategias Avanzadas</h2><p>La depresión mayor se aborda desde la activación progresiva.</p><p>Establecer metas de baja fricción es crítico para el éxito terapéutico inicial.</p>' }
             };
-
-            const data = library[aiPrompt.toLowerCase()] || { 
-                t: `Análisis Profesional: ${aiPrompt}`, 
-                c: `<h2>Marco Teórico sobre ${aiPrompt}</h2><p>Generando borrador ejecutivo para facilitar tu redacción sobre ${aiPrompt}.</p><p>Este contenido está diseñado para ser la base de una comunicación profesional de alto impacto en tu blog o newsletter.</p>` 
-            };
-
-            setTitle(data.t);
-            setContent(data.c);
-            if (editorRef.current) editorRef.current.innerHTML = data.c;
+            const match = library[aiPrompt.toLowerCase()] || { t: `Reflexión: ${aiPrompt}`, c: `<h2>Marco Teórico: ${aiPrompt}</h2><p>Contenido generado para facilitar tu escritura profesional...</p>` };
+            setTitle(match.t);
+            setContent(match.c);
+            if (editorRef.current) editorRef.current.innerHTML = match.c;
             setIsLoading(false);
-        }, 1000);
+        }, 1200);
+    };
+
+    const handleSendToAll = async () => {
+        if (!editingTemplate) return alert('Primero selecciona o guarda una plantilla');
+        if (!confirm(`¿Enviar "${editingTemplate.title}" a TODOS los ${newsletterSubs.length} suscriptores?`)) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/admin/newsletter/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ templateId: editingTemplate.id, target: 'all' }),
+            });
+            const data = await res.json();
+            if (data.success) alert(`✓ Campaña masiva iniciada. Enviado a ${data.count} personas.`);
+        } catch (err) { alert('Error en el servicio de envío'); }
+        finally { setIsLoading(false); }
+    };
+
+    const handleSendToSelected = async () => {
+        if (!editingTemplate) return alert('Guarda o selecciona una plantilla primero');
+        if (selectedRecipients.length === 0) return alert('Selecciona destinatarios en la barra lateral');
+        setIsLoading(true);
+        try {
+            for (const email of selectedRecipients) {
+                await fetch('/api/admin/newsletter/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ templateId: editingTemplate.id, target: 'specific', specificEmail: email }),
+                });
+            }
+            alert(`✓ Enviado con éxito a ${selectedRecipients.length} destinatarios seleccionados.`);
+            setSelectedRecipients([]);
+        } catch (err) { alert('Error en el envío segmentado'); }
+        finally { setIsLoading(false); }
     };
 
     const handleSaveTemplate = async () => {
@@ -79,12 +137,10 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('✓ Contenido guardado en la suite');
-                setTitle(''); setContent(''); setEditingTemplate(null);
-                if (editorRef.current) editorRef.current.innerHTML = '';
+                alert('✓ Guardado correctamente');
                 fetchData();
             }
-        } catch (err) { alert('Error de persistencia'); }
+        } catch (err) { alert('Falla en persistencia'); }
         finally { setIsLoading(false); }
     };
 
@@ -94,11 +150,10 @@ export default function AdminDashboard() {
                 <div className={styles.authAmbient}></div>
                 <div className={styles.authCard}>
                     <div className={styles.authBadge}>GC</div>
-                    <h1>Executive Access</h1>
-                    <p>Introduce tus credenciales para acceder a la suite profesional.</p>
+                    <h1>Executive Panel</h1>
                     <form onSubmit={handleLogin}>
-                        <input className={styles.inputField} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Corporativo" required />
-                        <input className={styles.inputField} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave Maestra" required />
+                        <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
+                        <input className={styles.inputMain} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave" required />
                         <button type="submit" className={styles.authBtn}>Desbloquear Suite</button>
                     </form>
                 </div>
@@ -113,7 +168,7 @@ export default function AdminDashboard() {
             <aside className={styles.sideNav}>
                 <div className={styles.navHeader}>
                     <div className={styles.logoSquare}>GC</div>
-                    <span className={styles.navTitle}>Elite CRM</span>
+                    <span className={styles.navTitle} style={{color: '#fff', fontSize: '0.8rem', fontWeight: 700}}>ELITE CRM</span>
                 </div>
                 <nav className={styles.navList}>
                     <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>Pacientes</button>
@@ -121,34 +176,31 @@ export default function AdminDashboard() {
                     <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>Newsletter</button>
                     <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>Blog Editorial</button>
                 </nav>
-                <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Salir del sistema</button>
+                <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
             </aside>
 
             <main className={styles.contentArea}>
-                <header className={styles.contentHeader}>
-                    <div>
-                        <h1>{activeTab === 'patients' ? 'Gestión de Pacientes' : activeTab === 'bookings' ? 'Agenda Próxima' : activeTab === 'newsletter' ? 'Lista de Difusión' : 'Estudio de Redacción'}</h1>
-                        <p>{isLoading ? 'Actualizando suite...' : 'Infraestructura profesional activa'}</p>
-                    </div>
-                    <button onClick={fetchData} className={styles.syncBtn}>Sincronizar Suite</button>
+                <header className={styles.contentHeader} style={{marginBottom: '48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <h1>{activeTab === 'patients' ? 'Historial Clínico' : activeTab === 'bookings' ? 'Agenda Clínica' : activeTab === 'newsletter' ? 'Newsletter Masivo' : 'Suite Editorial'}</h1>
+                    <button onClick={fetchData} className={styles.syncBtn}>Sincronizar Panel</button>
                 </header>
 
                 <div className={styles.dashboardStats}>
-                    <div className={styles.statBox}><span className={styles.label}>Base de Datos</span><span className={styles.value}>{patients.length} pacientes</span></div>
-                    <div className={styles.statBox}><span className={styles.label}>Sesiones</span><span className={styles.value}>{bookings.length} totales</span></div>
-                    <div className={styles.statBox}><span className={styles.label}>Alcance</span><span className={styles.value}>{newsletterSubs.length} suscriptores</span></div>
+                    <div className={styles.statBox}><span className={styles.label}>Base Pacientes</span><span className={styles.value}>{patients.length}</span></div>
+                    <div className={styles.statBox}><span className={styles.label}>Total Citas</span><span className={styles.value}>{bookings.length}</span></div>
+                    <div className={styles.statBox}><span className={styles.label}>Newsletter Subs</span><span className={styles.value}>{newsletterSubs.length}</span></div>
                 </div>
 
                 <div className={styles.mainGrid}>
                     {activeTab === 'patients' && (
                         <table className={styles.proTable}>
-                            <thead><tr><th>Identificador</th><th>Canal</th><th>Estado</th><th style={{textAlign: 'right'}}>Acción</th></tr></thead>
+                            <thead><tr><th>Identidad</th><th>Email</th><th>Origen</th><th style={{textAlign: 'right'}}>Acción</th></tr></thead>
                             <tbody>{patients.map(p => (
                                 <tr key={p.email}>
-                                    <td><strong>{p.name}</strong></td>
+                                    <td><strong>{p.firstName} {p.firstSurname}</strong></td>
                                     <td>{p.email}</td>
-                                    <td><span className={`${styles.statusBadge} ${styles.statusOk}`}>Control Activo</span></td>
-                                    <td style={{textAlign: 'right'}}><button className={styles.actionBtn} onClick={() => setSelectedPatient(p)}>Ficha Ejecutiva</button></td>
+                                    <td><span className={styles.statusOk}>{p.newsletter ? 'Newsletter' : 'Clínico'}</span></td>
+                                    <td style={{textAlign: 'right'}}><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Ver Ficha</button></td>
                                 </tr>
                             ))}</tbody>
                         </table>
@@ -156,13 +208,13 @@ export default function AdminDashboard() {
 
                     {activeTab === 'bookings' && (
                         <table className={styles.proTable}>
-                            <thead><tr><th>Paciente</th><th>Fecha</th><th>Servicio</th><th>Status</th></tr></thead>
+                            <thead><tr><th>Paciente</th><th>Fecha</th><th>Servicio</th><th>Estado</th></tr></thead>
                             <tbody>{bookings.map(b => (
                                 <tr key={b.id}>
                                     <td><strong>{b.name}</strong></td>
                                     <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</td>
                                     <td>{b.serviceType}</td>
-                                    <td style={{fontSize: '0.7rem'}}>{b.status}</td>
+                                    <td><span className={styles.statusOk} style={{background: 'transparent'}}>{b.status}</span></td>
                                 </tr>
                             ))}</tbody>
                         </table>
@@ -175,42 +227,47 @@ export default function AdminDashboard() {
                                     <button onClick={() => document.execCommand('bold')}>B</button>
                                     <button onClick={() => document.execCommand('italic')}>I</button>
                                     <div className={styles.aiScribe}>
-                                        <input placeholder="Tema clínico para IA..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
-                                        <button onClick={generateAIContent}>{isLoading ? '...' : 'Generar'}</button>
+                                        <input placeholder="Tema para la IA..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
+                                        <button onClick={generateAIContent}>Escribir</button>
                                     </div>
                                 </div>
-                                <input className={styles.titleInput} value={title} onChange={e => setTitle(e.target.value)} placeholder="Introduce el título aquí..." />
-                                <div 
-                                    ref={editorRef}
-                                    className={styles.editor} 
-                                    contentEditable 
-                                    onInput={(e: any) => setContent(e.currentTarget.innerHTML)}
-                                    dangerouslySetInnerHTML={{ __html: content }} 
-                                />
+                                <input className={styles.titleInput} value={title} onChange={e => setTitle(e.target.value)} placeholder="Introduce el título..." />
+                                <div ref={editorRef} className={styles.editor} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
                                 <div className={styles.editorFooter}>
-                                    <button className={styles.actionBtn} style={{padding: '12px 32px'}} onClick={handleSaveTemplate}>Guardar en Archivo</button>
+                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>Guardar Cambios</button>
+                                    {activeTab === 'newsletter' && (
+                                        <>
+                                            <button className={styles.syncBtn} onClick={handleSendToAll} style={{color: '#10b981'}}>Enviar a TODOS</button>
+                                            {selectedRecipients.length > 0 && <button className={styles.syncBtn} onClick={handleSendToSelected}>Enviar a {selectedRecipients.length} seleccionados</button>}
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                            <aside className={styles.studioSidebar}>
+                            <aside className={styles.editorialStudioSidebar}>
                                 <div className={styles.sidebarGroup}>
-                                    <h4>Historial de Artículos</h4>
+                                    <h4>{activeTab === 'newsletter' ? 'Lista de Audiencia' : 'Borradores'}</h4>
+                                    {activeTab === 'newsletter' && (
+                                        <div className={styles.checkList}>
+                                            {newsletterSubs.map(s => (
+                                                <label key={s.id} className={styles.checkItem}>
+                                                    <input type="checkbox" checked={selectedRecipients.includes(s.email)} onChange={e => {
+                                                        if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
+                                                        else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
+                                                    }} />
+                                                    <span>{s.email}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
                                     <div className={styles.archiveItems}>
                                         {templates.map(t => (
                                             <div key={t.id} className={styles.archiveItem} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
                                                 <h5>{t.title}</h5>
-                                                <p>{new Date().toLocaleDateString()} • {t.content.replace(/<[^>]*>/g, '').slice(0, 30)}...</p>
+                                                <p style={{fontSize: '0.7rem'}}>{new Date().toLocaleDateString()}</p>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                                {activeTab === 'newsletter' && (
-                                    <div className={styles.sidebarGroup} style={{marginTop: '48px'}}>
-                                        <h4>Lista de Suscriptores</h4>
-                                        <div style={{opacity: 0.5}}>
-                                            {newsletterSubs.map(s => <p key={s.id} style={{fontSize: '0.75rem', marginBottom: '8px'}}>{s.email}</p>)}
-                                        </div>
-                                    </div>
-                                )}
                             </aside>
                         </div>
                     )}
@@ -220,11 +277,42 @@ export default function AdminDashboard() {
             {selectedPatient && (
                 <div className={styles.overlay} onClick={() => setSelectedPatient(null)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                        <h2 className={styles.modalTitle}>Ficha Ejecutiva</h2>
-                        <div className={styles.dataRow}><label>Identidad</label><span>{selectedPatient.name}</span></div>
-                        <div className={styles.dataRow}><label>Contacto</label><span>{selectedPatient.email}</span></div>
-                        <div className={styles.dataRow}><label>Historial Clínico</label><span>{selectedPatient.bookings.length} Sesiones</span></div>
-                        <button className={styles.authBtn} style={{marginTop: '48px'}} onClick={() => setSelectedPatient(null)}>Cerrar Expediente</button>
+                        <h2 className={styles.modalTitle}>{isEditing ? 'Editar Ficha' : 'Ficha Clínica Expandida'}</h2>
+                        {isEditing ? (
+                            <div className={styles.formGrid}>
+                                <div className={styles.inputGroup}><label>Primer Nombre</label><input className={styles.inputMain} value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
+                                <div className={styles.inputGroup}><label>Apellido Paterno</label><input className={styles.inputMain} value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
+                                <div className={styles.inputGroup}><label>RUT</label><input className={styles.inputMain} value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
+                                <div className={styles.inputGroup}><label>Email</label><input className={styles.inputMain} value={editData.email} disabled /></div>
+                                <div className={styles.inputGroup}><label>Dirección</label><input className={styles.inputMain} value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
+                                <div className={styles.inputGroup}><label>Región</label>
+                                    <select className={styles.inputMain} value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})}><option value="">Selección...</option>{CHILE_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}</select>
+                                </div>
+                                <button className={styles.primaryBtn} onClick={handleUpdatePatient}>Guardar Cambios</button>
+                                <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Cancelar</button>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className={styles.dataGroup}>
+                                    <h4>Identificación</h4>
+                                    <div className={styles.dataRow}><label>Nombre Completo</label><span>{selectedPatient.firstName} {selectedPatient.secondName} {selectedPatient.firstSurname} {selectedPatient.secondSurname}</span></div>
+                                    <div className={styles.dataRow}><label>RUT</label><span>{selectedPatient.rut || 'No registra'}</span></div>
+                                </div>
+                                <div className={styles.dataGroup}>
+                                    <h4>Ubicación</h4>
+                                    <div className={styles.dataRow}><label>Dirección</label><span>{selectedPatient.address || 'No registra'}</span></div>
+                                    <div className={styles.dataRow}><label>Región/Comuna</label><span>{selectedPatient.region}, {selectedPatient.commune} ({selectedPatient.country})</span></div>
+                                </div>
+                                <div className={styles.dataGroup}>
+                                    <h4>Historial</h4>
+                                    <div className={styles.dataRow}><label>Sesiones Totales</label><span>{selectedPatient.bookings.length}</span></div>
+                                </div>
+                                <div style={{display: 'flex', gap: '10px', marginTop: '30px'}}>
+                                    <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar Expediente</button>
+                                    <button className={styles.syncBtn} onClick={() => setSelectedPatient(null)}>Cerrar</button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
