@@ -23,44 +23,61 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Newsletter no seleccionado o contenido en blanco' }, { status: 400 });
         }
 
-        let recipients: string[] = [];
+        let subscriberMap = new Map<string, string>();
+        
+        const allSubs = await prisma.newsletter.findMany({ where: { active: true } });
+        allSubs.forEach(s => subscriberMap.set(s.email, s.name || ''));
+        
+        let targetEmails: string[] = [];
 
         if (target === 'all') {
-            const subs = await prisma.newsletter.findMany({ where: { active: true } });
-            recipients = subs.map(s => s.email);
+            targetEmails = allSubs.map(s => s.email);
         } else if (target === 'specific' && specificEmail) {
-            recipients = [specificEmail];
+            targetEmails = [specificEmail];
+            if (!subscriberMap.has(specificEmail)) {
+                const b = await prisma.booking.findFirst({ where: { email: specificEmail }});
+                subscriberMap.set(specificEmail, b ? (b.firstName || b.name || '') : '');
+            }
         }
 
-        if (recipients.length === 0) {
+        if (targetEmails.length === 0) {
             return NextResponse.json({ success: false, error: 'No hay destinatarios' }, { status: 400 });
         }
 
-        console.log(`Sending newsletter "${finalTitle}" to ${recipients.length} recipients...`);
+        console.log(`Sending newsletter "${finalTitle}" to ${targetEmails.length} recipients...`);
         
-        if (target === 'all') {
-            for (let i = 0; i < recipients.length; i += 50) {
-                const batch = recipients.slice(i, i + 50);
+        // Chunk sizes of 10 to avoid rate limit spikes but process fast enough
+        const CHUNK_SIZE = 10;
+        for (let i = 0; i < targetEmails.length; i += CHUNK_SIZE) {
+            const chunk = targetEmails.slice(i, i + CHUNK_SIZE);
+            
+            await Promise.all(chunk.map(async (email) => {
+                let fullName = subscriberMap.get(email) || 'Paciente';
+                if (!fullName.trim() || fullName === 'undefined') fullName = 'Paciente';
+                
+                const firstName = fullName.split(' ')[0]; // We use just the first name for closeness
+                
+                let personalizedContent = finalContent;
+                // Replace variations of the placeholder
+                personalizedContent = personalizedContent.replace(/\[\s*Nombre del Paciente\s*\]/gi, firstName);
+                personalizedContent = personalizedContent.replace(/\[\s*Nombre\s*\]/gi, firstName);
+
                 const resendData = await resend.emails.send({
                     from: 'Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
-                    to: 'psi.gustavocaro@gmail.com',
-                    bcc: batch,
+                    to: email,
                     subject: finalTitle,
-                    html: finalContent,
+                    html: personalizedContent,
                 });
-                if (resendData.error) throw new Error(resendData.error.message);
-            }
-        } else {
-            const resendData = await resend.emails.send({
-                from: 'Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
-                to: recipients[0],
-                subject: finalTitle,
-                html: finalContent,
-            });
-            if (resendData.error) throw new Error(resendData.error.message);
+                
+                if (resendData.error) {
+                    console.error(`Error sending to ${email}:`, resendData.error);
+                }
+            }));
+            // Slight delay between chunks
+            await new Promise(r => setTimeout(r, 200));
         }
 
-        return NextResponse.json({ success: true, count: recipients.length });
+        return NextResponse.json({ success: true, count: targetEmails.length });
     } catch (error: any) {
         console.error('SEND NEWSLETTER ERROR:', error);
         return NextResponse.json({ success: false, error: error.message || 'Error del servidor de correos' }, { status: 500 });
