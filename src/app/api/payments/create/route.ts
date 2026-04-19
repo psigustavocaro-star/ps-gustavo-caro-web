@@ -100,18 +100,16 @@ export async function POST(request: NextRequest) {
             });
             console.log('API: Reserva guardada en DB', { commerceOrder });
 
-            // Suscribir al newsletter si se seleccionó
-            if (body.newsletter) {
-                await prisma.newsletter.upsert({
-                    where: { email },
-                    update: { active: true, name },
-                    create: { email, name }
-                }).catch((err: any) => console.error('Silent error registering newsletter:', err));
+            // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
+            await prisma.newsletter.upsert({
+                where: { email },
+                update: { active: true, name },
+                create: { email: email.toLowerCase(), name, active: true }
+            }).catch((err: any) => console.error('Silent error registering newsletter:', err));
 
-                // Enviar bienvenida al newsletter
-                const { sendNewsletterWelcome } = await import('@/lib/services/mail');
-                sendNewsletterWelcome(email, name).catch((err: any) => console.error('Silent newsletter mail error:', err));
-            }
+            // Enviar bienvenida al newsletter (Paso 1 de la secuencia automática)
+            const { sendNewsletterWelcome } = await import('@/lib/services/mail');
+            sendNewsletterWelcome(email, name).catch((err: any) => console.error('Silent newsletter mail error:', err));
         } catch (dbError: any) {
             console.error('API: Error al guardar en DB (continuando con pago):', dbError.message);
         }

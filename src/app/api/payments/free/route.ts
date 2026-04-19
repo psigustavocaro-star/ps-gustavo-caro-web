@@ -64,14 +64,12 @@ export async function POST(request: NextRequest) {
             });
             console.log('API: Reserva gratuita guardada en DB', { commerceOrder });
 
-            // Suscribir al newsletter si se seleccionó
-            if (body.newsletter) {
-                await prisma.newsletter.upsert({
-                    where: { email },
-                    update: { active: true, name },
-                    create: { email, name }
-                }).catch((err: any) => console.error('Silent error registering newsletter:', err));
-            }
+            // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
+            await prisma.newsletter.upsert({
+                where: { email },
+                update: { active: true, name },
+                create: { email: email.toLowerCase(), name, active: true }
+            }).catch((err: any) => console.error('Silent error registering newsletter:', err));
         } catch (dbError: any) {
             console.error('API: Error al guardar en DB:', dbError.message);
             // Si falla la DB en un agendamiento gratis, notificamos pero igual devolvemos éxito para no bloquear al usuario

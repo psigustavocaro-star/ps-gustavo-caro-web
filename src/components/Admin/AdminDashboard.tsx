@@ -38,14 +38,19 @@ export default function AdminDashboard() {
         try {
             const res = await fetch('/api/admin/data');
             const data = await res.json();
+            console.log('ADMIN DATA RECEIVED:', data);
             if (data.success) {
                 setBookings(data.bookings || []);
                 setPatients(data.patients || []);
                 setNewsletter(data.newsletter || []);
                 setTemplates(data.templates || []);
+            } else {
+                console.error('API Error:', data.error);
+                alert('Error al cargar datos: ' + data.error);
             }
         } catch (err) {
-            console.error('Error fetching admin data:', err);
+            console.error('Fetch Error:', err);
+            alert('Error de conexión con el servidor');
         } finally {
             setIsLoading(false);
         }
@@ -107,14 +112,25 @@ export default function AdminDashboard() {
         return { totalBookings, totalRevenue, newPatients, totalSubs };
     }, [bookings, newsletter]);
 
+    // Efecto para ocultar el menú flotante del sitio principal cuando estamos en el admin
+    useEffect(() => {
+        if (isAuthenticated) {
+            const sidebars = document.querySelectorAll('[class*="Sidebar_sidebar"]');
+            sidebars.forEach((el: any) => el.style.display = 'none');
+            return () => {
+                sidebars.forEach((el: any) => el.style.display = '');
+            };
+        }
+    }, [isAuthenticated]);
+
     if (!isAuthenticated) {
         return (
             <div className={styles.loginContainer}>
                 <div className={styles.loginCard}>
                     <div className={styles.loginHeader}>
                         <div className={styles.logoCircle}>GC</div>
-                        <h1 className={styles.loginTitle}>Acceso Profesional</h1>
-                        <p className={styles.loginDesc}>Ingresa tus credenciales para administrar la clínica.</p>
+                        <h1 className={styles.loginTitle}>Panel de Control Clínico</h1>
+                        <p className={styles.loginDesc}>Acceso restringido para el profesional.</p>
                     </div>
                     <form onSubmit={handleLogin} className={styles.loginForm}>
                         <div className={styles.inputGroup}>
@@ -122,7 +138,7 @@ export default function AdminDashboard() {
                             <input
                                 type="email"
                                 className={styles.input}
-                                placeholder="tu@email.com"
+                                placeholder="psi.gustavocaro@gmail.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 autoFocus
@@ -142,50 +158,63 @@ export default function AdminDashboard() {
                         </div>
                         <button type="submit" className={styles.loginBtn}>Entrar al Sistema →</button>
                     </form>
+                    <div className={styles.loginFooter}>
+                        <Link href="/">← Volver al inicio</Link>
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className={styles.dashboard}>
+        <div className={styles.dashboard} id="admin-panel">
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
                     <div className={styles.logoMini}>GC</div>
-                    <span>Administración</span>
+                    <div className={styles.brandText}>
+                        <span>Clínica Caro</span>
+                        <small>Gestor Profesional</small>
+                    </div>
                 </div>
                 <nav className={styles.sidebarNav}>
+                    <div className={styles.navGroup}>Menú Principal</div>
                     <button 
                         className={`${styles.navItem} ${activeTab === 'patients' ? styles.navActive : ''}`}
                         onClick={() => setActiveTab('patients')}
                     >
-                        👥 Fichas Pacientes
+                        <span className={styles.navIcon}>👥</span>
+                        <span className={styles.navLabel}>Fichas Pacientes</span>
                     </button>
                     <button 
                         className={`${styles.navItem} ${activeTab === 'bookings' ? styles.navActive : ''}`}
                         onClick={() => setActiveTab('bookings')}
                     >
-                        📅 Citas Individuales
+                        <span className={styles.navIcon}>📅</span>
+                        <span className={styles.navLabel}>Citas & Historial</span>
                     </button>
+                    <div className={styles.navGroup}>Comunicación</div>
                     <button 
                         className={`${styles.navItem} ${activeTab === 'marketing' ? styles.navActive : ''}`}
                         onClick={() => setActiveTab('marketing')}
                     >
-                        📝 Blog & Educativo
+                        <span className={styles.navIcon}>📝</span>
+                        <span className={styles.navLabel}>Blog & Educativo</span>
                     </button>
                     <button 
                         className={`${styles.navItem} ${activeTab === 'newsletter' ? styles.navActive : ''}`}
                         onClick={() => setActiveTab('newsletter')}
                     >
-                        📧 Newsletter
+                        <span className={styles.navIcon}>📧</span>
+                        <span className={styles.navLabel}>Newsletter</span>
                     </button>
                     <Link href="/" className={styles.navItem}>
-                        🏠 Volver al Sitio
+                        <span className={styles.navIcon}>🏠</span>
+                        <span className={styles.navLabel}>Volver al Sitio</span>
                     </Link>
                 </nav>
                 <div className={styles.sidebarFooter}>
                     <button onClick={() => setIsAuthenticated(false)} className={styles.logoutBtn}>
-                        Cerrar Sesión
+                        Cerrar Sesión 🔒
                     </button>
                 </div>
             </aside>
@@ -193,32 +222,45 @@ export default function AdminDashboard() {
             <main className={styles.mainContent}>
                 <header className={styles.mainHeader}>
                     <div className={styles.welcomeInfo}>
+                        <div className={styles.breadcrumb}>Admin / {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</div>
                         <h1 className={styles.mainTitle}>Gestión Clínica 👋</h1>
                         <p className={styles.mainSubtitle}>Resumen y herramientas profesionales para Gustavo.</p>
                     </div>
                     <div className={styles.headerActions}>
                         <button onClick={fetchData} className={styles.refreshBtn} title="Sincronizar">
-                            🔄
+                            🔄 Sincronizar Datos
                         </button>
                     </div>
                 </header>
 
                 <section className={styles.statsGrid}>
                     <div className={styles.statCard}>
-                        <span className={styles.statLabel}>Total Historico</span>
-                        <div className={styles.statValue}>{stats.totalBookings}</div>
+                        <div className={styles.statIcon} style={{background: '#e0f2fe', color: '#0369a1'}}>📅</div>
+                        <div>
+                            <span className={styles.statLabel}>Total Reservas</span>
+                            <div className={styles.statValue}>{stats.totalBookings}</div>
+                        </div>
                     </div>
                     <div className={styles.statCard}>
-                        <span className={styles.statLabel}>Ingresos Estimados</span>
-                        <div className={styles.statValue}>${stats.totalRevenue.toLocaleString('es-CL')}</div>
+                        <div className={styles.statIcon} style={{background: '#dcfce7', color: '#15803d'}}>💰</div>
+                        <div>
+                            <span className={styles.statLabel}>Ingresos Est.</span>
+                            <div className={styles.statValue}>${stats.totalRevenue.toLocaleString('es-CL')}</div>
+                        </div>
                     </div>
                     <div className={styles.statCard}>
-                        <span className={styles.statLabel}>Pacientes este Mes</span>
-                        <div className={styles.statValue}>{stats.newPatients}</div>
+                        <div className={styles.statIcon} style={{background: '#fef3c7', color: '#b45309'}}>👥</div>
+                        <div>
+                            <span className={styles.statLabel}>Nuevos (Mes)</span>
+                            <div className={styles.statValue}>{stats.newPatients}</div>
+                        </div>
                     </div>
                     <div className={styles.statCard}>
-                        <span className={styles.statLabel}>Suscriptores</span>
-                        <div className={styles.statValue}>{stats.totalSubs}</div>
+                        <div className={styles.statIcon} style={{background: '#ede9fe', color: '#6d28d9'}}>📧</div>
+                        <div>
+                            <span className={styles.statLabel}>Suscriptores</span>
+                            <div className={styles.statValue}>{stats.totalSubs}</div>
+                        </div>
                     </div>
                 </section>
 
@@ -226,7 +268,7 @@ export default function AdminDashboard() {
                     {isLoading ? (
                         <div className={styles.loadingContainer}>
                             <div className={styles.spinner}></div>
-                            <p>Actualizando registros...</p>
+                            <p>Consultando base de datos segura...</p>
                         </div>
                     ) : activeTab === 'patients' ? (
                         <div className={styles.dataList}>
