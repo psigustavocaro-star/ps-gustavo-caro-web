@@ -158,17 +158,25 @@ export default function AdminDashboard() {
     if (!isAuthenticated) {
         return (
             <div className={styles.loginWrapper}>
+                <div className={styles.movingBackground}></div>
                 <div className={styles.loginCard}>
-                    <div className={styles.loginLogo}>GC</div>
-                    <h1>Acceso Profesional</h1>
-                    <p>Gestiona tu clínica con orden y elegancia.</p>
+                    <div className={styles.pulseLogo}>
+                        <div className={styles.logoCore}>GC</div>
+                        <div className={styles.pulseRing}></div>
+                    </div>
+                    <h1>Elite Clinical Access</h1>
+                    <p>Gestiona tu clínica con tecnología de vanguardia y elegancia absoluta.</p>
                     <form onSubmit={handleLogin} className={styles.loginForm}>
-                        <input className={styles.inputMain} style={{marginBottom: '15px'}} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email Maestro" required />
-                        <input className={styles.inputMain} style={{marginBottom: '25px'}} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" required />
-                        <button type="submit" className={styles.primaryButton}>Entrar al Panel</button>
+                        <div className={styles.inputGroup}>
+                           <input className={styles.inputMain} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Identificador Maestro" required />
+                        </div>
+                        <div className={styles.inputGroup}>
+                           <input className={styles.inputMain} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Clave de Seguridad" required />
+                        </div>
+                        <button type="submit" className={styles.primaryButton}>Desbloquear Panel</button>
                     </form>
-                    <div style={{marginTop: '30px'}}>
-                        <Link href="/" style={{color: '#64748b', fontSize: '0.9rem'}}>← Salir de administración</Link>
+                    <div style={{marginTop: '40px'}}>
+                        <Link href="/" className={styles.exitLink}>← Volver al Sitio Público</Link>
                     </div>
                 </div>
             </div>
