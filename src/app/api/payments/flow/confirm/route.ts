@@ -66,7 +66,7 @@ async function processConfirmation(token: string) {
                 auditData.steps.database = 'OK';
 
                 const clientEmail = booking.email;
-                const clientName = booking.name;
+                const clientName = booking.name || 'Paciente';
                 const amount = paymentStatus.amount;
 
                 // 1. Notificación de Boleta
