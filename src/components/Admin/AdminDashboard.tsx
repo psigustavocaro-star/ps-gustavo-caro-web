@@ -28,6 +28,8 @@ export default function AdminDashboard() {
     const [editingTemplate, setEditingTemplate] = useState<any>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+    const [aiPrompt, setAiPrompt] = useState('');
 
     const handleUpdatePatient = async () => {
         setIsLoading(true);
@@ -183,8 +185,6 @@ export default function AdminDashboard() {
         );
     }
 
-    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
-    const [aiPrompt, setAiPrompt] = useState('');
 
     const generateAIContent = async () => {
         if (!aiPrompt) return alert('Escribe un tema para la IA');
