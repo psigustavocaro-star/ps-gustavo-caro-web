@@ -13,9 +13,43 @@ export default function AdminDashboard() {
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing'>('patients');
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState<any>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState<any>(null);
 
-    // Blog/Newsletter State
+    const handleUpdatePatient = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/admin/patients', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editData),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Paciente actualizado');
+                setIsEditing(false);
+                fetchData();
+            }
+        } catch (err) { alert('Error al actualizar'); }
+        finally { setIsLoading(false); }
+    };
+
+    const handleDeletePatient = async (email: string) => {
+        if (!confirm('¿Estás seguro de eliminar TODO el historial de este paciente? Esta acción no se puede deshacer.')) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch(`/api/admin/patients?email=${email}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert('Paciente eliminado');
+                setSelectedPatient(null);
+                fetchData();
+            }
+        } catch (err) { alert('Error al eliminar'); }
+        finally { setIsLoading(false); }
+    };
+
+    const [selectedPatient, setSelectedPatient] = useState<any>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
 
@@ -220,50 +254,98 @@ export default function AdminDashboard() {
             </main>
 
             {selectedPatient && (
-                <div className={styles.overlay} onClick={() => setSelectedPatient(null)}>
+                <div className={styles.overlay} onClick={() => { setSelectedPatient(null); setIsEditing(false); }}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                        <h2 className={styles.modalTitle}>Información del Paciente</h2>
+                        <h2 className={styles.modalTitle}>{isEditing ? 'Editar Paciente' : 'Información del Paciente'}</h2>
                         
-                        <div className={styles.dataGroup}>
-                            <h4>Identificación Legal</h4>
-                            <div className={styles.dataItem}>Nombre: <strong>{selectedPatient.firstName} {selectedPatient.secondName}</strong></div>
-                            <div className={styles.dataItem}>Apellidos: <strong>{selectedPatient.firstSurname} {selectedPatient.secondSurname}</strong></div>
-                            <div className={styles.dataItem}>RUT: <strong>{selectedPatient.rut}</strong></div>
-                        </div>
+                        {isEditing ? (
+                            <>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.inputGroup}>
+                                        <label>Primer Nombre</label>
+                                        <input className={styles.inputMain} value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} />
+                                    </div>
+                                    <div className={styles.inputGroup}>
+                                        <label>Segundo Nombre</label>
+                                        <input className={styles.inputMain} value={editData.secondName} onChange={e => setEditData({...editData, secondName: e.target.value})} />
+                                    </div>
+                                    <div className={styles.inputGroup}>
+                                        <label>Apellido Paterno</label>
+                                        <input className={styles.inputMain} value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} />
+                                    </div>
+                                    <div className={styles.inputGroup}>
+                                        <label>Apellido Materno</label>
+                                        <input className={styles.inputMain} value={editData.secondSurname} onChange={e => setEditData({...editData, secondSurname: e.target.value})} />
+                                    </div>
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <label>RUT</label>
+                                    <input className={styles.inputMain} value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} />
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <label>Dirección</label>
+                                    <input className={styles.inputMain} value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} />
+                                </div>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.inputGroup}>
+                                        <label>Comuna</label>
+                                        <input className={styles.inputMain} value={editData.commune} onChange={e => setEditData({...editData, commune: e.target.value})} />
+                                    </div>
+                                    <div className={styles.inputGroup}>
+                                        <label>Región</label>
+                                        <input className={styles.inputMain} value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})} />
+                                    </div>
+                                </div>
+                                <div style={{display: 'flex', gap: '10px', marginTop: '30px'}}>
+                                    <button className={styles.primaryButton} onClick={handleUpdatePatient}>Guardar Cambios</button>
+                                    <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Cancelar</button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.dataGroup}>
+                                    <h4>Identificación Legal</h4>
+                                    <div className={styles.dataItem}>Nombre: <strong>{selectedPatient.firstName} {selectedPatient.secondName}</strong></div>
+                                    <div className={styles.dataItem}>Apellidos: <strong>{selectedPatient.firstSurname} {selectedPatient.secondSurname}</strong></div>
+                                    <div className={styles.dataItem}>RUT: <strong>{selectedPatient.rut}</strong></div>
+                                </div>
 
-                        <div className={styles.dataGroup}>
-                            <h4>Ubicación y Contacto</h4>
-                            <div className={styles.dataItem}>Dirección: <strong>{selectedPatient.address}</strong></div>
-                            <div className={styles.dataItem}>Comuna / Región: <strong>{selectedPatient.commune}, {selectedPatient.region}</strong></div>
-                            <div className={styles.dataItem}>Email: <strong>{selectedPatient.email}</strong></div>
-                        </div>
+                                <div className={styles.dataGroup}>
+                                    <h4>Ubicación y Contacto</h4>
+                                    <div className={styles.dataItem}>Dirección: <strong>{selectedPatient.address}</strong></div>
+                                    <div className={styles.dataItem}>Comuna / Región: <strong>{selectedPatient.commune}, {selectedPatient.region}</strong></div>
+                                    <div className={styles.dataItem}>Email: <strong>{selectedPatient.email}</strong></div>
+                                </div>
 
-                        <div className={styles.dataGroup}>
-                            <h4>Historial de Citas</h4>
-                            <div style={{maxHeight: '200px', overflowY: 'auto'}}>
-                                {selectedPatient.bookings.map((b: any) => {
-                                    const date = new Date(b.appointmentDate || b.createdAt);
-                                    const isUpcoming = date > new Date();
-                                    const dateStr = date.toLocaleDateString('es-CL');
-                                    const timeStr = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-                                    
-                                    return (
-                                        <div key={b.id} className={styles.dataItem} style={{borderLeft: `4px solid ${isUpcoming ? '#0ea5e9' : '#10b981'}`}}>
-                                            <strong>{dateStr} a las {timeStr}</strong> — {b.serviceType} 
-                                            <span style={{float: 'right', fontSize: '0.75rem'}}>{isUpcoming ? 'Próxima' : 'Realizada'}</span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                                <div className={styles.dataGroup}>
+                                    <h4>Historial de Citas</h4>
+                                    <div style={{maxHeight: '200px', overflowY: 'auto'}}>
+                                        {selectedPatient.bookings.map((b: any) => {
+                                            const date = new Date(b.appointmentDate || b.createdAt);
+                                            const isUpcoming = date > new Date();
+                                            const dateStr = date.toLocaleDateString('es-CL');
+                                            const timeStr = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+                                            
+                                            return (
+                                                <div key={b.id} className={styles.dataItem} style={{borderLeft: `4px solid ${isUpcoming ? '#0ea5e9' : '#10b981'}`}}>
+                                                    <strong>{dateStr} a las {timeStr}</strong> — {b.serviceType} 
+                                                    <span style={{float: 'right', fontSize: '0.75rem'}}>{isUpcoming ? 'Próxima' : 'Realizada'}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
 
-                        <div className={styles.dataGroup}>
-                            <h4>Acciones Rápidas</h4>
-                            <div style={{display: 'flex', gap: '10px'}}>
-                                <button className={styles.viewBtn}>Enviar Mail Directo</button>
-                                <button className={styles.syncBtn} onClick={() => setSelectedPatient(null)}>Cerrar Ventana</button>
-                            </div>
-                        </div>
+                                <div className={styles.dataGroup}>
+                                    <h4>Acciones Rápidas</h4>
+                                    <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
+                                        <button className={styles.viewBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar Datos</button>
+                                        <button className={styles.syncBtn} onClick={() => handleDeletePatient(selectedPatient.email)} style={{color: '#ef4444'}}>Eliminar Paciente</button>
+                                        <button className={styles.syncBtn} onClick={() => setSelectedPatient(null)}>Cerrar Ventana</button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
