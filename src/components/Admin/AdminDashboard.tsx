@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter'>('patients');
+    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing'>('patients');
     const [profilePic, setProfilePic] = useState<string | null>(null);
 
     useEffect(() => {
@@ -103,14 +103,14 @@ export default function AdminDashboard() {
     };
 
     const handleSendToAll = async () => {
-        if (!editingTemplate) return alert('Selecciona o crea un correo primero 💌');
+        if (!title || !content) return alert('Selecciona o crea un texto primero 💌');
         if (!confirm(`¿Enviar a todos tus ${newsletterSubs.length} pacientes?`)) return;
         setIsLoading(true);
         try {
             const res = await fetch('/api/admin/newsletter/send', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId: editingTemplate.id, target: 'all' }),
+                body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'all', customTitle: title, customContent: content }),
             });
             const data = await res.json();
             if (data.success) alert(`🚀 ¡Correo enviado a ${data.count} personas!`);
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
     };
 
     const handleSendToSelected = async () => {
-        if (!editingTemplate) return alert('Selecciona un correo primero 💌');
+        if (!title || !content) return alert('Selecciona un correo o post primero 💌');
         if (selectedRecipients.length === 0) return alert('Debes marcar al menos un paciente');
         setIsLoading(true);
         try {
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
                 await fetch('/api/admin/newsletter/send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ templateId: editingTemplate.id, target: 'specific', specificEmail: email }),
+                    body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'specific', specificEmail: email, customTitle: title, customContent: content }),
                 });
             }
             alert(`✅ Enviado a ${selectedRecipients.length} pacientes.`);
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('💾 Artículo guardado perfectamente');
+                alert('💾 Borrador de correo guardado perfectamente');
                 fetchData();
             }
         } catch (err) { alert('No pudimos guardarlo en este momento'); }
@@ -192,7 +192,8 @@ export default function AdminDashboard() {
                 <nav className={styles.navList}>
                     <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👥 Mis Pacientes</button>
                     <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>🗓️ Calendario</button>
-                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Enviar Correos</button>
+                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Correos Masivos</button>
+                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Mi Blog</button>
                 </nav>
                 
                 <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
@@ -201,7 +202,7 @@ export default function AdminDashboard() {
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
                     <div>
-                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : 'Centro de Correos'}</h1>
+                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Centro de Correos' : 'Mi Blog'}</h1>
                         <p>Trabajando para mantener la salud mental al alcance de todos.</p>
                     </div>
                     <button onClick={fetchData} className={styles.syncBtn}>🔄 Actualizar Datos</button>
@@ -260,59 +261,54 @@ export default function AdminDashboard() {
                         </table>
                     )}
 
-                    {(activeTab === 'newsletter') && (
+                    {(activeTab === 'newsletter' || activeTab === 'marketing') && (
                         <div className={styles.studioLayout}>
                             <div className={styles.editorPanel}>
                                 <div className={styles.studioToolbar}>
                                     <button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button>
                                     <button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button>
                                 </div>
-                                <input className={styles.editorTitle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título de tu publicación..." />
+                                <input className={styles.editorTitle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título del escrito..." />
                                 <div ref={editorRef} className={styles.richText} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
                                 
                                 <div className={styles.editorActions}>
-                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>💾 Guardar Borrador</button>
-                                    {activeTab === 'newsletter' && (
-                                        <>
-                                            <button className={styles.syncBtn} onClick={handleSendToAll} style={{color: '#22d3ee', borderColor: '#22d3ee'}}>🚀 Enviar a todos</button>
-                                            {selectedRecipients.length > 0 && <button className={styles.syncBtn} onClick={handleSendToSelected}>📨 Enviar a los {selectedRecipients.length} marcados</button>}
-                                        </>
-                                    )}
+                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>💾 Guardar Cambios</button>
+                                    
+                                    <button className={styles.syncBtn} onClick={handleSendToAll} style={{color: '#22d3ee', borderColor: '#22d3ee'}}>🚀 Enviar a todos</button>
+                                    {selectedRecipients.length > 0 && <button className={styles.syncBtn} onClick={handleSendToSelected}>📨 Enviar a los {selectedRecipients.length} marcados</button>}
                                 </div>
                             </div>
                             
                             <aside className={styles.sidePanel}>
-                                {activeTab === 'newsletter' && (
-                                    <div className={styles.panelCard}>
-                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                                            <h4 style={{margin: 0}}>👥 Tus Lectores</h4>
-                                            <button onClick={toggleSelectAll} style={{background: 'transparent', border: 'none', color: '#06b6d4', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600}}>
-                                                {selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0 ? 'Desmarcar todos' : 'Marcar todos'}
-                                            </button>
-                                        </div>
-                                        <div className={styles.audienceList}>
-                                            {newsletterSubs.map(s => (
-                                                <label key={s.id} className={styles.audienceItem}>
-                                                    <input type="checkbox" checked={selectedRecipients.includes(s.email)} onChange={e => {
-                                                        if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
-                                                        else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
-                                                    }} />
-                                                    <span>{s.email}</span>
-                                                </label>
-                                            ))}
-                                        </div>
+                                <div className={styles.panelCard}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 20px 0'}}>
+                                        <h4 style={{margin: 0}}>👥 Tus Lectores</h4>
+                                        <button onClick={toggleSelectAll} style={{background: 'transparent', border: 'none', color: '#06b6d4', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600}}>
+                                            {selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0 ? 'Desmarcar todos' : 'Marcar todos'}
+                                        </button>
                                     </div>
-                                )}
+                                    <div className={styles.audienceList}>
+                                        {newsletterSubs.map(s => (
+                                            <label key={s.id} className={styles.audienceItem}>
+                                                <input type="checkbox" checked={selectedRecipients.includes(s.email)} onChange={e => {
+                                                    if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
+                                                    else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
+                                                }} />
+                                                <span>{s.email}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
                                 
                                 <div className={styles.panelCard}>
-                                    <h4>📚 Base de Contenido</h4>
+                                    <h4>📚 {activeTab === 'newsletter' ? 'Correos Guardados' : 'Artículos de Blog Publicados'}</h4>
                                     <div className={styles.draftList} style={{maxHeight: '300px', overflowY: 'auto', paddingRight: '8px'}}>
-                                        {blogPosts.map(bp => (
+                                        {activeTab === 'marketing' && blogPosts.map(bp => (
                                             <div key={bp.slug} className={styles.draftCard} onClick={() => { setEditingTemplate({ id: null }); setTitle(bp.title); setContent(bp.content); if(editorRef.current) editorRef.current.innerHTML = bp.content; }}>
                                                 <h5>[Blog] {bp.title}</h5>
                                             </div>
                                         ))}
-                                        {templates.map(t => (
+                                        {activeTab === 'newsletter' && templates.map(t => (
                                             <div key={t.id} className={styles.draftCard} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
                                                 <h5>[Correo] {t.title}</h5>
                                             </div>
