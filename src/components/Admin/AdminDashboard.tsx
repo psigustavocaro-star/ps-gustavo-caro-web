@@ -203,6 +203,11 @@ export default function AdminDashboard() {
                         <input className={styles.authInput} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Tu contraseña" required />
                         <button type="submit" className={styles.authSubmit}>Entrar a la Clínica</button>
                     </form>
+                    <div style={{ marginTop: '24px' }}>
+                        <a href="/" style={{ color: '#06b6d4', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>
+                            ← Regresar a la página principal
+                        </a>
+                    </div>
                 </div>
             </div>
         );
