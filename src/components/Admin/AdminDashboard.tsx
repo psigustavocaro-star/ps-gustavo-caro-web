@@ -97,16 +97,38 @@ export default function AdminDashboard() {
     const generateAIContent = async () => {
         if (!aiPrompt) return alert('Dime de qué quieres escribir hoy ✍️');
         setIsLoading(true);
-        setTimeout(() => {
-            const library: any = {
-                'ansiedad': { t: '¿Cómo lidiar con la ansiedad diaria?', c: '<h2>El primer paso es respirar</h2><p>La ansiedad clínica requiere paciencia y comprensión...</p><ul><li>Regulación emocional</li><li>Nuevos pensamientos</li><li>Ir poco a poco</li></ul>' },
-            };
-            const match = library[aiPrompt.toLowerCase()] || { t: `Sobre ${aiPrompt}`, c: `<h2>Reflexiones sobre ${aiPrompt}</h2><p>Aquí tienes un buen punto de partida para tu artículo...</p>` };
-            setTitle(match.t);
-            setContent(match.c);
-            if (editorRef.current) editorRef.current.innerHTML = match.c;
+        try {
+            const res = await fetch('/api/admin/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: aiPrompt })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                // Formatting Title slightly better if API doesn't return one directly
+                setTitle(data.title || `Reflexiones clínicas: ${aiPrompt}`);
+                
+                // In case the API returned markdown HTML tags
+                const cleanHTML = data.content.replace(/```html/g, '').replace(/```/g, '');
+                setContent(cleanHTML);
+                if (editorRef.current) editorRef.current.innerHTML = cleanHTML;
+            } else {
+                alert('Hubo un error con la IA: ' + (data.error || 'Vuelve a intentarlo'));
+            }
+        } catch (error) {
+            alert('Falla de conexión al servicio de IA.');
+        } finally {
             setIsLoading(false);
-        }, 1200);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0) {
+            setSelectedRecipients([]);
+        } else {
+            setSelectedRecipients(newsletterSubs.map(s => s.email));
+        }
     };
 
     const handleSendToAll = async () => {
@@ -296,7 +318,12 @@ export default function AdminDashboard() {
                             <aside className={styles.sidePanel}>
                                 {activeTab === 'newsletter' && (
                                     <div className={styles.panelCard}>
-                                        <h4>👥 Tus Lectores</h4>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                            <h4 style={{margin: 0}}>👥 Tus Lectores</h4>
+                                            <button onClick={toggleSelectAll} style={{background: 'transparent', border: 'none', color: '#06b6d4', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600}}>
+                                                {selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0 ? 'Desmarcar todos' : 'Marcar todos'}
+                                            </button>
+                                        </div>
                                         <div className={styles.audienceList}>
                                             {newsletterSubs.map(s => (
                                                 <label key={s.id} className={styles.audienceItem}>
