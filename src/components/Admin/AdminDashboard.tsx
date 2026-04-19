@@ -133,38 +133,40 @@ export default function AdminDashboard() {
                 </div>
                 <div className={styles.loginCard}>
                     <div className={styles.loginHeader}>
-                        <div className={styles.logoCircle}>GC</div>
-                        <h1 className={styles.loginTitle}>Sistema de Gestión Caro</h1>
-                        <p className={styles.loginDesc}>Identificación profesional requerida.</p>
+                        <div className={styles.logoCircle} style={{ color: '#ffffff' }}>GC</div>
+                        <h1 className={styles.loginTitle} style={{ color: '#ffffff' }}>Sistema de Gestión Caro</h1>
+                        <p className={styles.loginDesc} style={{ color: '#94a3b8' }}>Identificación profesional requerida.</p>
                     </div>
                     <form onSubmit={handleLogin} className={styles.loginForm}>
                         <div className={styles.inputGroup}>
-                            <label>Usuario Maestro</label>
+                            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>Usuario Maestro</label>
                             <input
                                 type="email"
                                 className={styles.input}
                                 placeholder="psi.gustavocaro@gmail.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                style={{ color: '#ffffff' }}
                                 autoFocus
                                 required
                             />
                         </div>
                         <div className={styles.inputGroup}>
-                            <label>Clave de Acceso</label>
+                            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>Clave de Acceso</label>
                             <input
                                 type="password"
                                 className={styles.input}
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                style={{ color: '#ffffff' }}
                                 required
                             />
                         </div>
                         <button type="submit" className={styles.loginBtn}>Entrar al Panel →</button>
                     </form>
                     <div className={styles.loginFooter}>
-                        <Link href="/">← Volver a la Web Principal</Link>
+                        <Link href="/" style={{ color: '#94a3b8' }}>← Volver a la Web Principal</Link>
                     </div>
                 </div>
             </div>
