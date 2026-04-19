@@ -236,9 +236,12 @@ export default function AdminDashboard() {
                                 {selectedPatient.bookings.map((b: any) => {
                                     const date = new Date(b.appointmentDate || b.createdAt);
                                     const isUpcoming = date > new Date();
+                                    const dateStr = date.toLocaleDateString('es-CL');
+                                    const timeStr = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+                                    
                                     return (
                                         <div key={b.id} className={styles.dataItem} style={{borderLeft: `4px solid ${isUpcoming ? '#0ea5e9' : '#10b981'}`}}>
-                                            {date.toLocaleDateString('es-CL')} - {b.serviceType} 
+                                            <strong>{dateStr} a las {timeStr}</strong> — {b.serviceType} 
                                             <span style={{float: 'right', fontSize: '0.75rem'}}>{isUpcoming ? 'Próxima' : 'Realizada'}</span>
                                         </div>
                                     );
