@@ -348,7 +348,6 @@ export default function AdminDashboard() {
                                     <button className={styles.primaryButton} style={{width: 'auto', padding: '12px 40px'}} onClick={handleSaveTemplate} disabled={isLoading}>
                                         {isLoading ? 'Guardando...' : editingTemplate ? 'Actualizar Plantilla' : 'Guardar y Publicar'}
                                     </button>
-                                    {activeTab === 'marketing' && <button className={styles.syncBtn}>Ver en el Blog</button>}
                                 </div>
 
                                 <h3 style={{marginTop: '40px', marginBottom: '20px', fontSize: '1.1rem', opacity: 0.8}}>Plantillas Guardadas</h3>
