@@ -159,6 +159,8 @@
 /* Auth */
 .loginWrapper { min-height: 100vh; background: #0b0f1a; display: flex; align-items: center; justify-content: center; }
 .loginCard { background: #111827; padding: 50px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.03); }
+.loginCard h1 { color: #f1f5f9; font-size: 1.8rem; margin-bottom: 10px; font-weight: 800; }
+.loginCard p { color: #64748b; margin-bottom: 40px; font-size: 1rem; }
 
 @media (max-width: 1024px) {
     .newsletterLayout { grid-template-columns: 1fr; }
