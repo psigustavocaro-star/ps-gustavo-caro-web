@@ -175,6 +175,29 @@ export default function AdminDashboard() {
 
     return (
         <div className={`${styles.dashboard} ${styles[theme]}`} id="admin-panel">
+            <style dangerouslySetInnerHTML={{ __html: `
+                #admin-panel h1, 
+                #admin-panel h2, 
+                #admin-panel h3, 
+                #admin-panel h4, 
+                #admin-panel h5, 
+                #admin-panel h6,
+                #admin-panel strong,
+                #admin-panel span,
+                #admin-panel label,
+                #admin-panel p {
+                    color: white !important;
+                }
+                #admin-panel [class*="mainSubtitle"],
+                #admin-panel [class*="statLabel"],
+                #admin-panel [class*="breadcrumb"] {
+                    color: rgba(255,255,255,0.7) !important;
+                }
+                #admin-panel table th {
+                    color: rgba(255,255,255,0.5) !important;
+                }
+            `}} />
+            
             <div className={styles.bokehBackground}>
                 <div className={styles.bokehCircle}></div>
                 <div className={styles.bokehCircle}></div>
