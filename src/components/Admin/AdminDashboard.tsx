@@ -278,14 +278,18 @@ export default function AdminDashboard() {
                     {activeTab === 'patients' && (
                         <table className={styles.friendlyTable}>
                             <thead><tr><th>Nombre</th><th>Correo</th><th>Etiqueta</th><th>Ficha</th></tr></thead>
-                            <tbody>{patients.map(p => (
+                            <tbody>{patients.map(p => {
+                                const fullName = [p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ').trim();
+                                const displayName = fullName || p.name || 'Sin Nombre';
+                                return (
                                 <tr key={p.email}>
-                                    <td>{[p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ')}</td>
+                                    <td>{displayName}</td>
                                     <td>{p.email}</td>
                                     <td><span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span></td>
                                     <td><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Abrir Ficha</button></td>
                                 </tr>
-                            ))}</tbody>
+                                )
+                            })}</tbody>
                         </table>
                     )}
 
@@ -392,7 +396,7 @@ export default function AdminDashboard() {
                         ) : (
                             <div>
                                 <div className={styles.dataGrid}>
-                                    <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ')}</span></div>
+                                    <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ').trim() || selectedPatient.name || 'Sin Nombre'}</span></div>
                                     <div className={styles.dataField}><label>Identificador (RUT)</label><span>{selectedPatient.rut || 'Aún no registrado'}</span></div>
                                     <div className={styles.dataField}><label>Residencia</label><span>{selectedPatient.address || 'Sin detalles'}</span></div>
                                     <div className={styles.dataField}><label>Ubicación</label><span>{selectedPatient.region ? `${selectedPatient.region}, ${selectedPatient.country}` : 'Desconocida'}</span></div>
