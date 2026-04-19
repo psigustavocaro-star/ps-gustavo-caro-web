@@ -4,12 +4,11 @@ import prisma from '@/lib/db';
 export async function GET() {
     console.log('ADMIN API: Start fetching data...');
     try {
-        const [bookings, newsletter, anamnesis, templates] = await Promise.all([
-            prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }),
-            prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }),
-            prisma.anamnesis.findMany(),
-            prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } })
-        ]);
+        // Ejecutamos las consultas de forma segura e independiente
+        const bookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
+        const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
+        const anamnesis = await prisma.anamnesis.findMany().catch(() => []);
+        const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
 
         console.log(`ADMIN API: Records found - Bookings: ${bookings.length}, Newsletter: ${newsletter.length}`);
 
