@@ -23,6 +23,7 @@ export async function PUT(request: NextRequest) {
                 address: updateData.address,
                 region: updateData.region,
                 commune: updateData.commune,
+                country: updateData.country,
                 phone: updateData.phone
             }
         });

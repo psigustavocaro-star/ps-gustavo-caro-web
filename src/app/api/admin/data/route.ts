@@ -31,6 +31,7 @@ export async function GET() {
                     address: b.address || '',
                     region: b.region || '',
                     commune: b.commune || '',
+                    country: b.country || 'Chile',
                     bookings: [],
                     anamnesis: null,
                     newsletter: null,

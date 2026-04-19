@@ -278,9 +278,17 @@ export default function AdminDashboard() {
                                         <input className={styles.inputMain} value={editData.secondSurname} onChange={e => setEditData({...editData, secondSurname: e.target.value})} />
                                     </div>
                                 </div>
-                                <div className={styles.inputGroup}>
-                                    <label>RUT</label>
-                                    <input className={styles.inputMain} value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} />
+                                <div className={styles.formGrid}>
+                                    <div className={styles.inputGroup}>
+                                        <label>País</label>
+                                        <select className={styles.inputMain} value={editData.country || 'Chile'} onChange={e => setEditData({...editData, country: e.target.value})}>
+                                            {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.inputGroup}>
+                                        <label>RUT / ID</label>
+                                        <input className={styles.inputMain} value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} />
+                                    </div>
                                 </div>
                                 <div className={styles.inputGroup}>
                                     <label>Dirección</label>
@@ -288,16 +296,25 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className={styles.formGrid}>
                                     <div className={styles.inputGroup}>
-                                        <label>Comuna</label>
-                                        <input className={styles.inputMain} value={editData.commune} onChange={e => setEditData({...editData, commune: e.target.value})} />
+                                        <label>Región</label>
+                                        {editData.country === 'Chile' ? (
+                                            <select className={styles.inputMain} value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})}>
+                                                <option value="">Selecciona Región...</option>
+                                                {CHILE_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                                            </select>
+                                        ) : (
+                                            <input className={styles.inputMain} value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})} placeholder="Estado/Provincia" />
+                                        )}
                                     </div>
                                     <div className={styles.inputGroup}>
-                                        <label>Región</label>
-                                        <input className={styles.inputMain} value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})} />
+                                        <label>Comuna / Ciudad</label>
+                                        <input className={styles.inputMain} value={editData.commune} onChange={e => setEditData({...editData, commune: e.target.value})} />
                                     </div>
                                 </div>
                                 <div style={{display: 'flex', gap: '10px', marginTop: '30px'}}>
-                                    <button className={styles.primaryButton} onClick={handleUpdatePatient}>Guardar Cambios</button>
+                                    <button className={styles.primaryButton} onClick={handleUpdatePatient} disabled={isLoading}>
+                                        {isLoading ? 'Guardando...' : 'Guardar Cambios'}
+                                    </button>
                                     <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Cancelar</button>
                                 </div>
                             </>
@@ -313,7 +330,7 @@ export default function AdminDashboard() {
                                 <div className={styles.dataGroup}>
                                     <h4>Ubicación y Contacto</h4>
                                     <div className={styles.dataItem}>Dirección: <strong>{selectedPatient.address}</strong></div>
-                                    <div className={styles.dataItem}>Comuna / Región: <strong>{selectedPatient.commune}, {selectedPatient.region}</strong></div>
+                                    <div className={styles.dataItem}>Ubicación: <strong>{selectedPatient.commune}, {selectedPatient.region} ({selectedPatient.country})</strong></div>
                                     <div className={styles.dataItem}>Email: <strong>{selectedPatient.email}</strong></div>
                                 </div>
 

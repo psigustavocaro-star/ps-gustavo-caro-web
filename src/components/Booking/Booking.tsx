@@ -485,10 +485,7 @@ export default function Booking() {
                                         onChange={(e) => setFormData({ ...formData, region: e.target.value })}
                                     >
                                         <option value="">Selecciona Región...</option>
-                                        <option value="Metropolitana">Región Metropolitana</option>
-                                        <option value="Valparaíso">Región de Valparaíso</option>
-                                        <option value="Biobío">Región del Biobío</option>
-                                        <option value="Otros">Otra Región</option>
+                                        {CHILE_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                                     </select>
                                     {errors.region && <span className={styles.errorText}>{errors.region}</span>}
                                 </div>
