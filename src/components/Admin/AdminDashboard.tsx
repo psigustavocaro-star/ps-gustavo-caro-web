@@ -2,15 +2,12 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './AdminDashboard.module.css';
-import Link from 'next/link';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
     'Valparaíso', 'Metropolitana de Santiago', 'O\'Higgins', 'Maule', 
     'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
 ];
-
-const COUNTRIES = ['Chile', 'México', 'Colombia', 'España', 'Perú', 'Argentina', 'Otro'];
 
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,6 +23,7 @@ export default function AdminDashboard() {
         const savedPic = localStorage.getItem('adminProfilePic');
         if (savedPic) setProfilePic(savedPic);
     }, []);
+
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState<any>(null);
@@ -77,12 +75,12 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('✓ Base de datos actualizada');
+                alert('✨ Ficha del paciente actualizada con éxito');
                 setIsEditing(false);
                 setSelectedPatient(editData);
                 fetchData();
             }
-        } catch (err) { alert('Error de red'); }
+        } catch (err) { alert('Error de conexión'); }
         finally { setIsLoading(false); }
     };
 
@@ -92,19 +90,18 @@ export default function AdminDashboard() {
             setIsAuthenticated(true);
             fetchData();
         } else {
-            alert('Acceso Denegado');
+            alert('Datos incorrectos. Por favor, intenta de nuevo.');
         }
     };
 
     const generateAIContent = async () => {
-        if (!aiPrompt) return alert('Especifica el tema clínico');
+        if (!aiPrompt) return alert('Dime de qué quieres escribir hoy ✍️');
         setIsLoading(true);
         setTimeout(() => {
             const library: any = {
-                'ansiedad': { t: 'Protocolos de Manejo Cognitivo para Ansiedad', c: '<h2>Enfoque Clínico</h2><p>La ansiedad clínica requiere una intervención estructurada...</p><ul><li>Regulación autonómica</li><li>Reestructuración del pensamiento</li><li>Exposición sistemática</li></ul><img src="https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0" />' },
-                'depresion': { t: 'Actualización en Activación Conductual', c: '<h2>Estrategias Avanzadas</h2><p>La depresión mayor se aborda desde la activación progresiva.</p><p>Establecer metas de baja fricción es crítico para el éxito terapéutico inicial.</p>' }
+                'ansiedad': { t: '¿Cómo lidiar con la ansiedad diaria?', c: '<h2>El primer paso es respirar</h2><p>La ansiedad clínica requiere paciencia y comprensión...</p><ul><li>Regulación emocional</li><li>Nuevos pensamientos</li><li>Ir poco a poco</li></ul>' },
             };
-            const match = library[aiPrompt.toLowerCase()] || { t: `Reflexión: ${aiPrompt}`, c: `<h2>Marco Teórico: ${aiPrompt}</h2><p>Contenido generado para facilitar tu escritura profesional...</p>` };
+            const match = library[aiPrompt.toLowerCase()] || { t: `Sobre ${aiPrompt}`, c: `<h2>Reflexiones sobre ${aiPrompt}</h2><p>Aquí tienes un buen punto de partida para tu artículo...</p>` };
             setTitle(match.t);
             setContent(match.c);
             if (editorRef.current) editorRef.current.innerHTML = match.c;
@@ -113,8 +110,8 @@ export default function AdminDashboard() {
     };
 
     const handleSendToAll = async () => {
-        if (!editingTemplate) return alert('Primero selecciona o guarda una plantilla');
-        if (!confirm(`¿Enviar "${editingTemplate.title}" a TODOS los ${newsletterSubs.length} suscriptores?`)) return;
+        if (!editingTemplate) return alert('Selecciona o crea un correo primero 💌');
+        if (!confirm(`¿Enviar a todos tus ${newsletterSubs.length} pacientes?`)) return;
         setIsLoading(true);
         try {
             const res = await fetch('/api/admin/newsletter/send', {
@@ -123,14 +120,14 @@ export default function AdminDashboard() {
                 body: JSON.stringify({ templateId: editingTemplate.id, target: 'all' }),
             });
             const data = await res.json();
-            if (data.success) alert(`✓ Campaña masiva iniciada. Enviado a ${data.count} personas.`);
-        } catch (err) { alert('Error en el servicio de envío'); }
+            if (data.success) alert(`🚀 ¡Correo enviado a ${data.count} personas!`);
+        } catch (err) { alert('Hubo un error al enviar'); }
         finally { setIsLoading(false); }
     };
 
     const handleSendToSelected = async () => {
-        if (!editingTemplate) return alert('Guarda o selecciona una plantilla primero');
-        if (selectedRecipients.length === 0) return alert('Selecciona destinatarios en la barra lateral');
+        if (!editingTemplate) return alert('Selecciona un correo primero 💌');
+        if (selectedRecipients.length === 0) return alert('Debes marcar al menos un paciente');
         setIsLoading(true);
         try {
             for (const email of selectedRecipients) {
@@ -140,9 +137,9 @@ export default function AdminDashboard() {
                     body: JSON.stringify({ templateId: editingTemplate.id, target: 'specific', specificEmail: email }),
                 });
             }
-            alert(`✓ Enviado con éxito a ${selectedRecipients.length} destinatarios seleccionados.`);
+            alert(`✅ Enviado a ${selectedRecipients.length} pacientes.`);
             setSelectedRecipients([]);
-        } catch (err) { alert('Error en el envío segmentado'); }
+        } catch (err) { alert('Ocurrió un error en el envío'); }
         finally { setIsLoading(false); }
     };
 
@@ -156,24 +153,25 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('✓ Guardado correctamente');
+                alert('💾 Artículo guardado perfectamente');
                 fetchData();
             }
-        } catch (err) { alert('Falla en persistencia'); }
+        } catch (err) { alert('No pudimos guardarlo en este momento'); }
         finally { setIsLoading(false); }
     };
 
     if (!isAuthenticated) {
         return (
-            <div className={styles.authWrapper}>
-                <div className={styles.authAmbient}></div>
-                <div className={styles.authCard}>
-                    <div className={styles.authBadge}>GC</div>
-                    <h1>Executive Panel</h1>
+            <div className={styles.authContainer}>
+                <div className={styles.authBlob}></div>
+                <div className={styles.authBox}>
+                    <span className={styles.authIcon}>👋</span>
+                    <h1>¡Hola Gustavo!</h1>
+                    <p>Inicia sesión para entrar a tu clínica digital.</p>
                     <form onSubmit={handleLogin}>
-                        <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-                        <input className={styles.inputMain} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave" required />
-                        <button type="submit" className={styles.authBtn}>Desbloquear Suite</button>
+                        <input className={styles.authInput} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Correo electrónico" required />
+                        <input className={styles.authInput} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Tu contraseña" required />
+                        <button type="submit" className={styles.authSubmit}>Entrar a la Clínica</button>
                     </form>
                 </div>
             </div>
@@ -186,96 +184,122 @@ export default function AdminDashboard() {
             
             <aside className={styles.sideNav}>
                 <div className={styles.navHeader}>
-                    <label className={styles.logoSquare} style={{cursor: 'pointer', overflow: 'hidden'}} title="Cambiar foto de perfil">
+                    <label className={styles.profileUploadBox} title="Haz clic para subir tu foto">
                         <input type="file" accept="image/*" style={{display: 'none'}} onChange={handleProfilePicChange} />
                         {profilePic ? (
-                            <img src={profilePic} alt="Admin" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                            <img src={profilePic} alt="Tú" className={styles.profileImg} />
                         ) : (
                             <span className={styles.dogAvatar}>🐕</span>
                         )}
                     </label>
-                    <span className={styles.navTitle} style={{color: '#fff', fontSize: '0.9rem', fontWeight: 700}}>ELITE CRM</span>
+                    <span className={styles.navTitle}>Clínica Gustavo</span>
+                    <span className={styles.navSubtitle}>Panel Principal</span>
                 </div>
+                
                 <nav className={styles.navList}>
-                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>Pacientes</button>
-                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>Calendario</button>
-                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>Newsletter</button>
-                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>Blog Editorial</button>
+                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👥 Mis Pacientes</button>
+                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>🗓️ Calendario</button>
+                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Correos Masivos</button>
+                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Mi Blog</button>
                 </nav>
+                
                 <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
             </aside>
 
             <main className={styles.contentArea}>
-                <header className={styles.contentHeader} style={{marginBottom: '48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <h1>{activeTab === 'patients' ? 'Historial Clínico' : activeTab === 'bookings' ? 'Agenda Clínica' : activeTab === 'newsletter' ? 'Newsletter Masivo' : 'Suite Editorial'}</h1>
-                    <button onClick={fetchData} className={styles.syncBtn}>Sincronizar Panel</button>
+                <header className={styles.contentHeader}>
+                    <div>
+                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Difusión' : 'Mi Blog'}</h1>
+                        <p>Trabajando para mantener la salud mental al alcance de todos.</p>
+                    </div>
+                    <button onClick={fetchData} className={styles.syncBtn}>🔄 Actualizar Datos</button>
                 </header>
 
                 <div className={styles.dashboardStats}>
-                    <div className={styles.statBox}><span className={styles.label}>Base Pacientes</span><span className={styles.value}>{patients.length}</span></div>
-                    <div className={styles.statBox}><span className={styles.label}>Total Citas</span><span className={styles.value}>{bookings.length}</span></div>
-                    <div className={styles.statBox}><span className={styles.label}>Newsletter Subs</span><span className={styles.value}>{newsletterSubs.length}</span></div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statIcon}>🧑‍⚕️</div>
+                        <div className={styles.statInfo}>
+                            <h3>Pacientes Registrados</h3>
+                            <p>{patients.length}</p>
+                        </div>
+                    </div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statIcon}>📅</div>
+                        <div className={styles.statInfo}>
+                            <h3>Citas Totales</h3>
+                            <p>{bookings.length}</p>
+                        </div>
+                    </div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statIcon}>🌟</div>
+                        <div className={styles.statInfo}>
+                            <h3>Lectores Conectados</h3>
+                            <p>{newsletterSubs.length}</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div className={styles.mainGrid}>
+                <div className={styles.listContainer}>
                     {activeTab === 'patients' && (
-                        <table className={styles.proTable}>
-                            <thead><tr><th>Identidad</th><th>Email</th><th>Origen</th><th style={{textAlign: 'right'}}>Acción</th></tr></thead>
+                        <table className={styles.friendlyTable}>
+                            <thead><tr><th>Nombre</th><th>Correo</th><th>Etiqueta</th><th>Ficha</th></tr></thead>
                             <tbody>{patients.map(p => (
                                 <tr key={p.email}>
-                                    <td><strong>{[p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ')}</strong></td>
+                                    <td>{[p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ')}</td>
                                     <td>{p.email}</td>
-                                    <td><span className={styles.statusOk}>{p.newsletter ? 'Newsletter' : 'Clínico'}</span></td>
-                                    <td style={{textAlign: 'right'}}><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Ver Ficha</button></td>
+                                    <td><span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span></td>
+                                    <td><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Abrir Ficha</button></td>
                                 </tr>
                             ))}</tbody>
                         </table>
                     )}
 
                     {activeTab === 'bookings' && (
-                        <table className={styles.proTable}>
-                            <thead><tr><th>Paciente</th><th>Fecha</th><th>Servicio</th><th>Estado</th></tr></thead>
+                        <table className={styles.friendlyTable}>
+                            <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Situación</th></tr></thead>
                             <tbody>{bookings.map(b => (
                                 <tr key={b.id}>
-                                    <td><strong>{b.name}</strong></td>
-                                    <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</td>
+                                    <td>{b.name}</td>
+                                    <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })}</td>
                                     <td>{b.serviceType}</td>
-                                    <td><span className={styles.statusOk} style={{background: 'transparent'}}>{b.status}</span></td>
+                                    <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span></td>
                                 </tr>
                             ))}</tbody>
                         </table>
                     )}
 
                     {(activeTab === 'newsletter' || activeTab === 'marketing') && (
-                        <div className={styles.editorialStudio}>
-                            <div className={styles.studioMain}>
+                        <div className={styles.studioLayout}>
+                            <div className={styles.editorPanel}>
                                 <div className={styles.studioToolbar}>
-                                    <button onClick={() => document.execCommand('bold')}>B</button>
-                                    <button onClick={() => document.execCommand('italic')}>I</button>
-                                    <div className={styles.aiScribe}>
-                                        <input placeholder="Tema para la IA..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
-                                        <button onClick={generateAIContent}>Escribir</button>
+                                    <button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button>
+                                    <button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button>
+                                    <div className={styles.aiHelperBox}>
+                                        <input placeholder="¿Dime una idea y el asistente la escribirá para ti..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
+                                        <button onClick={generateAIContent}>¡Mágia! ✨</button>
                                     </div>
                                 </div>
-                                <input className={styles.titleInput} value={title} onChange={e => setTitle(e.target.value)} placeholder="Introduce el título..." />
-                                <div ref={editorRef} className={styles.editor} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
-                                <div className={styles.editorFooter}>
-                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>Guardar Cambios</button>
+                                <input className={styles.editorTitle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título de tu publicación..." />
+                                <div ref={editorRef} className={styles.richText} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
+                                
+                                <div className={styles.editorActions}>
+                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>💾 Guardar Borrador</button>
                                     {activeTab === 'newsletter' && (
                                         <>
-                                            <button className={styles.syncBtn} onClick={handleSendToAll} style={{color: '#10b981'}}>Enviar a TODOS</button>
-                                            {selectedRecipients.length > 0 && <button className={styles.syncBtn} onClick={handleSendToSelected}>Enviar a {selectedRecipients.length} seleccionados</button>}
+                                            <button className={styles.syncBtn} onClick={handleSendToAll} style={{color: '#22d3ee', borderColor: '#22d3ee'}}>🚀 Enviar a todos</button>
+                                            {selectedRecipients.length > 0 && <button className={styles.syncBtn} onClick={handleSendToSelected}>📨 Enviar a los {selectedRecipients.length} marcados</button>}
                                         </>
                                     )}
                                 </div>
                             </div>
-                            <aside className={styles.editorialStudioSidebar}>
-                                <div className={styles.sidebarGroup}>
-                                    <h4>{activeTab === 'newsletter' ? 'Lista de Audiencia' : 'Borradores'}</h4>
-                                    {activeTab === 'newsletter' && (
-                                        <div className={styles.checkList}>
+                            
+                            <aside className={styles.sidePanel}>
+                                {activeTab === 'newsletter' && (
+                                    <div className={styles.panelCard}>
+                                        <h4>👥 Tus Lectores</h4>
+                                        <div className={styles.audienceList}>
                                             {newsletterSubs.map(s => (
-                                                <label key={s.id} className={styles.checkItem}>
+                                                <label key={s.id} className={styles.audienceItem}>
                                                     <input type="checkbox" checked={selectedRecipients.includes(s.email)} onChange={e => {
                                                         if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
                                                         else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
@@ -284,12 +308,15 @@ export default function AdminDashboard() {
                                                 </label>
                                             ))}
                                         </div>
-                                    )}
-                                    <div className={styles.archiveItems}>
+                                    </div>
+                                )}
+                                
+                                <div className={styles.panelCard}>
+                                    <h4>📚 Artículos Pasados</h4>
+                                    <div className={styles.draftList}>
                                         {templates.map(t => (
-                                            <div key={t.id} className={styles.archiveItem} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
+                                            <div key={t.id} className={styles.draftCard} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
                                                 <h5>{t.title}</h5>
-                                                <p style={{fontSize: '0.7rem'}}>{new Date().toLocaleDateString()}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -301,57 +328,64 @@ export default function AdminDashboard() {
             </main>
 
             {selectedPatient && (
-                <div className={styles.overlay} onClick={() => setSelectedPatient(null)}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                        <h2 className={styles.modalTitle}>{isEditing ? 'Editar Ficha' : 'Ficha Clínica Expandida'}</h2>
+                <div className={styles.modalOverlay} onClick={() => setSelectedPatient(null)}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <h2>{isEditing ? '✏️ Editando Perfil' : '📋 Perfil del Paciente'}</h2>
+                            <button className={styles.closeIcon} onClick={() => setSelectedPatient(null)}>✖</button>
+                        </div>
+                        
                         {isEditing ? (
-                            <div className={styles.formGrid}>
-                                <div className={styles.inputGroup}><label>Primer Nombre</label><input className={styles.inputMain} value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>Segundo Nombre</label><input className={styles.inputMain} value={editData.secondName || ''} onChange={e => setEditData({...editData, secondName: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>Apellido Paterno</label><input className={styles.inputMain} value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>Apellido Materno</label><input className={styles.inputMain} value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>RUT</label><input className={styles.inputMain} value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>Email</label><input className={styles.inputMain} value={editData.email} disabled /></div>
-                                <div className={styles.inputGroup}><label>Dirección</label><input className={styles.inputMain} value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>Región</label>
-                                    <select className={styles.inputMain} value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})}><option value="">Selección...</option>{CHILE_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}</select>
+                            <div className={styles.dataGrid}>
+                                <div className={styles.dataField}><label>Nombre Principal</label><input value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Segundo Nombre</label><input value={editData.secondName || ''} onChange={e => setEditData({...editData, secondName: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Primer Apellido</label><input value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Segundo Apellido</label><input value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Nº de RUT</label><input value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled style={{opacity: 0.5}} /></div>
+                                <div className={styles.dataField}><label>Dirección</label><input value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Región de Residencia</label>
+                                    <select value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})}><option value="">Elegir Región...</option>{CHILE_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}</select>
                                 </div>
-                                <button className={styles.primaryBtn} onClick={handleUpdatePatient}>Guardar Cambios</button>
-                                <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Cancelar</button>
                             </div>
                         ) : (
                             <div>
-                                <div className={styles.dataGroup}>
-                                    <h4>Identificación</h4>
-                                    <div className={styles.dataRow}><label>Nombre Completo</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ')}</span></div>
-                                    <div className={styles.dataRow}><label>RUT</label><span>{selectedPatient.rut || 'No registra'}</span></div>
+                                <div className={styles.dataGrid}>
+                                    <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ')}</span></div>
+                                    <div className={styles.dataField}><label>Identificador (RUT)</label><span>{selectedPatient.rut || 'Aún no registrado'}</span></div>
+                                    <div className={styles.dataField}><label>Residencia</label><span>{selectedPatient.address || 'Sin detalles'}</span></div>
+                                    <div className={styles.dataField}><label>Ubicación</label><span>{selectedPatient.region ? `${selectedPatient.region}, ${selectedPatient.country}` : 'Desconocida'}</span></div>
                                 </div>
-                                <div className={styles.dataGroup}>
-                                    <h4>Ubicación</h4>
-                                    <div className={styles.dataRow}><label>Dirección</label><span>{selectedPatient.address || 'No registra'}</span></div>
-                                    <div className={styles.dataRow}><label>Región/Comuna</label><span>{selectedPatient.region}, {selectedPatient.commune} ({selectedPatient.country})</span></div>
-                                </div>
-                                <div className={styles.dataGroup}>
-                                    <h4>Historial</h4>
-                                    <div className={styles.dataRow}><label>Sesiones Totales</label><span>{selectedPatient.bookings.length}</span></div>
-                                    {selectedPatient.bookings.length > 0 && (
-                                        <div className={styles.sessionsScroller}>
+                                
+                                <div className={styles.sessionsBox}>
+                                    <h3>📅 Historial Médico ({selectedPatient.bookings.length} citas)</h3>
+                                    {selectedPatient.bookings.length > 0 ? (
+                                        <div className={styles.sessionsScroll}>
                                             {selectedPatient.bookings.map((b: any, i: number) => (
-                                                <div key={b.id || i} className={styles.sessionItem}>
-                                                    <span>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
-                                                    <span>{b.serviceType}</span>
-                                                    <span className={styles.sessionStatus}>{b.status}</span>
+                                                <div key={b.id || i} className={styles.sessionLine}>
+                                                    <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
+                                                    <span className={styles.sessionService}>{b.serviceType}</span>
+                                                    <span className={styles.sessionTag}>{b.status}</span>
                                                 </div>
                                             ))}
                                         </div>
+                                    ) : (
+                                        <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay citas registradas todavía.</p>
                                     )}
-                                </div>
-                                <div style={{display: 'flex', gap: '10px', marginTop: '30px'}}>
-                                    <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar Expediente</button>
-                                    <button className={styles.syncBtn} onClick={() => setSelectedPatient(null)}>Cerrar</button>
                                 </div>
                             </div>
                         )}
+                        
+                        <div className={styles.modalActions}>
+                            {isEditing ? (
+                                <>
+                                    <button className={styles.primaryBtn} onClick={handleUpdatePatient}>💾 Guardar Todo</button>
+                                    <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Volver Atrás</button>
+                                </>
+                            ) : (
+                                <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>✏️ Actualizar Datos</button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
