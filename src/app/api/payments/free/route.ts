@@ -77,6 +77,27 @@ export async function POST(request: NextRequest) {
             // Si falla la DB en un agendamiento gratis, notificamos pero igual devolvemos éxito para no bloquear al usuario
         }
 
+        // Agendar en Cal.com vía API para que aparezca en Google Calendar
+        let calBookingId = null;
+        if (calEventTypeId && appointmentDate) {
+            try {
+                const { createCalBooking } = await import('@/lib/services/calcom');
+                const calResult = await createCalBooking({
+                    eventTypeId: parseInt(calEventTypeId),
+                    start: appointmentDate,
+                    name: name,
+                    email: email,
+                    notes: motivo || detalles || 'Agendamiento Gratuito / Cupón de Prueba'
+                });
+                
+                if (calResult.success) {
+                    calBookingId = calResult.bookingId;
+                }
+            } catch (calError: any) {
+                console.error('API: Error al agendar en Cal.com (continuando):', calError.message);
+            }
+        }
+
         // Enviar notificación por email al profesional y paciente
         const { sendFreeBookingConfirmation } = await import('@/lib/services/mail');
         sendFreeBookingConfirmation({
@@ -86,14 +107,13 @@ export async function POST(request: NextRequest) {
             reason: motivo,
             details: detalles,
             orderId: commerceOrder,
-            serviceType
+            serviceType: serviceType // Ahora el serviceType puede ser 'sesion' o 'packSesiones' si se usó cupón
         }).catch(err => console.error('Silent error sending notification:', err));
-
-        // NOTA: Aquí idealmente agendaríamos en Cal.com vía API si no se hizo en el frontend
 
         return NextResponse.json({
             success: true,
             orderId: commerceOrder,
+            calBookingId,
             amount: 0,
         });
 

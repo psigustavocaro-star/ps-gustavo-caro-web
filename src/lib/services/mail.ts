@@ -106,17 +106,30 @@ export async function sendFreeBookingConfirmation(data: {
     serviceType: string;
 }) {
     const { name, email, phone, reason, details, orderId, serviceType } = data;
-    const serviceName = serviceType === 'primeraConsulta' ? 'Primera Consulta Gratuita' : 'Sesión Inicial de Evaluación';
+    
+    // Mapeo dinámico de nombres de servicio
+    const serviceNames: Record<string, string> = {
+        'primeraConsulta': 'Primera Consulta Gratuita (20 min)',
+        'sesion': 'Sesión de Psicoterapia Individual',
+        'packSesiones': 'Pack de 4 Sesiones',
+        'evalTDAH': 'Evaluación TDAH Adulto',
+        'evalAutismo': 'Evaluación TEA (Autismo)',
+        'evalInteligencia': 'Evaluación Intelectual',
+        'evalNeuropsicologica': 'Evaluación Neuropsicológica Completa',
+        'evalEmocional': 'Evaluación Socioemocional'
+    };
+
+    const serviceName = serviceNames[serviceType] || 'Servicio Clínico (Agendado con Cupón)';
 
     try {
-        // Enviar a Gustavo
+        // Enviar a Gustavo (Notificación de reserva para boleta y registro)
         await resend.emails.send({
             from: 'Sistema Ps. Gustavo Caro <sistema@psgustavocaro.cl>',
             to: 'psi.gustavocaro@gmail.com',
-            subject: `🆓 NUEVA SESIÓN GRATIS: ${name}`,
+            subject: `🆓 PRUEBA/GRATIS: Nueva Reserva de ${name}`,
             html: `
-                <h1>Nueva Reserva Gratuita</h1>
-                <p>Un paciente ha agendado una sesión sin costo.</p>
+                <h1>Nueva Reserva (Sin Pago / Cupón)</h1>
+                <p>Un paciente ha agendado una sesión. Al ser sin costo (o prueba), debes registrar esto manualmente.</p>
                 <hr />
                 <h2>Datos del Paciente</h2>
                 <p><strong>Nombre:</strong> ${name}</p>
@@ -127,6 +140,7 @@ export async function sendFreeBookingConfirmation(data: {
                 <hr />
                 <p><strong>Servicio:</strong> ${serviceName}</p>
                 <p><strong>ID Orden:</strong> ${orderId}</p>
+                <p><em>Si fue una prueba propia, puedes ignorar el envío de boleta.</em></p>
             `,
         });
 
