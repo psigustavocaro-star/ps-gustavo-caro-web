@@ -10,7 +10,7 @@ type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' |
 export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string; rut?: string; address?: string; commune?: string }>({});
+    const [errors, setErrors] = useState<{ firstName?: string; firstSurname?: string; secondSurname?: string; email?: string; phone?: string; rut?: string; address?: string; region?: string; commune?: string }>({});
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [calBookingId, setCalBookingId] = useState<string | null>(null);
     const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
