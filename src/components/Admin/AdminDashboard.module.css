@@ -51,7 +51,16 @@
 .dashboard label,
 .dashboard span,
 .dashboard div,
-.dashboard strong {
+.dashboard p,
+.dashboard strong,
+.loginContainer h1,
+.loginContainer h2,
+.loginContainer h3,
+.loginContainer p,
+.loginContainer label,
+.loginContainer span,
+.loginContainer div,
+.loginContainer strong {
     color: inherit !important;
 }
 
