@@ -4,8 +4,11 @@ import { useState, useEffect, useMemo } from 'react';
 import styles from './AdminDashboard.module.css';
 import Link from 'next/link';
 
+type Theme = 'obsidian' | 'light' | 'emerald';
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [theme, setTheme] = useState<Theme>('obsidian');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [bookings, setBookings] = useState<any[]>([]);
@@ -46,11 +49,10 @@ export default function AdminDashboard() {
                 setTemplates(data.templates || []);
             } else {
                 console.error('API Error:', data.error);
-                alert('Error al cargar datos: ' + data.error);
+                // Si falla por tabla inexistente (como templates), igual dejamos que cargue lo demás
             }
         } catch (err) {
             console.error('Fetch Error:', err);
-            alert('Error de conexión con el servidor');
         } finally {
             setIsLoading(false);
         }
@@ -96,12 +98,11 @@ export default function AdminDashboard() {
         }
     };
 
-    // Estadísticas rápidas
     const stats = useMemo(() => {
         const totalBookings = bookings.length;
         const totalRevenue = bookings
             .filter(b => b.status === 'PAID')
-            .reduce((sum, b) => sum + (b.amount || 0), 0);
+            .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
         const newPatients = bookings.filter(b => {
              const createdDate = new Date(b.createdAt);
              const now = new Date();
@@ -112,7 +113,6 @@ export default function AdminDashboard() {
         return { totalBookings, totalRevenue, newPatients, totalSubs };
     }, [bookings, newsletter]);
 
-    // Efecto para ocultar el menú flotante del sitio principal cuando estamos en el admin
     useEffect(() => {
         if (isAuthenticated) {
             const sidebars = document.querySelectorAll('[class*="Sidebar_sidebar"]');
@@ -125,16 +125,21 @@ export default function AdminDashboard() {
 
     if (!isAuthenticated) {
         return (
-            <div className={styles.loginContainer}>
+            <div className={`${styles.loginContainer} ${styles[theme]}`}>
+                <div className={styles.bokehBackground}>
+                    <div className={styles.bokehCircle}></div>
+                    <div className={styles.bokehCircle}></div>
+                    <div className={styles.bokehCircle}></div>
+                </div>
                 <div className={styles.loginCard}>
                     <div className={styles.loginHeader}>
                         <div className={styles.logoCircle}>GC</div>
-                        <h1 className={styles.loginTitle}>Panel de Control Clínico</h1>
-                        <p className={styles.loginDesc}>Acceso restringido para el profesional.</p>
+                        <h1 className={styles.loginTitle}>Sistema de Gestión Caro</h1>
+                        <p className={styles.loginDesc}>Identificación profesional requerida.</p>
                     </div>
                     <form onSubmit={handleLogin} className={styles.loginForm}>
                         <div className={styles.inputGroup}>
-                            <label>Email</label>
+                            <label>Usuario Maestro</label>
                             <input
                                 type="email"
                                 className={styles.input}
@@ -146,7 +151,7 @@ export default function AdminDashboard() {
                             />
                         </div>
                         <div className={styles.inputGroup}>
-                            <label>Contraseña</label>
+                            <label>Clave de Acceso</label>
                             <input
                                 type="password"
                                 className={styles.input}
@@ -156,10 +161,10 @@ export default function AdminDashboard() {
                                 required
                             />
                         </div>
-                        <button type="submit" className={styles.loginBtn}>Entrar al Sistema →</button>
+                        <button type="submit" className={styles.loginBtn}>Entrar al Panel →</button>
                     </form>
                     <div className={styles.loginFooter}>
-                        <Link href="/">← Volver al inicio</Link>
+                        <Link href="/">← Volver a la Web Principal</Link>
                     </div>
                 </div>
             </div>
@@ -167,96 +172,90 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className={styles.dashboard} id="admin-panel">
+        <div className={`${styles.dashboard} ${styles[theme]}`} id="admin-panel">
+            <div className={styles.bokehBackground}>
+                <div className={styles.bokehCircle}></div>
+                <div className={styles.bokehCircle}></div>
+                <div className={styles.bokehCircle}></div>
+            </div>
+            
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
                     <div className={styles.logoMini}>GC</div>
                     <div className={styles.brandText}>
-                        <span>Clínica Caro</span>
-                        <small>Gestor Profesional</small>
+                        <span>Admin Pro</span>
+                        <small>{theme.toUpperCase()} MODE</small>
                     </div>
                 </div>
+                
                 <nav className={styles.sidebarNav}>
-                    <div className={styles.navGroup}>Menú Principal</div>
-                    <button 
-                        className={`${styles.navItem} ${activeTab === 'patients' ? styles.navActive : ''}`}
-                        onClick={() => setActiveTab('patients')}
-                    >
-                        <span className={styles.navIcon}>👥</span>
-                        <span className={styles.navLabel}>Fichas Pacientes</span>
+                    <div className={styles.navGroup}>Gestión</div>
+                    <button className={`${styles.navItem} ${activeTab === 'patients' ? styles.navActive : ''}`} onClick={() => setActiveTab('patients')}>
+                        <span className={styles.navIcon}>🧠</span> Pacientes
                     </button>
-                    <button 
-                        className={`${styles.navItem} ${activeTab === 'bookings' ? styles.navActive : ''}`}
-                        onClick={() => setActiveTab('bookings')}
-                    >
-                        <span className={styles.navIcon}>📅</span>
-                        <span className={styles.navLabel}>Citas & Historial</span>
+                    <button className={`${styles.navItem} ${activeTab === 'bookings' ? styles.navActive : ''}`} onClick={() => setActiveTab('bookings')}>
+                        <span className={styles.navIcon}>📅</span> Agenda
                     </button>
-                    <div className={styles.navGroup}>Comunicación</div>
-                    <button 
-                        className={`${styles.navItem} ${activeTab === 'marketing' ? styles.navActive : ''}`}
-                        onClick={() => setActiveTab('marketing')}
-                    >
-                        <span className={styles.navIcon}>📝</span>
-                        <span className={styles.navLabel}>Blog & Educativo</span>
+                    
+                    <div className={styles.navGroup}>Marketing</div>
+                    <button className={`${styles.navItem} ${activeTab === 'marketing' ? styles.navActive : ''}`} onClick={() => setActiveTab('marketing')}>
+                        <span className={styles.navIcon}>✍️</span> Blog & Mail
                     </button>
-                    <button 
-                        className={`${styles.navItem} ${activeTab === 'newsletter' ? styles.navActive : ''}`}
-                        onClick={() => setActiveTab('newsletter')}
-                    >
-                        <span className={styles.navIcon}>📧</span>
-                        <span className={styles.navLabel}>Newsletter</span>
+                    <button className={`${styles.navItem} ${activeTab === 'newsletter' ? styles.navActive : ''}`} onClick={() => setActiveTab('newsletter')}>
+                        <span className={styles.navIcon}>📣</span> Newsletter
                     </button>
-                    <Link href="/" className={styles.navItem}>
-                        <span className={styles.navIcon}>🏠</span>
-                        <span className={styles.navLabel}>Volver al Sitio</span>
-                    </Link>
+
+                    <div className={styles.navGroup}>Personalización</div>
+                    <div className={styles.themeSwitcher}>
+                        <button onClick={() => setTheme('obsidian')} className={theme === 'obsidian' ? styles.themeActive : ''} title="Obsidian">🌙</button>
+                        <button onClick={() => setTheme('light')} className={theme === 'light' ? styles.themeActive : ''} title="Light">☀️</button>
+                        <button onClick={() => setTheme('emerald')} className={theme === 'emerald' ? styles.themeActive : ''} title="Emerald">🌲</button>
+                    </div>
                 </nav>
+
                 <div className={styles.sidebarFooter}>
-                    <button onClick={() => setIsAuthenticated(false)} className={styles.logoutBtn}>
-                        Cerrar Sesión 🔒
-                    </button>
+                    <button onClick={() => setIsAuthenticated(false)} className={styles.logoutBtn}>Cerrar Sesión 🔒</button>
                 </div>
             </aside>
 
             <main className={styles.mainContent}>
                 <header className={styles.mainHeader}>
                     <div className={styles.welcomeInfo}>
-                        <div className={styles.breadcrumb}>Admin / {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</div>
-                        <h1 className={styles.mainTitle}>Gestión Clínica 👋</h1>
-                        <p className={styles.mainSubtitle}>Resumen y herramientas profesionales para Gustavo.</p>
+                        <div className={styles.breadcrumb}>Dashboard / {activeTab}</div>
+                        <h1 className={styles.mainTitle}>Hola, Gustavo Caro</h1>
+                        <p className={styles.mainSubtitle}>Bienvenido a tu centro de mando clínico personalizado.</p>
                     </div>
                     <div className={styles.headerActions}>
-                        <button onClick={fetchData} className={styles.refreshBtn} title="Sincronizar">
-                            🔄 Sincronizar Datos
+                        <button onClick={fetchData} className={styles.refreshBtn}>
+                            <span className={isLoading ? styles.spinning : ''}>🔄</span> Sincronizar
                         </button>
                     </div>
                 </header>
 
                 <section className={styles.statsGrid}>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>📅</div>
+                        <div className={styles.statIcon} style={{background: 'rgba(6, 182, 212, 0.2)', color: '#06b6d4'}}>📅</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Total Reservas</span>
                             <div className={styles.statValue}>{stats.totalBookings}</div>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80'}}>💰</div>
+                        <div className={styles.statIcon} style={{background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80'}}>💰</div>
                         <div className={styles.statInfo}>
-                            <span className={styles.statLabel}>Ingresos Est.</span>
+                            <span className={styles.statLabel}>Ingresos</span>
                             <div className={styles.statValue}>${stats.totalRevenue.toLocaleString('es-CL')}</div>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: 'rgba(234, 179, 8, 0.1)', color: '#facc15'}}>👥</div>
+                        <div className={styles.statIcon} style={{background: 'rgba(234, 179, 8, 0.2)', color: '#facc15'}}>👥</div>
                         <div className={styles.statInfo}>
-                            <span className={styles.statLabel}>Nuevos (Mes)</span>
+                            <span className={styles.statLabel}>Pacientes Mes</span>
                             <div className={styles.statValue}>{stats.newPatients}</div>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7'}}>📧</div>
+                        <div className={styles.statIcon} style={{background: 'rgba(168, 85, 247, 0.2)', color: '#a855f7'}}>📧</div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Suscriptores</span>
                             <div className={styles.statValue}>{stats.totalSubs}</div>
@@ -268,55 +267,42 @@ export default function AdminDashboard() {
                     {isLoading ? (
                         <div className={styles.loadingContainer}>
                             <div className={styles.spinner}></div>
-                            <p>Consultando base de datos segura...</p>
+                            <p>Accediendo a la red segura...</p>
                         </div>
                     ) : activeTab === 'patients' ? (
                         <div className={styles.dataList}>
                             <div className={styles.listHeader}>
                                 <h2>Base de Datos de Pacientes</h2>
-                                <p>Historial clínico y frecuencia de atención agrupada por persona.</p>
+                                <p>Gestión avanzada de fichas y permanencia.</p>
                             </div>
                             <div className={styles.tableResponsive}>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
-                                            <th>Paciente</th>
+                                            <th>Identidad</th>
                                             <th>Atenciones</th>
                                             <th>Estado</th>
-                                            <th>Total Invertido</th>
-                                            <th>Acciones</th>
+                                            <th>Inversión</th>
+                                            <th>Ficha</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {patients.map((p) => (
                                             <tr key={p.email}>
-                                                <td className={styles.patientCell}>
+                                                <td>
                                                     <div className={styles.patientMain}>
                                                         <strong>{p.name}</strong>
                                                         <span>{p.email}</span>
                                                     </div>
                                                 </td>
+                                                <td><span className={styles.badge}>{p.bookings.length} sesiones</span></td>
                                                 <td>
-                                                    <span className={styles.badge}>{p.bookings.length} sesiones</span>
+                                                    <span className={`${styles.statusBadge} ${p.newsletter ? styles.paid : styles.pending}`}>
+                                                        {p.newsletter ? 'ACTIVO' : 'MANUAL'}
+                                                    </span>
                                                 </td>
-                                                <td>
-                                                    {p.newsletter ? (
-                                                        <span className={`${styles.statusBadge} ${styles.paid}`}>NEWSLETTER OK</span>
-                                                    ) : (
-                                                        <span className={`${styles.statusBadge} ${styles.pending}`}>NO NEWSLETTER</span>
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <strong>${p.totalSpent.toLocaleString('es-CL')}</strong>
-                                                </td>
-                                                <td>
-                                                    <button 
-                                                        className={styles.actionBtn}
-                                                        onClick={() => setSelectedPatient(p)}
-                                                    >
-                                                        Ver Historial
-                                                    </button>
-                                                </td>
+                                                <td><strong>${p.totalSpent.toLocaleString('es-CL')}</strong></td>
+                                                <td><button className={styles.actionBtn} onClick={() => setSelectedPatient(p)}>Ficha</button></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -328,109 +314,61 @@ export default function AdminDashboard() {
                             <div className={styles.listHeader}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
-                                        <h2>Blog & Contenido Educativo</h2>
-                                        <p>Crea contenido de valor para tus pacientes y envíalo manualmente.</p>
+                                        <h2>Editor de Blog & Newsletter</h2>
+                                        <p>Crea contenido de alto impacto para tu comunidad.</p>
                                     </div>
-                                    <button 
-                                        className={styles.loginBtn} 
-                                        style={{ width: 'auto', padding: '10px 20px' }}
-                                        onClick={() => {
-                                            setEditingTemplate({});
-                                            setTempTitle('');
-                                            setTempContent('');
-                                        }}
-                                    >
-                                        + Nuevo Contenido
-                                    </button>
+                                    <button className={styles.loginBtn} style={{ width: 'auto', padding: '12px 24px' }} onClick={() => { setEditingTemplate({}); setTempTitle(''); setTempContent(''); }}>+ Nuevo Post</button>
                                 </div>
                             </div>
-
                             {editingTemplate ? (
                                 <div className={styles.editorBox}>
-                                    <div className={styles.inputGroup}>
-                                        <label>Título del Email / Nota</label>
-                                        <input 
-                                            className={styles.input} 
-                                            value={tempTitle}
-                                            onChange={(e) => setTempTitle(e.target.value)}
-                                            placeholder="Ej: 5 Consejos para manejar la ansiedad"
-                                        />
-                                    </div>
-                                    <div className={styles.inputGroup}>
-                                        <label>Cuerpo del Contenido (Texto Largo)</label>
-                                        <textarea 
-                                            className={styles.textarea} 
-                                            style={{ minHeight: '300px' }}
-                                            value={tempContent}
-                                            onChange={(e) => setTempContent(e.target.value)}
-                                            placeholder="Escribe aquí tu contenido educativo..."
-                                        />
-                                    </div>
+                                    <input className={styles.input} value={tempTitle} onChange={(e) => setTempTitle(e.target.value)} placeholder="Título del Artículo..." />
+                                    <textarea className={styles.textarea} value={tempContent} onChange={(e) => setTempContent(e.target.value)} placeholder="Escribe aquí tu contenido profesional..." />
                                     <div className={styles.editorActions}>
-                                        <button onClick={() => setEditingTemplate(null)} className={styles.logoutBtn} style={{ background: '#f1f5f9', color: '#64748b', border: 'none' }}>Cancelar</button>
-                                        <button onClick={handleSaveTemplate} className={styles.loginBtn} style={{ width: 'auto' }}>Guardar Contenido</button>
+                                        <button onClick={() => setEditingTemplate(null)} className={styles.logoutBtn}>Cancelar</button>
+                                        <button onClick={handleSaveTemplate} className={styles.loginBtn} style={{ width: 'auto' }}>Publicar & Guardar</button>
                                     </div>
                                 </div>
                             ) : (
                                 <div className={styles.templateGrid}>
                                     {templates.map(t => (
                                         <div key={t.id} className={styles.templateCard}>
+                                            <div className={styles.cardHeader}>ARTICLE / NEWS</div>
                                             <h3>{t.title}</h3>
-                                            <p>{t.content.substring(0, 150)}...</p>
+                                            <p>{t.content.substring(0, 120)}...</p>
                                             <div className={styles.templateFooter}>
-                                                <button onClick={() => {
-                                                    setEditingTemplate(t);
-                                                    setTempTitle(t.title);
-                                                    setTempContent(t.content);
-                                                }}>Editar</button>
-                                                <button 
-                                                    className={styles.sendBtn}
-                                                    onClick={() => handleSendNewsletter(t.id)}
-                                                >
-                                                    🚀 Enviar Newsletter
-                                                </button>
+                                                <button onClick={() => { setEditingTemplate(t); setTempTitle(t.title); setTempContent(t.content); }}>Editar</button>
+                                                <button className={styles.sendBtn} onClick={() => handleSendNewsletter(t.id)}>🚀 Enviar x Mail</button>
                                             </div>
                                         </div>
                                     ))}
-                                    {templates.length === 0 && <p className={styles.emptyLabel}>No has creado contenido educativo aún.</p>}
+                                    {templates.length === 0 && <p>Únete a la conversación creando tu primer contenido.</p>}
                                 </div>
                             )}
                         </div>
                     ) : activeTab === 'bookings' ? (
                         <div className={styles.dataList}>
                             <div className={styles.listHeader}>
-                                <h2>Registros Cronológicos</h2>
-                                <p>Citas ordenadas por fecha de creación.</p>
+                                <h2>Agenda Cronológica</h2>
+                                <p>Control total sobre las citas individuales.</p>
                             </div>
                             <div className={styles.tableResponsive}>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
                                             <th>Paciente</th>
-                                            <th>Cita y Pago</th>
+                                            <th>Cita</th>
+                                            <th>Estado</th>
                                             <th>Servicio</th>
-                                            <th>Detalles</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {bookings.map((b) => (
                                             <tr key={b.id}>
-                                                <td className={styles.patientCell}>
-                                                    <div className={styles.patientMain}>
-                                                        <strong>{b.name}</strong>
-                                                        <span>{b.email}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className={styles.dateInfo}>
-                                                        <strong>{new Date((b.appointmentDate || b.createdAt) as string).toLocaleDateString('es-CL')}</strong>
-                                                        <span className={`${styles.statusBadge} ${styles[b.status.toLowerCase()]}`}>
-                                                            {b.status === 'PAID' ? 'PAGADO ✓' : 'PENDIENTE'}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td>{b.serviceType}</td>
-                                                <td>{b.reason || '-'}</td>
+                                                <td><div className={styles.patientMain}><strong>{b.name}</strong><span>{b.email}</span></div></td>
+                                                <td><div className={styles.dateInfo}><strong>{new Date((b.appointmentDate || b.createdAt) as string).toLocaleDateString('es-CL')}</strong></div></td>
+                                                <td><span className={`${styles.statusBadge} ${styles[b.status.toLowerCase()]}`}>{b.status}</span></td>
+                                                <td><span className={styles.badge}>{b.serviceType}</span></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -440,40 +378,29 @@ export default function AdminDashboard() {
                     ) : (
                         <div className={styles.dataList}>
                             <div className={styles.listHeader}>
-                                <h2>Base de Datos Newsletter</h2>
-                                <p>Clientes interesados en recibir contenido educativo.</p>
+                                <h2>Comunidad Newsletter</h2>
+                                <p>Seguimiento de suscriptores y envío de secuencias.</p>
                             </div>
                             <div className={styles.tableResponsive}>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
                                             <th>Suscriptor</th>
-                                            <th>Progreso</th>
+                                            <th>Progreso Secuencia (1-24)</th>
                                             <th>Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {newsletter.map((n) => (
                                             <tr key={n.id}>
-                                                <td>
-                                                    <div className={styles.patientMain}>
-                                                        <strong>{n.name || 'Invitado'}</strong>
-                                                        <span>{n.email}</span>
-                                                    </div>
-                                                </td>
+                                                <td><div className={styles.patientMain}><strong>{n.name || 'Invitado'}</strong><span>{n.email}</span></div></td>
                                                 <td>
                                                     <div className={styles.progressInfo}>
                                                         <span>Email {n.currentStep} de 24</span>
-                                                        <div className={styles.progressBar}>
-                                                            <div className={styles.progressFill} style={{ width: `${(n.currentStep / 24) * 100}%` }}></div>
-                                                        </div>
+                                                        <div className={styles.progressBar}><div className={styles.progressFill} style={{ width: `${(n.currentStep / 24) * 100}%` }}></div></div>
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <span className={`${styles.statusBadge} ${n.active ? styles.paid : styles.failed}`}>
-                                                        {n.active ? 'ACTIVO' : 'DADO DE BAJA'}
-                                                    </span>
-                                                </td>
+                                                <td><span className={`${styles.statusBadge} ${n.active ? styles.paid : styles.failed}`}>{n.active ? 'ACTIVO' : 'UNSUBSCRIBE'}</span></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -484,49 +411,32 @@ export default function AdminDashboard() {
                 </div>
             </main>
 
-            {/* Modal de Historial de Paciente */}
             {selectedPatient && (
                 <div className={styles.modalOverlay} onClick={() => setSelectedPatient(null)}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <header className={styles.modalHeader}>
-                            <h2>Ficha Clínica: {selectedPatient.name}</h2>
+                            <h2>Ficha Paciente: {selectedPatient.name}</h2>
                             <button onClick={() => setSelectedPatient(null)}>✕</button>
                         </header>
-                        
                         <div className={styles.modalBody}>
-                            <section className={styles.modalSection}>
-                                <h3>👤 Información General</h3>
-                                <div className={styles.infoGrid}>
-                                    <div><strong>Email:</strong> {selectedPatient.email}</div>
-                                    <div><strong>Teléfono:</strong> {selectedPatient.phone || '-'}</div>
-                                    <div><strong>Total sesiones:</strong> {selectedPatient.bookings.length}</div>
-                                    <div><strong>Total invertido:</strong> ${selectedPatient.totalSpent.toLocaleString('es-CL')}</div>
-                                </div>
-                            </section>
-
-                            {selectedPatient.anamnesis && (
-                                <section className={styles.modalSection}>
-                                    <h3>🧬 Anamnesis / Ficha</h3>
-                                    <div className={styles.anamnesisCard}>
-                                        <p><strong>Edad:</strong> {selectedPatient.anamnesis.age} años</p>
-                                        <p><strong>Medicamentos:</strong> {selectedPatient.anamnesis.medications}</p>
-                                        <p><strong>Historial:</strong> {selectedPatient.anamnesis.history}</p>
-                                    </div>
-                                </section>
-                            )}
-
-                            <section className={styles.modalSection}>
-                                <h3>📅 Historial de Citas</h3>
+                            <div className={styles.infoGrid}>
+                                <div><strong>Email:</strong> {selectedPatient.email}</div>
+                                <div><strong>Teléfono:</strong> {selectedPatient.phone || '-'}</div>
+                                <div><strong>Sesiones:</strong> {selectedPatient.bookings.length}</div>
+                                <div><strong>Total:</strong> ${selectedPatient.totalSpent.toLocaleString('es-CL')}</div>
+                            </div>
+                            <div className={styles.modalSection}>
+                                <h3>🧬 Historial de Agenda</h3>
                                 <div className={styles.miniTable}>
                                     {selectedPatient.bookings.map((b: any) => (
                                         <div key={b.id} className={styles.miniTableRow}>
-                                            <span className={styles.miniDate}>{new Date((b.appointmentDate || b.createdAt) as string).toLocaleDateString()}</span>
-                                            <span className={styles.miniLabel}>{b.serviceType}</span>
-                                            <span className={`${styles.statusBadge} ${styles[b.status.toLowerCase()]}`}>{b.status}</span>
+                                            <span>{new Date((b.appointmentDate || b.createdAt) as string).toLocaleDateString()}</span>
+                                            <span>{b.serviceType}</span>
+                                            <span className={styles.badge}>{b.status}</span>
                                         </div>
                                     ))}
                                 </div>
-                            </section>
+                            </div>
                         </div>
                     </div>
                 </div>

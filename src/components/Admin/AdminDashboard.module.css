@@ -1,14 +1,99 @@
+/* ============================================
+   THEME VARIABLES
+   ============================================ */
+.obsidian {
+    --bg-main: #020617;
+    --bg-card: rgba(15, 23, 42, 0.6);
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --accent: #06b6d4;
+    --border: rgba(255, 255, 255, 0.05);
+    --sidebar-bg: rgba(15, 23, 42, 0.95);
+}
+
+.light {
+    --bg-main: #f8fafc;
+    --bg-card: rgba(255, 255, 255, 0.8);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent: #0ea5e9;
+    --border: rgba(0, 0, 0, 0.05);
+    --sidebar-bg: #ffffff;
+}
+
+.emerald {
+    --bg-main: #064e3b;
+    --bg-card: rgba(6, 78, 59, 0.6);
+    --text-main: #ecfdf5;
+    --text-muted: #6ee7b7;
+    --accent: #10b981;
+    --border: rgba(255, 255, 255, 0.1);
+    --sidebar-bg: #022c22;
+}
+
 .dashboard {
     display: flex;
     min-height: 100vh;
-    background: #020617 !important; /* Force deep dark */
-    color: #ffffff !important; /* Force white text */
+    background: var(--bg-main);
+    color: var(--text-main);
     font-family: var(--font-body);
+    position: relative;
     overflow: hidden;
+    transition: all 0.5s ease;
 }
 
-.dashboard * {
-    color: inherit; /* Ensure children don't inherit dark global colors */
+/* ============================================
+   GLASS BOKEH BACKGROUND
+   ============================================ */
+.bokehBackground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bokehCircle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    animation: float 20s infinite ease-in-out;
+}
+
+.bokehCircle:nth-child(1) {
+    width: 600px;
+    height: 600px;
+    background: var(--accent);
+    top: -200px;
+    right: -100px;
+}
+
+.bokehCircle:nth-child(2) {
+    width: 400px;
+    height: 400px;
+    background: #a855f7;
+    bottom: -100px;
+    left: -100px;
+    animation-delay: -5s;
+}
+
+.bokehCircle:nth-child(3) {
+    width: 300px;
+    height: 300px;
+    background: #f43f5e;
+    top: 40%;
+    right: 30%;
+    animation-delay: -10s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(100px, 50px) scale(1.1); }
+    66% { transform: translate(-50px, 100px) scale(0.9); }
 }
 
 /* ============================================
@@ -16,54 +101,55 @@
    ============================================ */
 .sidebar {
     width: 280px;
-    background: rgba(15, 23, 42, 0.95) !important;
+    background: var(--sidebar-bg);
     backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     padding: 40px 0;
     position: fixed;
     height: 100vh;
     z-index: 100;
+    transition: background 0.5s ease;
 }
 
 .sidebarBrand {
+    padding: 0 32px;
+    margin-bottom: 60px;
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 0 32px;
-    margin-bottom: 60px;
 }
 
 .logoMini {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    background: linear-gradient(135deg, var(--accent), #1e293b);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
-    font-size: 1.2rem;
-    color: white !important;
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
 .brandText span {
     font-weight: 800;
-    font-size: 1.25rem;
-    color: #ffffff !important;
-    display: block;
+    font-size: 1.2rem;
+    color: var(--text-main);
 }
 
 .brandText small {
-    font-size: 0.7rem;
-    color: #94a3b8 !important;
-    text-transform: uppercase;
+    display: block;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 700;
     letter-spacing: 0.1em;
 }
 
 .sidebarNav {
+    flex: 1;
     padding: 0 16px;
 }
 
@@ -71,47 +157,61 @@
     font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: #475569 !important;
-    margin: 32px 20px 12px;
-    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin: 32px 16px 12px;
+    letter-spacing: 0.1em;
 }
 
 .navItem {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    border-radius: 16px;
-    color: #94a3b8 !important;
+    gap: 12px;
+    color: var(--text-muted);
     font-weight: 600;
-    font-size: 0.95rem;
     transition: all 0.3s ease;
     border: none;
     background: transparent;
     cursor: pointer;
-    width: 100%;
+    text-align: left;
 }
 
 .navItem:hover {
-    color: white !important;
+    color: var(--text-main);
     background: rgba(255, 255, 255, 0.05);
 }
 
 .navActive {
-    color: white !important;
-    background: linear-gradient(90deg, rgba(6, 182, 212, 0.2), transparent) !important;
-    border-left: 4px solid #06b6d4 !important;
+    color: var(--text-main) !important;
+    background: var(--accent) !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.logoutBtn {
-    margin: 0 16px;
-    padding: 16px;
-    background: rgba(239, 68, 68, 0.1);
-    color: #f87171 !important;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 16px;
-    font-weight: 700;
+.themeSwitcher {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    margin: 12px 16px;
+}
+
+.themeSwitcher button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
     cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.themeActive {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.2);
 }
 
 /* ============================================
@@ -121,153 +221,192 @@
     flex: 1;
     margin-left: 280px;
     padding: 60px;
-    background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-    min-height: 100vh;
+    position: relative;
+    z-index: 1;
 }
 
 .mainTitle {
     font-size: 2.75rem;
     font-weight: 900;
-    color: #ffffff !important;
     letter-spacing: -0.04em;
+    color: var(--text-main);
 }
 
 .mainSubtitle {
-    color: #94a3b8 !important;
     font-size: 1.1rem;
+    color: var(--text-muted);
 }
 
-/* ============================================
-   STATS
-   ============================================ */
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
-    margin-top: 48px;
+    margin: 48px 0;
 }
 
 .statCard {
-    background: rgba(30, 41, 59, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 24px;
-    border-radius: 20px;
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 20px;
+    transition: transform 0.3s ease;
 }
 
-.statLabel {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #64748b !important;
-    text-transform: uppercase;
+.statCard:hover {
+    transform: translateY(-8px);
 }
 
 .statValue {
     font-size: 1.75rem;
     font-weight: 900;
-    color: white !important;
 }
 
-/* ============================================
-   TABLES
-   ============================================ */
 .contentWrapper {
-    margin-top: 48px;
-    background: rgba(15, 23, 42, 0.4);
-    border-radius: 32px;
-    padding: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-card);
+    backdrop-filter: blur(15px);
+    border-radius: 40px;
+    padding: 48px;
+    border: 1px solid var(--border);
 }
 
 .table th {
     text-align: left;
-    padding: 16px;
-    color: #475569 !important;
+    padding: 16px 20px;
     font-size: 0.75rem;
     font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
 }
 
 .table tr td {
-    padding: 20px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
 }
 
 .patientMain strong {
-    color: white !important;
     font-size: 1.1rem;
-    display: block;
+    color: var(--text-main);
 }
 
-.patientMain span {
-    color: #64748b !important;
+.actionBtn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
 
-.statusBadge {
-    padding: 6px 12px;
-    border-radius: 100px;
-    font-size: 0.7rem;
-    font-weight: 900;
-}
-
-.paid { background: rgba(34, 197, 94, 0.15); color: #4ade80 !important; }
-.pending { background: rgba(234, 179, 8, 0.15); color: #facc15 !important; }
+.actionBtn:hover { transform: scale(1.05); }
 
 /* ============================================
-   LOGIN CARD
+   MARKETING / BLOG
+   ============================================ */
+.templateGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.templateCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cardHeader {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+}
+
+.templateCard h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.templateFooter {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+}
+
+.sendBtn {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ============================================
+   LOGIN
    ============================================ */
 .loginContainer {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #020617;
+    background: var(--bg-main);
 }
 
 .loginCard {
-    background: #0f172a;
-    padding: 60px;
-    border-radius: 40px;
+    background: var(--bg-card);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--border);
+    padding: 64px;
+    border-radius: 48px;
     width: 100%;
-    max-width: 440px;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.loginTitle {
-    color: white !important;
-    font-size: 1.75rem;
-    font-weight: 900;
-    margin-bottom: 24px;
+    max-width: 480px;
+    position: relative;
+    z-index: 10;
 }
 
 .input {
     width: 100%;
-    padding: 16px 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    color: white !important;
-    font-size: 1rem;
+    padding: 18px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-main);
     margin-bottom: 20px;
+    font-size: 1.1rem;
 }
 
 .loginBtn {
     width: 100%;
-    padding: 16px;
-    background: #06b6d4;
-    color: white !important;
+    padding: 18px;
+    background: var(--accent);
+    color: white;
     border: none;
-    border-radius: 16px;
+    border-radius: 20px;
     font-weight: 800;
     cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 1200px) {
+    .statsGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
     .sidebar { display: none; }
-    .mainContent { margin-left: 0; padding: 24px; }
+    .mainContent { margin-left: 0; padding: 32px; }
     .statsGrid { grid-template-columns: 1fr; }
 }
