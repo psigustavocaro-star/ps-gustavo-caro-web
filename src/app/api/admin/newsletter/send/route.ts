@@ -6,12 +6,22 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
     try {
-        const { templateId, target, specificEmail } = await request.json();
+        const { templateId, target, specificEmail, customTitle, customContent } = await request.json();
+        
+        let finalTitle = customTitle;
+        let finalContent = customContent;
 
-        if (!templateId) return NextResponse.json({ success: false, error: 'Newsletter no seleccionado' }, { status: 400 });
+        if (templateId) {
+            const template = await prisma.emailTemplate.findUnique({ where: { id: templateId } });
+            if (template) {
+                if (!finalTitle) finalTitle = template.title;
+                if (!finalContent) finalContent = template.content;
+            }
+        }
 
-        const template = await prisma.emailTemplate.findUnique({ where: { id: templateId } });
-        if (!template) return NextResponse.json({ success: false, error: 'Plantilla no encontrada' }, { status: 404 });
+        if (!finalTitle || !finalContent) {
+            return NextResponse.json({ success: false, error: 'Newsletter no seleccionado o contenido en blanco' }, { status: 400 });
+        }
 
         let recipients: string[] = [];
 
@@ -26,36 +36,33 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'No hay destinatarios' }, { status: 400 });
         }
 
-        console.log(`Sending newsletter "${template.title}" to ${recipients.length} recipients...`);
-
-        // Enviamos en lotes o individualmente según la cuota
-        // Para este MVP, enviamos uno por uno para personalizar el saludo (si se desea) o en Bcc
-        // Usaremos lotes de Resend para eficiencia si es a todos
+        console.log(`Sending newsletter "${finalTitle}" to ${recipients.length} recipients...`);
         
         if (target === 'all') {
-            // Dividir en grupos de 50 (límite recomendado para evitar spam filters en algunos casos)
             for (let i = 0; i < recipients.length; i += 50) {
                 const batch = recipients.slice(i, i + 50);
-                await resend.emails.send({
+                const resendData = await resend.emails.send({
                     from: 'Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
-                    to: 'psi.gustavocaro@gmail.com', // El profesional recibe una copia
+                    to: 'psi.gustavocaro@gmail.com',
                     bcc: batch,
-                    subject: template.title,
-                    html: template.content,
+                    subject: finalTitle,
+                    html: finalContent,
                 });
+                if (resendData.error) throw new Error(resendData.error.message);
             }
         } else {
-            await resend.emails.send({
+            const resendData = await resend.emails.send({
                 from: 'Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
                 to: recipients[0],
-                subject: template.title,
-                html: template.content,
+                subject: finalTitle,
+                html: finalContent,
             });
+            if (resendData.error) throw new Error(resendData.error.message);
         }
 
         return NextResponse.json({ success: true, count: recipients.length });
     } catch (error: any) {
         console.error('SEND NEWSLETTER ERROR:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        return NextResponse.json({ success: false, error: error.message || 'Error del servidor de correos' }, { status: 500 });
     }
 }

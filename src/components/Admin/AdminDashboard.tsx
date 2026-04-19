@@ -133,8 +133,12 @@ export default function AdminDashboard() {
                 body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'all', customTitle: title, customContent: content }),
             });
             const data = await res.json();
-            if (data.success) alert(`🚀 ¡Correo enviado a ${data.count} personas!`);
-        } catch (err) { alert('Hubo un error al enviar'); }
+            if (data.success) {
+                alert(`🚀 ¡Correo enviado a ${data.count} personas!`);
+            } else {
+                alert(`❌ Error al enviar el correo: ${data.error}`);
+            }
+        } catch (err) { alert('Hubo un error de red al intentar enviar'); }
         finally { setIsLoading(false); }
     };
 
@@ -142,17 +146,30 @@ export default function AdminDashboard() {
         if (!title || !content) return alert('Selecciona un correo o post primero 💌');
         if (selectedRecipients.length === 0) return alert('Debes marcar al menos un paciente');
         setIsLoading(true);
+        let successCount = 0;
         try {
             for (const email of selectedRecipients) {
-                await fetch('/api/admin/newsletter/send', {
+                const res = await fetch('/api/admin/newsletter/send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'specific', specificEmail: email, customTitle: title, customContent: content }),
                 });
+                const data = await res.json();
+                if (data.success) {
+                    successCount++;
+                } else {
+                    console.error("Error sending to", email, data.error);
+                }
             }
-            alert(`✅ Enviado a ${selectedRecipients.length} pacientes.`);
-            setSelectedRecipients([]);
-        } catch (err) { alert('Ocurrió un error en el envío'); }
+            if (successCount === selectedRecipients.length) {
+                alert(`✅ Enviado con éxito a ${successCount} pacientes.`);
+                setSelectedRecipients([]);
+            } else if (successCount > 0) {
+                alert(`⚠️ Enviado parcialmente. Llegó a ${successCount} de ${selectedRecipients.length} pacientes.`);
+            } else {
+                alert(`❌ No se pudo enviar ningún correo. Verifica si configuraste las claves de envío.`);
+            }
+        } catch (err) { alert('Ocurrió un error en el envío de red'); }
         finally { setIsLoading(false); }
     };
 
