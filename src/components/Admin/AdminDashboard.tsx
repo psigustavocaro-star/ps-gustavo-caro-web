@@ -279,55 +279,126 @@ export default function AdminDashboard() {
                                 </tbody>
                             </table>
                         </div>
-                    ) : activeTab === 'newsletter' || activeTab === 'marketing' ? (
-                        <div className={styles.editorWrapper}>
-                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                                <h3 style={{color: '#f1f5f9'}}>
-                                    {activeTab === 'newsletter' ? `Gestión de Newsletter (${newsletterSubs.length} suscriptores)` : 'Gestión de Blog'}
-                                </h3>
-                                {editingTemplate && (
-                                    <button className={styles.syncBtn} onClick={() => {setEditingTemplate(null); setTitle(''); setContent('');}}>Nuevo</button>
-                                )}
+                    ) : activeTab === 'newsletter' ? (
+                        <div className={styles.newsletterLayout}>
+                            <div className={styles.newsletterSidebar}>
+                                <div className={styles.subscriberHeader}>
+                                    <h3>Suscriptores ({newsletterSubs.length})</h3>
+                                    <p>Personas que reciben tus actualizaciones.</p>
+                                </div>
+                                <div className={styles.subscriberList}>
+                                    {newsletterSubs.length === 0 ? (
+                                        <p style={{opacity: 0.5, padding: '20px'}}>No hay suscriptores aún.</p>
+                                    ) : (
+                                        newsletterSubs.map((s: any) => (
+                                            <div key={s.id} className={styles.subscriberItem}>
+                                                <div className={styles.subInfo}>
+                                                    <span className={styles.subEmail}>{s.email}</span>
+                                                    <small className={styles.subDate}>Desde: {new Date(s.createdAt).toLocaleDateString()}</small>
+                                                </div>
+                                                <button className={styles.deleteSub} onClick={() => handleDeletePatient(s.email)}>✕</button>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
                             </div>
-                            
-                            {/* List of existing items */}
-                            <div style={{marginBottom: '40px', display: 'grid', gap: '10px'}}>
-                                {activeTab === 'newsletter' && templates.length === 0 && <p style={{opacity: 0.5}}>No hay plantillas creadas. Crea la primera abajo.</p>}
-                                {(activeTab === 'newsletter' ? templates : []).map((t: any) => (
-                                    <div key={t.id} className={styles.dataItem} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', background: 'rgba(255,255,255,0.02)'}}>
-                                        <div>
-                                            <span style={{display: 'block', fontWeight: 600}}>{t.title}</span>
-                                            <small style={{opacity: 0.4}}>Creado: {new Date(t.createdAt).toLocaleDateString()}</small>
-                                        </div>
-                                        <div style={{display: 'flex', gap: '8px'}}>
-                                            <button className={styles.viewBtn} onClick={() => handleSendNewsletter(t.id, 'all')}>Enviar a Todos</button>
-                                            <button className={styles.syncBtn} style={{padding: '5px 12px'}} onClick={() => {
-                                                setEditingTemplate(t);
-                                                setTitle(t.title);
-                                                setContent(t.content);
-                                            }}>Editar</button>
-                                            <button className={styles.syncBtn} style={{padding: '5px 12px', color: '#ef4444'}} onClick={() => handleDeleteTemplate(t.id)}>Eliminar</button>
-                                        </div>
+
+                            <div className={styles.newsletterContent}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px'}}>
+                                    <h2 style={{color: '#f8fafc', fontSize: '1.5rem'}}>Campaña Editorial</h2>
+                                    {editingTemplate && (
+                                        <button className={styles.syncBtn} onClick={() => {setEditingTemplate(null); setTitle(''); setContent('');}}>Nueva Plantilla</button>
+                                    )}
+                                </div>
+
+                                {/* Editor Profesional */}
+                                <div className={styles.editorContainer}>
+                                    <div className={styles.editorToolbar}>
+                                        <button onClick={() => document.execCommand('bold', false)} title="Negrita"><b>B</b></button>
+                                        <button onClick={() => document.execCommand('italic', false)} title="Cursiva"><i>I</i></button>
+                                        <button onClick={() => {
+                                            const url = prompt('URL de la imagen:');
+                                            if (url) document.execCommand('insertImage', false, url);
+                                        }} title="Insertar Imagen">🖼️</button>
+                                        <button onClick={() => {
+                                            const url = prompt('Enlace (URL):');
+                                            if (url) document.execCommand('createLink', false, url);
+                                        }} title="Insertar Enlace">🔗</button>
+                                        <div style={{flex: 1}}></div>
+                                        <span style={{fontSize: '0.8rem', opacity: 0.5}}>Editor Visual</span>
                                     </div>
-                                ))}
-                            </div>
+                                    
+                                    <input 
+                                        className={styles.editorTitleInput} 
+                                        value={title} 
+                                        onChange={(e) => setTitle(e.target.value)} 
+                                        placeholder="Título del boletín o artículo..." 
+                                    />
 
-                            <hr style={{opacity: 0.05, marginBottom: '40px'}} />
+                                    <div 
+                                        id="rich-editor"
+                                        className={styles.richEditor}
+                                        contentEditable
+                                        onInput={(e: any) => setContent(e.currentTarget.innerHTML)}
+                                        dangerouslySetInnerHTML={{ __html: content }}
+                                    />
+                                </div>
 
-                            <div className={styles.inputGroup}>
-                                <label>{editingTemplate ? 'Editando' : 'Crear Nuevo'} {activeTab === 'newsletter' ? 'Correo' : 'Post'}</label>
-                                <input className={styles.inputMain} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Escribe el título aquí..." />
+                                <div className={styles.editorActions}>
+                                    <button className={styles.primaryButton} style={{width: 'auto', padding: '12px 40px'}} onClick={handleSaveTemplate} disabled={isLoading}>
+                                        {isLoading ? 'Guardando...' : editingTemplate ? 'Actualizar Plantilla' : 'Guardar y Publicar'}
+                                    </button>
+                                    {activeTab === 'marketing' && <button className={styles.syncBtn}>Ver en el Blog</button>}
+                                </div>
+
+                                <h3 style={{marginTop: '40px', marginBottom: '20px', fontSize: '1.1rem', opacity: 0.8}}>Plantillas Guardadas</h3>
+                                <div className={styles.templatesGrid}>
+                                    {templates.map((t: any) => (
+                                        <div key={t.id} className={styles.templateCard}>
+                                            <div className={styles.templateInfo}>
+                                                <strong>{t.title}</strong>
+                                                <small>{new Date(t.createdAt).toLocaleDateString()}</small>
+                                            </div>
+                                            <div className={styles.templateActions}>
+                                                <button className={styles.actionBtn} onClick={() => handleSendNewsletter(t.id, 'all')}>Difundir a Todos</button>
+                                                <button className={styles.actionBtn} style={{background: 'rgba(255,255,255,0.05)'}} onClick={() => {
+                                                    setEditingTemplate(t);
+                                                    setTitle(t.title);
+                                                    setContent(t.content);
+                                                    // Necesitamos forzar la actualización del div contentEditable si es necesario
+                                                    const ed = document.getElementById('rich-editor');
+                                                    if(ed) ed.innerHTML = t.content;
+                                                }}>Editar</button>
+                                                <button className={styles.deleteBtn} onClick={() => handleDeleteTemplate(t.id)}>✕</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <div className={styles.inputGroup}>
-                                <label>Cuerpo del Contenido</label>
-                                <textarea className={styles.textAreaMain} style={{minHeight: '250px'}} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Redacta con estilo profesional..." />
+                        </div>
+                    ) : activeTab === 'marketing' ? (
+                        <div className={styles.editorWrapper}>
+                            {/* Reusaremos el mismo estilo del editor pero enfocado a Blog */}
+                            <h2 style={{color: '#f8fafc', marginBottom: '20px'}}>Editor de Contenido (Blog)</h2>
+                            <p style={{opacity: 0.6, marginBottom: '30px'}}>Escribe artículos de largo alcance para mejorar tu posicionamiento y ayudar a tus pacientes.</p>
+                            
+                            <div className={styles.editorContainer}>
+                                <input 
+                                    className={styles.editorTitleInput} 
+                                    value={title} 
+                                    onChange={(e) => setTitle(e.target.value)} 
+                                    placeholder="Título del Artículo..." 
+                                />
+                                <div 
+                                    className={styles.richEditor}
+                                    contentEditable
+                                    onInput={(e: any) => setContent(e.currentTarget.innerHTML)}
+                                    dangerouslySetInnerHTML={{ __html: content }}
+                                />
                             </div>
-                            <div style={{display: 'flex', gap: '15px'}}>
-                                <button className={styles.primaryButton} style={{width: 'auto', padding: '12px 30px'}} onClick={handleSaveTemplate} disabled={isLoading}>
-                                    {isLoading ? 'Guardando...' : editingTemplate ? 'Actualizar' : 'Guardar Plantilla'}
-                                </button>
-                                {activeTab === 'marketing' && <button className={styles.syncBtn}>Publicar en Blog</button>}
-                            </div>
+                            <button className={styles.primaryButton} style={{marginTop: '20px', width: 'auto'}} onClick={handleSaveTemplate}>
+                                Publicar en Blog
+                            </button>
                         </div>
                     ) : null}
                 </div>

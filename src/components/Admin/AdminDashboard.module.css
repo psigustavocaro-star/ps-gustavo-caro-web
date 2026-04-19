@@ -6,9 +6,7 @@
     font-family: 'Outfit', sans-serif;
 }
 
-/* ============================================
-   SIDE NAVIGATION
-   ============================================ */
+/* Side Nav */
 .sideNav {
     width: 260px;
     background: #111827;
@@ -21,444 +19,152 @@
     z-index: 100;
 }
 
-.navHeader {
-    padding: 0 24px;
-    margin-bottom: 40px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+.navHeader { padding: 0 24px; margin-bottom: 40px; display: flex; align-items: center; gap: 12px; }
+.logoSmall { width: 36px; height: 36px; background: #0ea5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+.navTitle span { display: block; font-weight: 700; color: #f1f5f9; }
+.navTitle small { color: #64748b; font-size: 0.7rem; text-transform: uppercase; }
 
-.logoSmall {
-    width: 36px;
-    height: 36px;
-    background: #0ea5e9;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: white;
-}
+.navList { flex: 1; padding: 0 12px; }
+.navList button { width: 100%; padding: 12px 16px; text-align: left; background: transparent; border: none; color: #94a3b8; font-weight: 600; border-radius: 8px; margin-bottom: 4px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+.navList button:hover { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; }
+.navList .active { background: rgba(14, 165, 233, 0.1) !important; color: #0ea5e9 !important; }
 
-.navTitle span {
-    display: block;
-    font-weight: 700;
-    font-size: 1rem;
-    color: #f1f5f9;
-}
+.logoutAction { padding: 12px; margin: 0 16px; background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-.navTitle small {
-    color: #64748b;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
+/* Content Area */
+.contentArea { flex: 1; margin-left: 260px; padding: 40px 60px; }
+.contentHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 20px; }
+.contentHeader h1 { font-size: 1.8rem; font-weight: 800; color: #f1f5f9; }
+.contentHeader p { color: #64748b; font-size: 0.95rem; }
 
-.navList {
-    flex: 1;
-    padding: 0 12px;
-}
+.syncBtn { background: #f1f5f9; color: #0f172a; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-.navList button {
-    width: 100%;
-    padding: 12px 16px;
-    text-align: left;
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    margin-bottom: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+/* Stats */
+.dashboardStats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+.statBox { background: #111827; padding: 24px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.03); }
+.label { display: block; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+.value { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; }
 
-.navList button:hover {
-    background: rgba(255, 255, 255, 0.03);
-    color: #f1f5f9;
-}
+/* Table */
+.mainGrid { background: #111827; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.03); overflow: hidden; }
+.proTable { width: 100%; border-collapse: collapse; }
+.proTable th { text-align: left; padding: 14px 20px; color: #475569; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+.proTable td { padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); color: #94a3b8; font-size: 0.9rem; }
+.proTable tr:hover td { background: rgba(255, 255, 255, 0.01); }
+.proTable strong { display: block; font-size: 0.95rem; color: #f1f5f9; }
+.statusOk { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.7rem; }
+.viewBtn { background: #0ea5e9; color: white; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s; }
 
-.navList .active {
-    background: rgba(14, 165, 233, 0.1) !important;
-    color: #0ea5e9 !important;
-}
+/* Modal */
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+.modal { background: #111827; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 40px; position: relative; }
+.modalTitle { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; margin-bottom: 30px; }
+.dataGroup { margin-bottom: 24px; }
+.dataGroup h4 { color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+.dataItem { padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; margin-bottom: 8px; color: #94a3b8; font-size: 0.9rem; }
+.dataItem strong { color: #f1f5f9; }
 
-.logoutAction {
-    padding: 12px;
-    margin: 0 16px;
-    background: transparent;
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
+/* Form Elements */
+.inputMain { width: 100%; padding: 12px 16px; background: #0b0f1a; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; color: white; }
+.primaryButton { width: 100%; padding: 14px; background: #0ea5e9; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-.logoutAction:hover {
-    background: rgba(239, 68, 68, 0.05);
-}
-
-/* ============================================
-   CONTENT AREA
-   ============================================ */
-.contentArea {
-    flex: 1;
-    margin-left: 260px;
-    padding: 40px 60px;
-}
-
-.contentHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 40px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding-bottom: 20px;
-}
-
-.contentHeader h1 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #f1f5f9;
-    margin-bottom: 4px;
-}
-
-.contentHeader p {
-    color: #64748b;
-    font-size: 0.95rem;
-}
-
-.syncBtn {
-    background: #f1f5f9;
-    color: #0f172a;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    transition: transform 0.2s;
-    cursor: pointer;
-}
-
-.syncBtn:hover {
-    transform: translateY(-1px);
-}
-
-/* ============================================
-   STATS
-   ============================================ */
-.dashboardStats {
+/* Newsletter & Marketing Revamp */
+.newsletterLayout {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 40px;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
 }
 
-.statBox {
-    background: #111827;
-    padding: 24px;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.label {
-    display: block;
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-
-.value {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #f1f5f9;
-}
-
-/* ============================================
-   TABLE
-   ============================================ */
-.mainGrid {
-    background: #111827;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
+.newsletterSidebar {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    height: fit-content;
     overflow: hidden;
 }
 
-.tableWrapper {
-    padding: 0;
+.subscriberHeader {
+    padding: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.proTable {
-    width: 100%;
-    border-collapse: collapse;
-}
+.subscriberHeader h3 { font-size: 1.1rem; color: #f8fafc; margin-bottom: 5px; }
+.subscriberHeader p { font-size: 0.85rem; opacity: 0.5; }
 
-.proTable th {
-    text-align: left;
-    padding: 14px 20px;
-    color: #475569;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    background: rgba(255, 255, 255, 0.01);
+.subscriberList { max-height: 600px; overflow-y: auto; }
+
+.subscriberItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.proTable td {
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-    color: #94a3b8;
-    font-size: 0.9rem;
+.subEmail { font-size: 0.9rem; color: #e2e8f0; }
+.subDate { font-size: 0.75rem; opacity: 0.4; }
+
+.deleteSub {
+    background: transparent; border: none; color: #ef4444; opacity: 0.5; cursor: pointer; padding: 5px;
 }
 
-.proTable tr:hover td {
-    background: rgba(255, 255, 255, 0.01);
-}
-
-.proTable strong {
-    display: block;
-    font-size: 0.95rem;
-    color: #f1f5f9;
-    margin-bottom: 2px;
-}
-
-.proTable small {
-    color: #475569;
-}
-
-.statusOk {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.7rem;
-}
-
-.statusPending {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.7rem;
-}
-
-.viewBtn {
-    background: #0ea5e9;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.viewBtn:hover {
-    background: #0284c7;
-}
-
-/* ============================================
-   EDITOR & CARDS
-   ============================================ */
-.editorWrapper {
-    padding: 30px;
-}
-
-.inputGroup {
-    margin-bottom: 20px;
-}
-
-.inputGroup label {
-    display: block;
-    color: #94a3b8;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.inputMain {
-    width: 100%;
-    padding: 12px 16px;
-    background: #0b0f1a;
+.editorContainer {
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.95rem;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 25px;
 }
 
-.textAreaMain {
-    width: 100%;
-    min-height: 400px;
-    padding: 16px;
-    background: #0b0f1a;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    font-family: inherit;
-    resize: vertical;
+.editorToolbar {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.editorToolbar button {
+    background: transparent; border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9;
+    width: 34px; height: 34px; border-radius: 6px; cursor: pointer;
+}
+
+.editorTitleInput {
+    background: transparent; border: none; width: 100%; padding: 20px 25px;
+    font-size: 1.4rem; font-weight: 700; color: #f8fafc;
+}
+
+.richEditor {
+    min-height: 400px; padding: 25px; color: #cbd5e1; line-height: 1.6; font-size: 1rem;
+}
+
+.richEditor img { max-width: 100%; border-radius: 12px; }
+
+.templatesGrid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
 }
 
 .templateCard {
-    background: #111827;
-    padding: 24px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px; padding: 20px;
 }
 
-.templateCard h3 {
-    color: #f1f5f9;
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+.templateActions { margin-top: 20px; display: flex; gap: 10px; }
+
+.actionBtn {
+    flex: 1; background: #0ea5e9; color: white; border: none; padding: 8px 12px;
+    border-radius: 8px; font-size: 0.85rem; cursor: pointer;
 }
 
-.templateCard p {
-    color: #64748b;
-    font-size: 0.85rem;
-    margin-bottom: 20px;
-}
+/* Auth */
+.loginWrapper { min-height: 100vh; background: #0b0f1a; display: flex; align-items: center; justify-content: center; }
+.loginCard { background: #111827; padding: 50px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.03); }
 
-/* ============================================
-   MODAL / OVERLAY
-   ============================================ */
-.overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 20px;
-}
-
-.modal {
-    background: #111827;
-    width: 100%;
-    max-width: 650px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 40px;
-    position: relative;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-.modal::-webkit-scrollbar {
-    width: 6px;
-}
-
-.modal::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-
-.formGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-}
-
-@media (max-width: 600px) {
-    .formGrid {
-        grid-template-columns: 1fr;
-    }
-    .modal {
-        padding: 30px 20px;
-    }
-}
-
-.modalTitle {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #f1f5f9;
-    margin-bottom: 30px;
-}
-
-.dataGroup {
-    margin-bottom: 24px;
-}
-
-.dataGroup h4 {
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-}
-
-.dataItem {
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    color: #94a3b8;
-    font-size: 0.9rem;
-}
-
-.dataItem strong {
-    color: #f1f5f9;
-}
-
-/* ============================================
-   LOGIN
-   ============================================ */
-.loginWrapper {
-    min-height: 100vh;
-    background: #0b0f1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.loginCard {
-    background: #111827;
-    padding: 50px;
-    border-radius: 24px;
-    width: 100%;
-    max-width: 440px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.loginLogo {
-    width: 50px; height: 50px; background: #0ea5e9;
-    border-radius: 12px; margin: 0 auto 30px;
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 900; font-size: 1.2rem;
-}
-
-.loginCard h1 { color: #f1f5f9; font-size: 1.8rem; margin-bottom: 10px; }
-.loginCard p { color: #64748b; margin-bottom: 40px; }
-
-.primaryButton {
-    width: 100%;
-    padding: 14px;
-    background: #0ea5e9;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
+@media (max-width: 1024px) {
+    .newsletterLayout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
     .sideNav { display: none; }
     .contentArea { margin-left: 0; padding: 20px; }
-    .dashboardStats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
