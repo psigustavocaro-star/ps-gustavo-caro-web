@@ -23,6 +23,11 @@ export default function AdminDashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState<any>(null);
+    const [selectedPatient, setSelectedPatient] = useState<any>(null);
+    const [templates, setTemplates] = useState<any[]>([]);
+    const [editingTemplate, setEditingTemplate] = useState<any>(null);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
 
     const handleUpdatePatient = async () => {
         setIsLoading(true);
@@ -60,10 +65,6 @@ export default function AdminDashboard() {
         finally { setIsLoading(false); }
     };
 
-    const [selectedPatient, setSelectedPatient] = useState<any>(null);
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         if (email.toLowerCase() === 'psi.gustavocaro@gmail.com' && password === 'gudaxgudax1.') {
@@ -72,6 +73,58 @@ export default function AdminDashboard() {
         } else {
             alert('Credenciales incorrectas');
         }
+    };
+
+    const handleSaveTemplate = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/admin/newsletter/templates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    title, 
+                    content, 
+                    id: editingTemplate?.id 
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Newsletter guardado');
+                setEditingTemplate(null);
+                setTitle('');
+                setContent('');
+                fetchData();
+            }
+        } catch (err) { alert('Error al guardar'); }
+        finally { setIsLoading(false); }
+    };
+
+    const handleSendNewsletter = async (templateId: string, target: 'all' | 'specific', specificEmail?: string) => {
+        if (target === 'all' && !confirm('¿Enviar este newsletter a TODOS los suscriptores activos?')) return;
+        
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/admin/newsletter/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ templateId, target, specificEmail }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`✓ Newsletter enviado a ${data.count} destinatarios`);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (err) { alert('Error al enviar'); }
+        finally { setIsLoading(false); }
+    };
+
+    const handleDeleteTemplate = async (id: string) => {
+        if (!confirm('¿Eliminar este formato de newsletter?')) return;
+        try {
+            await fetch(`/api/admin/newsletter/templates?id=${id}`, { method: 'DELETE' });
+            fetchData();
+        } catch (e) {}
     };
 
     const fetchData = async () => {
@@ -83,6 +136,7 @@ export default function AdminDashboard() {
                 setBookings(data.bookings || []);
                 setPatients(data.patients || []);
                 setNewsletterSubs(data.newsletter || []);
+                setTemplates(data.templates || []);
             }
         } catch (err) {
             console.error('Fetch Error:', err);
@@ -227,37 +281,52 @@ export default function AdminDashboard() {
                         </div>
                     ) : activeTab === 'newsletter' || activeTab === 'marketing' ? (
                         <div className={styles.editorWrapper}>
-                            <h3 style={{marginBottom: '20px', color: '#f1f5f9'}}>
-                                {activeTab === 'newsletter' ? 'Gestión de Newsletter' : 'Gestión de Blog'}
-                            </h3>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                <h3 style={{color: '#f1f5f9'}}>
+                                    {activeTab === 'newsletter' ? `Gestión de Newsletter (${newsletterSubs.length} suscriptores)` : 'Gestión de Blog'}
+                                </h3>
+                                {editingTemplate && (
+                                    <button className={styles.syncBtn} onClick={() => {setEditingTemplate(null); setTitle(''); setContent('');}}>Nuevo</button>
+                                )}
+                            </div>
                             
                             {/* List of existing items */}
                             <div style={{marginBottom: '40px', display: 'grid', gap: '10px'}}>
-                                <div className={styles.dataItem} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <span>Ejemplo de {activeTab === 'newsletter' ? 'Boletín' : 'Post'}: Salud Mental 2024</span>
-                                    <div style={{display: 'flex', gap: '8px'}}>
-                                        {activeTab === 'newsletter' && <button className={styles.viewBtn}>Enviar Ahora</button>}
-                                        <button className={styles.syncBtn} style={{padding: '5px 12px'}}>Editar</button>
-                                        <button className={styles.syncBtn} style={{padding: '5px 12px', color: '#ef4444'}}>Eliminar</button>
+                                {activeTab === 'newsletter' && templates.length === 0 && <p style={{opacity: 0.5}}>No hay plantillas creadas. Crea la primera abajo.</p>}
+                                {(activeTab === 'newsletter' ? templates : []).map((t: any) => (
+                                    <div key={t.id} className={styles.dataItem} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', background: 'rgba(255,255,255,0.02)'}}>
+                                        <div>
+                                            <span style={{display: 'block', fontWeight: 600}}>{t.title}</span>
+                                            <small style={{opacity: 0.4}}>Creado: {new Date(t.createdAt).toLocaleDateString()}</small>
+                                        </div>
+                                        <div style={{display: 'flex', gap: '8px'}}>
+                                            <button className={styles.viewBtn} onClick={() => handleSendNewsletter(t.id, 'all')}>Enviar a Todos</button>
+                                            <button className={styles.syncBtn} style={{padding: '5px 12px'}} onClick={() => {
+                                                setEditingTemplate(t);
+                                                setTitle(t.title);
+                                                setContent(t.content);
+                                            }}>Editar</button>
+                                            <button className={styles.syncBtn} style={{padding: '5px 12px', color: '#ef4444'}} onClick={() => handleDeleteTemplate(t.id)}>Eliminar</button>
+                                        </div>
                                     </div>
-                                </div>
+                                ))}
                             </div>
 
                             <hr style={{opacity: 0.05, marginBottom: '40px'}} />
 
                             <div className={styles.inputGroup}>
-                                <label>Crear Nuevo {activeTab === 'newsletter' ? 'Correo' : 'Post'}</label>
+                                <label>{editingTemplate ? 'Editando' : 'Crear Nuevo'} {activeTab === 'newsletter' ? 'Correo' : 'Post'}</label>
                                 <input className={styles.inputMain} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Escribe el título aquí..." />
                             </div>
                             <div className={styles.inputGroup}>
                                 <label>Cuerpo del Contenido</label>
-                                <textarea className={styles.textAreaMain} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Redacta con estilo profesional..." />
+                                <textarea className={styles.textAreaMain} style={{minHeight: '250px'}} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Redacta con estilo profesional..." />
                             </div>
                             <div style={{display: 'flex', gap: '15px'}}>
-                                <button className={styles.primaryButton} style={{width: 'auto', padding: '12px 30px'}}>
-                                    {activeTab === 'newsletter' ? 'Programar Envío' : 'Publicar en Blog'}
+                                <button className={styles.primaryButton} style={{width: 'auto', padding: '12px 30px'}} onClick={handleSaveTemplate} disabled={isLoading}>
+                                    {isLoading ? 'Guardando...' : editingTemplate ? 'Actualizar' : 'Guardar Plantilla'}
                                 </button>
-                                <button className={styles.syncBtn}>Guardar como Borrador</button>
+                                {activeTab === 'marketing' && <button className={styles.syncBtn}>Publicar en Blog</button>}
                             </div>
                         </div>
                     ) : null}
@@ -366,10 +435,21 @@ export default function AdminDashboard() {
 
                                 <div className={styles.dataGroup}>
                                     <h4>Acciones Rápidas</h4>
-                                    <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
-                                        <button className={styles.viewBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar Datos</button>
-                                        <button className={styles.syncBtn} onClick={() => handleDeletePatient(selectedPatient.email)} style={{color: '#ef4444'}}>Eliminar Paciente</button>
-                                        <button className={styles.syncBtn} onClick={() => setSelectedPatient(null)}>Cerrar Ventana</button>
+                                    <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center'}}>
+                                        <button className={styles.primaryButton} style={{width: 'auto', padding: '10px 20px'}} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar Datos</button>
+                                        
+                                        <select 
+                                            className={styles.inputMain} 
+                                            style={{width: '180px', height: '42px', padding: '0 10px', fontSize: '0.85rem'}}
+                                            onChange={(e) => {
+                                                if(e.target.value) handleSendNewsletter(e.target.value, 'specific', selectedPatient.email);
+                                            }}
+                                        >
+                                            <option value="">Enviar Newsletter...</option>
+                                            {templates.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
+                                        </select>
+
+                                        <button className={styles.syncBtn} onClick={() => handleDeletePatient(selectedPatient.email)} style={{color: '#ef4444'}}>Eliminar de Raíz</button>
                                     </div>
                                 </div>
                             </>
