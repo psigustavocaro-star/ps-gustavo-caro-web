@@ -4,6 +4,14 @@ import { useState, useEffect, useMemo } from 'react';
 import styles from './AdminDashboard.module.css';
 import Link from 'next/link';
 
+const CHILE_REGIONS = [
+    'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
+    'Valparaíso', 'Metropolitana de Santiago', 'O\'Higgins', 'Maule', 
+    'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
+];
+
+const COUNTRIES = ['Chile', 'México', 'Colombia', 'España', 'Perú', 'Argentina', 'Otro'];
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState('');
@@ -26,9 +34,12 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('Paciente actualizado');
+                alert('✓ Paciente actualizado correctamente');
                 setIsEditing(false);
+                setSelectedPatient(editData);
                 fetchData();
+            } else {
+                alert('Error: ' + data.error);
             }
         } catch (err) { alert('Error al actualizar'); }
         finally { setIsLoading(false); }
