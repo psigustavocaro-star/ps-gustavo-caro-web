@@ -1,46 +1,49 @@
 .dashboard {
     display: flex;
     min-height: 100vh;
-    background: #f1f5f9;
-    color: #1e293b;
+    background: #020617; /* Deepest Navy */
+    color: #f8fafc;
     font-family: var(--font-body);
+    overflow: hidden;
 }
 
 /* ============================================
-   SIDEBAR
+   SIDEBAR (Glassmorphism & Depth)
    ============================================ */
 .sidebar {
     width: 280px;
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     color: white;
     display: flex;
     flex-direction: column;
-    padding: 32px 0;
+    padding: 40px 0;
     position: fixed;
     height: 100vh;
     z-index: 100;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
 }
 
 .sidebarBrand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 24px;
-    margin-bottom: 48px;
+    gap: 16px;
+    padding: 0 32px;
+    margin-bottom: 60px;
 }
 
 .logoMini {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
+    font-weight: 900;
+    font-size: 1.2rem;
     color: white;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
 }
 
 .brandText {
@@ -49,89 +52,111 @@
 }
 
 .brandText span {
-    font-weight: 700;
-    font-size: 1.1rem;
-    line-height: 1.2;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .brandText small {
-    font-size: 0.75rem;
-    color: #94a3b8;
+    font-size: 0.7rem;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    font-weight: 700;
 }
 
 .sidebarNav {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 0 12px;
+    gap: 8px;
+    padding: 0 16px;
 }
 
 .navGroup {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.65rem;
+    font-weight: 800;
     text-transform: uppercase;
-    color: #475569;
-    margin: 24px 16px 8px;
-    letter-spacing: 0.1em;
+    color: #334155;
+    margin: 32px 20px 12px;
+    letter-spacing: 0.15em;
 }
 
 .navItem {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border-radius: 12px;
-    color: #94a3b8;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    color: #64748b;
     font-weight: 600;
     font-size: 0.95rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     background: transparent;
     cursor: pointer;
     text-align: left;
     width: 100%;
-    text-decoration: none;
 }
 
 .navItem:hover {
     color: white;
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateX(5px);
 }
 
 .navActive {
     color: white;
-    background: var(--primary) !important;
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%) !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    position: relative;
+}
+
+.navActive::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 25%;
+    height: 50%;
+    width: 4px;
+    background: #06b6d4;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px #06b6d4;
 }
 
 .navIcon {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    opacity: 0.7;
+}
+
+.navActive .navIcon {
+    opacity: 1;
 }
 
 .sidebarFooter {
-    padding: 24px 12px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 40px 16px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .logoutBtn {
     width: 100%;
-    padding: 14px;
-    background: rgba(239, 68, 68, 0.1);
+    padding: 16px;
+    background: rgba(239, 68, 68, 0.05);
     color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    border-radius: 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .logoutBtn:hover {
     background: #ef4444;
     color: white;
+    box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2);
 }
 
 /* ============================================
@@ -140,63 +165,60 @@
 .mainContent {
     flex: 1;
     margin-left: 280px;
-    padding: 48px;
-    max-width: 1400px;
+    padding: 60px;
+    height: 100vh;
+    overflow-y: auto;
+    background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
 }
 
 .mainHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
 }
 
 .breadcrumb {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #06b6d4;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
 }
 
 .mainTitle {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     font-weight: 900;
-    color: #0f172a;
-    margin-bottom: 4px;
-    letter-spacing: -0.03em;
+    color: white;
+    letter-spacing: -0.04em;
+    margin: 0;
 }
 
 .mainSubtitle {
-    color: #64748b;
+    color: #94a3b8;
     font-size: 1.1rem;
+    margin-top: 8px;
 }
 
 .refreshBtn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    gap: 12px;
+    padding: 14px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
     font-weight: 700;
-    color: #475569;
+    color: #e2e8f0;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
 }
 
 .refreshBtn:hover {
-    background: #f8fafc;
-    border-color: var(--primary-light);
-    color: var(--primary);
-}
-
-.spinning {
-    display: inline-block;
-    animation: spin 1s linear infinite;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #06b6d4;
+    transform: translateY(-2px);
 }
 
 /* ============================================
@@ -205,269 +227,276 @@
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    margin-bottom: 48px;
+    gap: 32px;
+    margin-bottom: 60px;
 }
 
 .statCard {
-    background: white;
-    padding: 24px;
-    border-radius: 24px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(10px);
+    padding: 32px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 20px;
-    transition: transform 0.2s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .statCard:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(6, 182, 212, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .statIcon {
-    width: 60px;
-    height: 60px;
-    border-radius: 18px;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
 }
 
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
 .statLabel {
-    display: block;
     color: #64748b;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     margin-bottom: 4px;
 }
 
 .statValue {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 900;
-    color: #0f172a;
+    color: white;
 }
 
 /* ============================================
    DATA LISTS
    ============================================ */
 .contentWrapper {
-    background: white;
-    border-radius: 32px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-    padding: 40px;
-    min-height: 500px;
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 48px;
+    min-height: 600px;
 }
 
 .listHeader {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
 
 .listHeader h2 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 900;
-    margin-bottom: 6px;
-    color: #0f172a;
+    color: white;
+    margin-bottom: 8px;
 }
 
 .listHeader p {
     color: #64748b;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 
-.tableResponsive {
+.tableContainer {
     overflow-x: auto;
 }
 
 .table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0 12px;
+    border-spacing: 0 16px;
 }
 
 .table th {
     text-align: left;
-    padding: 12px 24px;
-    background: transparent;
-    font-size: 0.75rem;
-    font-weight: 800;
+    padding: 16px 24px;
+    font-size: 0.7rem;
+    font-weight: 900;
     text-transform: uppercase;
-    color: #94a3b8;
-    letter-spacing: 0.1em;
+    color: #475569;
+    letter-spacing: 0.2em;
 }
 
 .table tr td {
-    padding: 24px;
-    background: #f8fafc;
-    transition: background 0.2s;
+    padding: 28px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.2s ease;
 }
 
 .table tr td:first-child {
-    border-radius: 16px 0 0 16px;
+    border-left: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 20px 0 0 20px;
 }
 
 .table tr td:last-child {
-    border-radius: 0 16px 16px 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 0 20px 20px 0;
 }
 
 .table tr:hover td {
-    background: #f1f5f9;
-}
-
-.patientCell {
-    min-width: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(6, 182, 212, 0.2);
 }
 
 .patientMain strong {
-    font-size: 1.1rem;
-    color: #0f172a;
+    font-size: 1.15rem;
+    color: white;
     display: block;
+    margin-bottom: 4px;
 }
 
 .patientMain span {
-    font-size: 0.9rem;
     color: #64748b;
-}
-
-.badge {
-    background: #f1f5f9;
-    padding: 6px 12px;
-    border-radius: 100px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #475569;
+    font-weight: 500;
 }
 
 .statusBadge {
-    padding: 6px 14px;
-    border-radius: 100px;
+    padding: 8px 16px;
+    border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 800;
-    display: inline-flex;
-    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.paid { background: #dcfce7; color: #15803d; }
-.pending { background: #fef3c7; color: #b45309; }
-.failed { background: #fee2e2; color: #b91c1c; }
+.paid { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+.pending { background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); }
+.failed { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
 
 .actionBtn {
-    padding: 10px 18px;
-    background: white;
-    color: var(--primary);
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
 }
 
 .actionBtn:hover {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    transform: translateY(-2px);
+    background: #06b6d4;
+    border-color: #06b6d4;
+    transform: scale(1.05);
 }
 
 /* ============================================
-   PROGRESS BAR
-   ============================================ */
-.progressInfo {
-    width: 200px;
-}
-
-.progressInfo span {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #475569;
-    display: block;
-    margin-bottom: 8px;
-}
-
-.progressBar {
-    height: 10px;
-    background: #e2e8f0;
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-.progressFill {
-    height: 100%;
-    background: linear-gradient(to right, var(--primary), var(--primary-light));
-    border-radius: 20px;
-}
-
-/* ============================================
-   LOGIN
+   LOGIN (Ultra Premium)
    ============================================ */
 .loginContainer {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0f172a;
-    background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
-    background-size: 40px 40px;
+    background: #020617;
+    position: relative;
+    overflow: hidden;
+}
+
+.loginContainer::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+    top: -300px;
+    right: -300px;
 }
 
 .loginCard {
-    background: white;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(30px);
     width: 100%;
     max-width: 480px;
-    padding: 64px;
-    border-radius: 40px;
-    box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.5);
-}
-
-.loginFooter {
-    margin-top: 32px;
+    padding: 72px;
+    border-radius: 48px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
     text-align: center;
 }
 
-.loginFooter a {
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
+.input {
+    width: 100%;
+    padding: 18px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.input:focus {
+    outline: none;
+    border-color: #06b6d4;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
 }
 
+.loginBtn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3);
+}
+
+.loginBtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(6, 182, 212, 0.4);
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
 .loadingContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 100px;
-    gap: 20px;
-    color: #64748b;
-    font-weight: 600;
+    padding: 150px;
+    gap: 32px;
 }
 
 .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid #f1f5f9;
-    border-top-color: var(--primary);
+    width: 64px;
+    height: 64px;
+    border: 4px solid rgba(255, 255, 255, 0.05);
+    border-top-color: #06b6d4;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
-@media (max-width: 1200px) {
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1024px) {
     .statsGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-    .sidebar { width: 80px; }
-    .navLabel, .brandText, .sidebarFooter, .navGroup { display: none; }
-    .mainContent { margin-left: 80px; padding: 24px; }
+    .sidebar { display: none; }
+    .mainContent { margin-left: 0; padding: 32px; }
     .statsGrid { grid-template-columns: 1fr; }
 }

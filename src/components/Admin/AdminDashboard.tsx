@@ -235,29 +235,29 @@ export default function AdminDashboard() {
 
                 <section className={styles.statsGrid}>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: '#e0f2fe', color: '#0369a1'}}>📅</div>
-                        <div>
+                        <div className={styles.statIcon} style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>📅</div>
+                        <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Total Reservas</span>
                             <div className={styles.statValue}>{stats.totalBookings}</div>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: '#dcfce7', color: '#15803d'}}>💰</div>
-                        <div>
+                        <div className={styles.statIcon} style={{background: 'rgba(34, 197, 94, 0.1)', color: '#4ade80'}}>💰</div>
+                        <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Ingresos Est.</span>
                             <div className={styles.statValue}>${stats.totalRevenue.toLocaleString('es-CL')}</div>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: '#fef3c7', color: '#b45309'}}>👥</div>
-                        <div>
+                        <div className={styles.statIcon} style={{background: 'rgba(234, 179, 8, 0.1)', color: '#facc15'}}>👥</div>
+                        <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Nuevos (Mes)</span>
                             <div className={styles.statValue}>{stats.newPatients}</div>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon} style={{background: '#ede9fe', color: '#6d28d9'}}>📧</div>
-                        <div>
+                        <div className={styles.statIcon} style={{background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7'}}>📧</div>
+                        <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Suscriptores</span>
                             <div className={styles.statValue}>{stats.totalSubs}</div>
                         </div>
