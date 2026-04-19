@@ -25,7 +25,9 @@ export async function POST(req: Request) {
         });
 
         if (!response.ok) {
-            return NextResponse.json({ success: false, error: 'Error del servicio generador' });
+            const errorBody = await response.text();
+            console.error("Gemini API Error details:", errorBody);
+            return NextResponse.json({ success: false, error: `Error del servicio generador: ${response.status} - ${errorBody}` });
         }
 
         const data = await response.json();
