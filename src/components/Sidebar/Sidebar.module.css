@@ -2,7 +2,7 @@
     position: fixed;
     top: 20%;
     /* Más arriba */
-    left: calc(50% - 660px);
+    left: calc(50% - 700px); /* Movido levemente a la izquierda para que no choque con el texto */
     transform: translateY(0);
     z-index: 1001;
     display: flex;
