@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './AdminDashboard.module.css';
+import { blogPosts } from '@/lib/data/blog';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
@@ -16,7 +18,7 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing'>('patients');
+    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter'>('patients');
     const [profilePic, setProfilePic] = useState<string | null>(null);
 
     useEffect(() => {
@@ -33,7 +35,6 @@ export default function AdminDashboard() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
-    const [aiPrompt, setAiPrompt] = useState('');
     
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -91,35 +92,6 @@ export default function AdminDashboard() {
             fetchData();
         } else {
             alert('Datos incorrectos. Por favor, intenta de nuevo.');
-        }
-    };
-
-    const generateAIContent = async () => {
-        if (!aiPrompt) return alert('Dime de qué quieres escribir hoy ✍️');
-        setIsLoading(true);
-        try {
-            const res = await fetch('/api/admin/ai', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: aiPrompt })
-            });
-            const data = await res.json();
-            
-            if (data.success) {
-                // Formatting Title slightly better if API doesn't return one directly
-                setTitle(data.title || `Reflexiones clínicas: ${aiPrompt}`);
-                
-                // In case the API returned markdown HTML tags
-                const cleanHTML = data.content.replace(/```html/g, '').replace(/```/g, '');
-                setContent(cleanHTML);
-                if (editorRef.current) editorRef.current.innerHTML = cleanHTML;
-            } else {
-                alert('Hubo un error con la IA: ' + (data.error || 'Vuelve a intentarlo'));
-            }
-        } catch (error) {
-            alert('Falla de conexión al servicio de IA.');
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -221,8 +193,7 @@ export default function AdminDashboard() {
                 <nav className={styles.navList}>
                     <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👥 Mis Pacientes</button>
                     <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>🗓️ Calendario</button>
-                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Correos Masivos</button>
-                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Mi Blog</button>
+                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Enviar Correos</button>
                 </nav>
                 
                 <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
@@ -231,7 +202,7 @@ export default function AdminDashboard() {
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
                     <div>
-                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Difusión' : 'Mi Blog'}</h1>
+                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : 'Centro de Correos'}</h1>
                         <p>Trabajando para mantener la salud mental al alcance de todos.</p>
                     </div>
                     <button onClick={fetchData} className={styles.syncBtn}>🔄 Actualizar Datos</button>
@@ -290,16 +261,12 @@ export default function AdminDashboard() {
                         </table>
                     )}
 
-                    {(activeTab === 'newsletter' || activeTab === 'marketing') && (
+                    {(activeTab === 'newsletter') && (
                         <div className={styles.studioLayout}>
                             <div className={styles.editorPanel}>
                                 <div className={styles.studioToolbar}>
                                     <button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button>
                                     <button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button>
-                                    <div className={styles.aiHelperBox}>
-                                        <input placeholder="¿Dime una idea y el asistente la escribirá para ti..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
-                                        <button onClick={generateAIContent}>¡Mágia! ✨</button>
-                                    </div>
                                 </div>
                                 <input className={styles.editorTitle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título de tu publicación..." />
                                 <div ref={editorRef} className={styles.richText} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
@@ -339,11 +306,16 @@ export default function AdminDashboard() {
                                 )}
                                 
                                 <div className={styles.panelCard}>
-                                    <h4>📚 Artículos Pasados</h4>
-                                    <div className={styles.draftList}>
+                                    <h4>📚 Base de Contenido</h4>
+                                    <div className={styles.draftList} style={{maxHeight: '300px', overflowY: 'auto', paddingRight: '8px'}}>
+                                        {blogPosts.map(bp => (
+                                            <div key={bp.slug} className={styles.draftCard} onClick={() => { setEditingTemplate({ id: null }); setTitle(bp.title); setContent(bp.content); if(editorRef.current) editorRef.current.innerHTML = bp.content; }}>
+                                                <h5>[Blog] {bp.title}</h5>
+                                            </div>
+                                        ))}
                                         {templates.map(t => (
                                             <div key={t.id} className={styles.draftCard} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
-                                                <h5>{t.title}</h5>
+                                                <h5>[Correo] {t.title}</h5>
                                             </div>
                                         ))}
                                     </div>
