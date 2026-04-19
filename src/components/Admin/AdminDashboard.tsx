@@ -113,7 +113,7 @@ export default function AdminDashboard() {
                     </div>
                     <h1>Elite Clinical Access</h1>
                     <p>Módulo de gestión de alto rendimiento. Ingresa tus credenciales maestras para proceder.</p>
-                    <form onSubmit={handleLogin} style={{display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', z-index: 5}}>
+                    <form onSubmit={handleLogin} style={{display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', zIndex: 5}}>
                         <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Identificador Maestro" required />
                         <input className={styles.inputMain} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave de Seguridad" required />
                         <button type="submit" className={styles.primaryButton}>Desbloquear Suite</button>
