@@ -225,8 +225,16 @@ export default function AdminDashboard() {
                         <h2 className={styles.modalTitle}>Información del Paciente</h2>
                         
                         <div className={styles.dataGroup}>
-                            <h4>Datos Personales</h4>
-                            <div className={styles.dataItem}>Nombre: <strong>{selectedPatient.name}</strong></div>
+                            <h4>Identificación Legal</h4>
+                            <div className={styles.dataItem}>Nombre: <strong>{selectedPatient.firstName} {selectedPatient.secondName}</strong></div>
+                            <div className={styles.dataItem}>Apellidos: <strong>{selectedPatient.firstSurname} {selectedPatient.secondSurname}</strong></div>
+                            <div className={styles.dataItem}>RUT: <strong>{selectedPatient.rut}</strong></div>
+                        </div>
+
+                        <div className={styles.dataGroup}>
+                            <h4>Ubicación y Contacto</h4>
+                            <div className={styles.dataItem}>Dirección: <strong>{selectedPatient.address}</strong></div>
+                            <div className={styles.dataItem}>Comuna / Región: <strong>{selectedPatient.commune}, {selectedPatient.region}</strong></div>
                             <div className={styles.dataItem}>Email: <strong>{selectedPatient.email}</strong></div>
                         </div>
 

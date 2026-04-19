@@ -12,12 +12,17 @@ datasource db {
 model Booking {
   id          String   @id @default(uuid())
   orderId     String   @unique
-  name        String
-  email       String
-  phone       String?
-  rut         String?
-  address     String?
-  commune     String?
+  name            String?
+  firstName       String?
+  secondName      String?
+  firstSurname    String?
+  secondSurname   String?
+  email           String
+  phone           String?
+  rut             String?
+  address         String?
+  region          String?
+  commune         String?
   serviceType String
   amount      Int
   status      String   @default("PENDING") // PENDING, PAID, FAILED

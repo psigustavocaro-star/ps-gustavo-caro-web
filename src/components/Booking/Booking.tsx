@@ -18,17 +18,22 @@ export default function Booking() {
         serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
         reason: '',
         details: '',
-        name: '',
+        firstName: '',
+        secondName: '',
+        firstSurname: '',
+        secondSurname: '',
+        name: '', // Full name concatenated
         email: '',
         phone: '',
         rut: '',
         address: '',
+        region: '',
         commune: '',
         newsletter: true,
         age: '',
         medications: '',
         history: '',
-        rawStartTime: '', // Guardar el ISO string para la API
+        rawStartTime: '',
         calEventTypeId: null as number | null,
         coupon: ''
     });
@@ -139,37 +144,29 @@ export default function Booking() {
 
     // Validar antes de continuar al pago
     const validateContact = () => {
-        const newErrors: { name?: string; email?: string; phone?: string; rut?: string; address?: string; commune?: string } = {};
+        const newErrors: { firstName?: string; firstSurname?: string; secondSurname?: string; email?: string; rut?: string; address?: string; region?: string; commune?: string } = {};
 
-        if (!formData.name.trim() || formData.name.trim().length < 3) {
-            newErrors.name = 'Por favor ingresa tu nombre completo';
-        }
+        if (!formData.firstName.trim()) newErrors.firstName = 'Primer nombre requerido';
+        if (!formData.firstSurname.trim()) newErrors.firstSurname = 'Apellido paterno requerido';
+        if (!formData.secondSurname.trim()) newErrors.secondSurname = 'Apellido materno requerido';
 
         if (!formData.email.trim()) {
             newErrors.email = 'El email es requerido';
         } else if (!isValidEmail(formData.email)) {
-            newErrors.email = 'Por favor ingresa un email válido (ej: tu@email.com)';
-        }
-
-        if (formData.phone && !isValidPhone(formData.phone)) {
-            newErrors.phone = 'Formato inválido. Usa: +56 9 1234 5678';
+            newErrors.email = 'Email inválido';
         }
 
         if (!formData.rut.trim()) {
-            newErrors.rut = 'El RUT es necesario para tu boleta de honorarios';
+            newErrors.rut = 'RUT requerido';
         } else if (!isValidRut(formData.rut)) {
-            newErrors.rut = 'RUT inválido (usa formato: 12.345.678-9)';
+            newErrors.rut = 'RUT inválido';
         }
 
-        if (!formData.address.trim()) {
-            newErrors.address = 'Dirección requerida para la boleta';
-        }
+        if (!formData.address.trim()) newErrors.address = 'Dirección requerida';
+        if (!formData.region.trim()) newErrors.region = 'Región requerida';
+        if (!formData.commune.trim()) newErrors.commune = 'Comuna requerida';
 
-        if (!formData.commune.trim()) {
-            newErrors.commune = 'Comuna requerida para la boleta';
-        }
-
-        setErrors(newErrors);
+        setErrors(newErrors as any);
         return Object.keys(newErrors).length === 0;
     };
 
@@ -401,133 +398,151 @@ export default function Booking() {
 
                     {step === 'contact' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Tus datos de contacto</h2>
-                            <p className={styles.stepDesc}>Para enviarte la confirmación y el link de la sesión.</p>
-                            <div className={styles.formGroup}>
-                                <label>Nombre completo *</label>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
-                                    placeholder="Tu nombre completo"
-                                    value={formData.name}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, name: e.target.value });
-                                        if (errors.name) setErrors({ ...errors, name: undefined });
-                                    }}
-                                />
-                                {errors.name && <span className={styles.errorText}>{errors.name}</span>}
+                            <h2 className={styles.stepTitle}>Identificación del Paciente</h2>
+                            <p className={styles.stepDesc}>Datos necesarios para tu boleta de honorarios y ficha clínica.</p>
+                            
+                            <div className={styles.formGrid}>
+                                <div className={styles.formGroup}>
+                                    <label>Primer Nombre *</label>
+                                    <input
+                                        type="text"
+                                        className={`${styles.input} ${errors.firstName ? styles.inputError : ''}`}
+                                        placeholder="Ej: Juan"
+                                        value={formData.firstName}
+                                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                    />
+                                    {errors.firstName && <span className={styles.errorText}>{errors.firstName}</span>}
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Segundo Nombre</label>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        placeholder="Ej: Alberto"
+                                        value={formData.secondName}
+                                        onChange={(e) => setFormData({ ...formData, secondName: e.target.value })}
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Primer Apellido *</label>
+                                    <input
+                                        type="text"
+                                        className={`${styles.input} ${errors.firstSurname ? styles.inputError : ''}`}
+                                        placeholder="Ej: Pérez"
+                                        value={formData.firstSurname}
+                                        onChange={(e) => setFormData({ ...formData, firstSurname: e.target.value })}
+                                    />
+                                    {errors.firstSurname && <span className={styles.errorText}>{errors.firstSurname}</span>}
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Segundo Apellido *</label>
+                                    <input
+                                        type="text"
+                                        className={`${styles.input} ${errors.secondSurname ? styles.inputError : ''}`}
+                                        placeholder="Ej: González"
+                                        value={formData.secondSurname}
+                                        onChange={(e) => setFormData({ ...formData, secondSurname: e.target.value })}
+                                    />
+                                    {errors.secondSurname && <span className={styles.errorText}>{errors.secondSurname}</span>}
+                                </div>
                             </div>
 
                             <div className={styles.formGroup}>
-                                <label>Motivo de consulta (opcional)</label>
-                                <textarea
-                                    id="details"
-                                    name="details"
-                                    className={styles.textarea}
-                                    placeholder="Cuéntame brevemente qué te trae por acá (Ansiedad, Terapia de pareja, etc.)"
-                                    value={formData.details}
-                                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                                />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label>Email *</label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-                                    placeholder="tu@email.com"
-                                    value={formData.email}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, email: e.target.value });
-                                        if (errors.email) setErrors({ ...errors, email: undefined });
-                                    }}
-                                />
-                                {errors.email && <span className={styles.errorText}>{errors.email}</span>}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label>Teléfono (opcional)</label>
-                                <input
-                                    id="phone"
-                                    name="phone"
-                                    type="tel"
-                                    className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
-                                    placeholder="+56 9 1234 5678"
-                                    value={formData.phone}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, phone: e.target.value });
-                                        if (errors.phone) setErrors({ ...errors, phone: undefined });
-                                    }}
-                                />
-                                {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
-                            </div>
-                            <div className={styles.formGroup}>
                                 <label>RUT (Para tu boleta) *</label>
                                 <input
-                                    id="rut"
-                                    name="rut"
                                     type="text"
                                     className={`${styles.input} ${errors.rut ? styles.inputError : ''}`}
                                     placeholder="12.345.678-9"
                                     value={formData.rut}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, rut: e.target.value });
-                                        if (errors.rut) setErrors({ ...errors, rut: undefined });
-                                    }}
+                                    onChange={(e) => setFormData({ ...formData, rut: e.target.value })}
                                 />
                                 {errors.rut && <span className={styles.errorText}>{errors.rut}</span>}
                             </div>
+
+                            <div className={styles.formGroup}>
+                                <label>Dirección (Calle y Número) *</label>
+                                <input
+                                    type="text"
+                                    className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
+                                    placeholder="Ej: Av. Providencia 1234, Depto 41"
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                />
+                                {errors.address && <span className={styles.errorText}>{errors.address}</span>}
+                            </div>
+
                             <div className={styles.formGrid}>
                                 <div className={styles.formGroup}>
-                                    <label>Domicilio (Dirección) *</label>
-                                    <input
-                                        id="address"
-                                        name="address"
-                                        type="text"
-                                        className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
-                                        placeholder="Ej: Av. Providencia 1234, Depto 41"
-                                        value={formData.address}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, address: e.target.value });
-                                            if (errors.address) setErrors({ ...errors, address: undefined });
-                                        }}
-                                    />
-                                    {errors.address && <span className={styles.errorText}>{errors.address}</span>}
+                                    <label>Región *</label>
+                                    <select
+                                        className={`${styles.input} ${errors.region ? styles.inputError : ''}`}
+                                        value={formData.region}
+                                        onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                                    >
+                                        <option value="">Selecciona Región...</option>
+                                        <option value="Metropolitana">Región Metropolitana</option>
+                                        <option value="Valparaíso">Región de Valparaíso</option>
+                                        <option value="Biobío">Región del Biobío</option>
+                                        <option value="Otros">Otra Región</option>
+                                    </select>
+                                    {errors.region && <span className={styles.errorText}>{errors.region}</span>}
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Comuna *</label>
                                     <input
-                                        id="commune"
-                                        name="commune"
                                         type="text"
                                         className={`${styles.input} ${errors.commune ? styles.inputError : ''}`}
                                         placeholder="Ej: Providencia"
                                         value={formData.commune}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, commune: e.target.value });
-                                            if (errors.commune) setErrors({ ...errors, commune: undefined });
-                                        }}
+                                        onChange={(e) => setFormData({ ...formData, commune: e.target.value })}
                                     />
                                     {errors.commune && <span className={styles.errorText}>{errors.commune}</span>}
                                 </div>
                             </div>
+
+                            <hr style={{margin: '30px 0', opacity: 0.1}} />
+
+                            <div className={styles.formGroup}>
+                                <label>Email de contacto *</label>
+                                <input
+                                    type="email"
+                                    className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+                                    placeholder="tu@email.com"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                />
+                                {errors.email && <span className={styles.errorText}>{errors.email}</span>}
+                            </div>
+                            
+                            <div className={styles.formGroup}>
+                                <label>Teléfono (WhatsApp)</label>
+                                <input
+                                    type="tel"
+                                    className={styles.input}
+                                    placeholder="+56 9 1234 5678"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                />
+                            </div>
+
                             <div className={styles.formGroupCheckbox}>
                                 <label className={styles.checkboxLabel}>
                                     <input
-                                        id="newsletter"
-                                        name="newsletter"
                                         type="checkbox"
                                         checked={formData.newsletter}
                                         onChange={(e) => setFormData({ ...formData, newsletter: e.target.checked })}
                                     />
-                                    <span>Quiero recibir noticias, consejos de salud mental y novedades.</span>
+                                    <span>Quiero recibir noticias y recursos de salud mental.</span>
                                 </label>
                             </div>
+
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
-                                <button onClick={handleNext} className="btn-primary">Continuar al resumen y pago</button>
+                                <button onClick={() => {
+                                    const fullName = `${formData.firstName} ${formData.secondName} ${formData.firstSurname} ${formData.secondSurname}`.replace(/\s+/g, ' ').trim();
+                                    setFormData(prev => ({ ...prev, name: fullName }));
+                                    if(validateContact()) setStep('payment');
+                                }} className="btn-primary">Siguiente</button>
                             </div>
                         </div>
                     )}
