@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './AdminDashboard.module.css';
 import Link from 'next/link';
 
@@ -9,8 +9,6 @@ const CHILE_REGIONS = [
     'Valparaíso', 'Metropolitana de Santiago', 'O\'Higgins', 'Maule', 
     'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
 ];
-
-const COUNTRIES = ['Chile', 'México', 'Colombia', 'España', 'Perú', 'Argentina', 'Otro'];
 
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,6 +28,8 @@ export default function AdminDashboard() {
     const [content, setContent] = useState('');
     const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
     const [aiPrompt, setAiPrompt] = useState('');
+    
+    const editorRef = useRef<HTMLDivElement>(null);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -42,46 +42,7 @@ export default function AdminDashboard() {
                 setNewsletterSubs(data.newsletter || []);
                 setTemplates(data.templates || []);
             }
-        } catch (err) {
-            console.error('Fetch Error:', err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleUpdatePatient = async () => {
-        setIsLoading(true);
-        try {
-            const res = await fetch('/api/admin/patients', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(editData),
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('✓ Paciente actualizado correctamente');
-                setIsEditing(false);
-                setSelectedPatient(editData);
-                fetchData();
-            } else {
-                alert('Error: ' + data.error);
-            }
-        } catch (err) { alert('Error al actualizar'); }
-        finally { setIsLoading(false); }
-    };
-
-    const handleDeletePatient = async (email: string) => {
-        if (!confirm('¿Estás seguro de eliminar TODO el historial de este paciente?')) return;
-        setIsLoading(true);
-        try {
-            const res = await fetch(`/api/admin/patients?email=${email}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-                alert('Paciente eliminado');
-                setSelectedPatient(null);
-                fetchData();
-            }
-        } catch (err) { alert('Error al eliminar'); }
+        } catch (err) { console.error(err); } 
         finally { setIsLoading(false); }
     };
 
@@ -95,110 +56,63 @@ export default function AdminDashboard() {
         }
     };
 
+    const generateAIContent = async () => {
+        console.log("Generating AI for:", aiPrompt);
+        if (!aiPrompt) return alert('Por favor ingresa un tema (Ej: Ansiedad, Depresión)');
+        setIsLoading(true);
+        
+        // Simulación de delay de IA
+        setTimeout(() => {
+            const aiLibrary: any = {
+                'ansiedad': { title: 'Estrategias Maestras contra la Ansiedad', content: '<h2>Control Mental</h2><p>La ansiedad moderna requiere un enfoque holístico. Aquí tienes 3 pasos clave...</p><ul><li>Respiración diafragmática profunda.</li><li>Identificación de disparadores cognitivos.</li><li>Exposición gradual controlada.</li></ul>' },
+                'depresion': { title: 'El Camino de la Resiliencia Emocional', content: '<h2>Reencontrando la Luz</h2><p>Superar la depresión es un proceso de micro-victorias diarias.</p><p>Es fundamental establecer rutinas de autocuidado y buscar apoyo clínico especializado.</p>' }
+            };
+
+            const match = aiLibrary[aiPrompt.toLowerCase()] || { 
+                title: `Perspectivas Clínicas sobre ${aiPrompt}`, 
+                content: `<h2>Borrador de Trabajo: ${aiPrompt}</h2><p>Este es un análisis preliminar generado para facilitar tu escritura profesional sobre ${aiPrompt}.</p><p>Recuerda añadir tu experiencia personal y casos clínicos (resguardando identidad) para mayor impacto.</p>` 
+            };
+
+            setTitle(match.title);
+            setContent(match.content);
+            if (editorRef.current) {
+                editorRef.current.innerHTML = match.content;
+            }
+            setIsLoading(false);
+            console.log("AI Generation Complete");
+        }, 1200);
+    };
+
     const handleSaveTemplate = async () => {
         setIsLoading(true);
         try {
             const res = await fetch('/api/admin/newsletter/templates', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    title, 
-                    content, 
-                    id: editingTemplate?.id 
-                }),
+                body: JSON.stringify({ title, content, id: editingTemplate?.id }),
             });
             const data = await res.json();
             if (data.success) {
-                alert('Contenido guardado');
-                setEditingTemplate(null);
-                setTitle('');
-                setContent('');
+                alert('✓ Publicación guardada en el sistema');
+                setTitle(''); setContent(''); setEditingTemplate(null);
+                if (editorRef.current) editorRef.current.innerHTML = '';
                 fetchData();
             }
         } catch (err) { alert('Error al guardar'); }
         finally { setIsLoading(false); }
     };
 
-    const handleSendNewsletter = async (templateId: string, target: 'all' | 'specific', specificEmail?: string) => {
-        if (target === 'all' && !confirm('¿Enviar este newsletter a TODOS?')) return;
-        setIsLoading(true);
-        try {
-            const res = await fetch('/api/admin/newsletter/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId, target, specificEmail }),
-            });
-            const data = await res.json();
-            if (data.success) alert(`✓ Enviado a ${data.count} destinatarios`);
-            else alert('Error: ' + data.error);
-        } catch (err) { alert('Error al enviar'); }
-        finally { setIsLoading(false); }
-    };
-
-    const handleDeleteTemplate = async (id: string) => {
-        if (!confirm('¿Eliminar esta plantilla?')) return;
-        try {
-            await fetch(`/api/admin/newsletter/templates?id=${id}`, { method: 'DELETE' });
-            fetchData();
-        } catch (e) {}
-    };
-
-    const generateAIContent = async () => {
-        if (!aiPrompt) return alert('Escribe un tema');
-        setIsLoading(true);
-        setTimeout(() => {
-            const aiSuggestions: any = {
-                'ansiedad': { title: 'Manejando la Ansiedad', content: '<h2>Estrategias</h2><p>La ansiedad se puede gestionar...</p>' },
-                'depresion': { title: 'Luz en la Depresión', content: '<h2>Sanación</h2><p>El camino es gradual...</p>' }
-            };
-            const result = aiSuggestions[aiPrompt.toLowerCase()] || { title: `Sobre ${aiPrompt}`, content: `<p>Contenido generado sobre ${aiPrompt}...</p>` };
-            setTitle(result.title);
-            setContent(result.content);
-            const ed = document.getElementById('rich-editor');
-            if(ed) ed.innerHTML = result.content;
-            setIsLoading(false);
-        }, 1000);
-    };
-
-    const handleSendToSelected = async () => {
-        if (selectedRecipients.length === 0) return alert('Selecciona destinatarios');
-        setIsLoading(true);
-        try {
-            for (const email of selectedRecipients) {
-                await fetch('/api/admin/newsletter/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ templateId: editingTemplate?.id || 'new', target: 'specific', specificEmail: email }),
-                });
-            }
-            alert(`✓ Enviado a ${selectedRecipients.length} personas`);
-            setSelectedRecipients([]);
-        } catch (e) { alert('Error'); }
-        finally { setIsLoading(false); }
-    };
-
-    const stats = useMemo(() => {
-        const totalBookings = bookings.length;
-        const totalRevenue = bookings.filter(b => b.status === 'PAID').reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
-        const activeSubscribers = newsletterSubs.length;
-        return { totalBookings, totalRevenue, activeSubscribers };
-    }, [bookings, newsletterSubs]);
-
     if (!isAuthenticated) {
         return (
             <div className={styles.loginWrapper}>
-                <div className={styles.movingBackground}></div>
                 <div className={styles.loginCard}>
-                    <div className={styles.pulseLogo}>
-                        <div className={styles.logoCore}>GC</div>
-                        <div className={styles.pulseRing}></div>
-                    </div>
-                    <h1>Elite Access</h1>
-                    <p>Tecnología de vanguardia para tu gestión clínica.</p>
-                    <form onSubmit={handleLogin}>
-                        <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-                        <input className={styles.inputMain} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave" required />
-                        <button type="submit" className={styles.primaryButton}>Entrar al Sistema</button>
+                    <div className={styles.pulseLogo}>GC</div>
+                    <h1>Módulo Administrativo</h1>
+                    <p>Ingresa tus credenciales maestras para continuar.</p>
+                    <form onSubmit={handleLogin} style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                        <input className={styles.inputMain} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Maestro" required />
+                        <input className={styles.inputMain} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Clave de Seguridad" required />
+                        <button type="submit" className={styles.primaryButton}>Desbloquear Panel</button>
                     </form>
                 </div>
             </div>
@@ -207,113 +121,114 @@ export default function AdminDashboard() {
 
     return (
         <div className={styles.adminMain}>
+            <div className={styles.ambientAura}></div>
+            
             <aside className={styles.sideNav}>
                 <div className={styles.navHeader}>
-                    <div className={styles.logoSmall}>GC</div>
-                    <div className={styles.navTitle}><span>Admin</span><small>Elite CRM</small></div>
+                    <span className={styles.logoText}>Gustavo Caro</span>
+                    <span className={styles.logoSub}>Clinical Suite</span>
                 </div>
                 <nav className={styles.navList}>
-                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👥 Pacientes</button>
-                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>📅 Calendario</button>
+                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👤 Pacientes</button>
+                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>📅 Agenda</button>
                     <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>📧 Newsletter</button>
-                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Blog</button>
+                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Blog Editorial</button>
                 </nav>
-                <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Salir</button>
+                <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
             </aside>
 
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
-                    <h1>{activeTab === 'patients' ? 'Pacientes' : activeTab === 'bookings' ? 'Agenda' : activeTab === 'newsletter' ? 'Newsletter' : 'Blog'}</h1>
-                    <button onClick={fetchData} className={styles.syncBtn}>Sincronizar</button>
+                    <div>
+                        <h1>{activeTab === 'patients' ? 'Historial Clínico' : activeTab === 'bookings' ? 'Agenda Clínica' : activeTab === 'newsletter' ? 'Centro de Noticias' : 'Estudio de Redacción'}</h1>
+                        <p>{isLoading ? 'Analizando infraestructura...' : 'Sincronización segura activa'}</p>
+                    </div>
+                    <button onClick={fetchData} className={styles.syncBtn}>Sincronizar Datos</button>
                 </header>
 
                 <div className={styles.dashboardStats}>
-                    <div className={styles.statBox}><span className={styles.label}>Citas</span><span className={styles.value}>{stats.totalBookings}</span></div>
-                    <div className={styles.statBox}><span className={styles.label}>Suscriptores</span><span className={styles.value}>{stats.activeSubscribers}</span></div>
-                    <div className={styles.statBox}><span className={styles.label}>Ingresos</span><span className={styles.value}>${stats.totalRevenue.toLocaleString()}</span></div>
+                    <div className={styles.statBox}><span className={styles.label}>Pacientes Activos</span><span className={styles.value}>{patients.length}</span></div>
+                    <div className={styles.statBox}><span className={styles.label}>Citas Registradas</span><span className={styles.value}>{bookings.length}</span></div>
+                    <div className={styles.statBox}><span className={styles.label}>Lista de Difusión</span><span className={styles.value}>{newsletterSubs.length}</span></div>
                 </div>
 
                 <div className={styles.mainGrid}>
                     {activeTab === 'patients' && (
                         <table className={styles.proTable}>
-                            <thead><tr><th>Nombre</th><th>Email</th><th>Sesiones</th><th>Gestión</th></tr></thead>
-                            <tbody>
-                                {patients.map(p => (
-                                    <tr key={p.email}>
-                                        <td><strong>{p.name}</strong></td>
-                                        <td>{p.email}</td>
-                                        <td>{p.bookings.length}</td>
-                                        <td><button className={styles.viewBtn} onClick={() => setSelectedPatient(p)}>Ficha</button></td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                            <thead><tr><th>Paciente</th><th>Contacto</th><th>Status</th><th>Acción</th></tr></thead>
+                            <tbody>{patients.map(p => (
+                                <tr key={p.email}>
+                                    <td><strong>{p.name}</strong></td>
+                                    <td>{p.email}</td>
+                                    <td><span className={styles.statusOk}>Activo</span></td>
+                                    <td><button className={styles.viewBtn} onClick={() => setSelectedPatient(p)}>Gestionar Ficha</button></td>
+                                </tr>
+                            ))}</tbody>
                         </table>
                     )}
+
                     {activeTab === 'bookings' && (
                         <table className={styles.proTable}>
-                            <thead><tr><th>Nombre</th><th>Fecha</th><th>Status</th></tr></thead>
-                            <tbody>
-                                {bookings.map(b => (
-                                    <tr key={b.id}>
-                                        <td><strong>{b.name}</strong></td>
-                                        <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString()}</td>
-                                        <td><span className={b.status === 'PAID' ? styles.statusOk : styles.statusPending}>{b.status}</span></td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                            <thead><tr><th>Paciente</th><th>Fecha</th><th>Servicio</th><th>Status</th></tr></thead>
+                            <tbody>{bookings.map(b => (
+                                <tr key={b.id}>
+                                    <td><strong>{b.name}</strong></td>
+                                    <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</td>
+                                    <td>{b.serviceType}</td>
+                                    <td>{b.status}</td>
+                                </tr>
+                            ))}</tbody>
                         </table>
                     )}
+
                     {(activeTab === 'newsletter' || activeTab === 'marketing') && (
                         <div className={styles.editorialLayout}>
                             <div className={styles.editorialMain}>
                                 <div className={styles.editorToolbar}>
                                     <button onClick={() => document.execCommand('bold')}>B</button>
                                     <button onClick={() => document.execCommand('italic')}>I</button>
+                                    <button onClick={() => document.execCommand('insertUnorderedList')}>•</button>
                                     <div className={styles.aiHelper}>
-                                        <input placeholder="IA Topic..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
-                                        <button onClick={generateAIContent}>AI</button>
+                                        <input placeholder="Escribe un tema para la IA..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
+                                        <button onClick={generateAIContent}>{isLoading ? '...' : 'Generar'}</button>
                                     </div>
                                 </div>
-                                <input className={styles.editorTitleInput} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título..." />
-                                <div id="rich-editor" className={styles.richEditor} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
+                                <input className={styles.editorTitleInput} value={title} onChange={e => setTitle(e.target.value)} placeholder="Introduce un título impactante..." />
+                                <div 
+                                    ref={editorRef}
+                                    className={styles.richEditor} 
+                                    contentEditable 
+                                    onInput={(e: any) => setContent(e.currentTarget.innerHTML)}
+                                    dangerouslySetInnerHTML={{ __html: content }} 
+                                />
                                 <div className={styles.editorFooter}>
-                                    <button className={styles.primaryButton} onClick={handleSaveTemplate}>Guardar</button>
-                                    {activeTab === 'newsletter' && selectedRecipients.length > 0 && (
-                                        <button className={styles.syncBtn} onClick={handleSendToSelected}>Enviar a {selectedRecipients.length}</button>
-                                    )}
+                                    <button className={styles.primaryButton} onClick={handleSaveTemplate}>Guardar Publicación</button>
                                 </div>
                             </div>
                             <aside className={styles.editorialSidebar}>
-                                {activeTab === 'newsletter' && (
-                                    <div className={styles.sidebarSection}>
-                                        <h4>Destinatarios</h4>
-                                        <div className={styles.checkList}>
-                                            {newsletterSubs.map(s => (
-                                                <label key={s.id} className={styles.checkItem}>
-                                                    <input type="checkbox" checked={selectedRecipients.includes(s.email)} onChange={e => {
-                                                        if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
-                                                        else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
-                                                    }} />
-                                                    <span>{s.email}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
                                 <div className={styles.sidebarSection}>
-                                    <h4>Guardados</h4>
-                                    <div className={styles.templateList}>
+                                    <h4>Archivo de Contenido</h4>
+                                    <div className={styles.archiveList}>
                                         {templates.map(t => (
-                                            <div key={t.id} className={styles.templateItem}>
-                                                <span>{t.title}</span>
-                                                <div className={styles.itemActions}>
-                                                    <button onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); const ed = document.getElementById('rich-editor'); if(ed) ed.innerHTML = t.content; }}>✏️</button>
-                                                    <button onClick={() => handleDeleteTemplate(t.id)}>✕</button>
-                                                </div>
+                                            <div key={t.id} className={styles.archiveItem} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
+                                                <h5>{t.title}</h5>
+                                                <span>{new Date().toLocaleDateString()} • {t.content.slice(0, 40)}...</span>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
+                                {activeTab === 'newsletter' && (
+                                    <div className={styles.sidebarSection}>
+                                        <h4>Lista de Difusión</h4>
+                                        <div className={styles.archiveList}>
+                                            {newsletterSubs.map(s => (
+                                                <div key={s.id} className={styles.archiveItem} style={{padding: '12px 20px'}}>
+                                                    <h5>{s.email}</h5>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </aside>
                         </div>
                     )}
@@ -321,22 +236,13 @@ export default function AdminDashboard() {
             </main>
 
             {selectedPatient && (
-                <div className={styles.overlay} onClick={() => { setSelectedPatient(null); setIsEditing(false); }}>
+                <div className={styles.overlay} onClick={() => setSelectedPatient(null)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                        <h2 className={styles.modalTitle}>{isEditing ? 'Editar' : 'Ficha'}</h2>
-                        {isEditing ? (
-                            <div className={styles.formGrid}>
-                                <div className={styles.inputGroup}><label>Nombre</label><input className={styles.inputMain} value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} /></div>
-                                <div className={styles.inputGroup}><label>Email</label><input className={styles.inputMain} value={editData.email} disabled /></div>
-                                <button className={styles.primaryButton} onClick={handleUpdatePatient}>Guardar</button>
-                            </div>
-                        ) : (
-                            <div>
-                                <div className={styles.dataGroup}><h4>Datos</h4><div className={styles.dataItem}>Nombre: <strong>{selectedPatient.name}</strong></div><div className={styles.dataItem}>Email: <strong>{selectedPatient.email}</strong></div></div>
-                                <div className={styles.dataGroup}><h4>Citas</h4>{selectedPatient.bookings.map((b: any) => <div key={b.id} className={styles.dataItem}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString()} - {b.serviceType}</div>)}</div>
-                                <button className={styles.primaryButton} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar</button>
-                            </div>
-                        )}
+                        <h2 className={styles.modalTitle}>Ficha Clínica</h2>
+                        <div className={styles.dataItem}>Nombre Completo: <strong>{selectedPatient.name}</strong></div>
+                        <div className={styles.dataItem}>Canal de Comunicación: <strong>{selectedPatient.email}</strong></div>
+                        <div className={styles.dataItem}>Historial: <strong>{selectedPatient.bookings.length} Sesiones</strong></div>
+                        <button className={styles.primaryButton} style={{width: '100%', marginTop: '30px'}} onClick={() => setSelectedPatient(null)}>Cerrar Expediente</button>
                     </div>
                 </div>
             )}
