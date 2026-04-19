@@ -5,6 +5,12 @@ import Image from 'next/image';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 
+const CHILE_REGIONS = [
+    'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
+    'Valparaíso', 'Metropolitana de Santiago', 'O\'Higgins', 'Maule', 
+    'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
+];
+
 type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
 
 export default function Booking() {
