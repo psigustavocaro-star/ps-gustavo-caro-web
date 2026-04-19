@@ -29,10 +29,14 @@ export async function POST(request: NextRequest) {
         let subject: string;
         if (serviceType === 'primeraConsulta') {
             subject = 'Primera Consulta (Gratis)';
-        } else if (serviceType.startsWith('evalFree')) {
-            subject = 'Sesión Inicial Evaluación (Gratis)';
+        } else if (serviceType === 'sesion') {
+            subject = 'Sesión de Psicoterapia Online';
+        } else if (serviceType === 'packSesiones') {
+            subject = 'Pack de 4 Sesiones';
+        } else if (serviceType.startsWith('eval')) {
+            subject = 'Evaluación Clínica';
         } else {
-            subject = 'Servicio Gratuito';
+            subject = 'Servicio Clínico';
         }
 
         // Generar ID único de orden (aunque sea gratis para mantener consistencia)

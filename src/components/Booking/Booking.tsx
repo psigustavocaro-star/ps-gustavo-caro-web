@@ -279,11 +279,15 @@ export default function Booking() {
     };
 
     const handleApplyCoupon = () => {
-        if (formData.coupon.toUpperCase() === 'TEST100') {
-            const basePrice = calculateFinalPriceWithoutCoupon();
+        const basePrice = calculateFinalPriceWithoutCoupon();
+        const couponCode = formData.coupon.toUpperCase();
+
+        if (couponCode === 'TEST100') {
             setAppliedCoupon({ status: 'valid', discount: basePrice > 350 ? basePrice - 350 : 0 });
-        } else if (formData.coupon.toUpperCase() === 'GUSTAVO10') {
+        } else if (couponCode === 'GUSTAVO10') {
             setAppliedCoupon({ status: 'valid', discount: 10000 });
+        } else if (couponCode === 'GUSTAVO0' || couponCode === 'PRUEBA0') {
+            setAppliedCoupon({ status: 'valid', discount: basePrice });
         } else {
             setAppliedCoupon({ status: 'invalid', discount: 0 });
         }
