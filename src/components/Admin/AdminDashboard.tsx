@@ -175,6 +175,47 @@ export default function AdminDashboard() {
         );
     }
 
+    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+    const [aiPrompt, setAiPrompt] = useState('');
+
+    const generateAIContent = async () => {
+        if (!aiPrompt) return alert('Escribe un tema para la IA');
+        setIsLoading(true);
+        // Simulación de IA de alto nivel para el MVP
+        setTimeout(() => {
+            const aiSuggestions: any = {
+                'ansiedad': { title: 'Manejando la Ansiedad en el Trabajo', content: '<h2>Estrategias Prácticas</h2><p>La ansiedad laboral es un desafío común...</p><ul><li>Respira...</li><li>Prioriza...</li></ul><img src="https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0" />' },
+                'depresion': { title: 'Luz en la Oscuridad: Comprendiendo la Depresión', content: '<h2>Un camino de sanación</h2><p>La depresión no es solo tristeza...</p>' }
+            };
+            const result = aiSuggestions[aiPrompt.toLowerCase()] || { 
+                title: `Reflexiones sobre ${aiPrompt}`, 
+                content: `<p>Generando contenido profesional sobre ${aiPrompt}...</p><p>Este es un borrador inteligente para ayudarte a empezar.</p>` 
+            };
+            setTitle(result.title);
+            setContent(result.content);
+            const ed = document.getElementById('rich-editor');
+            if(ed) ed.innerHTML = result.content;
+            setIsLoading(false);
+        }, 1500);
+    };
+
+    const handleSendToSelected = async () => {
+        if (selectedRecipients.length === 0) return alert('Selecciona al menos un destinatario');
+        setIsLoading(true);
+        try {
+            for (const email of selectedRecipients) {
+                await fetch('/api/admin/newsletter/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ templateId: editingTemplate?.id || 'new', target: 'specific', specificEmail: email }),
+                });
+            }
+            alert(`✓ Enviado con éxito a ${selectedRecipients.length} personas`);
+            setSelectedRecipients([]);
+        } catch (e) { alert('Error al enviar'); }
+        finally { setIsLoading(false); }
+    };
+
     return (
         <div className={styles.adminMain}>
             <aside className={styles.sideNav}>
@@ -182,7 +223,7 @@ export default function AdminDashboard() {
                     <div className={styles.logoSmall}>GC</div>
                     <div className={styles.navTitle}>
                         <span>Admin Gustavo</span>
-                        <small>Gestión Clínica</small>
+                        <small>Elite Clinical CRM</small>
                     </div>
                 </div>
                 <nav className={styles.navList}>
@@ -193,10 +234,7 @@ export default function AdminDashboard() {
                         <span>📅</span> Calendario
                     </button>
                     <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>
-                        <span>📧</span> Newsletter
-                    </button>
-                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>
-                        <span>✍️</span> Blog Editorial
+                        <span>📧</span> Comunicación & Blog
                     </button>
                 </nav>
                 <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
@@ -205,10 +243,10 @@ export default function AdminDashboard() {
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
                     <div>
-                        <h1>{activeTab === 'patients' ? 'Historial Clínico' : activeTab === 'bookings' ? 'Agenda Próxima' : activeTab === 'newsletter' ? 'Campaña Newsletter' : 'Editor de Blog'}</h1>
-                        <p>{isLoading ? 'Sincronizando registros...' : 'Última actualización: hoy'}</p>
+                        <h1>{activeTab === 'patients' ? 'Historial Clínico' : activeTab === 'bookings' ? 'Agenda Próxima' : 'Campaña & Editorial'}</h1>
+                        <p>{isLoading ? 'Analizando datos...' : 'Panel de alto rendimiento activo'}</p>
                     </div>
-                    <button onClick={fetchData} className={styles.syncBtn}>Actualizar</button>
+                    <button onClick={fetchData} className={styles.syncBtn}>Sincronizar Panel</button>
                 </header>
 
                 <div className={styles.dashboardStats}>
@@ -217,7 +255,7 @@ export default function AdminDashboard() {
                         <span className={styles.value}>{stats.totalBookings}</span>
                     </div>
                     <div className={styles.statBox}>
-                        <span className={styles.label}>Suscripciones</span>
+                        <span className={styles.label}>Suscriptores</span>
                         <span className={styles.value}>{stats.activeSubscribers}</span>
                     </div>
                     <div className={styles.statBox}>
@@ -239,7 +277,7 @@ export default function AdminDashboard() {
                                         <th>Paciente</th>
                                         <th>Correo</th>
                                         <th>Sesiones</th>
-                                        <th>Estado</th>
+                                        <th>Origen</th>
                                         <th>Gestión</th>
                                     </tr>
                                 </thead>
@@ -249,8 +287,8 @@ export default function AdminDashboard() {
                                             <td><strong>{p.name}</strong></td>
                                             <td>{p.email}</td>
                                             <td>{p.bookings.length} sesiones</td>
-                                            <td><span className={styles.statusOk}>{p.newsletter ? 'Suscrito' : 'Paciente'}</span></td>
-                                            <td><button className={styles.viewBtn} onClick={() => setSelectedPatient(p)}>Ver datos</button></td>
+                                            <td><span className={styles.statusOk}>{p.newsletter ? 'Newsletter' : 'Clínico'}</span></td>
+                                            <td><button className={styles.viewBtn} onClick={() => setSelectedPatient(p)}>Ver ficha</button></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -279,125 +317,79 @@ export default function AdminDashboard() {
                                 </tbody>
                             </table>
                         </div>
-                    ) : activeTab === 'newsletter' ? (
-                        <div className={styles.newsletterLayout}>
-                            <div className={styles.newsletterSidebar}>
-                                <div className={styles.subscriberHeader}>
-                                    <h3>Suscriptores ({newsletterSubs.length})</h3>
-                                    <p>Personas que reciben tus actualizaciones.</p>
-                                </div>
-                                <div className={styles.subscriberList}>
-                                    {newsletterSubs.length === 0 ? (
-                                        <p style={{opacity: 0.5, padding: '20px'}}>No hay suscriptores aún.</p>
-                                    ) : (
-                                        newsletterSubs.map((s: any) => (
-                                            <div key={s.id} className={styles.subscriberItem}>
-                                                <div className={styles.subInfo}>
-                                                    <span className={styles.subEmail}>{s.email}</span>
-                                                    <small className={styles.subDate}>Desde: {new Date(s.createdAt).toLocaleDateString()}</small>
-                                                </div>
-                                                <button className={styles.deleteSub} onClick={() => handleDeletePatient(s.email)}>✕</button>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className={styles.newsletterContent}>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px'}}>
-                                    <h2 style={{color: '#f8fafc', fontSize: '1.5rem'}}>Campaña Editorial</h2>
-                                    {editingTemplate && (
-                                        <button className={styles.syncBtn} onClick={() => {setEditingTemplate(null); setTitle(''); setContent('');}}>Nueva Plantilla</button>
-                                    )}
-                                </div>
-
-                                {/* Editor Profesional */}
-                                <div className={styles.editorContainer}>
-                                    <div className={styles.editorToolbar}>
-                                        <button onClick={() => document.execCommand('bold', false)} title="Negrita"><b>B</b></button>
-                                        <button onClick={() => document.execCommand('italic', false)} title="Cursiva"><i>I</i></button>
-                                        <button onClick={() => {
-                                            const url = prompt('URL de la imagen:');
-                                            if (url) document.execCommand('insertImage', false, url);
-                                        }} title="Insertar Imagen">🖼️</button>
-                                        <button onClick={() => {
-                                            const url = prompt('Enlace (URL):');
-                                            if (url) document.execCommand('createLink', false, url);
-                                        }} title="Insertar Enlace">🔗</button>
-                                        <div style={{flex: 1}}></div>
-                                        <span style={{fontSize: '0.8rem', opacity: 0.5}}>Editor Visual</span>
+                    ) : activeTab === 'newsletter' || activeTab === 'marketing' ? (
+                        <div className={styles.editorialLayout}>
+                            <div className={styles.editorialMain}>
+                                <div className={styles.editorToolbar}>
+                                    <button onClick={() => document.execCommand('bold')}><b>B</b></button>
+                                    <button onClick={() => document.execCommand('italic')}><i>I</i></button>
+                                    <button onClick={() => {
+                                        const url = prompt('URL Imagen:');
+                                        if(url) document.execCommand('insertImage', false, url);
+                                    }}>🖼️</button>
+                                    <div className={styles.aiHelper}>
+                                        <input placeholder="Tema para IA..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
+                                        <button onClick={generateAIContent}>Generar con IA</button>
                                     </div>
-                                    
-                                    <input 
-                                        className={styles.editorTitleInput} 
-                                        value={title} 
-                                        onChange={(e) => setTitle(e.target.value)} 
-                                        placeholder="Título del boletín o artículo..." 
-                                    />
-
-                                    <div 
-                                        id="rich-editor"
-                                        className={styles.richEditor}
-                                        contentEditable
-                                        onInput={(e: any) => setContent(e.currentTarget.innerHTML)}
-                                        dangerouslySetInnerHTML={{ __html: content }}
-                                    />
                                 </div>
-
-                                <div className={styles.editorActions}>
-                                    <button className={styles.primaryButton} style={{width: 'auto', padding: '12px 40px'}} onClick={handleSaveTemplate} disabled={isLoading}>
-                                        {isLoading ? 'Guardando...' : editingTemplate ? 'Actualizar Plantilla' : 'Guardar y Publicar'}
-                                    </button>
-                                </div>
-
-                                <h3 style={{marginTop: '40px', marginBottom: '20px', fontSize: '1.1rem', opacity: 0.8}}>Plantillas Guardadas</h3>
-                                <div className={styles.templatesGrid}>
-                                    {templates.map((t: any) => (
-                                        <div key={t.id} className={styles.templateCard}>
-                                            <div className={styles.templateInfo}>
-                                                <strong>{t.title}</strong>
-                                                <small>{new Date(t.createdAt).toLocaleDateString()}</small>
-                                            </div>
-                                            <div className={styles.templateActions}>
-                                                <button className={styles.actionBtn} onClick={() => handleSendNewsletter(t.id, 'all')}>Difundir a Todos</button>
-                                                <button className={styles.actionBtn} style={{background: 'rgba(255,255,255,0.05)'}} onClick={() => {
-                                                    setEditingTemplate(t);
-                                                    setTitle(t.title);
-                                                    setContent(t.content);
-                                                    // Necesitamos forzar la actualización del div contentEditable si es necesario
-                                                    const ed = document.getElementById('rich-editor');
-                                                    if(ed) ed.innerHTML = t.content;
-                                                }}>Editar</button>
-                                                <button className={styles.deleteBtn} onClick={() => handleDeleteTemplate(t.id)}>✕</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    ) : activeTab === 'marketing' ? (
-                        <div className={styles.editorWrapper}>
-                            {/* Reusaremos el mismo estilo del editor pero enfocado a Blog */}
-                            <h2 style={{color: '#f8fafc', marginBottom: '20px'}}>Editor de Contenido (Blog)</h2>
-                            <p style={{opacity: 0.6, marginBottom: '30px'}}>Escribe artículos de largo alcance para mejorar tu posicionamiento y ayudar a tus pacientes.</p>
-                            
-                            <div className={styles.editorContainer}>
                                 <input 
                                     className={styles.editorTitleInput} 
-                                    value={title} 
-                                    onChange={(e) => setTitle(e.target.value)} 
-                                    placeholder="Título del Artículo..." 
+                                    placeholder="Título Impactante..." 
+                                    value={title}
+                                    onChange={e => setTitle(e.target.value)}
                                 />
                                 <div 
+                                    id="rich-editor"
                                     className={styles.richEditor}
                                     contentEditable
                                     onInput={(e: any) => setContent(e.currentTarget.innerHTML)}
                                     dangerouslySetInnerHTML={{ __html: content }}
                                 />
+                                <div className={styles.editorFooter}>
+                                    <button className={styles.primaryButton} onClick={handleSaveTemplate}>
+                                        {editingTemplate ? 'Actualizar Plantilla' : 'Guardar y Publicar'}
+                                    </button>
+                                    {selectedRecipients.length > 0 && (
+                                        <button className={styles.syncBtn} onClick={handleSendToSelected}>
+                                            Enviar a {selectedRecipients.length} seleccionados
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <button className={styles.primaryButton} style={{marginTop: '20px', width: 'auto'}} onClick={handleSaveTemplate}>
-                                Publicar en Blog
-                            </button>
+                            <aside className={styles.editorialSidebar}>
+                                <div className={styles.sidebarSection}>
+                                    <h4>Destinatarios ({newsletterSubs.length})</h4>
+                                    <div className={styles.checkList}>
+                                        {newsletterSubs.map((s: any) => (
+                                            <label key={s.id} className={styles.checkItem}>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={selectedRecipients.includes(s.email)}
+                                                    onChange={(e) => {
+                                                        if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
+                                                        else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
+                                                    }}
+                                                />
+                                                <span>{s.email}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className={styles.sidebarSection}>
+                                    <h4>Campañas Realizadas</h4>
+                                    <div className={styles.templateList}>
+                                        {templates.map(t => (
+                                            <div key={t.id} className={styles.templateItem}>
+                                                <span>{t.title}</span>
+                                                <div className={styles.itemActions}>
+                                                    <button onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); const ed = document.getElementById('rich-editor'); if(ed) ed.innerHTML = t.content; }}>✏️</button>
+                                                    <button onClick={() => handleDeleteTemplate(t.id)}>✕</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </aside>
                         </div>
                     ) : null}
                 </div>
