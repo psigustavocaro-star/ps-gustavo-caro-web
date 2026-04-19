@@ -429,7 +429,23 @@ export default function AdminDashboard() {
                                 </>
                             ) : (
                                 <>
-                                    <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>✏️ Actualizar Datos</button>
+                                    <button className={styles.primaryBtn} onClick={() => { 
+                                        let newFirstName = selectedPatient.firstName;
+                                        let newFirstSurname = selectedPatient.firstSurname;
+                                        if (!newFirstName && selectedPatient.name) {
+                                            const parts = selectedPatient.name.split(' ');
+                                            newFirstName = parts[0] || '';
+                                            if (parts.length > 1) {
+                                                newFirstSurname = parts.slice(1).join(' ') || '';
+                                            }
+                                        }
+                                        setEditData({
+                                            ...selectedPatient,
+                                            firstName: newFirstName,
+                                            firstSurname: newFirstSurname
+                                        }); 
+                                        setIsEditing(true); 
+                                    }}>✏️ Actualizar Datos</button>
                                     <button className={styles.syncBtn} style={{backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)'}} onClick={() => handleDeletePatient(selectedPatient.email)}>🗑️ Eliminar Paciente</button>
                                 </>
                             )}
