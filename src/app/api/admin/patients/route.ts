@@ -44,17 +44,22 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Email requerido' }, { status: 400 });
         }
 
-        // Eliminamos todas las reservas asociadas a este paciente
+        // Eliminamos todas las reservas asociadas a este paciente (Historial Clínico)
         await prisma.booking.deleteMany({
             where: { email: email.toLowerCase().trim() }
         });
 
-        // También podríamos eliminar su suscripción si se desea, 
-        // pero por ahora mantendremos el borrado de historial clínico (bookings).
-        // Si quieres borrarlo del newsletter también:
-        // await prisma.newsletter.delete({ where: { email: email.toLowerCase().trim() } }).catch(() => {});
+        // Eliminamos anamnesis asociada
+        await prisma.anamnesis.deleteMany({
+            where: { email: email.toLowerCase().trim() }
+        });
 
-        return NextResponse.json({ success: true, message: 'Historial del paciente eliminado' });
+        // Eliminamos registro del newsletter (Borrado total del CRM)
+        await prisma.newsletter.deleteMany({
+            where: { email: email.toLowerCase().trim() }
+        });
+
+        return NextResponse.json({ success: true, message: 'Paciente eliminado del sistema completamente' });
     } catch (error: any) {
         console.error('ADMIN PATIENT DELETE ERROR:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
