@@ -167,8 +167,10 @@ export default function AdminDashboard() {
             
             <aside className={styles.sideNav}>
                 <div className={styles.navHeader}>
-                    <div className={styles.logoSquare}>GC</div>
-                    <span className={styles.navTitle} style={{color: '#fff', fontSize: '0.8rem', fontWeight: 700}}>ELITE CRM</span>
+                    <div className={styles.logoSquare}>
+                        <span className={styles.dogAvatar}>🐕</span>
+                    </div>
+                    <span className={styles.navTitle} style={{color: '#fff', fontSize: '0.9rem', fontWeight: 700}}>ELITE CRM</span>
                 </div>
                 <nav className={styles.navList}>
                     <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>Pacientes</button>
@@ -197,7 +199,7 @@ export default function AdminDashboard() {
                             <thead><tr><th>Identidad</th><th>Email</th><th>Origen</th><th style={{textAlign: 'right'}}>Acción</th></tr></thead>
                             <tbody>{patients.map(p => (
                                 <tr key={p.email}>
-                                    <td><strong>{p.firstName} {p.firstSurname}</strong></td>
+                                    <td><strong>{[p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ')}</strong></td>
                                     <td>{p.email}</td>
                                     <td><span className={styles.statusOk}>{p.newsletter ? 'Newsletter' : 'Clínico'}</span></td>
                                     <td style={{textAlign: 'right'}}><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Ver Ficha</button></td>
@@ -281,7 +283,9 @@ export default function AdminDashboard() {
                         {isEditing ? (
                             <div className={styles.formGrid}>
                                 <div className={styles.inputGroup}><label>Primer Nombre</label><input className={styles.inputMain} value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
+                                <div className={styles.inputGroup}><label>Segundo Nombre</label><input className={styles.inputMain} value={editData.secondName || ''} onChange={e => setEditData({...editData, secondName: e.target.value})} /></div>
                                 <div className={styles.inputGroup}><label>Apellido Paterno</label><input className={styles.inputMain} value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
+                                <div className={styles.inputGroup}><label>Apellido Materno</label><input className={styles.inputMain} value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
                                 <div className={styles.inputGroup}><label>RUT</label><input className={styles.inputMain} value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
                                 <div className={styles.inputGroup}><label>Email</label><input className={styles.inputMain} value={editData.email} disabled /></div>
                                 <div className={styles.inputGroup}><label>Dirección</label><input className={styles.inputMain} value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
@@ -295,7 +299,7 @@ export default function AdminDashboard() {
                             <div>
                                 <div className={styles.dataGroup}>
                                     <h4>Identificación</h4>
-                                    <div className={styles.dataRow}><label>Nombre Completo</label><span>{selectedPatient.firstName} {selectedPatient.secondName} {selectedPatient.firstSurname} {selectedPatient.secondSurname}</span></div>
+                                    <div className={styles.dataRow}><label>Nombre Completo</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ')}</span></div>
                                     <div className={styles.dataRow}><label>RUT</label><span>{selectedPatient.rut || 'No registra'}</span></div>
                                 </div>
                                 <div className={styles.dataGroup}>
