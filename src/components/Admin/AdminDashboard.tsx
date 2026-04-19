@@ -20,6 +20,12 @@ export default function AdminDashboard() {
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing'>('patients');
+    const [profilePic, setProfilePic] = useState<string | null>(null);
+
+    useEffect(() => {
+        const savedPic = localStorage.getItem('adminProfilePic');
+        if (savedPic) setProfilePic(savedPic);
+    }, []);
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState<any>(null);
@@ -46,6 +52,19 @@ export default function AdminDashboard() {
             }
         } catch (err) { console.error("Sync Error:", err); } 
         finally { setIsLoading(false); }
+    };
+
+    const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64 = reader.result as string;
+                setProfilePic(base64);
+                localStorage.setItem('adminProfilePic', base64);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleUpdatePatient = async () => {
@@ -167,9 +186,14 @@ export default function AdminDashboard() {
             
             <aside className={styles.sideNav}>
                 <div className={styles.navHeader}>
-                    <div className={styles.logoSquare}>
-                        <span className={styles.dogAvatar}>🐕</span>
-                    </div>
+                    <label className={styles.logoSquare} style={{cursor: 'pointer', overflow: 'hidden'}} title="Cambiar foto de perfil">
+                        <input type="file" accept="image/*" style={{display: 'none'}} onChange={handleProfilePicChange} />
+                        {profilePic ? (
+                            <img src={profilePic} alt="Admin" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                        ) : (
+                            <span className={styles.dogAvatar}>🐕</span>
+                        )}
+                    </label>
                     <span className={styles.navTitle} style={{color: '#fff', fontSize: '0.9rem', fontWeight: 700}}>ELITE CRM</span>
                 </div>
                 <nav className={styles.navList}>
@@ -310,6 +334,17 @@ export default function AdminDashboard() {
                                 <div className={styles.dataGroup}>
                                     <h4>Historial</h4>
                                     <div className={styles.dataRow}><label>Sesiones Totales</label><span>{selectedPatient.bookings.length}</span></div>
+                                    {selectedPatient.bookings.length > 0 && (
+                                        <div className={styles.sessionsScroller}>
+                                            {selectedPatient.bookings.map((b: any, i: number) => (
+                                                <div key={b.id || i} className={styles.sessionItem}>
+                                                    <span>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
+                                                    <span>{b.serviceType}</span>
+                                                    <span className={styles.sessionStatus}>{b.status}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                                 <div style={{display: 'flex', gap: '10px', marginTop: '30px'}}>
                                     <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>Editar Expediente</button>
