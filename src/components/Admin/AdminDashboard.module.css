@@ -149,6 +149,7 @@
 .editorTitle { background: transparent; border: none; width: 100%; font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 24px; outline: none; }
 .editorTitle::placeholder { color: #64748b; }
 .richText { min-height: 400px; font-size: 1.1rem; line-height: 1.7; color: #cbd5e1; outline: none; }
+.richText * { color: #cbd5e1 !important; }
 
 .editorActions { display: flex; gap: 16px; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); }
 .primaryBtn { background: #06b6d4; color: #fff; padding: 14px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 1rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
