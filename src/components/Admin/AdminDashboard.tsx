@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
+import { newsletterSequence } from '@/lib/config/newsletter-content';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
@@ -81,6 +82,25 @@ export default function AdminDashboard() {
                 fetchData();
             }
         } catch (err) { alert('Error de conexión'); }
+        finally { setIsLoading(false); }
+    };
+
+    const handleDeletePatient = async (emailToDel: string) => {
+        if (!confirm(`¿Estás ABSOLUTAMENTE SEGURO de querer eliminar todo el historial y cuenta de ${emailToDel}? Esto no se puede deshacer.`)) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch(`/api/admin/patients?email=${encodeURIComponent(emailToDel)}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('🗑️ Paciente eliminado por completo del sistema');
+                setSelectedPatient(null);
+                fetchData();
+            } else {
+                alert('No se pudo eliminar: ' + data.error);
+            }
+        } catch (err) { alert('Error al procesar eliminación'); }
         finally { setIsLoading(false); }
     };
 
@@ -192,7 +212,7 @@ export default function AdminDashboard() {
                 <nav className={styles.navList}>
                     <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👥 Mis Pacientes</button>
                     <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>🗓️ Calendario</button>
-                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Correos Masivos</button>
+                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Newsletter</button>
                     <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Mi Blog</button>
                 </nav>
                 
@@ -202,7 +222,7 @@ export default function AdminDashboard() {
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
                     <div>
-                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Centro de Correos' : 'Mi Blog'}</h1>
+                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Newsletter' : 'Mi Blog'}</h1>
                         <p>Trabajando para mantener la salud mental al alcance de todos.</p>
                     </div>
                     <button onClick={fetchData} className={styles.syncBtn}>🔄 Actualizar Datos</button>
@@ -301,16 +321,21 @@ export default function AdminDashboard() {
                                 </div>
                                 
                                 <div className={styles.panelCard}>
-                                    <h4>📚 {activeTab === 'newsletter' ? 'Correos Guardados' : 'Artículos de Blog Publicados'}</h4>
+                                    <h4>📚 {activeTab === 'newsletter' ? 'Textos de Newsletter' : 'Artículos de Blog Publicados'}</h4>
                                     <div className={styles.draftList} style={{maxHeight: '300px', overflowY: 'auto', paddingRight: '8px'}}>
                                         {activeTab === 'marketing' && blogPosts.map(bp => (
                                             <div key={bp.slug} className={styles.draftCard} onClick={() => { setEditingTemplate({ id: null }); setTitle(bp.title); setContent(bp.content); if(editorRef.current) editorRef.current.innerHTML = bp.content; }}>
                                                 <h5>[Blog] {bp.title}</h5>
                                             </div>
                                         ))}
+                                        {activeTab === 'newsletter' && newsletterSequence.map(seq => (
+                                            <div key={`seq-${seq.id}`} className={styles.draftCard} onClick={() => { setEditingTemplate({ id: null }); setTitle(seq.subject); setContent(seq.content('[Nombre del Paciente]')); if(editorRef.current) editorRef.current.innerHTML = seq.content('[Nombre del Paciente]'); }}>
+                                                <h5>[Pre-escrito] {seq.subject}</h5>
+                                            </div>
+                                        ))}
                                         {activeTab === 'newsletter' && templates.map(t => (
                                             <div key={t.id} className={styles.draftCard} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
-                                                <h5>[Correo] {t.title}</h5>
+                                                <h5>[Borrador] {t.title}</h5>
                                             </div>
                                         ))}
                                     </div>
@@ -377,7 +402,10 @@ export default function AdminDashboard() {
                                     <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Volver Atrás</button>
                                 </>
                             ) : (
-                                <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>✏️ Actualizar Datos</button>
+                                <>
+                                    <button className={styles.primaryBtn} onClick={() => { setEditData(selectedPatient); setIsEditing(true); }}>✏️ Actualizar Datos</button>
+                                    <button className={styles.syncBtn} style={{backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)'}} onClick={() => handleDeletePatient(selectedPatient.email)}>🗑️ Eliminar Paciente</button>
+                                </>
                             )}
                         </div>
                     </div>
