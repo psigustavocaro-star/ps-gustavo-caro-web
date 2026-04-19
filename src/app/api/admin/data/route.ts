@@ -2,31 +2,28 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
 export async function GET() {
+    console.log('ADMIN API: Start fetching data...');
     try {
-        const bookings = await prisma.booking.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
+        const [bookings, newsletter, anamnesis, templates] = await Promise.all([
+            prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.anamnesis.findMany(),
+            prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } })
+        ]);
 
-        const newsletter = await prisma.newsletter.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
-
-        const anamnesis = await prisma.anamnesis.findMany();
-        
-        const templates = await prisma.emailTemplate.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
+        console.log(`ADMIN API: Records found - Bookings: ${bookings.length}, Newsletter: ${newsletter.length}`);
 
         // Agrupar por paciente (email)
         const patientsMap = new Map();
 
         bookings.forEach((b: any) => {
-            const email = b.email.toLowerCase();
+            if (!b.email) return;
+            const email = b.email.toLowerCase().trim();
             if (!patientsMap.has(email)) {
                 patientsMap.set(email, {
                     email,
-                    name: b.name,
-                    phone: b.phone,
+                    name: b.name || 'Sin Nombre',
+                    phone: b.phone || '',
                     bookings: [],
                     anamnesis: null,
                     newsletter: null,
@@ -35,25 +32,32 @@ export async function GET() {
             }
             const p = patientsMap.get(email);
             p.bookings.push(b);
-            if (b.status === 'PAID') p.totalSpent += (b.amount || 0);
-        });
-
-        anamnesis.forEach((a: any) => {
-            const email = a.email.toLowerCase();
-            if (patientsMap.has(email)) {
-                patientsMap.get(email).anamnesis = a;
+            // Solo sumar montos de pagos exitosos
+            if (b.status === 'PAID') {
+                p.totalSpent += (Number(b.amount) || 0);
             }
         });
 
+        // Vincular Anamnesis
+        anamnesis.forEach((a: any) => {
+            if (!a.email) return;
+            const email = a.email.toLowerCase().trim();
+            const p = patientsMap.get(email);
+            if (p) p.anamnesis = a;
+        });
+
+        // Vincular Newsletter y agregar suscriptores que nunca agendaron
         newsletter.forEach((n: any) => {
-            const email = n.email.toLowerCase();
-            if (patientsMap.has(email)) {
-                patientsMap.get(email).newsletter = n;
+            if (!n.email) return;
+            const email = n.email.toLowerCase().trim();
+            const p = patientsMap.get(email);
+            if (p) {
+                p.newsletter = n;
             } else {
-                // Caso que esté en newsletter pero nunca haya agendado
                 patientsMap.set(email, {
                     email,
                     name: n.name || 'Suscriptor',
+                    phone: '',
                     bookings: [],
                     anamnesis: null,
                     newsletter: n,
@@ -69,13 +73,17 @@ export async function GET() {
             patients,
             bookings: bookings.map((b: any) => ({
                 ...b,
-                anamnesis: anamnesis.find((a: any) => a.email.toLowerCase() === b.email.toLowerCase())
+                anamnesis: anamnesis.find((a: any) => a.email && a.email.toLowerCase().trim() === b.email.toLowerCase().trim()) || null
             })),
             newsletter,
             templates
         });
-    } catch (error) {
-        console.error('Admin API error:', error);
-        return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+    } catch (error: any) {
+        console.error('ADMIN API FATAL ERROR:', error);
+        return NextResponse.json({ 
+            success: false, 
+            error: error.message || 'Error interno del servidor',
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
 }
