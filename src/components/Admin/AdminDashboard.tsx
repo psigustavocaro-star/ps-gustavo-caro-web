@@ -388,18 +388,16 @@ export default function AdminDashboard() {
                                 <div className={styles.dataField}><label>Segundo Apellido</label><input value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
                                 <div className={styles.dataField}><label>Nº de RUT</label><input value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
                                 <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled style={{opacity: 0.5}} /></div>
-                                <div className={styles.dataField}><label>Dirección</label><input value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
-                                <div className={styles.dataField}><label>Región de Residencia</label>
-                                    <select value={editData.region} onChange={e => setEditData({...editData, region: e.target.value})}><option value="">Elegir Región...</option>{CHILE_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}</select>
-                                </div>
+                                <div className={styles.dataField}><label>Teléfono</label><input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Dirección física</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
                             </div>
                         ) : (
                             <div>
                                 <div className={styles.dataGrid}>
                                     <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ').trim() || selectedPatient.name || 'Sin Nombre'}</span></div>
                                     <div className={styles.dataField}><label>Identificador (RUT)</label><span>{selectedPatient.rut || 'Aún no registrado'}</span></div>
+                                    <div className={styles.dataField}><label>Contacto Telefónico</label><span>{selectedPatient.phone || 'No especificado'}</span></div>
                                     <div className={styles.dataField}><label>Residencia</label><span>{selectedPatient.address || 'Sin detalles'}</span></div>
-                                    <div className={styles.dataField}><label>Ubicación</label><span>{selectedPatient.region ? `${selectedPatient.region}, ${selectedPatient.country}` : 'Desconocida'}</span></div>
                                 </div>
                                 
                                 <div className={styles.sessionsBox}>
