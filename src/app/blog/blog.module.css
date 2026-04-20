@@ -1,47 +1,41 @@
 .hero {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0f2f1 100%);
-    padding: 120px 0 80px;
+    background: #ffffff;
+    padding: 160px 0 100px;
     position: relative;
-    overflow: hidden;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: radial-gradient(var(--border) 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: 0.4;
-    pointer-events: none;
+    border-bottom: 1px solid var(--border);
 }
 
 .title {
-    font-size: clamp(3rem, 7vw, 5rem);
-    font-weight: 900;
+    font-size: clamp(3.5rem, 8vw, 6rem);
+    font-weight: 300;
     color: var(--foreground);
-    margin-bottom: 24px;
-    letter-spacing: -0.05em;
-    line-height: 0.9;
+    margin-bottom: 30px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.title span {
+    font-weight: 800;
 }
 
 .subtitle {
-    font-size: 1.5rem;
-    color: var(--foreground-light);
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.5;
-    font-weight: 500;
+    font-size: 1.4rem;
+    color: var(--foreground-muted);
+    max-width: 700px;
+    margin: 0;
+    line-height: 1.6;
+    font-weight: 400;
 }
 
 @media (max-width: 768px) {
-    .title {
-        font-size: 2.5rem;
+    .hero {
+        padding: 120px 0 60px;
     }
-
+    .title {
+        font-size: 2.8rem;
+    }
     .subtitle {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
     }
 }

@@ -97,7 +97,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-04-01',
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
-        image: 'https://images.unsplash.com/photo-1478144592103-258228292733?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_minimal_winter.png',
         content: `
             <p>Santiago tiene inviernos con mucha polución y poca luz. Esto genera lo que llamamos Trastorno Afectivo Estacional (TAE).</p>
             <h3>Síntomas comunes</h3>
@@ -151,7 +151,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-03-10',
         author: 'Ps. Gustavo Caro',
         category: 'Recursos',
-        image: 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_minimal_therapy.png',
         content: `
             <p>La alianza terapéutica es el factor más importante para que una terapia funcione. No te quedes con alguien si no sientes esa conexión.</p>
         `
@@ -163,7 +163,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-03-05',
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
-        image: 'https://images.unsplash.com/photo-1454165833968-4e76589653ef?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_minimal_cbt.png',
         content: `
             <p>La TCC no es solo cambiar pensamientos, es cambiar la forma en que nos relacionamos con nuestra propia experiencia.</p>
         `
@@ -211,7 +211,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-02-15',
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
-        image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_minimal_door.png',
         content: `
             <p>Pagar por salud mental no debería significar dejar de pagar el arriendo. El acceso Universal es una deuda histórica en nuestro país.</p>
         `
@@ -223,7 +223,7 @@ export const blogPosts: BlogPost[] = [
         date: '2024-02-10',
         author: 'Ps. Gustavo Caro',
         category: 'Recursos',
-        image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop',
+        image: '/blog_minimal_hands.png',
         content: `
             <p>Los ataques de pánico son aterradores pero inofensivos. Aquí te explico cómo navegar la tormenta.</p>
         `,

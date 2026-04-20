@@ -19,7 +19,7 @@ export default function BlogListPage() {
             <Navbar />
             <div className={styles.hero}>
                 <div className="container">
-                    <h1 className={styles.title}>Blog y Recursos</h1>
+                    <h1 className={styles.title}>Blog <span>& Recursos</span></h1>
                     <p className={styles.subtitle}>
                         Un espacio dedicado a compartir conocimientos, herramientas y reflexiones sobre la salud mental desde un enfoque clínico y humano.
                     </p>
