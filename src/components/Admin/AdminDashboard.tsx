@@ -389,7 +389,7 @@ export default function AdminDashboard() {
                                 <div className={styles.dataField}><label>Nº de RUT</label><input value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
                                 <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled style={{opacity: 0.5}} /></div>
                                 <div className={styles.dataField}><label>Teléfono</label><input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} /></div>
-                                <div className={styles.dataField}><label>Dirección física</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Dirección y Comuna</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} placeholder="Ej: Las Lilas 123, Providencia" /></div>
                             </div>
                         ) : (
                             <div>
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
                                     <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ').trim() || selectedPatient.name || 'Sin Nombre'}</span></div>
                                     <div className={styles.dataField}><label>Identificador (RUT)</label><span>{selectedPatient.rut || 'Aún no registrado'}</span></div>
                                     <div className={styles.dataField}><label>Contacto Telefónico</label><span>{selectedPatient.phone || 'No especificado'}</span></div>
-                                    <div className={styles.dataField}><label>Residencia</label><span>{selectedPatient.address || 'Sin detalles'}</span></div>
+                                    <div className={styles.dataField}><label>Residencia</label><span>{[selectedPatient.address, selectedPatient.commune, selectedPatient.region].filter(Boolean).join(', ') || 'Sin detalles'}</span></div>
                                 </div>
                                 
                                 <div className={styles.sessionsBox}>
