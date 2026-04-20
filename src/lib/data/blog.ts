@@ -26,7 +26,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Ansiedad',
         image: '/blog_ansiedad_santiago_1776137206965.png',
-        content: \`
+        content: `
             <p>Para cientos de miles de santiaguinos, el verdadero desafío del día no comienza en sus puestos de trabajo, sino en el andén de Baquedano, Tobalaba o Los Héroes. El Metro de Santiago, si bien es una maravilla de ingeniería urbana, representa uno de los mayores desencadenantes diarios para quienes lidian con ansiedad social, agorafobia o hipersensibilidad sensorial, activando respuestas de lucha o huida de manera constante.</p>
             
             <h3>La Neurobiología del Hacinamiento</h3>
@@ -41,7 +41,7 @@ export const blogPosts: BlogPost[] = [
                 <li><strong>El Enraizamiento 5-4-3-2-1:</strong> Para desactivar un ataque de pánico incipiente, obliga a tu corteza prefrontal a trabajar: nombra mentalmente 5 objetos visibles (una manilla, un cartel), 4 cosas palpables (tu bolso, el asiento), 3 sonidos (rieles, voces), 2 olores y 1 sabor.</li>
                 <li><strong>Regulación por Supresión Auditiva:</strong> El uso de audífonos con cancelación activa de ruido es una de las "prótesis psicológicas" más eficientes documentadas para la integración sensorial en neurodivergentes.</li>
             </ul>
-        \`
+        `
     },
     {
         slug: 'tdah-adulto-oficinas-santiago',
@@ -51,7 +51,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Neurodiversidad',
         image: '/blog_tdah_oficina_1776137223131.png',
-        content: \`
+        content: `
             <p>El Trastorno por Déficit de Atención e Hiperactividad (TDAH) en adultos a menudo es malinterpretado como "falta de compromiso" o "deficiencia de voluntad". En realidad, representa una divergencia profunda en la arquitectura química del cerebro, específicamente en la recaptación de dopamina y norepinefrina. En barrios de alta presión como El Golf o Nueva Las Condes —el corazón de Sanhattan— las expectativas de productividad mantienen un sesgo hacia la linealidad que asfixia al talento neurodivergente.</p>
             
             <blockquote>"El TDAH no se trata de no poder prestar atención; se trata de prestar atención a todo y no tener la capacidad de filtrar lo irrelevante." — Dr. Edward Hallowell, psiquiatra y experto mundial.</blockquote>
@@ -66,7 +66,7 @@ export const blogPosts: BlogPost[] = [
                 <li><strong>Ciclismo Dopaminérgico:</strong> Tu cerebro responde al interés, no a la importancia. Desglosa tareas masivas en micro-hitos de no más de 20 minutos e introdúceles un sistema de recompensas inmediatas.</li>
                 <li><strong>Reestructuración del Escritorio:</strong> Adopta políticas estrictas de minimalismo físico. Menos objetos visuales se traduce en menos "pestañas abiertas" en tu cerebro.</li>
             </ul>
-        \`
+        `
     },
     {
         slug: 'estigma-salud-mental-familias-chilenas',
@@ -76,7 +76,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
         image: '/blog_familias_estigma_1776138828568.png',
-        content: \`
+        content: `
             <p>Históricamente, en Chile hemos esculpido una cultura de "ponerle el hombro", fomentada por nuestra recurrencia a desastres naturales y crisis sociales. Si bien esto nos ha convertido en una sociedad resiliente frente a los terremotos telúricos, nos ha vuelto peligrosamente insensibles y hasta crueles frente a los "terremotos internos" ajenos y propios. Y no, la salud mental no se arregla trabajando más.</p>
             
             <blockquote>"La curiosa paradoja es que cuando me acepto tal cual soy, entonces, y solo entonces, puedo cambiar." — Carl Rogers, pionero del enfoque humanista.</blockquote>
@@ -86,7 +86,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>Psicoeducación Familiar: El Verdadero Cambio</h3>
             <p>Es imperativo establecer en los hogares chilenos una premisa innegociable: la mente enferma como enferma un riñón o un pulmón. Nadie le exigiría a un familiar con fractura de fémur que corra una maratón únicamente basado en la "fuerza de voluntad". La neurobiología de un cerebro deprimido muestra atrofia del hipocampo y agotamiento de neurotransmisores. Necesitamos cambiar el juicio moral por la compasión clínica.</p>
-        \`
+        `
     },
     {
         slug: 'ritmo-frenetico-santiago-cortisol',
@@ -96,7 +96,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
         image: '/blog_ritmo_estres_santiago_1776138845888.png',
-        content: \`
+        content: `
             <p>Santiago es una metrópolis que idolatra la productividad sobre la recuperación. Nuestros traslados eternos, el costo de vida hiperinflado y la presión por mantener estatus nos han introducido en lo que en psicología clínica denominamos <em>"Estado de Alerta Perenne"</em>. El estrés dejó de ser un episodio transitorio para convertirse en la textura invisible de la existencia ciudadana.</p>
             
             <blockquote>"La carga alostática es el desgaste que sufre el cuerpo como resultado del estrés crónico, pavimentando el camino a la enfermedad mental y física." — Bruce McEwen, neuroendocrinólogo.</blockquote>
@@ -106,7 +106,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>Estrategias de Descompresión</h3>
             <p>No podemos cambiar las autopistas ni los precios de la ciudad, pero podemos modificar nuestra re-calibración biológica. Integrar pausas intencionales donde el cuerpo reciba la señal biológica de seguridad es fundamental. El uso de la termoterapia (baños calientes), la exposición a la luz solar temprano y los "días de dopamina basal" (desconexión total de pantallas) son hoy un tratamiento de primera línea no farmacológico.</p>
-        \`
+        `
     },
     {
         slug: 'invierno-gris-santiago-depresion',
@@ -116,7 +116,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
         image: '/blog_minimal_winter.png',
-        content: \`
+        content: `
             <p>Durante mayo y agosto, Santiago se cubre de lo que los meteorólogos llaman capa de inversión térmica, encerrando la ciudad no solo en contaminación, sino en un manto gris impenetrable. Esta falta sostenida de lux luminosa genera un impacto bioquímico muy específico que suele precipitar lo que la Asociación Americana de Psiquiatría denomina TAE: Trastorno Afectivo Estacional.</p>
             
             <blockquote>"No es solo tristeza por el frío; es el cerebro respondiendo biológicamente a una reducción de luz, alterando el reloj circadiano maestro." — Instituto Nacional de Salud Mental (NIMH).</blockquote>
@@ -131,7 +131,7 @@ export const blogPosts: BlogPost[] = [
                 <li><strong>Suplementación Dirigida:</strong> Bajo supervisión médica, la revisión de los niveles de Vitamina D3 es un mandato preventivo en otoño.</li>
                 <li><strong>Activación Conductual TCC:</strong> Obligar a la maquinaria corporal a generar movimiento en horas de luz (ej. caminatas o almuerzos al exterior) combate químicamente la inercia letárgica estacional.</li>
             </ul>
-        \`
+        `
     },
     {
         slug: 'higiene-sueno-ciudad-luces',
@@ -141,7 +141,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Recursos',
         image: '/blog_minimal_hands.png',
-        content: \`
+        content: `
             <p>El sueño ha sido despojado de su carácter biológico fundamental por la cultura del "Hustle" y ha pasado a ser visto como una pérdida de tiempo. Sin embargo, en el ámbito de la psicología y la neurología clínica, el sueño es innegociable: es el taller de reparación neuroquímica. Vivir en núcleos metropolitanos fuertemente iluminados ha quebrado este ecosistema íntimo.</p>
             
             <blockquote>"El sueño es la mejor medicina que la evolución nos ha otorgado, la madre naturaleza operando para resetear nuestra salud cerebral." — Matthew Walker, neurocientífico y experto mundial en sueño.</blockquote>
@@ -156,7 +156,7 @@ export const blogPosts: BlogPost[] = [
                 <li><strong>Oscuridad Ancestral y Termorregulación:</strong> Asegura "Blackouts" reales en las ventanas y propicia una temperatura ambiental más fría (entre 18 y 20°C). El cuerpo necesita enfriarse para que el sueño profundo prolifere.</li>
                 <li><strong>Regla de los 20 Minutos TCC:</strong> Si llevas 20 minutos rodando en la cama con ansiedad, debes levantarte, salir a un ambiente tenue, leer un texto denso hasta bostezar y solo entonces volver. La cama no debe asociarse cognitivamente a la frustración.</li>
             </ul>
-        \`
+        `
     },
     {
         slug: 'resiliencia-aprender-de-las-crisis',
@@ -166,7 +166,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
         image: '/blog_santiago_mountain_resilience_premium_1776139093323.png',
-        content: \`
+        content: `
             <p>En nuestro paradigma nacional, estar expuestos a catástrofes recurrentes nos ha forjado una reputación. Internacionalmente somos conocidos como una nación que se reconstruye rápidamente, pero desde el observatorio de la salud mental, gran parte de esta autodenominada "resiliencia" esconde un mecanismo psicológico de negación y trauma acumulativo que pagamos a futuro.</p>
             
             <blockquote>"El trauma no es lo que te sucede a ti, es lo que sucede dentro de ti como resultado de lo que te sucede." — Dr. Gabor Maté.</blockquote>
@@ -176,7 +176,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>Hacia una Resiliencia Integradora</h3>
             <p>Si verdaderamente planeamos crecer a partir de la crisis, debemos instituir primero un duelo validado. Experimentar frustración agónica, llorar sin límites de tiempo sociales impuestos, y buscar psicoterapia informada en trauma constituyen la única defensa a largo plazo para que el estrés post-traumático no gane control sistémico sobre la personalidad y la biología cardiovascular del sujeto.</p>
-        \`
+        `
     },
     {
         slug: 'neurodivergencia-sistema-escolar-chileno',
@@ -186,7 +186,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Neurodiversidad',
         image: '/blog_school_classroom_inclusion_1776139110804.png',
-        content: \`
+        content: `
             <p>El sistema escolar estandarizado en Chile, al igual que en gran parte de occidente, es un remanente innegable de la revolución industrial. Está diseñado para un cerebro "promedio", capacitado para obedecer, mantener postura rígida en una sola silla por jornadas de ocho horas y memorizar de manera auditiva/visual. Cuando introducimos redes neuronales con TDAH, Autismo de nivel 1 u otras neurodivergencias, la tragedia institucional es evidente.</p>
             
             <blockquote>"Todos somos genios. Pero si juzgas a un pez por su habilidad para trepar árboles, vivirá toda su vida pensando que es un estúpido." — Atribuido a Albert Einstein (Reflexión Educativa).</blockquote>
@@ -196,7 +196,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>Por una Pedagogía Neuro-Inclusiva</h3>
             <p>Nuestra infraestructura educativa no requiere parches; necesita ser refundada desde el modelo de la "Discapacidad Creada por el Entorno". Las adaptaciones medioambientales como el diseño universal para el aprendizaje (DUA), los tiempos de escape sensorial y el rechazo a la segregación como castigo son urgentes, permitiendo a la mente divergente explorar su profunda creatividad y fijación apasionada, en lugar de ser constantemente reprendida por lo que no puede fingir ser.</p>
-        \`
+        `
     },
     {
         slug: 'como-elegir-psicologo-chile',
@@ -206,7 +206,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Recursos',
         image: '/blog_minimal_therapy.png',
-        content: \`
+        content: `
             <p>La oferta de profesionales de la salud psíquica en Chile es amplia, sin embargo, embarcarse en un proceso terapéutico asumiendo ciegamente que "cualquier profesional titulado servirá", es un error riesgoso. Existe abundante evidencia teórica en primera línea clínica advirtiendo que un mal emparejamiento entre profesional y consultante no solo falla en curar, sino que puede inducir traumatización secundaria e iatrogenia (daño clínico derivado de la terapia).</p>
             
             <blockquote>"Docenas de metaanálisis robustos certifican que el 30% al 40% del éxito en el resultado terapéutico se predice estructuralmente por la calidad de la Alianza Terapéutica." — Wampold, The Great Psychotherapy Debate.</blockquote>
@@ -218,7 +218,7 @@ export const blogPosts: BlogPost[] = [
                 <li><strong>Feedback Sensible:</strong> Si el terapeuta juzga explícitamente tus decisiones, monopoliza el diálogo con monólogos autorreferentes, o minimiza dolencias de manera pasivo-agresiva ("a todos les pasa eso, no es para tanto"), huye. La validación radical es el piso mínimo del espacio de salud.</li>
                 <li><strong>Fijación de Objetivos:</strong> Evita a profesionales que visualicen la terapia como un abismo sin fin ni metas. La terapia de alta resolución psicológica evalúa el avance cada sesión y trabaja bajo la meta central de la independencia y dada de alta del individuo.</li>
             </ul>
-        \`
+        `
     },
     {
         slug: 'mitos-terapia-conductual-cognitiva',
@@ -228,7 +228,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
         image: '/blog_minimal_cbt.png',
-        content: \`
+        content: `
             <p>Frecuentemente eludida por círculos más dogmáticos en la psicología sudamericana catalogándola como "fría" o enfocada solo en el "síntoma como máquina conductual", la Terapia Cognitivo-Conductual (TCC) se yergue sin embargo como el paradigma de psicoterapia respaldado empíricamente a la fecha con más solidez matemática y éxito psiquiátrico registrado institucionalmente en la historia.</p>
             
             <blockquote>"Los hombres no se perturban por las cosas, sino por la visión que tienen de ellas." — Epicteto, pilar filosófico de la base del trabajo cognitivista.</blockquote>
@@ -238,7 +238,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>La Estructura y Empoderamiento del Paciente</h3>
             <p>La TCC devuelve agencia de manera brutal al marginado clínico. A diferencia de las terapias retrospectivas infinitas donde eres espectador pasivo de una interpretación analítica foránea, aquí el rol del paciente es activo 24/7. Evaluamos mediante experimentos conductuales que te obligan a poner a prueba en el mundo real las hipótesis catastróficas que impone la depresión y los trastornos ansiosos, para derribarlos con datos.</p>
-        \`
+        `
     },
     {
         slug: 'ansiedad-redes-sociales-adolescentes',
@@ -248,7 +248,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Salud Mental',
         image: '/blog_social_media_anxiety_conceptual_1776139176516.png',
-        content: \`
+        content: `
             <p>Nuestra juventud carga cicatrices únicas de esta década; conforman la primera generación que no posee ningún refugio biológico real al retirarse del colegio hacia el hogar. Las aflicciones escolares pasadas cesaban al salir por la puerta del campo de educación, pero el patio de recreo digital contemporáneo y el cyberbullying se proyectan invasivamente 24/7 de forma retroiluminada a través de las pantallas en las camas, infiltrándose en las almohadas e impidiendo la desconexión del sistema límbico juvenil.</p>
             
             <blockquote>"Hay solo dos industrias que le llaman a sus usuarios 'usuarios': la industria de las drogas y la industria del Software." — Edward Tufte, The Social Dilemma.</blockquote>
@@ -258,7 +258,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>¿Limitar o Formar a la Generación Alfa?</h3>
             <p>Cercenar completamente la vida digital adolescente es utópico y ostracizante. La Terapia requiere hoy alfabetizar el uso conductual de plataformas digitales. Promovemos auditorías digitales periódicas y entrenamos destrezas metacognitivas potentes, enseñando a los jóvenes y padres a visualizar que el teléfono y sus aplicaciones funcionan como tragamonedas mentales de Las Vegas, construyendo fronteras protectoras e invulnerabilidad crítica.</p>
-        \`
+        `
     },
     {
         slug: 'sindrome-impostor-emprendedores',
@@ -268,7 +268,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
         image: '/blog_impostor_syndrome_reflection_1776139190697.png',
-        content: \`
+        content: `
             <p>Murales enteros de reconocimientos y maestrías parecen invisibilizarse cognitivamente cuando este destructivo síndrome ataca. En los entornos de alto rendimiento corporativo o el emprendimiento acelerado del país —casi siempre envueltos en expectativas inalcanzables—, subyace un sufrimiento epidémico transversal a ambos géneros: la paralizante convicción psíquica de que serás expuesto y "desenmascarado" irrevocablemente como un farsante intelectual en la próxima reunión.</p>
             
             <blockquote>"El problema con el mundo no es que las personas inteligentes duden de sí mismas, sino que las personas ignorantes están llenas de certezas aplastantes." — Charles Bukowski.</blockquote>
@@ -278,7 +278,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>Restaurar y Atacar el Pensamiento Basado en Evidencias</h3>
             <p>La superación no se consigue con simples decretos motivacionales en el espejo. Dentro de los espacios terapéuticos forjamos "Registros de Valía". Exijo a mis pacientes objetivizar brutal y materialmente sus conquistas usando métricas. Al separar contablemente los "Sentimientos Abstractos" de los "Hechos Obvios y Fácticos", conseguimos que el cerebro ansioso choque irrevocablemente con el muro indestructible de una realidad positiva aplastante, aplacando la disonancia impostora.</p>
-        \`
+        `
     },
     {
         slug: 'autocuidado-psicologos-chilenos',
@@ -288,7 +288,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
         image: '/blog_self_care_psychology_therapeutic_1776139205529.png',
-        content: \`
+        content: `
             <p>Practicar la psicología clínica en Chile en ámbitos ya sean estatales deficitarios o independientes sobre-competitivos conforma uno de los terrenos vocacionales más pantanosos en la salud holística. Nuestra maquinaria primordial de operación resulta imperceptible en las ecografías: laboramos con pura resonancia humana instrumental, recibiendo en nuestra bandeja sináptica las peores atrocidades traumáticas o las penas suicidas paralizantes expuestas bajo cuatro muros de un box de consultas.</p>
             
             <blockquote>"La fatiga por compasión es el impuesto irrefutable e innegociable que debemos pagar todos aquellos que abrimos el pecho para oír sin enjuiciar el verdadero dolor de otra criatura." — Charles Figley, experto en Trauma Psicológico.</blockquote>
@@ -298,7 +298,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>El Autocuidado Clínicamente Basado no es un 'Día de Spa'</h3>
             <p>Contrario a la pseudo-psicología de marketing estético banal donde el autocuidado significa sumergirse pasivamente bajo sales aromáticas u obligarse a meditar en un cojín asiático; un legítimo arsenal profiláctico de un analista implica supervisión técnica disciplinada mensual, el mantenimiento estricto y hasta beligerante de un encuadre financiero/organizativo protector, psicoterapia cruzada e integrativa propia continua, y la capacidad invaluable y asertiva para negarse rotundamente a abordar perfiles clínicos desequilibrantes cuando de antemano vislumbre una sobrecarga basal imperante inmedible.</p>
-        \`
+        `
     },
     {
         slug: 'salud-mental-no-es-lujo',
@@ -308,7 +308,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Opinión',
         image: '/blog_minimal_door.png',
-        content: \`
+        content: `
             <p>Enarbolar proclamas de resiliencia y campañas abstractas mediáticas invitando a la población a "conversar e integrar lo triste" colisiona agresiva e irónicamente de frentón contra barreras financieras reales imperturbables. Costear una psicoterapia semanal a un honorario medio particular requiere destinar una fracción usurera respecto al mermado salario mínimo local en Chile, configurando tristemente que obtener curación neuronal certificada opere tácitamente como adquisición suntuaria.</p>
             
             <blockquote>"La pobreza actúa como el acelerante masivo incendiario en las enfermedades psiquiátricas debido a la alta imprevisibilidad caótica ambiental cotidiana interconectada intrínsecamente a nivel endócrino." — Robert Sapolsky.</blockquote>
@@ -318,7 +318,7 @@ export const blogPosts: BlogPost[] = [
             
             <h3>Nuevos Ecosistemas Privados Accesos Solidarios</h3>
             <p>Desde el baluarte de las trincheras privadas estamos ética, vocacional y existencialmente convocados a subsanar grietas que una arquitectura estatal decrépita nos ha heredado. Integraciones robustas como brindar escalabilidad terapéutica (modelos híbridos de tele-atención e imposiciones reducidas según evaluación socio-histórica contextual), promover psicosofia y entregar bibliotecas y directrices clínicas TCC liberadas como recursos *open-source*, pueden resultar la diferencia literal entre la preservación o erradicación biológica fatal en casos críticos olvidados e invisibles de nuestra sociedad urbana fracturada.</p>
-        \`
+        `
     },
     {
         slug: 'herramientas-tcc-manejo-panico',
@@ -328,7 +328,7 @@ export const blogPosts: BlogPost[] = [
         author: 'Ps. Gustavo Caro',
         category: 'Recursos',
         image: '/blog_minimal_hands.png',
-        content: \`
+        content: `
             <p>Sufrir de cerca la desquiciadora maquinaria biológica subyacente tras un inminente ataque de pánico genuino resulta en una devastación física y emocional imborrable. Durante un asalto agudo el organismo se traiciona a sí mismo en un bucle; tu corazón acelera un asfixiante galope, provocando ahogo ficticio donde el cerebro lee la taquicardia idiopática engañosamente diagnosticándola errónea y falazmente como un paro cardiorrespiratorio absoluto o demencia súbita a puertas cerradas, potenciando el nivel de pavor hormonal original a niveles trágicos insospechados.</p>
             
             <blockquote>"La ansiedad engendra su propio monstruo, y huyendo apresurada e irrevocablemente de lo que febrilmente imaginamos terrible, solo concretamos ciegamente su inminente encarnación fatal." — Seneca.</blockquote>
@@ -343,7 +343,7 @@ export const blogPosts: BlogPost[] = [
                 <li><strong>Saturación de Glóbulos Táctil Analítica:</strong> Tocar texturas extremadamente aberrantes y afiladas forzando la mente descriptiva prefrontal y logica narrativa matemática con minucia obsesiva al tacto inmediato, cancela y bloquea la irrigación química límbica y visceral desbordante.</li>
                 <li><strong>Ventilación Abdominal Restrictiva Retenedora Cuadriculada (Técnica de 4 tiempos):</strong> Romper radical y decididamente el ciclo espiral insostenible e intoxicante nocivo crónico y errático de pura hiperventilación mediante la ingesta y expurgación sistemática guiada y ruda del flujo carbónico orgánico visceral en tiempos cuadriculados pautados estricta y rígidamente contados. No hay pensamiento negativo que la privación y saturación sistemática de aire controlado no subyugue imperativamente tarde a temprano.</li>
             </ul>
-        \`,
+        `,
         resources: [
             {
                 id: 'guia-respiracion',
