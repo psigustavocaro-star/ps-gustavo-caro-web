@@ -431,18 +431,35 @@ export default function AdminDashboard() {
                                 <>
                                     <button className={styles.primaryBtn} onClick={() => { 
                                         let newFirstName = selectedPatient.firstName;
+                                        let newSecondName = selectedPatient.secondName;
                                         let newFirstSurname = selectedPatient.firstSurname;
+                                        let newSecondSurname = selectedPatient.secondSurname;
+                                        
                                         if (!newFirstName && selectedPatient.name) {
-                                            const parts = selectedPatient.name.split(' ');
-                                            newFirstName = parts[0] || '';
-                                            if (parts.length > 1) {
-                                                newFirstSurname = parts.slice(1).join(' ') || '';
+                                            const parts = selectedPatient.name.trim().split(/\s+/);
+                                            if (parts.length === 1) {
+                                                newFirstName = parts[0];
+                                            } else if (parts.length === 2) {
+                                                newFirstName = parts[0];
+                                                newFirstSurname = parts[1];
+                                            } else if (parts.length === 3) {
+                                                newFirstName = parts[0];
+                                                newFirstSurname = parts[1];
+                                                newSecondSurname = parts[2];
+                                            } else if (parts.length >= 4) {
+                                                newFirstName = parts[0];
+                                                newSecondName = parts[1];
+                                                newFirstSurname = parts[2];
+                                                newSecondSurname = parts.slice(3).join(' ');
                                             }
                                         }
+                                        
                                         setEditData({
                                             ...selectedPatient,
-                                            firstName: newFirstName,
-                                            firstSurname: newFirstSurname
+                                            firstName: newFirstName || '',
+                                            secondName: newSecondName || '',
+                                            firstSurname: newFirstSurname || '',
+                                            secondSurname: newSecondSurname || ''
                                         }); 
                                         setIsEditing(true); 
                                     }}>✏️ Actualizar Datos</button>
