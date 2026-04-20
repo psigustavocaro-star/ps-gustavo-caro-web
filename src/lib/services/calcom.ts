@@ -56,3 +56,53 @@ export async function confirmCalBooking(bookingId: string) {
     // Dejamos el placeholder por si se necesita confirmar manualmente vía PATCH.
     return { success: true };
 }
+
+export async function cancelCalBooking(bookingUid: string, reason?: string) {
+    const apiKey = process.env.CALCOM_API_KEY;
+
+    if (!apiKey) {
+        console.error('CALCOM: Error - API Key no configurada');
+        return { success: false, error: 'API Key missing' };
+    }
+
+    try {
+        console.log(`CALCOM: Cancelando reserva v2 UID: ${bookingUid}`);
+
+        const response = await fetch(`https://api.cal.com/v2/bookings/${bookingUid}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'cal-api-version': '2024-08-13'
+            },
+            body: JSON.stringify({ cancellationReason: reason || 'Cancelado por el administrador desde CRM' })
+        });
+
+        if (response.ok) {
+            console.log(`CALCOM: Booking ${bookingUid} cancelado exitosamente.`);
+            return { success: true };
+        } else {
+            console.warn(`CALCOM: Intento posterior con DELETE...`);
+            // Fallback por si la API prefiere DELETE
+            const fallbackRes = await fetch(`https://api.cal.com/v1/bookings/${bookingUid}/cancel`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ apiKey, reason: reason || 'Cancelado desde CRM' })
+            });
+
+            if (fallbackRes.ok) {
+                console.log(`CALCOM: Booking ${bookingUid} cancelado exitosamente vía fallback v1.`);
+                return { success: true };
+            }
+
+            const err = await fallbackRes.text();
+            console.error('CALCOM: Error final al cancelar booking:', err);
+            return { success: false, error: err };
+        }
+    } catch (error: any) {
+        console.error('CALCOM: Error crítico al cancelar:', error.message);
+        return { success: false, error: error.message };
+    }
+}

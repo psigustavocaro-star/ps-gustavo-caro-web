@@ -44,7 +44,21 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Email requerido' }, { status: 400 });
         }
 
-        // Eliminamos todas las reservas asociadas a este paciente (Historial Clínico)
+        // Buscamos primero las reservas para cancelarlas en Google Calendar/Cal.com
+        const userBookings = await prisma.booking.findMany({
+            where: { email: email.toLowerCase().trim() }
+        });
+
+        // Cancelamos cada cita externa
+        for (const booking of userBookings) {
+            if (booking.calBookingId) {
+                // Import dinámico para no romper si corre top-level
+                const { cancelCalBooking } = await import('@/lib/services/calcom');
+                await cancelCalBooking(booking.calBookingId, 'Paciente eliminado del sistema administrativo.');
+            }
+        }
+
+        // Eliminamos todas las reservas asociadas a este paciente (Historial Clínico) localmente
         await prisma.booking.deleteMany({
             where: { email: email.toLowerCase().trim() }
         });
