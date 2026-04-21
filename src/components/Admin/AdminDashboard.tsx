@@ -290,35 +290,69 @@ export default function AdminDashboard() {
 
                 <div className={styles.listContainer}>
                     {activeTab === 'patients' && (
-                        <table className={styles.friendlyTable}>
-                            <thead><tr><th>Nombre</th><th>Correo</th><th>Etiqueta</th><th>Ficha</th></tr></thead>
-                            <tbody>{patients.map(p => {
-                                const fullName = [p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ').trim();
-                                const displayName = fullName || p.name || 'Sin Nombre';
-                                return (
-                                <tr key={p.email}>
-                                    <td>{displayName}</td>
-                                    <td>{p.email}</td>
-                                    <td><span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span></td>
-                                    <td><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Abrir Ficha</button></td>
-                                </tr>
-                                )
-                            })}</tbody>
-                        </table>
+                        <div className={styles.responsiveList}>
+                            {/* Vista para Desktop */}
+                            <table className={styles.friendlyTable}>
+                                <thead><tr><th>Nombre</th><th>Correo</th><th>Etiqueta</th><th>Ficha</th></tr></thead>
+                                <tbody>{patients.map(p => {
+                                    const fullName = [p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ').trim();
+                                    const displayName = fullName || p.name || 'Sin Nombre';
+                                    return (
+                                    <tr key={p.email}>
+                                        <td>{displayName}</td>
+                                        <td>{p.email}</td>
+                                        <td><span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span></td>
+                                        <td><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Abrir Ficha</button></td>
+                                    </tr>
+                                    )
+                                })}</tbody>
+                            </table>
+                            {/* Vista para Móvil (Cards) */}
+                            <div className={styles.mobileCards}>
+                                {patients.map(p => {
+                                    const fullName = [p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ').trim();
+                                    const displayName = fullName || p.name || 'Sin Nombre';
+                                    return (
+                                        <div key={p.email} className={styles.mobileCard}>
+                                            <div className={styles.cardInfo}>
+                                                <strong>{displayName}</strong>
+                                                <span>{p.email}</span>
+                                                <span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span>
+                                            </div>
+                                            <button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Ver Ficha</button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
                     )}
 
                     {activeTab === 'bookings' && (
-                        <table className={styles.friendlyTable}>
-                            <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Situación</th></tr></thead>
-                            <tbody>{bookings.map(b => (
-                                <tr key={b.id}>
-                                    <td>{b.name}</td>
-                                    <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</td>
-                                    <td>{b.serviceType}</td>
-                                    <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span></td>
-                                </tr>
-                            ))}</tbody>
-                        </table>
+                        <div className={styles.responsiveList}>
+                            <table className={styles.friendlyTable}>
+                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Situación</th></tr></thead>
+                                <tbody>{bookings.map(b => (
+                                    <tr key={b.id}>
+                                        <td>{b.name}</td>
+                                        <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</td>
+                                        <td>{b.serviceType}</td>
+                                        <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span></td>
+                                    </tr>
+                                ))}</tbody>
+                            </table>
+                            <div className={styles.mobileCards}>
+                                {bookings.map(b => (
+                                    <div key={b.id} className={styles.mobileCard}>
+                                        <div className={styles.cardInfo}>
+                                            <strong>{b.name}</strong>
+                                            <span>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</span>
+                                            <span className={styles.cardSubtitle}>{b.serviceType}</span>
+                                        </div>
+                                        <span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     )}
 
                     {(activeTab === 'newsletter' || activeTab === 'marketing') && (
