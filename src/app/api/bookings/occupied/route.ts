@@ -1,8 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { getAvailableSlotsForDay } from '@/lib/config/availability';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const MAX_CAL_DAYS = 60; // Consultar 2 meses a Cal.com
+
+export async function GET(request: NextRequest) {
     try {
+        const { searchParams } = new URL(request.url);
+        const eventTypeId = searchParams.get('eventTypeId');
+
+        console.log(`DEBUG: Consultando disponibilidad para eventTypeId: ${eventTypeId}`);
+
+        // 1. Obtener cierres y bloqueos desde DB local (Citas pagadas)
         const bookings = await prisma.booking.findMany({
             where: {
                 status: 'PAID',
@@ -18,7 +30,6 @@ export async function GET() {
 
         const formatInSantiago = (dateStr: string | Date) => {
             const date = new Date(dateStr);
-            // Formatear a YYYY-MM-DD HH:mm en America/Santiago
             const santiagoDate = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'America/Santiago',
                 year: 'numeric',
@@ -29,7 +40,6 @@ export async function GET() {
                 hour12: false
             }).format(date);
             
-            // santiagoDate viene como "YYYY-MM-DD, HH:mm"
             return santiagoDate.replace(',', '');
         };
 
@@ -38,31 +48,72 @@ export async function GET() {
             return formatInSantiago(b.appointmentDate);
         }).filter((slot): slot is string => slot !== null);
 
-        // Fetch from Cal.com if API key exists
-        let occupiedFromCal: string[] = [];
+        let finalOccupiedSlots = [...occupiedFromDB];
+
+        // 2. Si hay eventTypeId, consultar disponibilidad REAL (incluyendo Google Calendar)
         const calKey = process.env.CALCOM_API_KEY;
-        if (calKey) {
+        if (eventTypeId && calKey) {
             try {
-                const calRes = await fetch('https://api.cal.com/v2/bookings', {
+                const startDate = new Date().toISOString().split('T')[0];
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + MAX_CAL_DAYS);
+                const endDateStr = endDate.toISOString().split('T')[0];
+
+                const url = `https://api.cal.com/v2/slots?eventTypeId=${eventTypeId}&start=${startDate}&end=${endDateStr}&timeZone=America/Santiago`;
+                
+                const calRes = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${calKey}`,
-                        'cal-api-version': '2024-08-13'
-                    }
+                        'cal-api-version': '2024-09-04'
+                    },
+                    next: { revalidate: 0 }
                 });
+                
                 const calData = await calRes.json();
                 
                 if (calRes.ok && calData.status === 'success') {
-                    occupiedFromCal = (calData.data || []).map((b: any) => {
-                        return formatInSantiago(b.start);
-                    });
+                    const availableSlots = calData.data as Record<string, { start: string }[]>;
+                    
+                    // Ahora recorremos cada día del rango para ver qué falta
+                    for (let i = 0; i <= MAX_CAL_DAYS; i++) {
+                        const date = new Date();
+                        date.setDate(date.getDate() + i);
+                        const dateStr = date.toISOString().split('T')[0];
+                        
+                        const dayOfWeek = date.getDay();
+                        const theoreticalSlots = getAvailableSlotsForDay(dayOfWeek);
+                        const realAvailableForDay = availableSlots[dateStr] || [];
+                        
+                        // Formateamos las horas reales para comparar (HH:mm)
+                        const realTimes = realAvailableForDay.map(s => {
+                            const d = new Date(s.start);
+                            return new Intl.DateTimeFormat('en-GB', {
+                                timeZone: 'America/Santiago',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hourCycle: 'h23'
+                            }).format(d);
+                        });
+
+                        // Para cada slot teórico, si NO está en los reales, marcar como ocupado
+                        for (const tSlot of theoreticalSlots) {
+                            if (!realTimes.includes(tSlot)) {
+                                finalOccupiedSlots.push(`${dateStr} ${tSlot}`);
+                            }
+                        }
+                    }
                 }
             } catch (err) {
-                console.error('Error fetching from Cal.com:', err);
+                console.error('Error fetching real availability from Cal.com:', err);
             }
         }
 
         // Combinar y eliminar duplicados
-        const occupiedSlots = Array.from(new Set([...occupiedFromDB, ...occupiedFromCal]));
+        const occupiedSlots = Array.from(new Set(finalOccupiedSlots));
+        
+        // Log para depuración
+        const fridaySlots = occupiedSlots.filter(s => s.startsWith('2026-04-24'));
+        console.log(`DEBUG: Slots ocupados para el viernes 24:`, fridaySlots);
 
         return NextResponse.json({ success: true, occupiedSlots });
     } catch (error) {

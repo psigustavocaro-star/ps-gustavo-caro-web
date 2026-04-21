@@ -21,7 +21,7 @@ export interface AvailabilityConfig {
 export const SESSION_DURATION = 45;
 
 // Tiempo de descanso entre sesiones en minutos
-export const BREAK_BETWEEN_SESSIONS = 5;
+export const BREAK_BETWEEN_SESSIONS = 0;
 
 // Días de anticipación mínima para agendar (no se puede agendar para hoy)
 export const MIN_ADVANCE_DAYS = 1;
@@ -63,7 +63,7 @@ export const weeklyAvailability: AvailabilityConfig = {
     5: { // Viernes
         enabled: true,
         slots: [
-            { start: '18:30', end: '21:45' }
+            { start: '20:30', end: '21:30' }
         ]
     },
     6: { // Sábado

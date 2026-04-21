@@ -46,11 +46,15 @@ export default function Booking() {
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
 
-    // Fetch occupied slots from DB
+    // Fetch occupied slots from DB + Cal.com (Real Availability)
     useEffect(() => {
         const fetchOccupied = async () => {
             try {
-                const res = await fetch('/api/bookings/occupied');
+                const url = formData.calEventTypeId 
+                    ? `/api/bookings/occupied?eventTypeId=${formData.calEventTypeId}`
+                    : '/api/bookings/occupied';
+                
+                const res = await fetch(url, { cache: 'no-store' });
                 const data = await res.json();
                 if (data.success) {
                     setOccupiedSlots(data.occupiedSlots);
@@ -60,7 +64,7 @@ export default function Booking() {
             }
         };
         fetchOccupied();
-    }, []);
+    }, [formData.calEventTypeId]);
 
     // Efecto para scroll automático al inicio de la sección cuando cambia el paso
     useEffect(() => {
