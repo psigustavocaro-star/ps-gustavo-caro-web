@@ -190,6 +190,8 @@ export default function AdminDashboard() {
         finally { setIsLoading(false); }
     };
 
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     if (!isAuthenticated) {
         return (
             <div className={styles.authContainer}>
@@ -214,10 +216,22 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className={styles.adminMain}>
+        <div className={`${styles.adminMain} ${isMobileMenuOpen ? styles.menuOpen : ''}`}>
             <div className={styles.ambientAura}></div>
             
-            <aside className={styles.sideNav}>
+            {/* Botón menú móvil */}
+            <button 
+                className={styles.mobileToggle} 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle Menu"
+            >
+                {isMobileMenuOpen ? '✕' : '☰'}
+            </button>
+
+            {/* Overlay para cerrar en móvil */}
+            {isMobileMenuOpen && <div className={styles.navOverlay} onClick={() => setIsMobileMenuOpen(false)}></div>}
+
+            <aside className={`${styles.sideNav} ${isMobileMenuOpen ? styles.sideNavOpen : ''}`}>
                 <div className={styles.navHeader}>
                     <label className={styles.profileUploadBox} title="Haz clic para subir tu foto">
                         <input type="file" accept="image/*" style={{display: 'none'}} onChange={handleProfilePicChange} />
@@ -232,10 +246,10 @@ export default function AdminDashboard() {
                 </div>
                 
                 <nav className={styles.navList}>
-                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => setActiveTab('patients')}>👥 Mis Pacientes</button>
-                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => setActiveTab('bookings')}>🗓️ Calendario</button>
-                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => setActiveTab('newsletter')}>💌 Newsletter</button>
-                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => setActiveTab('marketing')}>✍️ Mi Blog</button>
+                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => { setActiveTab('patients'); setIsMobileMenuOpen(false); }}>👥 Mis Pacientes</button>
+                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => { setActiveTab('bookings'); setIsMobileMenuOpen(false); }}>🗓️ Calendario</button>
+                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => { setActiveTab('newsletter'); setIsMobileMenuOpen(false); }}>💌 Newsletter</button>
+                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => { setActiveTab('marketing'); setIsMobileMenuOpen(false); }}>✍️ Mi Blog</button>
                 </nav>
                 
                 <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
@@ -299,7 +313,7 @@ export default function AdminDashboard() {
                             <tbody>{bookings.map(b => (
                                 <tr key={b.id}>
                                     <td>{b.name}</td>
-                                    <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })}</td>
+                                    <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</td>
                                     <td>{b.serviceType}</td>
                                     <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span></td>
                                 </tr>
