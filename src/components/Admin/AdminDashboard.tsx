@@ -280,10 +280,23 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon}>🌟</div>
+                        <div className={styles.statIcon}>💰</div>
                         <div className={styles.statInfo}>
-                            <h3>Lectores Conectados</h3>
-                            <p>{newsletterSubs.length}</p>
+                            <h3>Ganancias del Mes</h3>
+                            <p>${useMemo(() => {
+                                const now = new Date();
+                                const currentMonth = now.getMonth();
+                                const currentYear = now.getFullYear();
+                                return bookings
+                                    .filter(b => {
+                                        const date = new Date(b.appointmentDate || b.createdAt);
+                                        return b.status === 'PAID' && 
+                                               date.getMonth() === currentMonth && 
+                                               date.getFullYear() === currentYear;
+                                    })
+                                    .reduce((sum, b) => sum + (Number(b.amount) || 0), 0)
+                                    .toLocaleString('es-CL');
+                            }, [bookings])}</p>
                         </div>
                     </div>
                 </div>
@@ -330,12 +343,13 @@ export default function AdminDashboard() {
                     {activeTab === 'bookings' && (
                         <div className={styles.responsiveList}>
                             <table className={styles.friendlyTable}>
-                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Situación</th></tr></thead>
+                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th></tr></thead>
                                 <tbody>{bookings.map(b => (
                                     <tr key={b.id}>
                                         <td>{b.name}</td>
                                         <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</td>
                                         <td>{b.serviceType}</td>
+                                        <td style={{fontWeight: 700, color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</td>
                                         <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span></td>
                                     </tr>
                                 ))}</tbody>
@@ -344,7 +358,10 @@ export default function AdminDashboard() {
                                 {bookings.map(b => (
                                     <div key={b.id} className={styles.mobileCard}>
                                         <div className={styles.cardInfo}>
-                                            <strong>{b.name}</strong>
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                                                <strong>{b.name}</strong>
+                                                <span style={{fontWeight: 800, color: '#0891b2'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
+                                            </div>
                                             <span>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</span>
                                             <span className={styles.cardSubtitle}>{b.serviceType}</span>
                                         </div>
@@ -454,9 +471,14 @@ export default function AdminDashboard() {
                                         <div className={styles.sessionsScroll}>
                                             {selectedPatient.bookings.map((b: any, i: number) => (
                                                 <div key={b.id || i} className={styles.sessionLine}>
-                                                    <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
-                                                    <span className={styles.sessionService}>{b.serviceType}</span>
-                                                    <span className={styles.sessionTag}>{b.status}</span>
+                                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                                        <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
+                                                        <span className={styles.sessionService}>{b.serviceType}</span>
+                                                    </div>
+                                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px'}}>
+                                                        <span style={{fontWeight: 800, fontSize: '0.9rem', color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
+                                                        <span className={styles.sessionTag}>{b.status}</span>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
