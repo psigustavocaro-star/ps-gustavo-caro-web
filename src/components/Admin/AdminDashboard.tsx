@@ -38,6 +38,21 @@ export default function AdminDashboard() {
     
     const editorRef = useRef<HTMLDivElement>(null);
 
+    const monthlyEarnings = useMemo(() => {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        return bookings
+            .filter(b => {
+                const date = new Date(b.appointmentDate || b.createdAt);
+                return b.status === 'PAID' && 
+                       date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear;
+            })
+            .reduce((sum, b) => sum + (Number(b.amount) || 0), 0)
+            .toLocaleString('es-CL');
+    }, [bookings]);
+
     const fetchData = async () => {
         setIsLoading(true);
         try {
@@ -283,20 +298,7 @@ export default function AdminDashboard() {
                         <div className={styles.statIcon}>💰</div>
                         <div className={styles.statInfo}>
                             <h3>Ganancias del Mes</h3>
-                            <p>${useMemo(() => {
-                                const now = new Date();
-                                const currentMonth = now.getMonth();
-                                const currentYear = now.getFullYear();
-                                return bookings
-                                    .filter(b => {
-                                        const date = new Date(b.appointmentDate || b.createdAt);
-                                        return b.status === 'PAID' && 
-                                               date.getMonth() === currentMonth && 
-                                               date.getFullYear() === currentYear;
-                                    })
-                                    .reduce((sum, b) => sum + (Number(b.amount) || 0), 0)
-                                    .toLocaleString('es-CL');
-                            }, [bookings])}</p>
+                            <p>${monthlyEarnings}</p>
                         </div>
                     </div>
                 </div>
