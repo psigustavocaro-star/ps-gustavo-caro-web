@@ -45,7 +45,6 @@ export default function Booking() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
-    const paypalPaymentUrl = process.env.NEXT_PUBLIC_PAYPAL_PAYMENT_URL || 'https://www.paypal.com/paypalme/psgustavocaro';
 
     // Fetch occupied slots from DB + Cal.com (Real Availability)
     useEffect(() => {
@@ -181,15 +180,20 @@ export default function Booking() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleStartPayment = async () => {
+    const handleStartPayment = async (paymentMethod: 'flow' | 'paypal' = 'flow') => {
         setIsProcessing(true);
         setStep('processing');
 
         const finalPrice = calculateFinalPrice();
         const isFree = formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree') || finalPrice === 0;
+        const paymentEndpoint = isFree
+            ? '/api/payments/free'
+            : paymentMethod === 'paypal'
+                ? '/api/payments/paypal/create'
+                : '/api/payments/create';
 
         try {
-            const response = await fetch(isFree ? '/api/payments/free' : '/api/payments/create', {
+            const response = await fetch(paymentEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -641,14 +645,14 @@ export default function Booking() {
                                         </div>
                                         <div className={styles.internationalPayment}>
                                             <span>Usuarios internacionales</span>
-                                            <a
+                                            <button
+                                                type="button"
                                                 className={styles.paypalButton}
-                                                href={paypalPaymentUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                                onClick={() => handleStartPayment('paypal')}
+                                                disabled={isProcessing}
                                             >
-                                                Pagar con PayPal
-                                            </a>
+                                                {isProcessing ? 'Procesando...' : 'Pagar con PayPal'}
+                                            </button>
                                         </div>
                                         <div className={styles.securityBadges}>
                                             <span>🔒 Pago seguro con Flow</span>
@@ -668,7 +672,7 @@ export default function Booking() {
                             </div>
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary" disabled={isProcessing}>← Volver</button>
-                                <button onClick={handleStartPayment} className="btn-primary" disabled={isProcessing}>
+                                <button onClick={() => handleStartPayment('flow')} className="btn-primary" disabled={isProcessing}>
                                     {isProcessing ? 'Procesando...' :
                                         (formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree') || calculateFinalPrice() === 0)
                                             ? 'Confirmar Agendamiento Gratis ✨'
