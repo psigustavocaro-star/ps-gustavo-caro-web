@@ -96,7 +96,7 @@ export async function createPayPalOrder(params: {
                 paypal: {
                     experience_context: {
                         payment_method_preference: 'IMMEDIATE_PAYMENT_REQUIRED',
-                        landing_page: 'LOGIN',
+                        landing_page: 'BILLING',
                         shipping_preference: 'NO_SHIPPING',
                         user_action: 'PAY_NOW',
                         return_url: params.returnUrl,
