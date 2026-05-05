@@ -748,10 +748,54 @@
     margin-bottom: 12px;
 }
 
+.internationalPayment {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    max-width: 430px;
+    margin: 18px auto 0;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-align: left;
+}
+
+.internationalPayment span {
+    color: var(--foreground);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.paypalButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: var(--radius);
+    background: #ffc439;
+    color: #003087;
+    font-size: 0.92rem;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 8px 18px rgba(0, 48, 135, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.paypalButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 48, 135, 0.16);
+}
+
 .securityBadges {
     display: flex;
     gap: 20px;
     justify-content: center;
+    flex-wrap: wrap;
     margin-top: 16px;
     font-size: 0.85rem;
     color: var(--secondary);
@@ -976,6 +1020,15 @@
     .buttonGroup button {
         width: 100%;
         max-width: none;
+    }
+
+    .internationalPayment {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .paypalButton {
+        width: 100%;
     }
 
     .securityBadges {

@@ -129,6 +129,13 @@ export default function AdminDashboard() {
         }
     };
 
+    const formatRutForDisplay = (rut?: string) => {
+        if (!rut) return 'Aún no registrado';
+        const cleanRut = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+        if (cleanRut.length < 2) return rut;
+        return `${cleanRut.slice(0, -1)}-${cleanRut.slice(-1)}`;
+    };
+
     const toggleSelectAll = () => {
         if (selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0) {
             setSelectedRecipients([]);
@@ -462,7 +469,8 @@ export default function AdminDashboard() {
                             <div>
                                 <div className={styles.dataGrid}>
                                     <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ').trim() || selectedPatient.name || 'Sin Nombre'}</span></div>
-                                    <div className={styles.dataField}><label>Identificador (RUT)</label><span>{selectedPatient.rut || 'Aún no registrado'}</span></div>
+                                    <div className={styles.dataField}><label>Identificador (RUT)</label><span>{formatRutForDisplay(selectedPatient.rut)}</span></div>
+                                    <div className={styles.dataField}><label>Correo Electrónico</label><span>{selectedPatient.email || 'No especificado'}</span></div>
                                     <div className={styles.dataField}><label>Contacto Telefónico</label><span>{selectedPatient.phone || 'No especificado'}</span></div>
                                     <div className={styles.dataField}><label>Residencia</label><span>{[selectedPatient.address, selectedPatient.commune, selectedPatient.region].filter(Boolean).join(', ') || 'Sin detalles'}</span></div>
                                 </div>

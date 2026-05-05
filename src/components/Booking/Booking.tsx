@@ -45,6 +45,7 @@ export default function Booking() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
+    const paypalPaymentUrl = process.env.NEXT_PUBLIC_PAYPAL_PAYMENT_URL || 'https://www.paypal.com/paypalme/psgustavocaro';
 
     // Fetch occupied slots from DB + Cal.com (Real Availability)
     useEffect(() => {
@@ -194,9 +195,14 @@ export default function Booking() {
                 body: JSON.stringify({
                     email: formData.email,
                     name: formData.name,
+                    firstName: formData.firstName,
+                    secondName: formData.secondName,
+                    firstSurname: formData.firstSurname,
+                    secondSurname: formData.secondSurname,
                     phone: formData.phone,
                     rut: formData.rut,
                     address: formData.address,
+                    region: formData.region,
                     commune: formData.commune,
                     serviceType: formData.serviceType,
                     motivo: formData.reason || formData.details,
@@ -633,8 +639,20 @@ export default function Booking() {
                                         <div className={styles.methodIcons}>
                                             💳 Tarjetas de Crédito/Débito · Webpay
                                         </div>
+                                        <div className={styles.internationalPayment}>
+                                            <span>Usuarios internacionales</span>
+                                            <a
+                                                className={styles.paypalButton}
+                                                href={paypalPaymentUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Pagar con PayPal
+                                            </a>
+                                        </div>
                                         <div className={styles.securityBadges}>
                                             <span>🔒 Pago seguro con Flow</span>
+                                            <span>🌎 PayPal internacional</span>
                                             <span>📑 Boleta Manual Electrónica</span>
                                         </div>
                                         <div className={styles.infoBox} style={{marginTop: '20px', fontSize: '0.85rem'}}>
