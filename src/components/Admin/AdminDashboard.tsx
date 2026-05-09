@@ -455,117 +455,45 @@ export default function AdminDashboard() {
                         </div>
                         
                         {isEditing ? (
-                            <div className={styles.editForm}>
-                                <div className={styles.formSection}>
-                                    <h3>Información Personal</h3>
-                                    <div className={styles.dataGrid}>
-                                        <div className={styles.dataField}><label>Nombre Principal</label><input value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
-                                        <div className={styles.dataField}><label>Segundo Nombre</label><input value={editData.secondName || ''} onChange={e => setEditData({...editData, secondName: e.target.value})} /></div>
-                                        <div className={styles.dataField}><label>Primer Apellido</label><input value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
-                                        <div className={styles.dataField}><label>Segundo Apellido</label><input value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
-                                    </div>
-                                </div>
-                                
-                                <div className={styles.formSection}>
-                                    <h3>Contacto y Ubicación</h3>
-                                    <div className={styles.dataGrid}>
-                                        <div className={styles.dataField}><label>Nº de RUT</label><input value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
-                                        <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled style={{opacity: 0.5}} /></div>
-                                        <div className={styles.dataField}><label>Teléfono</label><input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} /></div>
-                                        <div className={styles.dataField}><label>Dirección y Comuna</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} placeholder="Ej: Las Lilas 123, Providencia" /></div>
-                                    </div>
-                                </div>
+                            <div className={styles.dataGrid}>
+                                <div className={styles.dataField}><label>Nombre Principal</label><input value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Segundo Nombre</label><input value={editData.secondName || ''} onChange={e => setEditData({...editData, secondName: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Primer Apellido</label><input value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Segundo Apellido</label><input value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Nº de RUT</label><input value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled style={{opacity: 0.5}} /></div>
+                                <div className={styles.dataField}><label>Teléfono</label><input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Dirección y Comuna</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} placeholder="Ej: Las Lilas 123, Providencia" /></div>
                             </div>
                         ) : (
-                            <div className={styles.profileDetails}>
-                                <div className={styles.profileHeader}>
-                                    <div className={styles.patientAvatarLarge}>
-                                        {selectedPatient.firstName?.[0] || selectedPatient.name?.[0] || 'P'}
-                                    </div>
-                                    <div className={styles.patientMainInfo}>
-                                        <h3>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ').trim() || selectedPatient.name || 'Sin Nombre'}</h3>
-                                        <span className={styles.patientEmail}>{selectedPatient.email}</span>
-                                        <div className={styles.patientBadges}>
-                                            <span className={`${styles.badge} ${styles.badgeCalypso}`}>Activo</span>
-                                            <span className={`${styles.badge} ${styles.badgeGeneric}`}>{selectedPatient.rut ? 'RUT Verificado' : 'RUT Pendiente'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className={styles.infoTabs}>
-                                    <div className={styles.infoGrid}>
-                                        <div className={styles.infoCard}>
-                                            <span className={styles.infoLabel}>RUT</span>
-                                            <span className={styles.infoValue}>{formatRutForDisplay(selectedPatient.rut)}</span>
-                                        </div>
-                                        <div className={styles.infoCard}>
-                                            <span className={styles.infoLabel}>Teléfono</span>
-                                            <span className={styles.infoValue}>{selectedPatient.phone || 'No registrado'}</span>
-                                        </div>
-                                        <div className={styles.infoCard}>
-                                            <span className={styles.infoLabel}>Ubicación</span>
-                                            <span className={styles.infoValue}>{[selectedPatient.address, selectedPatient.commune, selectedPatient.region].filter(Boolean).join(', ') || 'Sin dirección'}</span>
-                                        </div>
-                                        <div className={styles.infoCard}>
-                                            <span className={styles.infoLabel}>Próxima Cita</span>
-                                            <span className={styles.infoValue}>Pendiente</span>
-                                        </div>
-                                    </div>
+                            <div>
+                                <div className={styles.dataGrid}>
+                                    <div className={styles.dataField}><label>Identidad</label><span>{[selectedPatient.firstName, selectedPatient.secondName, selectedPatient.firstSurname, selectedPatient.secondSurname].filter(Boolean).join(' ').trim() || selectedPatient.name || 'Sin Nombre'}</span></div>
+                                    <div className={styles.dataField}><label>Identificador (RUT)</label><span>{formatRutForDisplay(selectedPatient.rut)}</span></div>
+                                    <div className={styles.dataField}><label>Correo Electrónico</label><span>{selectedPatient.email || 'No especificado'}</span></div>
+                                    <div className={styles.dataField}><label>Contacto Telefónico</label><span>{selectedPatient.phone || 'No especificado'}</span></div>
+                                    <div className={styles.dataField}><label>Residencia</label><span>{[selectedPatient.address, selectedPatient.commune, selectedPatient.region].filter(Boolean).join(', ') || 'Sin detalles'}</span></div>
                                 </div>
                                 
                                 <div className={styles.sessionsBox}>
-                                    <div className={styles.sessionsHeader}>
-                                        <h3>📋 Historial de Atenciones</h3>
-                                        <span className={styles.sessionCount}>{selectedPatient.bookings.length} sesiones</span>
-                                    </div>
+                                    <h3>📅 Historial Médico ({selectedPatient.bookings.length} citas)</h3>
                                     {selectedPatient.bookings.length > 0 ? (
                                         <div className={styles.sessionsScroll}>
                                             {selectedPatient.bookings.map((b: any, i: number) => (
-                                                <div key={b.id || i} className={styles.sessionItem}>
-                                                    <div className={styles.sessionIcon}>🗓️</div>
-                                                    <div className={styles.sessionMain}>
-                                                        <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                                                <div key={b.id || i} className={styles.sessionLine}>
+                                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                                        <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
                                                         <span className={styles.sessionService}>{b.serviceType}</span>
                                                     </div>
-                                                    <div className={styles.sessionMeta}>
-                                                        <span className={styles.sessionAmount}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
-                                                        <div style={{display: 'flex', gap: '4px', alignItems: 'center'}}>
-                                                            {b.invoiceUrl ? (
-                                                                <span className={styles.invoiceCheck} title="Boleta subida">🧾✅</span>
-                                                            ) : (
-                                                                <button 
-                                                                    className={styles.uploadInvoiceMini} 
-                                                                    onClick={() => {
-                                                                        const url = prompt('Pega el link de la boleta del SII o el Base64:');
-                                                                        if (url) {
-                                                                            fetch(`/api/admin/bookings/${b.id}/invoice`, {
-                                                                                method: 'POST',
-                                                                                headers: { 'Content-Type': 'application/json' },
-                                                                                body: JSON.stringify({ invoiceUrl: url })
-                                                                            }).then(res => res.json()).then(data => {
-                                                                                if(data.success) {
-                                                                                    alert('Boleta vinculada con éxito');
-                                                                                    fetchData();
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                    }}
-                                                                    title="Vincular Boleta SII"
-                                                                >
-                                                                    ➕🧾
-                                                                </button>
-                                                            )}
-                                                            <span className={`${styles.statusBadge} ${b.status === 'PAID' ? styles.statusPaid : styles.statusPending}`}>{b.status}</span>
-                                                        </div>
+                                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px'}}>
+                                                        <span style={{fontWeight: 800, fontSize: '0.9rem', color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
+                                                        <span className={styles.sessionTag}>{b.status}</span>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className={styles.emptySessions}>
-                                            <span className={styles.emptyIcon}>📂</span>
-                                            <p>No hay citas registradas todavía en el sistema.</p>
-                                        </div>
+                                        <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay citas registradas todavía.</p>
                                     )}
                                 </div>
                             </div>

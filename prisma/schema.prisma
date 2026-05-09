@@ -30,7 +30,6 @@ model Booking {
   reason      String?
   details     String?
   appointmentDate String?
-  invoiceUrl      String?
   calBookingId    String?
   calEventTypeId  Int?
   createdAt       DateTime @default(now())
