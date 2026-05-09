@@ -68,10 +68,8 @@ export async function POST(request: NextRequest) {
         // Aplicar cupón si existe
         if (body.coupon) {
             const coupon = body.coupon.toUpperCase();
-            if (coupon === 'TEST100' || coupon === 'GUSTAVO5') {
+            if (coupon === 'TEST100') {
                 amount = 350; // Monto mínimo seguro para Webpay/Flow
-            } else if (coupon === 'VIBE5') {
-                amount = 5; // Monto solicitado por el usuario (puede fallar en pasarelas reales)
             } else if (coupon === 'GUSTAVO10') {
                 amount = Math.max(0, amount - 10000);
             }

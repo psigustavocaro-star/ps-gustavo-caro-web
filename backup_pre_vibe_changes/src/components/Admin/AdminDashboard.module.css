@@ -209,54 +209,6 @@
 
 .modalActions { display: flex; gap: 12px; margin-top: 32px; }
 
-/* IMPROVED PROFILE STYLES */
-.profileDetails { display: flex; flex-direction: column; gap: 24px; }
-.profileHeader { display: flex; align-items: center; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid #f1f5f9; }
-.patientAvatarLarge { 
-    width: 80px; height: 80px; 
-    background: linear-gradient(135deg, #0891b2, #06b6d4); 
-    color: white; border-radius: 20px; 
-    display: flex; align-items: center; justify-content: center; 
-    font-size: 2rem; font-weight: 800; font-family: 'Outfit', sans-serif;
-    box-shadow: 0 8px 16px rgba(8, 145, 178, 0.2);
-}
-.patientMainInfo h3 { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; font-family: 'Outfit', sans-serif; }
-.patientEmail { color: #64748b; font-size: 0.9rem; font-weight: 600; display: block; margin-bottom: 8px; }
-.patientBadges { display: flex; gap: 8px; }
-
-.infoGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
-.infoCard { background: #f8fafc; padding: 16px; border-radius: 16px; border: 1px solid #f1f5f9; transition: 0.2s; }
-.infoCard:hover { border-color: #0891b2; background: #ffffff; transform: translateY(-2px); }
-.infoLabel { display: block; font-size: 0.65rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
-.infoValue { display: block; font-size: 0.9rem; color: #0f172a; font-weight: 700; }
-
-.sessionsHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.sessionCount { font-size: 0.75rem; font-weight: 800; color: #0891b2; background: #ecfeff; padding: 4px 10px; border-radius: 20px; }
-
-.sessionItem { 
-    display: flex; align-items: center; gap: 16px; padding: 16px; 
-    background: #ffffff; border-radius: 16px; border: 1px solid #f1f5f9; 
-    transition: 0.2s; margin-bottom: 8px;
-}
-.sessionItem:hover { border-color: #0891b2; transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-.sessionIcon { font-size: 1.2rem; background: #f8fafc; padding: 10px; border-radius: 12px; }
-.sessionMain { flex: 1; display: flex; flex-direction: column; }
-.sessionDate { font-weight: 700; color: #0f172a; font-size: 0.9rem; text-transform: capitalize; }
-.sessionService { font-size: 0.8rem; color: #64748b; font-weight: 500; }
-.sessionMeta { text-align: right; display: flex; flex-direction: column; gap: 4px; }
-.sessionAmount { font-weight: 800; color: #0f172a; font-size: 0.95rem; }
-.statusBadge { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; }
-.statusPaid { background: #dcfce7; color: #15803d; }
-.statusPending { background: #fef9c3; color: #854d0e; }
-
-.emptySessions { text-align: center; padding: 40px 20px; background: #f8fafc; border-radius: 16px; border: 1px dashed #cbd5e1; }
-.emptyIcon { font-size: 2rem; display: block; margin-bottom: 12px; opacity: 0.5; }
-.emptySessions p { color: #94a3b8; font-size: 0.9rem; }
-
-.editForm { display: flex; flex-direction: column; gap: 24px; }
-.formSection h3 { font-size: 0.85rem; color: #0f172a; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.05em; border-left: 3px solid #0891b2; padding-left: 12px; }
-
-
 /* AUTHENTICATION */
 .authContainer { min-height: 100vh; background: #f0f9fa; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 .authBlob { position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(8, 145, 178, 0.1) 0%, transparent 70%); border-radius: 50%; animation: floatBlob 12s ease-in-out infinite alternate; }
