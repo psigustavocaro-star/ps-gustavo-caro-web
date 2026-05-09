@@ -5,9 +5,10 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const body = await request.json();
         const { invoiceUrl } = body;
 
@@ -16,7 +17,7 @@ export async function POST(
         }
 
         const updatedBooking = await prisma.booking.update({
-            where: { id: params.id },
+            where: { id },
             data: { invoiceUrl }
         });
 
