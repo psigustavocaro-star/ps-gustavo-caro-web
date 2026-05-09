@@ -15,10 +15,7 @@ export async function GET(request: NextRequest) {
         // Buscar el paciente por email y traer sus reservas
         const patient = await prisma.booking.findFirst({
             where: { email: email.toLowerCase() },
-            orderBy: { createdAt: 'desc' },
-            include: {
-                // Asumiendo que hay una relación o que podemos traer múltiples bookings
-            }
+            orderBy: { createdAt: 'desc' }
         });
 
         if (!patient) {
