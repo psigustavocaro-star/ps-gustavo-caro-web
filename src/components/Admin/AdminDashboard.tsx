@@ -529,7 +529,34 @@ export default function AdminDashboard() {
                                                     </div>
                                                     <div className={styles.sessionMeta}>
                                                         <span className={styles.sessionAmount}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
-                                                        <span className={`${styles.statusBadge} ${b.status === 'PAID' ? styles.statusPaid : styles.statusPending}`}>{b.status}</span>
+                                                        <div style={{display: 'flex', gap: '4px', alignItems: 'center'}}>
+                                                            {b.invoiceUrl ? (
+                                                                <span className={styles.invoiceCheck} title="Boleta subida">🧾✅</span>
+                                                            ) : (
+                                                                <button 
+                                                                    className={styles.uploadInvoiceMini} 
+                                                                    onClick={() => {
+                                                                        const url = prompt('Pega el link de la boleta del SII o el Base64:');
+                                                                        if (url) {
+                                                                            fetch(`/api/admin/bookings/${b.id}/invoice`, {
+                                                                                method: 'POST',
+                                                                                headers: { 'Content-Type': 'application/json' },
+                                                                                body: JSON.stringify({ invoiceUrl: url })
+                                                                            }).then(res => res.json()).then(data => {
+                                                                                if(data.success) {
+                                                                                    alert('Boleta vinculada con éxito');
+                                                                                    fetchData();
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    }}
+                                                                    title="Vincular Boleta SII"
+                                                                >
+                                                                    ➕🧾
+                                                                </button>
+                                                            )}
+                                                            <span className={`${styles.statusBadge} ${b.status === 'PAID' ? styles.statusPaid : styles.statusPending}`}>{b.status}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}

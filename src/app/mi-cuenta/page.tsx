@@ -114,7 +114,19 @@ function MiCuentaContent() {
                                         <span className={styles.historyDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString()}</span>
                                         <span className={styles.historyType}>{b.serviceType}</span>
                                     </div>
-                                    <button className={styles.invoiceBtn}>Boleta</button>
+                                    {b.invoiceUrl ? (
+                                        <a 
+                                            href={b.invoiceUrl} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className={styles.invoiceBtn}
+                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                        >
+                                            Boleta 📥
+                                        </a>
+                                    ) : (
+                                        <button className={styles.invoiceBtn} disabled title="Boleta aún no disponible">Pendiente</button>
+                                    )}
                                 </div>
                             ))}
                         </div>

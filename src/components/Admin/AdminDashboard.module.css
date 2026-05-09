@@ -256,6 +256,25 @@
 .editForm { display: flex; flex-direction: column; gap: 24px; }
 .formSection h3 { font-size: 0.85rem; color: #0f172a; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.05em; border-left: 3px solid #0891b2; padding-left: 12px; }
 
+.uploadInvoiceMini {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 0.75rem;
+    transition: 0.2s;
+}
+.uploadInvoiceMini:hover {
+    background: #ecfeff;
+    border-color: #0891b2;
+}
+.invoiceCheck {
+    font-size: 1rem;
+    cursor: help;
+}
+
+
 
 /* AUTHENTICATION */
 .authContainer { min-height: 100vh; background: #f0f9fa; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
