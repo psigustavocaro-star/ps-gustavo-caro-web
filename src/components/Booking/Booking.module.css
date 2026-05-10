@@ -761,6 +761,51 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     text-align: left;
+    display: none; /* Removed legacy container */
+}
+
+.alternativePayment {
+    margin-top: 32px;
+    padding: 24px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.altLabel {
+    font-size: 0.9rem;
+    color: var(--foreground-muted);
+    font-weight: 600;
+}
+
+.paypalButtonUnified {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 240px;
+    min-height: 48px;
+    padding: 0 24px;
+    border: 2px solid #ffc439;
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: #003087;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.paypalButtonUnified:hover {
+    background: #ffc439;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 196, 57, 0.2);
+}
+
+.paypalButtonUnified:active {
+    transform: translateY(0);
 }
 
 .internationalPayment span {

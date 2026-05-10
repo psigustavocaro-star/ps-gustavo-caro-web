@@ -419,8 +419,6 @@ export default function Booking() {
                         </div>
                     )}
 
-
-
                     {step === 'contact' && (
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Identificación del Paciente</h2>
@@ -643,22 +641,7 @@ export default function Booking() {
                                         <div className={styles.methodIcons}>
                                             💳 Tarjetas de Crédito/Débito · Webpay
                                         </div>
-                                        <div className={styles.internationalPayment}>
-                                            <span>Usuarios internacionales</span>
-                                            <button
-                                                type="button"
-                                                className={styles.paypalButton}
-                                                onClick={() => handleStartPayment('paypal')}
-                                                disabled={isProcessing}
-                                            >
-                                                {isProcessing ? 'Procesando...' : 'Pagar con PayPal'}
-                                            </button>
-                                        </div>
-                                        <div className={styles.securityBadges}>
-                                            <span>🔒 Pago seguro con Flow</span>
-                                            <span>🌎 PayPal internacional</span>
-                                            <span>📑 Boleta Manual Electrónica</span>
-                                        </div>
+                                        
                                         <div className={styles.infoBox} style={{marginTop: '20px', fontSize: '0.85rem'}}>
                                             <p><strong>Paciente:</strong> {formData.name}</p>
                                             <p><strong>Email:</strong> {formData.email}</p>
@@ -667,6 +650,11 @@ export default function Booking() {
                                         <p className={styles.invoiceNote}>
                                             Tras confirmar tu pago, el profesional recibirá una notificación para generar y enviarte manualmente tu boleta de honorarios a tu correo electrónico.
                                         </p>
+                                        <div className={styles.securityBadges}>
+                                            <span>🔒 Pago seguro con Flow</span>
+                                            <span>🌎 PayPal internacional</span>
+                                            <span>📑 Boleta Manual Electrónica</span>
+                                        </div>
                                     </>
                                 )}
                             </div>
@@ -676,9 +664,24 @@ export default function Booking() {
                                     {isProcessing ? 'Procesando...' :
                                         (formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree') || calculateFinalPrice() === 0)
                                             ? 'Confirmar Agendamiento Gratis ✨'
-                                            : 'Pagar con Flow 💳'}
+                                            : 'Pagar con Flow (Webpay) 💳'}
                                 </button>
                             </div>
+
+                            {!(formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree')) && (
+                                <div className={styles.alternativePayment}>
+                                    <span className={styles.altLabel}>¿Vives fuera de Chile?</span>
+                                    <button
+                                        type="button"
+                                        className={styles.paypalButtonUnified}
+                                        onClick={() => handleStartPayment('paypal')}
+                                        disabled={isProcessing}
+                                    >
+                                        Pagar con PayPal (USD) 🌎
+                                    </button>
+                                </div>
+                            )}
+
                             <p className={styles.disclaimer}>Al continuar aceptas los términos de servicio y política de privacidad.</p>
                         </div>
                     )}
