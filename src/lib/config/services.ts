@@ -1,6 +1,8 @@
 // Configuración de servicios de pago y facturación
 // IMPORTANTE: Estas credenciales deben estar en variables de entorno (.env.local)
 
+import { PRICING } from './pricing';
+
 const getBaseUrl = () => {
     if (typeof window !== 'undefined') return ''; // Usar rutas relativas en el cliente
     if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
@@ -16,19 +18,16 @@ export const paymentConfig = {
         apiUrl: process.env.FLOW_API_URL || 'https://sandbox.flow.cl/api',
     },
 
-    // Configuración de precios en CLP
+    // Precios CLP — fuente única: lib/config/pricing.ts
     pricing: {
-        // Sesiones de psicoterapia
-        sesionIndividual: 36000,     // CLP - Sesión individual (45 min)
-        primeraConsulta: 0,          // CLP - Primera sesión GRATIS
-        packSesiones: 140000,        // CLP - Pack 4 sesiones (ahorro de $20.000)
-
-        // Evaluaciones neuropsicológicas (4 sesiones + feedback + informe)
-        evalTDAH: 180000,            // Evaluación TDAH Adulto
-        evalAutismo: 220000,         // Evaluación TEA (ADOS-2)
-        evalInteligencia: 160000,    // Evaluación Intelectual (WISC-V / WAIS-IV)
-        evalNeuropsicologica: 240000, // Evaluación Neuropsicológica Completa
-        evalEmocional: 140000,       // Evaluación Socioemocional
+        sesionIndividual: PRICING.sesion,
+        primeraConsulta: PRICING.primeraConsulta,
+        packSesiones: PRICING.packSesiones,
+        evalTDAH: PRICING.evalTDAH,
+        evalAutismo: PRICING.evalAutismo,
+        evalInteligencia: PRICING.evalInteligencia,
+        evalNeuropsicologica: PRICING.evalNeuropsicologica,
+        evalEmocional: PRICING.evalEmocional,
     },
 
     // URLs de retorno

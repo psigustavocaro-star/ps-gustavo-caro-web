@@ -14,8 +14,6 @@ export async function createCalBooking(params: {
     }
 
     try {
-        console.log(`CALCOM: Creando reserva v2 para ${params.email} en tipo ${params.eventTypeId}`);
-
         const response = await fetch(`https://api.cal.com/v2/bookings`, {
             method: 'POST',
             headers: {
@@ -38,16 +36,14 @@ export async function createCalBooking(params: {
 
         if (response.ok && (data.status === 'success' || response.status === 201)) {
             const bookingId = data.data?.id || data.id;
-            console.log(`CALCOM: Booking v2 creado exitosamente. ID: ${bookingId}`);
             return { success: true, bookingId };
         } else {
-            console.error('CALCOM: Error al crear booking v2:', data);
-            const errorDetail = JSON.stringify(data);
-            return { success: false, error: `Cal.com v2 Error: ${response.status} - ${errorDetail}` };
+            console.error('Cal.com booking error:', response.status, data?.message || data?.error);
+            return { success: false, error: `Cal.com error ${response.status}` };
         }
-    } catch (error: any) {
-        console.error('CALCOM: Error crítico de red v2:', error.message);
-        return { success: false, error: error.message };
+    } catch (error) {
+        console.error('Cal.com network error:', error);
+        return { success: false, error: 'Cal.com network error' };
     }
 }
 
@@ -66,8 +62,6 @@ export async function cancelCalBooking(bookingUid: string, reason?: string) {
     }
 
     try {
-        console.log(`CALCOM: Cancelando reserva v2 UID: ${bookingUid}`);
-
         const response = await fetch(`https://api.cal.com/v2/bookings/${bookingUid}/cancel`, {
             method: 'POST',
             headers: {
@@ -78,31 +72,21 @@ export async function cancelCalBooking(bookingUid: string, reason?: string) {
             body: JSON.stringify({ cancellationReason: reason || 'Cancelado por el administrador desde CRM' })
         });
 
-        if (response.ok) {
-            console.log(`CALCOM: Booking ${bookingUid} cancelado exitosamente.`);
-            return { success: true };
-        } else {
-            console.warn(`CALCOM: Intento posterior con DELETE...`);
-            // Fallback por si la API prefiere DELETE
-            const fallbackRes = await fetch(`https://api.cal.com/v1/bookings/${bookingUid}/cancel`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ apiKey, reason: reason || 'Cancelado desde CRM' })
-            });
+        if (response.ok) return { success: true };
 
-            if (fallbackRes.ok) {
-                console.log(`CALCOM: Booking ${bookingUid} cancelado exitosamente vía fallback v1.`);
-                return { success: true };
-            }
+        // Fallback v1
+        const fallbackRes = await fetch(`https://api.cal.com/v1/bookings/${bookingUid}/cancel`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ apiKey, reason: reason || 'Cancelado desde CRM' })
+        });
 
-            const err = await fallbackRes.text();
-            console.error('CALCOM: Error final al cancelar booking:', err);
-            return { success: false, error: err };
-        }
-    } catch (error: any) {
-        console.error('CALCOM: Error crítico al cancelar:', error.message);
-        return { success: false, error: error.message };
+        if (fallbackRes.ok) return { success: true };
+
+        console.error('Cal.com cancel error:', response.status, fallbackRes.status);
+        return { success: false, error: 'Cal.com cancel failed' };
+    } catch (error) {
+        console.error('Cal.com cancel network error:', error);
+        return { success: false, error: 'Cal.com network error' };
     }
 }

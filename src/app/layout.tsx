@@ -160,11 +160,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${dmSans.variable}`}>
+        <a href="#main-content" className="skip-to-content">Saltar al contenido principal</a>
         <InteractiveBackground />
         <Providers>
           <Sidebar />
           <SmoothScroll>
-            {children}
+            <div id="main-content">{children}</div>
             {/* <MobileFloatingCTA /> Se omite porque el Sidebar navega abajo en mobile */}
             <WhatsAppButton />
           </SmoothScroll>

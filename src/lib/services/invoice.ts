@@ -162,23 +162,23 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
         });
 
         const rawText = await response.text();
-        console.log('SimpleAPI Raw text response:', rawText);
 
         if (!response.ok) {
-            throw new Error(`SimpleAPI HTTP ${response.status}: ${rawText.substring(0, 500) || 'Empty body'}`);
+            console.error('SimpleAPI HTTP error:', response.status);
+            throw new Error(`SimpleAPI HTTP ${response.status}`);
         }
 
         let result;
         try {
             result = JSON.parse(rawText);
-        } catch (e) {
-            throw new Error(`SimpleAPI response not JSON: ${rawText.substring(0, 100)}`);
+        } catch {
+            throw new Error('SimpleAPI response not JSON');
         }
 
-        if (!response.ok || !result.exito) {
+        if (!result.exito) {
+            console.error('SimpleAPI SII rejected:', result?.codigo || 'unknown');
             const errorMsg = result.mensaje || result.error || 'Error en SimpleAPI';
-            console.error('SimpleAPI SII Error Response:', result);
-            return { success: false, error: `${errorMsg} (Raw: ${JSON.stringify(result)})` };
+            return { success: false, error: errorMsg };
         }
 
         return {
@@ -187,9 +187,9 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
             invoiceUrl: result.pdf_url,
         };
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('SimpleAPI SII invoice exception:', error);
-        return { success: false, error: `Exception: ${error.message}` };
+        return { success: false, error: 'SimpleAPI exception' };
     }
 }
 
@@ -197,12 +197,8 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
  * Fallback: Registra la venta y notifica para generar boleta manual
  */
 export async function generateManualInvoice(data: InvoiceData): Promise<InvoiceResult> {
-    // Guardar en base de datos o archivo para procesamiento manual
-    console.log('Manual invoice pending:', data);
-
-    // Enviar notificación por email al profesional
-    // await sendEmail({ to: 'psi.gustavocaro@gmail.com', subject: 'Nueva boleta pendiente', ... });
-
+    // Marca la boleta como pendiente de emisión manual. La notificación al
+    // profesional se envía vía el correo de auditoría en booking-finalization.
     return {
         success: true,
         invoiceNumber: `MANUAL-${data.commerceOrder}`,

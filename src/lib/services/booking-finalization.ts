@@ -6,14 +6,22 @@ type PaymentFinalizationOptions = {
     rawPaymentData?: unknown;
 };
 
+type AuditData = {
+    orderId: string;
+    paymentMethod: string;
+    paidAmount?: number;
+    steps: Record<string, string>;
+};
+
 export async function finalizePaidBooking({
     orderId,
     amount,
     paymentMethod,
     auditLabel = 'PAGO',
-    rawPaymentData,
+    // rawPaymentData se ignora en el audit email para no incluir PII del proveedor.
+    rawPaymentData: _rawPaymentData,
 }: PaymentFinalizationOptions) {
-    const auditData: any = { orderId, paymentMethod, steps: {} };
+    const auditData: AuditData = { orderId, paymentMethod, steps: {} };
     const { default: prisma } = await import('@/lib/db');
     const booking = await prisma.booking.findUnique({ where: { orderId } });
 
@@ -23,11 +31,11 @@ export async function finalizePaidBooking({
     }
 
     auditData.steps.database = 'OK';
-    if (rawPaymentData) auditData.payment = rawPaymentData;
 
     const clientEmail = booking.email;
     const clientName = booking.name || 'Paciente';
     const paidAmount = amount ?? booking.amount;
+    auditData.paidAmount = paidAmount;
 
     if (booking.status !== 'PAID') {
         try {
@@ -40,9 +48,10 @@ export async function finalizePaidBooking({
                 description: 'ATENCION PSICOLOGICA',
                 paymentMethod,
             });
-            auditData.steps.invoice = 'MANUAL (Notificado)';
-        } catch (invoiceErr: any) {
-            auditData.steps.invoice = `ERROR NOTIFICACION: ${invoiceErr.message}`;
+            auditData.steps.invoice = 'MANUAL_OK';
+        } catch (invoiceErr) {
+            console.error('Invoice notification error:', invoiceErr);
+            auditData.steps.invoice = 'ERROR';
         }
     } else {
         auditData.steps.invoice = 'SKIPPED_ALREADY_PAID';
@@ -61,8 +70,9 @@ export async function finalizePaidBooking({
             create: { email: clientEmail, name: clientName, active: true },
         });
         auditData.steps.newsletter_sync = 'OK';
-    } catch (e: any) {
-        auditData.steps.db_update = `ERROR: ${e.message}`;
+    } catch (e) {
+        console.error('Booking finalize DB error:', e);
+        auditData.steps.db_update = 'ERROR';
     }
 
     if (booking.calEventTypeId && booking.appointmentDate && !booking.calBookingId) {
@@ -75,18 +85,19 @@ export async function finalizePaidBooking({
                 email: clientEmail,
                 notes: `Orden ${orderId} pagada con ${paymentMethod}`,
             });
-            auditData.steps.calcom = calResult.success ? `OK (${calResult.bookingId})` : `FALLÓ (${calResult.error})`;
+            auditData.steps.calcom = calResult.success ? `OK_${calResult.bookingId}` : 'FAILED';
             if (calResult.success && calResult.bookingId) {
                 await prisma.booking.update({
                     where: { orderId },
                     data: { calBookingId: String(calResult.bookingId) },
                 });
             }
-        } catch (calErr: any) {
-            auditData.steps.calcom = `CRASH: ${calErr.message}`;
+        } catch (calErr) {
+            console.error('Cal.com booking crash:', calErr);
+            auditData.steps.calcom = 'CRASH';
         }
     } else if (booking.calBookingId) {
-        auditData.steps.calcom = `SKIPPED_ALREADY_CREATED (${booking.calBookingId})`;
+        auditData.steps.calcom = `SKIPPED_ALREADY_CREATED`;
     } else {
         auditData.steps.calcom = 'SKIPPED_NO_DATE_OR_EVENT';
     }
@@ -104,8 +115,9 @@ export async function finalizePaidBooking({
                 orderId,
             });
             auditData.steps.resend = 'OK';
-        } catch (mailErr: any) {
-            auditData.steps.resend = `ERROR: ${mailErr.message}`;
+        } catch (mailErr) {
+            console.error('Confirmation mail error:', mailErr);
+            auditData.steps.resend = 'ERROR';
         }
     } else {
         auditData.steps.resend = 'SKIPPED_ALREADY_PAID';
@@ -118,9 +130,9 @@ export async function finalizePaidBooking({
             from: 'Web Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
             to: 'psi.gustavocaro@gmail.com',
             subject: `📊 Auditoría [${auditLabel}]: ${orderId}`,
-            html: `<pre>${JSON.stringify(auditData, null, 2)}</pre>`,
+            html: `<pre style="font-family:monospace;font-size:13px;">${JSON.stringify(auditData, null, 2)}</pre>`,
         });
-    } catch (e) {}
+    } catch {}
 
     return { success: true, auditData, booking };
 }

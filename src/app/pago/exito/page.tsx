@@ -10,7 +10,7 @@ import CustomCalendar from '@/components/Booking/CustomCalendar';
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('order') || 'N/A';
-    const [booking, setBooking] = useState<{ serviceType: string, eventTypeId: string, name: string, email: string, appointmentDate?: string } | null>(null);
+    const [booking, setBooking] = useState<{ serviceType: string, eventTypeId: string, appointmentDate?: string } | null>(null);
     const [loading, setLoading] = useState(true);
     const [appointmentConfirmed, setAppointmentConfirmed] = useState(false);
     const [selectedDateTime, setSelectedDateTime] = useState<{ date: string; time: string } | null>(null);
@@ -111,7 +111,7 @@ function PaymentSuccessContent() {
                             <strong>⏰ Hora:</strong> {selectedDateTime.time} hrs
                         </p>
                         <p className={styles.detailRow}>
-                            <strong>📧 Confirmación enviada a:</strong> {booking?.email}
+                            <strong>📧 Confirmación enviada a tu correo</strong>
                         </p>
                     </div>
                 ) : (
@@ -120,7 +120,7 @@ function PaymentSuccessContent() {
                             <strong>✅ Servicio adquirido exitosamente</strong>
                         </p>
                         <p className={styles.detailRow}>
-                            <strong>📧 Confirmación enviada a:</strong> {booking?.email}
+                            <strong>📧 Confirmación enviada a tu correo</strong>
                         </p>
                     </div>
                 )}

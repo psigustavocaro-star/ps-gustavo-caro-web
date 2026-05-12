@@ -1,30 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
     try {
         const { title, content, id } = await request.json();
-        
-        if (!title || !content) {
+
+        if (typeof title !== 'string' || typeof content !== 'string' || !title.trim() || !content.trim()) {
             return NextResponse.json({ success: false, error: 'Título y contenido requeridos' }, { status: 400 });
         }
+        const safeTitle = title.slice(0, 200);
+        const safeContent = content.slice(0, 50000);
 
         if (id) {
-            // Update
             const template = await prisma.emailTemplate.update({
                 where: { id },
-                data: { title, content }
+                data: { title: safeTitle, content: safeContent }
             });
             return NextResponse.json({ success: true, template });
         } else {
-            // Create
             const template = await prisma.emailTemplate.create({
-                data: { title, content }
+                data: { title: safeTitle, content: safeContent }
             });
             return NextResponse.json({ success: true, template });
         }
-    } catch (error: any) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Newsletter template error:', error);
+        return NextResponse.json({ success: false, error: 'Error interno' }, { status: 500 });
     }
 }
 
@@ -39,7 +42,8 @@ export async function DELETE(request: NextRequest) {
 
         await prisma.emailTemplate.delete({ where: { id } });
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Newsletter template delete error:', error);
+        return NextResponse.json({ success: false, error: 'Error interno' }, { status: 500 });
     }
 }

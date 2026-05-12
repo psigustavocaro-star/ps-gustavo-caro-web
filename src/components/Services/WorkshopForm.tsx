@@ -23,7 +23,7 @@ export default function WorkshopForm({ isOpen, onClose }: { isOpen: boolean, onC
 - Detalles: ${formData.details}`;
 
         const encoded = encodeURIComponent(message);
-        window.open(`https://wa.me/56936319102?text=${encoded}`, '_blank');
+        window.open(`https://wa.me/56922409953?text=${encoded}`, '_blank');
         onClose();
     };
 

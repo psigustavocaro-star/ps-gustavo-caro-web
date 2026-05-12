@@ -341,3 +341,36 @@ select {
     justify-content: center;
   }
 }
+
+/* Skip to main content — visible solo cuando recibe foco con Tab */
+.skip-to-content {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 20px;
+  background: #0891b2;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: top 0.15s ease-out;
+}
+
+.skip-to-content:focus {
+  top: 16px;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Respeta usuarios con preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

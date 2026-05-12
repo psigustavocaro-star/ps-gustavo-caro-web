@@ -5,6 +5,7 @@ import Image from 'next/image';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 import { clpToUsd, FALLBACK_CLP_PER_USD } from '@/lib/util/currency';
+import { getServicePrice, getCalEventTypeId } from '@/lib/config/pricing';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
@@ -93,23 +94,13 @@ export default function Booking() {
         }
     }, [step]);
 
-    // Efecto para mapear el Tipo de Servicio con su ID numérico de Cal.com
+    // Mapea el Tipo de Servicio con su ID numérico de Cal.com (vía env vars)
     useEffect(() => {
-        const calEventMap: Record<string, number> = {
-            'sesion': 4479069,
-            'primeraConsulta': 4479069, // Si no tienes un ID para esta, usamos el mismo de sesión por ahora
-            'packSesiones': 4479093,
-            'evalTDAH': 4479069,
-            'evalAutismo': 4479069,
-            'evalInteligencia': 4479069,
-            'evalNeuropsicologica': 4479069,
-            'evalEmocional': 4479069
-        };
-
-        const targetId = calEventMap[formData.serviceType] || null;
+        const targetId = getCalEventTypeId(formData.serviceType);
         if (targetId !== formData.calEventTypeId) {
             setFormData(prev => ({ ...prev, calEventTypeId: targetId }));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.serviceType]);
 
     // Handler para cuando el usuario selecciona fecha y hora en el calendario custom
@@ -282,18 +273,7 @@ export default function Booking() {
         });
     };
 
-    const calculateFinalPriceWithoutCoupon = () => {
-        switch (formData.serviceType) {
-            case 'sesion': return 36000;
-            case 'packSesiones': return 140000;
-            case 'evalTDAH': return 180000;
-            case 'evalAutismo': return 220000;
-            case 'evalInteligencia': return 160000;
-            case 'evalNeuropsicologica': return 240000;
-            case 'evalEmocional': return 140000;
-            default: return 0;
-        }
-    };
+    const calculateFinalPriceWithoutCoupon = () => getServicePrice(formData.serviceType);
 
     const calculateFinalPrice = () => {
         const basePrice = calculateFinalPriceWithoutCoupon();
@@ -395,8 +375,8 @@ export default function Booking() {
                                     </div>
                                     <h3 className={styles.cardTitle}>Psicoterapia Individual</h3>
                                     <p className={styles.cardText}>Atención personalizada focalizada en tus procesos emocionales, ansiedad o bienestar general.</p>
-                                    <div className={styles.cardPrice}>$36.000 <span>CLP / sesión</span></div>
-                                    <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(36000, clpPerUsd)} referencial · pago internacional con PayPal</div>
+                                    <div className={styles.cardPrice}>${getServicePrice('sesion').toLocaleString('es-CL')} <span>CLP / sesión</span></div>
+                                    <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(getServicePrice('sesion'), clpPerUsd)} referencial · pago internacional con PayPal</div>
                                 </div>
 
                                 <div 
@@ -409,8 +389,8 @@ export default function Booking() {
                                     </div>
                                     <h3 className={styles.cardTitle}>Pack 4 Sesiones</h3>
                                     <p className={styles.cardText}>Continuidad terapéutica asegurada con un plan mensual. Ideal para procesos profundos.</p>
-                                    <div className={styles.cardPrice}>$140.000 <span>CLP / mes</span></div>
-                                    <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(140000, clpPerUsd)} referencial · pago internacional con PayPal</div>
+                                    <div className={styles.cardPrice}>${getServicePrice('packSesiones').toLocaleString('es-CL')} <span>CLP / mes</span></div>
+                                    <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(getServicePrice('packSesiones'), clpPerUsd)} referencial · pago internacional con PayPal</div>
                                 </div>
                             </div>
 

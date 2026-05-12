@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
         const { amount: baseAmount, subject } = getServicePaymentDetails(serviceType);
 
-        let amount = baseAmount;
+        let amount: number = baseAmount;
         if (body.coupon) {
             const result = applyCoupon(body.coupon, amount);
             if (!result.ok) {
