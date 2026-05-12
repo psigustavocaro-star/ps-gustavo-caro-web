@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
+import { clpToUsd } from '@/lib/util/currency';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
@@ -383,7 +384,8 @@ export default function Booking() {
                                     </div>
                                     <h3 className={styles.cardTitle}>Psicoterapia Individual</h3>
                                     <p className={styles.cardText}>Atención personalizada focalizada en tus procesos emocionales, ansiedad o bienestar general.</p>
-                                    <div className={styles.cardPrice}>$36.000 <span>/ sesión</span></div>
+                                    <div className={styles.cardPrice}>$36.000 <span>CLP / sesión</span></div>
+                                    <div className={styles.cardPriceUsd}>~ USD ${clpToUsd(36000)} (pago internacional vía PayPal)</div>
                                 </div>
 
                                 <div 
@@ -396,7 +398,8 @@ export default function Booking() {
                                     </div>
                                     <h3 className={styles.cardTitle}>Pack 4 Sesiones</h3>
                                     <p className={styles.cardText}>Continuidad terapéutica asegurada con un plan mensual. Ideal para procesos profundos.</p>
-                                    <div className={styles.cardPrice}>$140.000 <span>/ mes</span></div>
+                                    <div className={styles.cardPrice}>$140.000 <span>CLP / mes</span></div>
+                                    <div className={styles.cardPriceUsd}>~ USD ${clpToUsd(140000)} (pago internacional vía PayPal)</div>
                                 </div>
                             </div>
 
@@ -602,9 +605,12 @@ export default function Booking() {
                                                                         formData.serviceType === 'evalEmocional' ? 'Evaluación Socioemocional' :
                                                                             'Servicio'
                                     }</span>
-                                    <strong>{
-                                        `$${calculateFinalPrice().toLocaleString('es-CL')}`
-                                    }</strong>
+                                    <strong>
+                                        <div>${calculateFinalPrice().toLocaleString('es-CL')} CLP</div>
+                                        {calculateFinalPrice() > 0 && (
+                                            <div className={styles.priceUsd}>~ USD ${clpToUsd(calculateFinalPrice())}</div>
+                                        )}
+                                    </strong>
                                 </div>
 
                                 {!(formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree')) && (
