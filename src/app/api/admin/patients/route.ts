@@ -63,11 +63,6 @@ export async function DELETE(request: NextRequest) {
             where: { email: email.toLowerCase().trim() }
         });
 
-        // Eliminamos anamnesis asociada
-        await prisma.anamnesis.deleteMany({
-            where: { email: email.toLowerCase().trim() }
-        });
-
         // Eliminamos registro del newsletter (Borrado total del CRM)
         await prisma.newsletter.deleteMany({
             where: { email: email.toLowerCase().trim() }

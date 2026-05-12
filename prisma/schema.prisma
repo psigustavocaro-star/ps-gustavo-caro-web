@@ -40,18 +40,6 @@ model Booking {
   @@index([createdAt])
 }
 
-model Anamnesis {
-  id          String   @id @default(uuid())
-  email       String
-  name        String
-  age         String?
-  medications String?
-  history     String?
-  createdAt   DateTime @default(now())
-
-  @@index([email])
-}
-
 model Newsletter {
   id          String   @id @default(uuid())
   email       String   @unique

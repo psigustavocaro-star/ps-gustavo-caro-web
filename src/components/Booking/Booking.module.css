@@ -893,12 +893,6 @@
     margin-bottom: 0;
 }
 
-.anamnesisPrompt {
-    font-size: 1rem;
-    color: var(--foreground-light);
-    margin-bottom: 24px;
-}
-
 /* ============================================
    CALENDAR CONTAINER
    ============================================ */

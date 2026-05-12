@@ -7,10 +7,8 @@ export async function GET() {
     try {
         const bookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
         const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
-        const anamnesis = await prisma.anamnesis.findMany().catch(() => []);
         const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
 
-        // Agrupar por paciente (email)
         const patientsMap = new Map();
 
         bookings.forEach((b: any) => {
@@ -31,28 +29,17 @@ export async function GET() {
                     commune: b.commune || '',
                     country: b.country || 'Chile',
                     bookings: [],
-                    anamnesis: null,
                     newsletter: null,
                     totalSpent: 0
                 });
             }
             const p = patientsMap.get(email);
             p.bookings.push(b);
-            // Solo sumar montos de pagos exitosos
             if (b.status === 'PAID') {
                 p.totalSpent += (Number(b.amount) || 0);
             }
         });
 
-        // Vincular Anamnesis
-        anamnesis.forEach((a: any) => {
-            if (!a.email) return;
-            const email = a.email.toLowerCase().trim();
-            const p = patientsMap.get(email);
-            if (p) p.anamnesis = a;
-        });
-
-        // Vincular Newsletter y agregar suscriptores que nunca agendaron
         newsletter.forEach((n: any) => {
             if (!n.email) return;
             const email = n.email.toLowerCase().trim();
@@ -65,7 +52,6 @@ export async function GET() {
                     name: n.name || 'Suscriptor',
                     phone: '',
                     bookings: [],
-                    anamnesis: null,
                     newsletter: n,
                     totalSpent: 0
                 });
@@ -77,10 +63,7 @@ export async function GET() {
         return NextResponse.json({
             success: true,
             patients,
-            bookings: bookings.map((b: any) => ({
-                ...b,
-                anamnesis: anamnesis.find((a: any) => a.email && a.email.toLowerCase().trim() === b.email.toLowerCase().trim()) || null
-            })),
+            bookings,
             newsletter,
             templates
         });

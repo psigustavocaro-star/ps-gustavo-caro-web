@@ -11,7 +11,7 @@ const CHILE_REGIONS = [
     'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
 ];
 
-type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success' | 'anamnesis';
+type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success';
 
 export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
@@ -36,9 +36,6 @@ export default function Booking() {
         region: '',
         commune: '',
         newsletter: true,
-        age: '',
-        medications: '',
-        history: '',
         rawStartTime: '',
         calEventTypeId: null as number | null,
         coupon: ''
@@ -259,7 +256,6 @@ export default function Booking() {
                     }
                 }
                 else if (step === 'payment') setStep('processing');
-                else if (step === 'success') setStep('anamnesis');
             });
         });
     };
@@ -326,9 +322,6 @@ export default function Booking() {
             region: '',
             commune: '',
             newsletter: true,
-            age: '',
-            medications: '',
-            history: '',
             rawStartTime: '',
             calEventTypeId: null,
             coupon: ''
@@ -709,68 +702,7 @@ export default function Booking() {
                                     <p><strong>📑 Boleta:</strong> Enviada automáticamente</p>
                                 )}
                             </div>
-                            <p className={styles.anamnesisPrompt}>Para ahorrar tiempo en la sesión, por favor completa estos datos clínicos adicionales:</p>
-                            <button onClick={handleNext} className="btn-primary">Completar Anamnesis</button>
-                        </div>
-                    )}
-
-                    {step === 'anamnesis' && (
-                        <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Ficha Clínica (Anamnesis)</h2>
-                            <p className={styles.stepDesc}>Esta información me ayudará a preparar mejor nuestra primera sesión.</p>
-                            <div className={styles.formGrid}>
-                                <div className={styles.formGroup}>
-                                    <label>Edad</label>
-                                    <input
-                                        id="age"
-                                        name="age"
-                                        type="number"
-                                        className={styles.input}
-                                        value={formData.age}
-                                        onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                    />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label>¿Tomas algún medicamento?</label>
-                                    <input
-                                        id="medications"
-                                        name="medications"
-                                        type="text"
-                                        className={styles.input}
-                                        placeholder="Sí/No, cuáles..."
-                                        value={formData.medications}
-                                        onChange={(e) => setFormData({ ...formData, medications: e.target.value })}
-                                    />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label>Antecedentes familiares relevantes</label>
-                                    <textarea
-                                        id="history"
-                                        name="history"
-                                        className={styles.textarea}
-                                        value={formData.history}
-                                        onChange={(e) => setFormData({ ...formData, history: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                onClick={async () => {
-                                    try {
-                                        await fetch('/api/anamnesis', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify(formData),
-                                        });
-                                        alert('¡Gracias! Datos guardados. Nos vemos pronto.');
-                                        resetForm();
-                                    } catch (e) {
-                                        alert('Error al guardar. Por favor intenta de nuevo.');
-                                    }
-                                }}
-                                className="btn-primary"
-                            >
-                                Enviar Ficha
-                            </button>
+                            <button onClick={resetForm} className="btn-primary">Listo</button>
                         </div>
                     )}
                 </div>

@@ -168,38 +168,6 @@ export async function sendFreeBookingConfirmation(data: {
     }
 }
 
-export async function sendAnamnesisData(data: {
-    name: string;
-    email: string;
-    age: string;
-    medications: string;
-    history: string;
-}) {
-    const { name, email, age, medications, history } = data;
-
-    try {
-        await resend.emails.send({
-            from: 'Ficha Clínica <sistema@psgustavocaro.cl>',
-            to: 'psi.gustavocaro@gmail.com',
-            subject: `🩺 Ficha Clínica (Anamnesis): ${name}`,
-            html: `
-                <h1>Datos Clínicos Adicionales</h1>
-                <p>El paciente ha completado su ficha anticipada.</p>
-                <hr />
-                <p><strong>Paciente:</strong> ${name}</p>
-                <p><strong>Edad:</strong> ${age}</p>
-                <p><strong>Medicamentos:</strong> ${medications}</p>
-                <p><strong>Antecedentes:</strong></p>
-                <p>${history}</p>
-                <hr />
-                <p>Este documento es confidencial y para uso exclusivo del profesional.</p>
-            `,
-        });
-    } catch (error) {
-        console.error('Error sending anamnesis email:', error);
-    }
-}
-
 export async function sendNewsletterWelcome(email: string, name?: string) {
     try {
         const { newsletterSequence } = await import('@/lib/config/newsletter-content');

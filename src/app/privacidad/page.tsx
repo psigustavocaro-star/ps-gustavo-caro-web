@@ -39,14 +39,13 @@ export default function PrivacidadPage() {
                             <li>Número de teléfono</li>
                             <li>Dirección (comuna)</li>
                         </ul>
-                        <h3>2.2 Datos Clínicos (Sensibles)</h3>
+                        <h3>2.2 Datos del Servicio</h3>
                         <ul>
-                            <li>Motivo de consulta</li>
-                            <li>Información de anamnesis proporcionada voluntariamente</li>
-                            <li>Historial de sesiones</li>
+                            <li>Motivo de consulta (resumen breve)</li>
+                            <li>Historial de sesiones agendadas y pagos realizados</li>
                         </ul>
                         <p className={styles.highlight}>
-                            Los datos clínicos son tratados con el más alto nivel de confidencialidad,
+                            Toda la información es tratada con el más alto nivel de confidencialidad,
                             conforme al secreto profesional establecido en el Código de Ética del
                             Colegio de Psicólogos de Chile.
                         </p>
