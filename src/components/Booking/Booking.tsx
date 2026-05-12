@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
-import { clpToUsd } from '@/lib/util/currency';
+import { clpToUsd, FALLBACK_CLP_PER_USD } from '@/lib/util/currency';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
@@ -43,6 +43,17 @@ export default function Booking() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
+    const [clpPerUsd, setClpPerUsd] = useState<number>(FALLBACK_CLP_PER_USD);
+
+    // Fetch tipo de cambio CLP→USD vigente (mindicador.cl, cacheado server-side)
+    useEffect(() => {
+        fetch('/api/exchange-rate')
+            .then(r => r.ok ? r.json() : null)
+            .then(d => {
+                if (d?.clpPerUsd) setClpPerUsd(d.clpPerUsd);
+            })
+            .catch(() => {});
+    }, []);
 
     // Fetch occupied slots from DB + Cal.com (Real Availability)
     useEffect(() => {
@@ -385,7 +396,7 @@ export default function Booking() {
                                     <h3 className={styles.cardTitle}>Psicoterapia Individual</h3>
                                     <p className={styles.cardText}>Atención personalizada focalizada en tus procesos emocionales, ansiedad o bienestar general.</p>
                                     <div className={styles.cardPrice}>$36.000 <span>CLP / sesión</span></div>
-                                    <div className={styles.cardPriceUsd}>~ USD ${clpToUsd(36000)} (pago internacional vía PayPal)</div>
+                                    <div className={styles.cardPriceUsd}>~ USD ${clpToUsd(36000, clpPerUsd)} (pago internacional vía PayPal)</div>
                                 </div>
 
                                 <div 
@@ -399,7 +410,7 @@ export default function Booking() {
                                     <h3 className={styles.cardTitle}>Pack 4 Sesiones</h3>
                                     <p className={styles.cardText}>Continuidad terapéutica asegurada con un plan mensual. Ideal para procesos profundos.</p>
                                     <div className={styles.cardPrice}>$140.000 <span>CLP / mes</span></div>
-                                    <div className={styles.cardPriceUsd}>~ USD ${clpToUsd(140000)} (pago internacional vía PayPal)</div>
+                                    <div className={styles.cardPriceUsd}>~ USD ${clpToUsd(140000, clpPerUsd)} (pago internacional vía PayPal)</div>
                                 </div>
                             </div>
 
@@ -608,7 +619,7 @@ export default function Booking() {
                                     <strong>
                                         <div>${calculateFinalPrice().toLocaleString('es-CL')} CLP</div>
                                         {calculateFinalPrice() > 0 && (
-                                            <div className={styles.priceUsd}>~ USD ${clpToUsd(calculateFinalPrice())}</div>
+                                            <div className={styles.priceUsd}>~ USD ${clpToUsd(calculateFinalPrice(), clpPerUsd)}</div>
                                         )}
                                     </strong>
                                 </div>

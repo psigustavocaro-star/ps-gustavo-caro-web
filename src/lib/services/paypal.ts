@@ -45,17 +45,17 @@ const getAccessToken = async () => {
 
 export const getPayPalCurrency = () => process.env.PAYPAL_CURRENCY || 'USD';
 
-export const convertClpToPayPalAmount = (amountClp: number) => {
+export const convertClpToPayPalAmount = async (amountClp: number) => {
     const currency = getPayPalCurrency();
 
     if (currency === 'CLP') {
         return String(Math.round(amountClp));
     }
 
-    const clpPerUnit = Number(process.env.PAYPAL_CLP_PER_UNIT || process.env.PAYPAL_CLP_PER_USD || 950);
-    if (!Number.isFinite(clpPerUnit) || clpPerUnit <= 0) {
-        throw new Error('PAYPAL_CLP_PER_UNIT debe ser un número mayor a 0');
-    }
+    // Tipo de cambio vigente del Banco Central (mindicador.cl), cacheado 6h.
+    // Si la API falla, cae al env PAYPAL_CLP_PER_UNIT o a 950.
+    const { getCurrentClpPerUsd } = await import('./exchange-rate');
+    const clpPerUnit = await getCurrentClpPerUsd();
 
     return (Math.ceil((amountClp / clpPerUnit) * 100) / 100).toFixed(2);
 };
@@ -69,7 +69,7 @@ export async function createPayPalOrder(params: {
 }) {
     const accessToken = await getAccessToken();
     const currencyCode = getPayPalCurrency();
-    const value = convertClpToPayPalAmount(params.amountClp);
+    const value = await convertClpToPayPalAmount(params.amountClp);
 
     const response = await fetch(`${getPayPalBaseUrl()}/v2/checkout/orders`, {
         method: 'POST',
