@@ -2,28 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createFlowPayment } from '@/lib/services/flow';
 import { paymentConfig } from '@/lib/config/services';
 import { sendBookingNotification } from '@/lib/services/mail';
+import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-    console.log('API: Iniciando creación de pago...');
+    const ip = ipFromHeaders(request.headers);
+    const rl = rateLimit(`payments:${ip}`, 10, 10 * 60 * 1000);
+    if (!rl.ok) return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 });
+
     try {
         const body = await request.json();
 
-        const {
-            email,
-            name,
-            serviceType = 'sesion',
-            motivo,
-            detalles,
-            calEventTypeId,
-        } = body;
+        const emailRaw = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+        const name = isNonEmptyString(body?.name, 200) ? body.name.trim() : '';
+        const serviceType = typeof body?.serviceType === 'string' ? body.serviceType : 'sesion';
+        const motivo = typeof body?.motivo === 'string' ? body.motivo.slice(0, 2000) : '';
+        const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
+        const calEventTypeId = typeof body?.calEventTypeId === 'number' || typeof body?.calEventTypeId === 'string' ? body.calEventTypeId : null;
+        const email = emailRaw;
 
-        if (!email || !name) {
-            return NextResponse.json(
-                { error: 'Email y nombre son requeridos' },
-                { status: 400 }
-            );
+        if (!isEmail(email) || !name) {
+            return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
         }
 
         // Determinar precio según tipo de servicio
@@ -65,18 +65,18 @@ export async function POST(request: NextRequest) {
                 subject = 'Sesión de Psicoterapia Online';
         }
 
-        // Aplicar cupón si existe
+        // Aplicar cupón (validación server-side)
         if (body.coupon) {
-            const coupon = body.coupon.toUpperCase();
-            if (coupon === 'TEST100') {
-                amount = 350; // Monto mínimo seguro para Webpay/Flow
-            } else if (coupon === 'GUSTAVO10') {
-                amount = Math.max(0, amount - 10000);
+            const { applyCoupon } = await import('@/lib/services/coupons');
+            const couponResult = applyCoupon(body.coupon, amount);
+            if (!couponResult.ok) {
+                return NextResponse.json({ error: couponResult.reason }, { status: 400 });
             }
+            amount = couponResult.amount;
         }
 
         // Generar ID único de orden
-        const commerceOrder = `PSG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const commerceOrder = `PSG-${Date.now()}-${crypto.randomUUID().slice(0, 12)}`;
 
         // Guardar en base de datos (no bloquea el pago si falla)
         try {
@@ -104,7 +104,6 @@ export async function POST(request: NextRequest) {
                     status: 'PENDING',
                 }
             });
-            console.log('API: Reserva guardada en DB', { commerceOrder });
 
             // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
             await prisma.newsletter.upsert({
@@ -155,13 +154,10 @@ export async function POST(request: NextRequest) {
             amount,
         });
 
-    } catch (error: any) {
-        console.error('CRITICAL: Payment creation error details:', {
-            message: error.message,
-            stack: error.stack
-        });
+    } catch (error) {
+        console.error('Payment creation error:', error);
         return NextResponse.json(
-            { error: `API ERROR: ${error.message}` },
+            { error: 'No fue posible iniciar el pago' },
             { status: 500 }
         );
     }

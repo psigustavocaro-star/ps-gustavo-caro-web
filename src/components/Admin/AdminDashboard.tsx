@@ -24,6 +24,17 @@ export default function AdminDashboard() {
     useEffect(() => {
         const savedPic = localStorage.getItem('adminProfilePic');
         if (savedPic) setProfilePic(savedPic);
+        // Re-hydrate session on refresh
+        fetch('/api/auth/admin/me', { credentials: 'include' })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => {
+                if (d?.authenticated) {
+                    setIsAuthenticated(true);
+                    fetchData();
+                }
+            })
+            .catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -119,14 +130,39 @@ export default function AdminDashboard() {
         finally { setIsLoading(false); }
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (email.toLowerCase() === 'psi.gustavocaro@gmail.com' && password === 'gudaxgudax1.') {
-            setIsAuthenticated(true);
-            fetchData();
-        } else {
-            alert('Datos incorrectos. Por favor, intenta de nuevo.');
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/auth/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email, password }),
+            });
+            if (res.ok) {
+                setIsAuthenticated(true);
+                setPassword('');
+                fetchData();
+            } else {
+                const data = await res.json().catch(() => ({ error: 'Error' }));
+                alert(data.error || 'Credenciales inválidas');
+            }
+        } catch {
+            alert('Error de conexión');
+        } finally {
+            setIsLoading(false);
         }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/admin/logout', { method: 'POST', credentials: 'include' });
+        } catch {}
+        setIsAuthenticated(false);
+        setBookings([]);
+        setPatients([]);
+        setNewsletterSubs([]);
     };
 
     const formatRutForDisplay = (rut?: string) => {

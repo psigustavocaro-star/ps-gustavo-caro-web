@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { Resend } from 'resend';
+import { sanitizeHtml } from '@/lib/services/html-sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     try {
@@ -44,8 +47,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'No hay destinatarios' }, { status: 400 });
         }
 
-        console.log(`Sending newsletter "${finalTitle}" to ${targetEmails.length} recipients...`);
-        
         // Chunk sizes of 10 to avoid rate limit spikes but process fast enough
         const CHUNK_SIZE = 10;
         for (let i = 0; i < targetEmails.length; i += CHUNK_SIZE) {
@@ -61,12 +62,13 @@ export async function POST(request: NextRequest) {
                 // Replace variations of the placeholder
                 personalizedContent = personalizedContent.replace(/\[\s*Nombre del Paciente\s*\]/gi, firstName);
                 personalizedContent = personalizedContent.replace(/\[\s*Nombre\s*\]/gi, firstName);
+                const safeHtml = sanitizeHtml(personalizedContent);
 
                 const resendData = await resend.emails.send({
                     from: 'Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
                     to: email,
-                    subject: finalTitle,
-                    html: personalizedContent,
+                    subject: String(finalTitle).slice(0, 200),
+                    html: safeHtml,
                 });
                 
                 if (resendData.error) {

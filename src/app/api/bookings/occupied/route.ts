@@ -12,8 +12,6 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const eventTypeId = searchParams.get('eventTypeId');
 
-        console.log(`DEBUG: Consultando disponibilidad para eventTypeId: ${eventTypeId}`);
-
         // 1. Obtener cierres y bloqueos desde DB local (Citas pagadas)
         const bookings = await prisma.booking.findMany({
             where: {
@@ -110,10 +108,6 @@ export async function GET(request: NextRequest) {
 
         // Combinar y eliminar duplicados
         const occupiedSlots = Array.from(new Set(finalOccupiedSlots));
-        
-        // Log para depuración
-        const fridaySlots = occupiedSlots.filter(s => s.startsWith('2026-04-24'));
-        console.log(`DEBUG: Slots ocupados para el viernes 24:`, fridaySlots);
 
         return NextResponse.json({ success: true, occupiedSlots });
     } catch (error) {

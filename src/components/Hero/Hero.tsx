@@ -75,8 +75,9 @@ export default function Hero() {
                                 alt="Ps. Gustavo Caro - Especialista en TCC"
                                 width={1200}
                                 height={1200}
-                                quality={100}
-                                unoptimized={true}
+                                quality={75}
+                                priority
+                                sizes="(max-width: 768px) 90vw, 600px"
                                 className={styles.mainImage}
                                 style={{ objectFit: 'cover', objectPosition: 'center' }}
                             />

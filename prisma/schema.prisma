@@ -34,6 +34,10 @@ model Booking {
   calEventTypeId  Int?
   createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([email])
+  @@index([status, createdAt])
+  @@index([createdAt])
 }
 
 model Anamnesis {
@@ -44,6 +48,8 @@ model Anamnesis {
   medications String?
   history     String?
   createdAt   DateTime @default(now())
+
+  @@index([email])
 }
 
 model Newsletter {

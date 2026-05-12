@@ -1,7 +1,7 @@
 {
     "crons": [
         {
-            "path": "/api/cron/newsletter?secret=psigustavo2024",
+            "path": "/api/cron/newsletter",
             "schedule": "0 10 * * *"
         }
     ]

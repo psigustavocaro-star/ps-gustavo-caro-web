@@ -1,28 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendBookingNotification } from '@/lib/services/mail';
+import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-    console.log('API: Iniciando agendamiento gratuito...');
+    const ip = ipFromHeaders(request.headers);
+    const rl = rateLimit(`free:${ip}`, 10, 10 * 60 * 1000);
+    if (!rl.ok) return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 });
+
     try {
         const body = await request.json();
 
-        const {
-            email,
-            name,
-            serviceType = 'primeraConsulta',
-            motivo,
-            detalles,
-            calEventTypeId,
-            appointmentDate
-        } = body;
+        const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+        const name = isNonEmptyString(body?.name, 200) ? body.name.trim() : '';
+        const serviceType = typeof body?.serviceType === 'string' ? body.serviceType : 'primeraConsulta';
+        const motivo = typeof body?.motivo === 'string' ? body.motivo.slice(0, 2000) : '';
+        const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
+        const calEventTypeId = body?.calEventTypeId ?? null;
+        const appointmentDate = typeof body?.appointmentDate === 'string' ? body.appointmentDate : null;
 
-        if (!email || !name) {
-            return NextResponse.json(
-                { error: 'Email y nombre son requeridos' },
-                { status: 400 }
-            );
+        if (!isEmail(email) || !name) {
+            return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
         }
 
         // Determinar nombre del servicio para el email
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generar ID único de orden (aunque sea gratis para mantener consistencia)
-        const commerceOrder = `FREE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const commerceOrder = `FREE-${Date.now()}-${crypto.randomUUID().slice(0, 12)}`;
 
         // Guardar en base de datos como CONFIRMADA directamente
         try {
@@ -68,7 +67,6 @@ export async function POST(request: NextRequest) {
                     status: 'PAID', // Se marca como pagado porque no requiere transacción
                 }
             });
-            console.log('API: Reserva gratuita guardada en DB', { commerceOrder });
 
             // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
             await prisma.newsletter.upsert({
@@ -76,9 +74,8 @@ export async function POST(request: NextRequest) {
                 update: { active: true, name },
                 create: { email: email.toLowerCase(), name, active: true }
             }).catch((err: any) => console.error('Silent error registering newsletter:', err));
-        } catch (dbError: any) {
-            console.error('API: Error al guardar en DB:', dbError.message);
-            // Si falla la DB en un agendamiento gratis, notificamos pero igual devolvemos éxito para no bloquear al usuario
+        } catch (dbError) {
+            console.error('Free booking DB error:', dbError);
         }
 
         // Agendar en Cal.com vía API para que aparezca en Google Calendar
@@ -97,8 +94,8 @@ export async function POST(request: NextRequest) {
                 if (calResult.success) {
                     calBookingId = calResult.bookingId;
                 }
-            } catch (calError: any) {
-                console.error('API: Error al agendar en Cal.com (continuando):', calError.message);
+            } catch (calError) {
+                console.error('Cal.com booking error:', calError);
             }
         }
 
@@ -121,13 +118,10 @@ export async function POST(request: NextRequest) {
             amount: 0,
         });
 
-    } catch (error: any) {
-        console.error('CRITICAL: Free booking error details:', {
-            message: error.message,
-            stack: error.stack
-        });
+    } catch (error) {
+        console.error('Free booking error:', error);
         return NextResponse.json(
-            { error: `API ERROR: ${error.message}` },
+            { error: 'No fue posible completar el agendamiento' },
             { status: 500 }
         );
     }

@@ -6,9 +6,7 @@ import { newsletterSequence } from '@/lib/config/newsletter-content';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function processNewsletterSequence() {
-    console.log('Iniciando procesamiento de secuencia de newsletter...');
-
-    // 1. Buscar suscriptores activos que necesitan el siguiente correo (han pasado 14 días)
+    // 1. Suscriptores activos que necesitan el siguiente correo (14 días desde el último)
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
@@ -19,8 +17,6 @@ export async function processNewsletterSequence() {
             lastSentAt: { lte: fourteenDaysAgo }
         }
     });
-
-    console.log(`Encontrados ${subscribers.length} suscriptores para actualizar.`);
 
     for (const sub of subscribers) {
         const nextStep = sub.currentStep + 1;
@@ -44,9 +40,8 @@ export async function processNewsletterSequence() {
                     }
                 });
 
-                console.log(`Email ${nextStep} enviado a ${sub.email}`);
             } catch (error) {
-                console.error(`Error enviando email a ${sub.email}:`, error);
+                console.error(`Newsletter send error step=${nextStep}:`, error);
             }
         }
     }

@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db';
+import { sendNewsletterWelcome } from '@/lib/services/mail';
+import { isEmail, rateLimit, ipFromHeaders } from '@/lib/util/validation';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+    const ip = ipFromHeaders(request.headers);
+    const rl = rateLimit(`newsletter:${ip}`, 5, 10 * 60 * 1000);
+    if (!rl.ok) return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 });
+
     try {
         const body = await request.json();
-        const { email, name } = body;
+        const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+        const name = typeof body?.name === 'string' ? body.name.trim().slice(0, 100) : '';
 
-        if (!email) {
-            return NextResponse.json({ error: 'Email es requerido' }, { status: 400 });
+        if (!isEmail(email)) {
+            return NextResponse.json({ error: 'Email inválido' }, { status: 400 });
         }
-
-        const { default: prisma } = await import('@/lib/db');
 
         await prisma.newsletter.upsert({
             where: { email },
@@ -17,13 +25,11 @@ export async function POST(request: NextRequest) {
             create: { email, name: name || undefined }
         });
 
-        // Enviar correo de bienvenida (no bloqueante)
-        const { sendNewsletterWelcome } = await import('@/lib/services/mail');
         sendNewsletterWelcome(email, name).catch(err => console.error('Silent newsletter mail error:', err));
 
         return NextResponse.json({ success: true, message: 'Suscripción exitosa' });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Newsletter error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: 'No fue posible procesar la solicitud' }, { status: 500 });
     }
 }

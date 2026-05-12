@@ -29,9 +29,9 @@ export async function PUT(request: NextRequest) {
         });
 
         return NextResponse.json({ success: true, message: 'Paciente actualizado correctamente' });
-    } catch (error: any) {
-        console.error('ADMIN PATIENT UPDATE ERROR:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Admin patient update error:', error);
+        return NextResponse.json({ success: false, error: 'Error interno' }, { status: 500 });
     }
 }
 
@@ -74,8 +74,8 @@ export async function DELETE(request: NextRequest) {
         });
 
         return NextResponse.json({ success: true, message: 'Paciente eliminado del sistema completamente' });
-    } catch (error: any) {
-        console.error('ADMIN PATIENT DELETE ERROR:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Admin patient delete error:', error);
+        return NextResponse.json({ success: false, error: 'Error interno' }, { status: 500 });
     }
 }

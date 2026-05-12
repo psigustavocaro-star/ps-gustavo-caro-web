@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
-    console.log('ADMIN API: Start fetching data...');
     try {
-        // Ejecutamos las consultas de forma segura e independiente
         const bookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
         const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
         const anamnesis = await prisma.anamnesis.findMany().catch(() => []);
         const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
-
-        console.log(`ADMIN API: Records found - Bookings: ${bookings.length}, Newsletter: ${newsletter.length}`);
 
         // Agrupar por paciente (email)
         const patientsMap = new Map();
@@ -86,12 +84,8 @@ export async function GET() {
             newsletter,
             templates
         });
-    } catch (error: any) {
-        console.error('ADMIN API FATAL ERROR:', error);
-        return NextResponse.json({ 
-            success: false, 
-            error: error.message || 'Error interno del servidor',
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        }, { status: 500 });
+    } catch (error) {
+        console.error('Admin data error:', error);
+        return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 });
     }
 }
