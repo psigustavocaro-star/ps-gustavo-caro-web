@@ -292,6 +292,19 @@
     color: var(--foreground-muted);
 }
 
+.usdDisclaimer {
+    margin: 16px auto 0;
+    padding: 12px 16px;
+    max-width: 720px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--foreground-muted);
+    background: rgba(8, 145, 178, 0.04);
+    border-left: 3px solid rgba(8, 145, 178, 0.4);
+    border-radius: 4px;
+    text-align: left;
+}
+
 .footerActions {
     display: flex;
     justify-content: center;
