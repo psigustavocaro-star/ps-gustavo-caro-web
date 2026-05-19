@@ -72,7 +72,7 @@ export default function AdminDashboard() {
             if (data.success) {
                 setBookings(data.bookings || []);
                 setPatients(data.patients || []);
-                setNewsletterSubs(data.newsletter || []);
+                setNewsletterSubs((data.newsletter || []).filter((sub: any) => sub.active !== false));
                 setTemplates(data.templates || []);
             }
         } catch (err) { console.error("Sync Error:", err); } 
@@ -182,7 +182,9 @@ export default function AdminDashboard() {
 
     const handleSendToAll = async () => {
         if (!title || !content) return alert('Selecciona o crea un texto primero 💌');
-        if (!confirm(`¿Enviar a todos tus ${newsletterSubs.length} pacientes?`)) return;
+        const activeRecipientCount = newsletterSubs.filter(sub => sub.active !== false).length;
+        if (activeRecipientCount === 0) return alert('No hay pacientes activos en la lista de newsletter');
+        if (!confirm(`¿Enviar a todos tus ${activeRecipientCount} pacientes?`)) return;
         setIsLoading(true);
         try {
             const res = await fetch('/api/admin/newsletter/send', {
@@ -192,7 +194,9 @@ export default function AdminDashboard() {
             });
             const data = await res.json();
             if (data.success) {
-                alert(`🚀 ¡Correo enviado a ${data.count} personas!`);
+                alert(`🚀 ¡Correo enviado a ${data.sentCount ?? data.count} personas!`);
+            } else if (data.partial) {
+                alert(`⚠️ Envío parcial: llegó a ${data.sentCount} de ${data.count} personas. Fallaron ${data.failedCount}.`);
             } else {
                 alert(`❌ Error al enviar el correo: ${data.error}`);
             }
@@ -213,7 +217,7 @@ export default function AdminDashboard() {
                     body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'specific', specificEmail: email, customTitle: title, customContent: content }),
                 });
                 const data = await res.json();
-                if (data.success) {
+                if (data.success || data.partial) {
                     successCount++;
                 } else {
                     console.error("Error sending to", email, data.error);
