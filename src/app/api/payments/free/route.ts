@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
         const calEventTypeId = body?.calEventTypeId ?? null;
         const appointmentDate = typeof body?.appointmentDate === 'string' ? body.appointmentDate : null;
+        const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
 
         if (!isEmail(email) || !name) {
             return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
                     reason: motivo || '',
                     details: detalles || '',
                     appointmentDate: appointmentDate || null,
+                    attendeeTimeZone,
                     calEventTypeId: calEventTypeId || null,
                     status: 'PAID', // Se marca como pagado porque no requiere transacción
                     paidAt: new Date(),
@@ -89,7 +91,8 @@ export async function POST(request: NextRequest) {
                     start: appointmentDate,
                     name: name,
                     email: email,
-                    notes: motivo || detalles || 'Agendamiento Gratuito / Cupón de Prueba'
+                    notes: motivo || detalles || 'Agendamiento Gratuito / Cupón de Prueba',
+                    attendeeTimeZone,
                 });
                 
                 if (calResult.success) {

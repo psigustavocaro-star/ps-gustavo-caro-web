@@ -193,11 +193,22 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .timeSlotsTitle span {
     color: var(--primary);
     font-weight: 700;
+}
+
+.timeSlotsTitle small {
+    background: rgba(8, 145, 178, 0.08);
+    border: 1px solid rgba(8, 145, 178, 0.14);
+    border-radius: 999px;
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 8px;
 }
 
 .timeSlotsGrid {

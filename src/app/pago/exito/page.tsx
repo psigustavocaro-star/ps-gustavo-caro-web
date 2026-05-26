@@ -6,6 +6,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
 import CustomCalendar from '@/components/Booking/CustomCalendar';
+import { CLINIC_TIME_ZONE, clinicWallTimeToIso, formatClinicDate, formatClinicTime } from '@/lib/util/timezone';
 
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
@@ -14,6 +15,12 @@ function PaymentSuccessContent() {
     const [loading, setLoading] = useState(true);
     const [appointmentConfirmed, setAppointmentConfirmed] = useState(false);
     const [selectedDateTime, setSelectedDateTime] = useState<{ date: string; time: string } | null>(null);
+    const [attendeeTimeZone, setAttendeeTimeZone] = useState(CLINIC_TIME_ZONE);
+
+    useEffect(() => {
+        const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (detectedTimeZone) setAttendeeTimeZone(detectedTimeZone);
+    }, []);
 
     useEffect(() => {
         if (orderId && orderId !== 'N/A') {
@@ -27,10 +34,9 @@ function PaymentSuccessContent() {
                         // Si ya tiene fecha de cita, mostrar confirmación
                         if (data?.appointmentDate) {
                             setAppointmentConfirmed(true);
-                            const dateObj = new Date(data.appointmentDate);
                             setSelectedDateTime({
-                                date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                                time: dateObj.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+                                date: formatClinicDate(data.appointmentDate, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                                time: formatClinicTime(data.appointmentDate)
                             });
                         }
                     }
@@ -48,9 +54,7 @@ function PaymentSuccessContent() {
 
     // Handler cuando se selecciona fecha y hora
     const handleDateTimeSelection = async (date: Date, time: string) => {
-        const dateObj = new Date(date);
-        const [hours, minutes] = time.split(':').map(Number);
-        dateObj.setHours(hours, minutes, 0, 0);
+        const startIso = clinicWallTimeToIso(date, time);
 
         // Guardar la cita en la base de datos
         try {
@@ -58,13 +62,14 @@ function PaymentSuccessContent() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    appointmentDate: dateObj.toISOString()
+                    appointmentDate: startIso,
+                    attendeeTimeZone
                 })
             });
 
             if (response.ok) {
                 setSelectedDateTime({
-                    date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                    date: formatClinicDate(startIso, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
                     time: time
                 });
                 setAppointmentConfirmed(true);

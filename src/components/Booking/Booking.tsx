@@ -6,6 +6,7 @@ import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 import { clpToUsd, FALLBACK_CLP_PER_USD } from '@/lib/util/currency';
 import { getServicePrice, getCalEventTypeId } from '@/lib/config/pricing';
+import { CLINIC_TIME_ZONE, clinicWallTimeToIso, formatClinicDate } from '@/lib/util/timezone';
 
 const CHILE_REGIONS = [
     'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
@@ -39,6 +40,7 @@ export default function Booking() {
         commune: '',
         newsletter: true,
         rawStartTime: '',
+        attendeeTimeZone: CLINIC_TIME_ZONE,
         calEventTypeId: null as number | null,
         coupon: ''
     });
@@ -54,6 +56,13 @@ export default function Booking() {
                 if (d?.clpPerUsd) setClpPerUsd(d.clpPerUsd);
             })
             .catch(() => {});
+    }, []);
+
+    useEffect(() => {
+        const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (detectedTimeZone) {
+            setFormData(prev => ({ ...prev, attendeeTimeZone: detectedTimeZone }));
+        }
     }, []);
 
     // Fetch occupied slots from DB + Cal.com (Real Availability)
@@ -105,18 +114,16 @@ export default function Booking() {
 
     // Handler para cuando el usuario selecciona fecha y hora en el calendario custom
     const handleDateTimeSelection = (date: Date, time: string) => {
-        const dateObj = new Date(date);
-        const [hours, minutes] = time.split(':').map(Number);
-        dateObj.setHours(hours, minutes, 0, 0);
+        const startIso = clinicWallTimeToIso(date, time);
 
         setBookingDetails({
-            date: dateObj.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+            date: formatClinicDate(startIso, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
             time: time
         });
 
         setFormData(prev => ({
             ...prev,
-            rawStartTime: dateObj.toISOString()
+            rawStartTime: startIso
         }));
 
         // Redirigir siempre a rellenar datos de contacto después de escoger bloque horario.
@@ -212,6 +219,7 @@ export default function Booking() {
                     motivo: formData.reason || formData.details,
                     detalles: formData.details,
                     appointmentDate: formData.rawStartTime,
+                    attendeeTimeZone: formData.attendeeTimeZone,
                     calEventTypeId: formData.calEventTypeId,
                     newsletter: formData.newsletter,
                     coupon: appliedCoupon.status === 'valid' ? formData.coupon : undefined
@@ -315,6 +323,7 @@ export default function Booking() {
             commune: '',
             newsletter: true,
             rawStartTime: '',
+            attendeeTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || CLINIC_TIME_ZONE,
             calEventTypeId: null,
             coupon: ''
         });

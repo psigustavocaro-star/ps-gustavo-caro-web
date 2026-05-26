@@ -85,6 +85,7 @@ export async function finalizePaidBooking({
                 name: clientName,
                 email: clientEmail,
                 notes: `Orden ${orderId} pagada con ${paymentMethod}`,
+                attendeeTimeZone: booking.attendeeTimeZone,
             });
             auditData.steps.calcom = calResult.success ? `OK_${calResult.bookingId}` : 'FAILED';
             if (calResult.success && calResult.bookingId) {

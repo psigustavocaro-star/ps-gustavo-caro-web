@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
         const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
         const name = isNonEmptyString(body?.name, 200) ? body.name.trim() : '';
         const serviceType = typeof body?.serviceType === 'string' ? body.serviceType : 'sesion';
+        const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
 
         if (!isEmail(email) || !name) {
             return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
                 reason: typeof body.motivo === 'string' ? body.motivo.slice(0, 2000) : '',
                 details: typeof body.detalles === 'string' ? body.detalles.slice(0, 5000) : '',
                 appointmentDate: body.appointmentDate || null,
+                attendeeTimeZone,
                 calEventTypeId: body.calEventTypeId || null,
                 status: 'PENDING',
             },

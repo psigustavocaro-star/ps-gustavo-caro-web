@@ -31,6 +31,7 @@ model Booking {
   reason      String?
   details     String?
   appointmentDate String?
+  attendeeTimeZone String?
   calBookingId    String?
   calEventTypeId  Int?
   siiReceiptIssued   Boolean  @default(false)

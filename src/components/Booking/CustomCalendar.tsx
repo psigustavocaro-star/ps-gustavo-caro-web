@@ -11,6 +11,13 @@ import {
     MAX_ADVANCE_DAYS
 } from '@/lib/config/availability';
 
+const getLocalDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 interface CustomCalendarProps {
     onSelectDateTime: (date: Date, time: string) => void;
     bookedSlots?: string[]; // Formato: 'YYYY-MM-DD HH:MM'
@@ -69,7 +76,7 @@ export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: C
         const allSlots = getAvailableSlotsForDay(dayOfWeek);
 
         // Filtrar slots ya reservados
-        const dateStr = selectedDate.toISOString().split('T')[0];
+        const dateStr = getLocalDateKey(selectedDate);
         return allSlots.filter(slot => {
             const slotKey = `${dateStr} ${slot}`;
             return !bookedSlots.includes(slotKey);
@@ -143,7 +150,7 @@ export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: C
         }
 
         // Está seleccionado
-        if (selectedDate && compareDate.getTime() === new Date(selectedDate.setHours(0, 0, 0, 0)).getTime()) {
+        if (selectedDate && compareDate.getTime() === new Date(selectedDate).setHours(0, 0, 0, 0)) {
             classes.push(styles.daySelected);
         } else if (isDayAvailable(date)) {
             classes.push(styles.dayAvailable);
@@ -231,6 +238,7 @@ export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: C
                 <div className={styles.timeSlotsContainer}>
                     <h4 className={styles.timeSlotsTitle}>
                         🕐 Horarios disponibles para <span>{formatSelectedDate()}</span>
+                        <small>Hora de Chile</small>
                     </h4>
 
                     {availableSlots.length > 0 ? (
@@ -258,7 +266,7 @@ export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: C
                 <div className={styles.selectionSummary}>
                     <div className={styles.summaryInfo}>
                         <span className={styles.summaryDate}>{formatSelectedDate()}</span>
-                        <span className={styles.summaryTime}>⏰ {selectedTime} hrs</span>
+                        <span className={styles.summaryTime}>⏰ {selectedTime} hrs Chile</span>
                     </div>
                     <button
                         className={styles.confirmButton}

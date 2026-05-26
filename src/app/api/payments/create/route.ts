@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
         const motivo = typeof body?.motivo === 'string' ? body.motivo.slice(0, 2000) : '';
         const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
         const calEventTypeId = typeof body?.calEventTypeId === 'number' || typeof body?.calEventTypeId === 'string' ? body.calEventTypeId : null;
+        const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
         const email = emailRaw;
 
         if (!isEmail(email) || !name) {
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
                     reason: motivo || '',
                     details: detalles || '',
                     appointmentDate: body.appointmentDate || null,
+                    attendeeTimeZone,
                     calEventTypeId: calEventTypeId || null,
                     status: 'PENDING',
                 }

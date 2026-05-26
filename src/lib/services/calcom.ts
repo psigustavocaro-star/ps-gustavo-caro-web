@@ -5,6 +5,7 @@ export async function createCalBooking(params: {
     name: string;
     email: string;
     notes?: string;
+    attendeeTimeZone?: string | null;
 }) {
     const apiKey = process.env.CALCOM_API_KEY;
 
@@ -27,7 +28,7 @@ export async function createCalBooking(params: {
                 attendee: {
                     name: params.name,
                     email: params.email,
-                    timeZone: 'America/Santiago'
+                    timeZone: params.attendeeTimeZone || 'America/Santiago'
                 }
             })
         });
