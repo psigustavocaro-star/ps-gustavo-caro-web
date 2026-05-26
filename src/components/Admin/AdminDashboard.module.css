@@ -123,6 +123,52 @@
 .statInfo h3 { color: #64748b; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
 .statInfo p { font-size: 1.75rem; font-weight: 800; color: #0f172a; font-family: 'Outfit', sans-serif; }
 
+.historyLauncher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 18px 20px;
+    margin: -16px 0 28px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.historyLauncher span {
+    display: block;
+    color: #0f172a;
+    font-size: 0.9rem;
+    font-weight: 900;
+    margin-bottom: 3px;
+}
+.historyLauncher p {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+}
+.historyToggle {
+    background: #0f172a;
+    color: #ffffff;
+    border: 1px solid #0f172a;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s ease;
+}
+.historyToggle:hover { background: #0891b2; border-color: #0891b2; transform: translateY(-1px); }
+.historyToggle:disabled {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .earningsHistory {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -184,6 +230,24 @@
     margin-bottom: 4px;
 }
 .historyItem small { color: #64748b; font-weight: 700; font-size: 0.75rem; }
+.historyItem em {
+    display: block;
+    color: #0891b2;
+    font-size: 0.72rem;
+    font-style: normal;
+    font-weight: 800;
+    margin-top: 10px;
+}
+.emptyHistory {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 18px;
+    margin: 0;
+}
 
 /* LISTS & TABLES */
 .listContainer { 
@@ -410,6 +474,8 @@
 
     .dashboardStats { grid-template-columns: 1fr; gap: 12px; }
     .statCard { padding: 20px; }
+    .historyLauncher { flex-direction: column; align-items: stretch; margin-top: 0; }
+    .historyToggle { width: 100%; }
     .historyHeader { flex-direction: column; align-items: flex-start; }
     .earningsHistory { padding: 20px; }
 

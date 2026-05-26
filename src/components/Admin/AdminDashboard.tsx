@@ -56,8 +56,14 @@ export default function AdminDashboard() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+    const [showPreviousMonths, setShowPreviousMonths] = useState(false);
     
     const editorRef = useRef<HTMLDivElement>(null);
+
+    const currentMonthKey = useMemo(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }, []);
 
     const monthlyEarnings = useMemo(() => {
         const now = new Date();
@@ -75,7 +81,7 @@ export default function AdminDashboard() {
     }, [bookings]);
 
     const earningsHistory = useMemo(() => {
-        const monthlyMap = new Map<string, { label: string; total: number; count: number; date: Date }>();
+        const monthlyMap = new Map<string, { key: string; label: string; total: number; count: number; date: Date }>();
 
         bookings
             .filter(b => (b.status || '').toUpperCase() === 'PAID')
@@ -85,6 +91,7 @@ export default function AdminDashboard() {
 
                 const key = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
                 const existing = monthlyMap.get(key) || {
+                    key,
                     label: paidDate.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }),
                     total: 0,
                     count: 0,
@@ -98,6 +105,10 @@ export default function AdminDashboard() {
 
         return Array.from(monthlyMap.values()).sort((a, b) => b.date.getTime() - a.date.getTime());
     }, [bookings]);
+
+    const previousMonths = useMemo(() => (
+        earningsHistory.filter(month => month.key !== currentMonthKey)
+    ), [currentMonthKey, earningsHistory]);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -446,24 +457,43 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {earningsHistory.length > 0 && (
+                <div className={styles.historyLauncher}>
+                    <div>
+                        <span>Historial de ingresos</span>
+                        <p>El mes actual se mantiene arriba; los meses cerrados quedan archivados aquí.</p>
+                    </div>
+                    <button
+                        className={styles.historyToggle}
+                        onClick={() => setShowPreviousMonths(current => !current)}
+                        disabled={previousMonths.length === 0}
+                    >
+                        {showPreviousMonths ? 'Ocultar meses anteriores' : 'Ver meses anteriores'}
+                    </button>
+                </div>
+
+                {showPreviousMonths && (
                     <section className={styles.earningsHistory}>
                         <div className={styles.historyHeader}>
                             <div>
-                                <span>Historial mensual</span>
-                                <h2>Ingresos pagados</h2>
+                                <span>Meses anteriores</span>
+                                <h2>Historial mensual detallado</h2>
                             </div>
-                            <small>Se calcula por fecha real de pago.</small>
+                            <small>Ordenado desde el mes más reciente.</small>
                         </div>
-                        <div className={styles.historyGrid}>
-                            {earningsHistory.slice(0, 12).map(month => (
+                        {previousMonths.length > 0 ? (
+                            <div className={styles.historyGrid}>
+                                {previousMonths.map(month => (
                                 <div key={`${month.date.getFullYear()}-${month.date.getMonth()}`} className={styles.historyItem}>
                                     <span>{month.label}</span>
                                     <strong>${month.total.toLocaleString('es-CL')}</strong>
                                     <small>{month.count} pago{month.count === 1 ? '' : 's'} confirmado{month.count === 1 ? '' : 's'}</small>
+                                    <em>Promedio ${(Math.round(month.total / Math.max(month.count, 1))).toLocaleString('es-CL')} por pago</em>
                                 </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className={styles.emptyHistory}>Todavía no hay meses anteriores con pagos confirmados.</p>
+                        )}
                     </section>
                 )}
 
