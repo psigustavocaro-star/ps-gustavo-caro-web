@@ -140,6 +140,48 @@
 .badgeCalypso { background: #ecfeff; color: #0891b2; border: 1px solid #cffafe; }
 .badgeGeneric { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 
+.receiptToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 132px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    color: #475569;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s ease;
+}
+.receiptToggle:hover { border-color: #0891b2; box-shadow: 0 6px 16px rgba(8, 145, 178, 0.08); }
+.receiptToggle input { display: none; }
+.receiptToggle strong { display: block; color: #0f172a; font-size: 0.75rem; line-height: 1.1; }
+.receiptToggle small { display: block; color: #64748b; font-size: 0.68rem; font-weight: 700; line-height: 1.2; }
+.receiptCheck {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    border: 2px solid #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 900;
+    flex: 0 0 auto;
+    transition: 0.2s ease;
+}
+.receiptToggleOn {
+    background: #f0fdfa;
+    border-color: #99f6e4;
+}
+.receiptToggleOn .receiptCheck {
+    background: #0f766e;
+    border-color: #0f766e;
+}
+.receiptToggleOn small { color: #0f766e; }
+
 .actionBtn { 
     background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); 
     color: #fff; padding: 10px 18px; border-radius: 10px; 
@@ -268,6 +310,7 @@
 .cardInfo strong { font-size: 1.1rem; color: #0f172a; }
 .cardInfo span { font-size: 0.9rem; color: #64748b; }
 .cardSubtitle { color: #0891b2 !important; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.mobileBookingFooter { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
 @media (max-width: 1200px) { 
     .studioLayout { grid-template-columns: 1fr; } 

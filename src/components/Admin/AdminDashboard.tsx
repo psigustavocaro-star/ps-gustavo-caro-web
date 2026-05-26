@@ -11,6 +11,14 @@ const CHILE_REGIONS = [
     'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
 ];
 
+const getBookingStatusLabel = (status?: string) => {
+    const normalizedStatus = (status || '').toUpperCase();
+    if (normalizedStatus === 'PAID') return 'Pagado';
+    if (normalizedStatus === 'PENDING') return 'Pendiente';
+    if (normalizedStatus === 'FAILED') return 'Fallido';
+    return status || 'Sin estado';
+};
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState('');
@@ -56,7 +64,7 @@ export default function AdminDashboard() {
         return bookings
             .filter(b => {
                 const date = new Date(b.appointmentDate || b.createdAt);
-                return b.status === 'PAID' && 
+                return (b.status || '').toUpperCase() === 'PAID' &&
                        date.getMonth() === currentMonth && 
                        date.getFullYear() === currentYear;
             })
@@ -110,6 +118,67 @@ export default function AdminDashboard() {
         } catch (err) { alert('Error de conexión'); }
         finally { setIsLoading(false); }
     };
+
+    const updateBookingInState = (updatedBooking: any) => {
+        setBookings(currentBookings => currentBookings.map(booking => (
+            booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
+        )));
+        setSelectedPatient((currentPatient: any) => {
+            if (!currentPatient?.bookings) return currentPatient;
+            return {
+                ...currentPatient,
+                bookings: currentPatient.bookings.map((booking: any) => (
+                    booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
+                )),
+            };
+        });
+    };
+
+    const handleToggleSiiReceipt = async (booking: any, issued: boolean) => {
+        const previousBooking = { ...booking };
+        const optimisticBooking = {
+            ...booking,
+            siiReceiptIssued: issued,
+            siiReceiptIssuedAt: issued ? new Date().toISOString() : null,
+        };
+
+        updateBookingInState(optimisticBooking);
+
+        try {
+            const res = await fetch(`/api/admin/bookings/${encodeURIComponent(booking.id)}/sii-receipt`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ issued }),
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                updateBookingInState(previousBooking);
+                alert(data.error || 'No se pudo actualizar la boleta SII');
+                return;
+            }
+
+            updateBookingInState(data.booking);
+        } catch (err) {
+            updateBookingInState(previousBooking);
+            alert('Error de conexión al actualizar la boleta SII');
+        }
+    };
+
+    const renderSiiReceiptToggle = (booking: any) => (
+        <label className={`${styles.receiptToggle} ${booking.siiReceiptIssued ? styles.receiptToggleOn : ''}`}>
+            <input
+                type="checkbox"
+                checked={Boolean(booking.siiReceiptIssued)}
+                onChange={event => handleToggleSiiReceipt(booking, event.target.checked)}
+            />
+            <span className={styles.receiptCheck}>{booking.siiReceiptIssued ? '✓' : ''}</span>
+            <span>
+                <strong>Boleta SII</strong>
+                <small>{booking.siiReceiptIssued ? 'Emitida' : 'Por emitir'}</small>
+            </span>
+        </label>
+    );
 
     const handleDeletePatient = async (emailToDel: string) => {
         if (!confirm(`¿Estás ABSOLUTAMENTE SEGURO de querer eliminar todo el historial y cuenta de ${emailToDel}? Esto no se puede deshacer.`)) return;
@@ -337,7 +406,7 @@ export default function AdminDashboard() {
                     <div className={styles.statCard}>
                         <div className={styles.statIcon}>📅</div>
                         <div className={styles.statInfo}>
-                            <h3>Citas Totales</h3>
+                            <h3>Citas Pagadas</h3>
                             <p>{bookings.length}</p>
                         </div>
                     </div>
@@ -392,14 +461,15 @@ export default function AdminDashboard() {
                     {activeTab === 'bookings' && (
                         <div className={styles.responsiveList}>
                             <table className={styles.friendlyTable}>
-                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th></tr></thead>
+                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th></tr></thead>
                                 <tbody>{bookings.map(b => (
                                     <tr key={b.id}>
                                         <td>{b.name}</td>
                                         <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</td>
                                         <td>{b.serviceType}</td>
                                         <td style={{fontWeight: 700, color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</td>
-                                        <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span></td>
+                                        <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span></td>
+                                        <td>{renderSiiReceiptToggle(b)}</td>
                                     </tr>
                                 ))}</tbody>
                             </table>
@@ -414,7 +484,10 @@ export default function AdminDashboard() {
                                             <span>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</span>
                                             <span className={styles.cardSubtitle}>{b.serviceType}</span>
                                         </div>
-                                        <span className={`${styles.badge} ${styles.badgeCalypso}`}>{b.status}</span>
+                                        <div className={styles.mobileBookingFooter}>
+                                            <span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span>
+                                            {renderSiiReceiptToggle(b)}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -527,7 +600,7 @@ export default function AdminDashboard() {
                                                     </div>
                                                     <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px'}}>
                                                         <span style={{fontWeight: 800, fontSize: '0.9rem', color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
-                                                        <span className={styles.sessionTag}>{b.status}</span>
+                                                        <span className={styles.sessionTag}>{getBookingStatusLabel(b.status)}</span>
                                                     </div>
                                                 </div>
                                             ))}

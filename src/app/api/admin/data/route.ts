@@ -5,13 +5,27 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const bookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
+        const pendingExpirationDate = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+        await prisma.booking.updateMany({
+            where: {
+                status: { in: ['PENDING', 'pending'] },
+                createdAt: { lt: pendingExpirationDate },
+            },
+            data: {
+                status: 'FAILED',
+                reason: 'Pago pendiente vencido automáticamente después de 48 horas.',
+            },
+        }).catch(() => null);
+
+        const allBookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
+        const bookings = allBookings.filter((booking: any) => (booking.status || '').toUpperCase() === 'PAID');
         const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
         const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
 
         const patientsMap = new Map();
 
-        bookings.forEach((b: any) => {
+        allBookings.forEach((b: any) => {
             if (!b.email) return;
             const email = b.email.toLowerCase().trim();
             if (!patientsMap.has(email)) {

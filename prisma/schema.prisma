@@ -32,12 +32,15 @@ model Booking {
   appointmentDate String?
   calBookingId    String?
   calEventTypeId  Int?
+  siiReceiptIssued   Boolean  @default(false)
+  siiReceiptIssuedAt DateTime?
   createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([email])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([siiReceiptIssued])
 }
 
 model Newsletter {
@@ -57,4 +60,3 @@ model EmailTemplate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-
