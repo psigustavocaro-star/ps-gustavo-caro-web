@@ -19,6 +19,8 @@ const getBookingStatusLabel = (status?: string) => {
     return status || 'Sin estado';
 };
 
+const getPaymentDate = (booking: any) => new Date(booking.paidAt || booking.createdAt);
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState('');
@@ -63,13 +65,38 @@ export default function AdminDashboard() {
         const currentYear = now.getFullYear();
         return bookings
             .filter(b => {
-                const date = new Date(b.appointmentDate || b.createdAt);
+                const date = getPaymentDate(b);
                 return (b.status || '').toUpperCase() === 'PAID' &&
-                       date.getMonth() === currentMonth && 
+                       date.getMonth() === currentMonth &&
                        date.getFullYear() === currentYear;
             })
             .reduce((sum, b) => sum + (Number(b.amount) || 0), 0)
             .toLocaleString('es-CL');
+    }, [bookings]);
+
+    const earningsHistory = useMemo(() => {
+        const monthlyMap = new Map<string, { label: string; total: number; count: number; date: Date }>();
+
+        bookings
+            .filter(b => (b.status || '').toUpperCase() === 'PAID')
+            .forEach(b => {
+                const paidDate = getPaymentDate(b);
+                if (Number.isNaN(paidDate.getTime())) return;
+
+                const key = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
+                const existing = monthlyMap.get(key) || {
+                    label: paidDate.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }),
+                    total: 0,
+                    count: 0,
+                    date: new Date(paidDate.getFullYear(), paidDate.getMonth(), 1),
+                };
+
+                existing.total += Number(b.amount) || 0;
+                existing.count += 1;
+                monthlyMap.set(key, existing);
+            });
+
+        return Array.from(monthlyMap.values()).sort((a, b) => b.date.getTime() - a.date.getTime());
     }, [bookings]);
 
     const fetchData = async () => {
@@ -418,6 +445,27 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
+
+                {earningsHistory.length > 0 && (
+                    <section className={styles.earningsHistory}>
+                        <div className={styles.historyHeader}>
+                            <div>
+                                <span>Historial mensual</span>
+                                <h2>Ingresos pagados</h2>
+                            </div>
+                            <small>Se calcula por fecha real de pago.</small>
+                        </div>
+                        <div className={styles.historyGrid}>
+                            {earningsHistory.slice(0, 12).map(month => (
+                                <div key={`${month.date.getFullYear()}-${month.date.getMonth()}`} className={styles.historyItem}>
+                                    <span>{month.label}</span>
+                                    <strong>${month.total.toLocaleString('es-CL')}</strong>
+                                    <small>{month.count} pago{month.count === 1 ? '' : 's'} confirmado{month.count === 1 ? '' : 's'}</small>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 <div className={styles.listContainer}>
                     {activeTab === 'patients' && (

@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
                     appointmentDate: appointmentDate || null,
                     calEventTypeId: calEventTypeId || null,
                     status: 'PAID', // Se marca como pagado porque no requiere transacción
+                    paidAt: new Date(),
                 }
             });
 

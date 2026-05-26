@@ -27,6 +27,7 @@ model Booking {
   serviceType String
   amount      Int
   status      String   @default("PENDING") // PENDING, PAID, FAILED
+  paidAt      DateTime?
   reason      String?
   details     String?
   appointmentDate String?
@@ -39,6 +40,7 @@ model Booking {
 
   @@index([email])
   @@index([status, createdAt])
+  @@index([status, paidAt])
   @@index([createdAt])
   @@index([siiReceiptIssued])
 }

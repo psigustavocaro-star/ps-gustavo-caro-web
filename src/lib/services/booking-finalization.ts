@@ -58,9 +58,10 @@ export async function finalizePaidBooking({
     }
 
     try {
+        const paymentDate = booking.paidAt || new Date();
         await prisma.booking.update({
             where: { orderId },
-            data: { status: 'PAID' },
+            data: { status: 'PAID', paidAt: paymentDate },
         });
         auditData.steps.db_update = 'OK';
 

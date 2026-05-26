@@ -123,6 +123,68 @@
 .statInfo h3 { color: #64748b; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
 .statInfo p { font-size: 1.75rem; font-weight: 800; color: #0f172a; font-family: 'Outfit', sans-serif; }
 
+.earningsHistory {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+.historyHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.historyHeader span {
+    display: block;
+    color: #0891b2;
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+}
+.historyHeader h2 {
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+}
+.historyHeader small { color: #64748b; font-weight: 700; }
+.historyGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+.historyItem {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px;
+}
+.historyItem span {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: capitalize;
+    margin-bottom: 8px;
+}
+.historyItem strong {
+    display: block;
+    color: #0f172a;
+    font-size: 1.2rem;
+    font-weight: 900;
+    font-family: 'Outfit', sans-serif;
+    margin-bottom: 4px;
+}
+.historyItem small { color: #64748b; font-weight: 700; font-size: 0.75rem; }
+
 /* LISTS & TABLES */
 .listContainer { 
     background: #ffffff; border-radius: 20px; 
@@ -348,6 +410,8 @@
 
     .dashboardStats { grid-template-columns: 1fr; gap: 12px; }
     .statCard { padding: 20px; }
+    .historyHeader { flex-direction: column; align-items: flex-start; }
+    .earningsHistory { padding: 20px; }
 
     .listContainer { padding: 0; background: transparent; border: none; }
     .friendlyTable { display: none; } /* Ocultar tabla en móvil */
