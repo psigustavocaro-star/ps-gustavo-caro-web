@@ -27,7 +27,7 @@ export const BREAK_BETWEEN_SESSIONS = 0;
 export const MIN_ADVANCE_DAYS = 1;
 
 // Días máximos hacia el futuro para mostrar disponibilidad
-export const MAX_ADVANCE_DAYS = 30;
+export const MAX_ADVANCE_DAYS = 180;
 
 // Configuración de disponibilidad semanal
 // Ajusta estos horarios según tu agenda real

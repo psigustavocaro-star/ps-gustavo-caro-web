@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { getAvailableSlotsForDay } from '@/lib/config/availability';
+import { getAvailableSlotsForDay, MAX_ADVANCE_DAYS } from '@/lib/config/availability';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const MAX_CAL_DAYS = 60; // Consultar 2 meses a Cal.com
+const MAX_CAL_DAYS = MAX_ADVANCE_DAYS;
 
 export async function GET(request: NextRequest) {
     try {
