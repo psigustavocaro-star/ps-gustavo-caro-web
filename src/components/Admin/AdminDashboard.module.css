@@ -76,6 +76,44 @@
 .navList button:hover { background: #f1f5f9; color: #0891b2; }
 .navList .active { background: rgba(8, 145, 178, 0.08); color: #0891b2 !important; }
 
+.publicLinks {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 18px;
+    margin-top: 18px;
+}
+.publicLinks span {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.publicLinks div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.publicLinks a {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 9px 10px;
+    text-align: center;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+.publicLinks a:hover {
+    background: #ecfeff;
+    border-color: #0891b2;
+    color: #0891b2;
+    transform: translateY(-1px);
+}
+
 .logoutAction { 
     margin-top: 20px;
     padding: 14px;

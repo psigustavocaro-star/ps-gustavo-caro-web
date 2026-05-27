@@ -420,6 +420,16 @@ export default function AdminDashboard() {
                     <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => { setActiveTab('newsletter'); setIsMobileMenuOpen(false); }}>💌 Newsletter</button>
                     <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => { setActiveTab('marketing'); setIsMobileMenuOpen(false); }}>✍️ Mi Blog</button>
                 </nav>
+
+                <div className={styles.publicLinks}>
+                    <span>Ir a la web</span>
+                    <div>
+                        <a href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</a>
+                        <a href="/agendar" onClick={() => setIsMobileMenuOpen(false)}>Agendar</a>
+                        <a href="/blog" onClick={() => setIsMobileMenuOpen(false)}>Blog</a>
+                        <a href="/sobre-mi" onClick={() => setIsMobileMenuOpen(false)}>Sobre mí</a>
+                    </div>
+                </div>
                 
                 <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
             </aside>
