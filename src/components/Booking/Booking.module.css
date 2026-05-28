@@ -5,7 +5,7 @@
 
 .booking {
     background: transparent;
-    padding: 80px 0 100px;
+    padding: 34px 0 72px;
     position: relative;
     overflow: hidden;
 }
@@ -49,7 +49,7 @@
 }
 
 .introCard {
-    max-width: 950px;
+    max-width: 900px;
 }
 
 /* ============================================
@@ -60,7 +60,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: clamp(24px, 5vw, 48px);
+    margin-bottom: clamp(12px, 2vw, 18px);
     padding: 0 5%;
     position: relative;
     max-width: 700px;
@@ -137,8 +137,8 @@
 }
 
 .stepTitle {
-    font-size: var(--font-size-h2);
-    margin-bottom: 12px;
+    font-size: clamp(1.85rem, 3.4vw, 2.75rem);
+    margin-bottom: 8px;
     color: var(--foreground);
     font-weight: 800;
     letter-spacing: -0.03em;
@@ -147,7 +147,7 @@
 .stepDesc {
     font-size: var(--font-size-base);
     color: var(--foreground-light);
-    margin-bottom: clamp(32px, 6vw, 48px);
+    margin-bottom: clamp(14px, 2vw, 20px);
     max-width: 520px;
     margin-left: auto;
     margin-right: auto;
@@ -156,7 +156,7 @@
 
 .serviceSection {
     text-align: left;
-    margin-bottom: 32px;
+    margin-bottom: 14px;
     padding-left: 4px;
 }
 
@@ -171,7 +171,7 @@
 }
 
 .sectionNote {
-    font-size: 1rem;
+    font-size: 0.94rem;
     color: var(--foreground-muted);
     line-height: 1.5;
 }
@@ -183,15 +183,15 @@
 .serviceCards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: clamp(16px, 3vw, 24px);
-    margin-bottom: 40px;
+    gap: clamp(14px, 2vw, 18px);
+    margin-bottom: 12px;
 }
 
 .serviceCard {
     background: white;
     border: 2px solid var(--border);
-    border-radius: var(--radius-xl);
-    padding: clamp(20px, 4vw, 32px) clamp(16px, 3vw, 24px);
+    border-radius: 22px;
+    padding: 18px 22px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: left;
@@ -232,16 +232,16 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 24px;
+    margin-bottom: 10px;
 }
 
 .cardIcon {
-    font-size: 2rem;
+    font-size: 1.35rem;
     line-height: 1;
 }
 
 .cardBadge {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -252,35 +252,35 @@
 }
 
 .cardTitle {
-    font-size: 1.25rem;
+    font-size: 1.08rem;
     font-weight: 800;
     color: var(--foreground);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .cardText {
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     color: var(--foreground-light);
-    line-height: 1.6;
+    line-height: 1.5;
     margin-bottom: auto;
 }
 
 .cardPrice {
-    margin-top: 24px;
-    font-size: 1.5rem;
+    margin-top: 14px;
+    font-size: 1.3rem;
     font-weight: 800;
     color: var(--primary-dark);
 }
 
 .cardPrice span {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 500;
     color: var(--foreground-muted);
 }
 
 .cardPriceUsd {
-    margin-top: 6px;
-    font-size: 0.8rem;
+    margin-top: 4px;
+    font-size: 0.72rem;
     font-weight: 500;
     color: var(--foreground-muted);
 }
@@ -293,11 +293,11 @@
 }
 
 .usdDisclaimer {
-    margin: 16px auto 0;
-    padding: 12px 16px;
+    margin: 14px auto 0;
+    padding: 10px 14px;
     max-width: 720px;
-    font-size: 0.78rem;
-    line-height: 1.5;
+    font-size: 0.74rem;
+    line-height: 1.45;
     color: var(--foreground-muted);
     background: rgba(8, 145, 178, 0.04);
     border-left: 3px solid rgba(8, 145, 178, 0.4);
@@ -308,7 +308,7 @@
 .footerActions {
     display: flex;
     justify-content: center;
-    padding-top: 20px;
+    padding-top: 4px;
 }
 
 

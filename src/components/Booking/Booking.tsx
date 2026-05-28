@@ -489,11 +489,6 @@ export default function Booking() {
                                 </div>
                             </div>
 
-                            <p className={styles.usdDisclaimer}>
-                                Los valores en USD son referenciales y se calculan al tipo de cambio del Banco Central de Chile (actualizado a diario).
-                                El monto final lo determina PayPal según su tasa de conversión al momento del pago.
-                            </p>
-
                             <div className={styles.footerActions}>
                                 <button
                                     onClick={handleNext}
@@ -503,6 +498,11 @@ export default function Booking() {
                                     Continuar al Calendario →
                                 </button>
                             </div>
+
+                            <p className={styles.usdDisclaimer}>
+                                Los valores en USD son referenciales y se calculan al tipo de cambio del Banco Central de Chile (actualizado a diario).
+                                El monto final lo determina PayPal según su tasa de conversión al momento del pago.
+                            </p>
                         </div>
                     )}
 
