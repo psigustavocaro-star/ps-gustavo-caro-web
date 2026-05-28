@@ -76,29 +76,50 @@ export async function finalizePaidBooking({
         auditData.steps.db_update = 'ERROR';
     }
 
-    if (booking.calEventTypeId && booking.appointmentDate && !booking.calBookingId) {
+    const scheduledStarts = booking.appointmentDates?.length
+        ? booking.appointmentDates
+        : booking.appointmentDate ? [booking.appointmentDate] : [];
+
+    if (booking.calEventTypeId && scheduledStarts.length > 0 && (!booking.calBookingIds || booking.calBookingIds.length === 0) && !booking.calBookingId) {
         try {
             const { createCalBooking } = await import('@/lib/services/calcom');
-            const calResult = await createCalBooking({
-                eventTypeId: Number(booking.calEventTypeId),
-                start: booking.appointmentDate,
-                name: clientName,
-                email: clientEmail,
-                notes: `Orden ${orderId} pagada con ${paymentMethod}`,
-                attendeeTimeZone: booking.attendeeTimeZone,
-            });
-            auditData.steps.calcom = calResult.success ? `OK_${calResult.bookingId}` : 'FAILED';
-            if (calResult.success && calResult.bookingId) {
+            const createdCalBookingIds: string[] = [];
+
+            for (const [index, start] of scheduledStarts.entries()) {
+                const calResult = await createCalBooking({
+                    eventTypeId: Number(booking.calEventTypeId),
+                    start,
+                    name: clientName,
+                    email: clientEmail,
+                    notes: scheduledStarts.length > 1
+                        ? `Orden ${orderId} pagada con ${paymentMethod} - sesión ${index + 1} de ${scheduledStarts.length}`
+                        : `Orden ${orderId} pagada con ${paymentMethod}`,
+                    attendeeTimeZone: booking.attendeeTimeZone,
+                });
+
+                if (calResult.success && calResult.bookingId) {
+                    createdCalBookingIds.push(String(calResult.bookingId));
+                }
+            }
+
+            auditData.steps.calcom = createdCalBookingIds.length === scheduledStarts.length
+                ? `OK_${createdCalBookingIds.join(',')}`
+                : `PARTIAL_${createdCalBookingIds.length}_OF_${scheduledStarts.length}`;
+
+            if (createdCalBookingIds.length > 0) {
                 await prisma.booking.update({
                     where: { orderId },
-                    data: { calBookingId: String(calResult.bookingId) },
+                    data: {
+                        calBookingId: createdCalBookingIds[0],
+                        calBookingIds: createdCalBookingIds,
+                    },
                 });
             }
         } catch (calErr) {
             console.error('Cal.com booking crash:', calErr);
             auditData.steps.calcom = 'CRASH';
         }
-    } else if (booking.calBookingId) {
+    } else if (booking.calBookingId || booking.calBookingIds?.length) {
         auditData.steps.calcom = `SKIPPED_ALREADY_CREATED`;
     } else {
         auditData.steps.calcom = 'SKIPPED_NO_DATE_OR_EVENT';

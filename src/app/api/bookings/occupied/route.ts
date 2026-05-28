@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
                 }
             },
             select: {
-                appointmentDate: true
+                appointmentDate: true,
+                appointmentDates: true,
             }
         });
 
@@ -41,10 +42,13 @@ export async function GET(request: NextRequest) {
             return santiagoDate.replace(',', '');
         };
 
-        const occupiedFromDB = bookings.map(b => {
-            if (!b.appointmentDate) return null;
-            return formatInSantiago(b.appointmentDate);
-        }).filter((slot): slot is string => slot !== null);
+        const occupiedFromDB = bookings.flatMap(b => {
+            const dates = b.appointmentDates?.length
+                ? b.appointmentDates
+                : b.appointmentDate ? [b.appointmentDate] : [];
+
+            return dates.map(formatInSantiago);
+        });
 
         let finalOccupiedSlots = [...occupiedFromDB];
 

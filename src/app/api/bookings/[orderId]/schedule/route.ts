@@ -23,7 +23,10 @@ export async function POST(
         }
 
         const body = await request.json();
-        const appointmentDate = typeof body?.appointmentDate === 'string' ? body.appointmentDate : '';
+        const appointmentDates = Array.isArray(body?.appointmentDates)
+            ? body.appointmentDates.filter((date: unknown): date is string => typeof date === 'string' && !Number.isNaN(Date.parse(date))).slice(0, 4)
+            : [];
+        const appointmentDate = appointmentDates[0] || (typeof body?.appointmentDate === 'string' ? body.appointmentDate : '');
         const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : undefined;
         if (!appointmentDate || isNaN(Date.parse(appointmentDate))) {
             return NextResponse.json({ error: 'Fecha inválida' }, { status: 400 });
@@ -54,7 +57,11 @@ export async function POST(
 
         const updated = await prisma.booking.update({
             where: { id: booking.id },
-            data: { appointmentDate, ...(attendeeTimeZone ? { attendeeTimeZone } : {}) },
+            data: {
+                appointmentDate,
+                appointmentDates: appointmentDates.length > 0 ? appointmentDates : [appointmentDate],
+                ...(attendeeTimeZone ? { attendeeTimeZone } : {}),
+            },
         });
 
         return NextResponse.json({

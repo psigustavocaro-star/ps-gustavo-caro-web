@@ -1051,6 +1051,102 @@
     margin-top: 10px;
 }
 
+.packSchedulePanel,
+.packConfirmBox {
+    background: #ffffff;
+    border: 1px solid rgba(8, 145, 178, 0.14);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin: 0 0 24px;
+    text-align: left;
+    box-shadow: var(--shadow-sm);
+}
+
+.packScheduleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.packScheduleHeader span,
+.packConfirmBox > span {
+    color: var(--foreground-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.packScheduleHeader strong {
+    background: rgba(8, 145, 178, 0.08);
+    border-radius: 999px;
+    color: var(--primary);
+    font-size: 0.85rem;
+    padding: 5px 10px;
+}
+
+.packSessionList {
+    display: grid;
+    gap: 10px;
+}
+
+.packSessionItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+}
+
+.packSessionItem span {
+    display: block;
+    color: var(--primary);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.packSessionItem strong {
+    display: block;
+    color: var(--foreground);
+    font-size: 0.92rem;
+    margin-bottom: 2px;
+}
+
+.packSessionItem small {
+    color: var(--foreground-muted);
+    font-weight: 700;
+}
+
+.packSessionItem button {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 10px;
+    color: #e11d48;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 8px 10px;
+}
+
+.packEmpty {
+    color: var(--foreground-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.packConfirmBox p {
+    color: var(--foreground);
+    font-size: 0.92rem;
+    margin: 10px 0 0;
+}
+
 .infoNote {
     background: linear-gradient(135deg, rgba(8, 145, 178, 0.04) 0%, transparent 100%);
     padding: 16px 20px;

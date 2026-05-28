@@ -39,9 +39,17 @@ export async function POST(request: NextRequest) {
         const name = isNonEmptyString(body?.name, 200) ? body.name.trim() : '';
         const serviceType = typeof body?.serviceType === 'string' ? body.serviceType : 'sesion';
         const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
+        const appointmentDates = Array.isArray(body?.appointmentDates)
+            ? body.appointmentDates.filter((date: unknown): date is string => typeof date === 'string' && !Number.isNaN(Date.parse(date))).slice(0, 4)
+            : [];
+        const appointmentDate = appointmentDates[0] || (typeof body?.appointmentDate === 'string' ? body.appointmentDate : null);
 
         if (!isEmail(email) || !name) {
             return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
+        }
+
+        if (serviceType === 'packSesiones' && appointmentDates.length !== 4) {
+            return NextResponse.json({ error: 'El pack requiere agendar 4 sesiones' }, { status: 400 });
         }
 
         const { amount: baseAmount, subject } = getServicePaymentDetails(serviceType);
@@ -81,7 +89,8 @@ export async function POST(request: NextRequest) {
                 amount,
                 reason: typeof body.motivo === 'string' ? body.motivo.slice(0, 2000) : '',
                 details: typeof body.detalles === 'string' ? body.detalles.slice(0, 5000) : '',
-                appointmentDate: body.appointmentDate || null,
+                appointmentDate,
+                appointmentDates: appointmentDates.length > 0 ? appointmentDates : appointmentDate ? [appointmentDate] : [],
                 attendeeTimeZone,
                 calEventTypeId: body.calEventTypeId || null,
                 status: 'PENDING',

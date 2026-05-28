@@ -29,6 +29,7 @@ export async function GET(
                 serviceType: true,
                 status: true,
                 appointmentDate: true,
+                appointmentDates: true,
             }
         });
 
@@ -45,6 +46,7 @@ export async function GET(
             serviceType: booking.serviceType,
             status: booking.status,
             appointmentDate: booking.appointmentDate,
+            appointmentDates: booking.appointmentDates,
             eventTypeId,
         });
     } catch (error) {

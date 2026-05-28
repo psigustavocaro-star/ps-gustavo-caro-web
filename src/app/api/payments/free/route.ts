@@ -18,11 +18,18 @@ export async function POST(request: NextRequest) {
         const motivo = typeof body?.motivo === 'string' ? body.motivo.slice(0, 2000) : '';
         const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
         const calEventTypeId = body?.calEventTypeId ?? null;
-        const appointmentDate = typeof body?.appointmentDate === 'string' ? body.appointmentDate : null;
+        const appointmentDates = Array.isArray(body?.appointmentDates)
+            ? body.appointmentDates.filter((date: unknown): date is string => typeof date === 'string' && !Number.isNaN(Date.parse(date))).slice(0, 4)
+            : [];
+        const appointmentDate = appointmentDates[0] || (typeof body?.appointmentDate === 'string' ? body.appointmentDate : null);
         const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
 
         if (!isEmail(email) || !name) {
             return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
+        }
+
+        if (serviceType === 'packSesiones' && appointmentDates.length !== 4) {
+            return NextResponse.json({ error: 'El pack requiere agendar 4 sesiones' }, { status: 400 });
         }
 
         // Determinar nombre del servicio para el email
@@ -43,9 +50,10 @@ export async function POST(request: NextRequest) {
         const commerceOrder = `FREE-${Date.now()}-${crypto.randomUUID().slice(0, 12)}`;
 
         // Guardar en base de datos como CONFIRMADA directamente
+        let createdBookingId: string | null = null;
         try {
             const { default: prisma } = await import('@/lib/db');
-            await prisma.booking.create({
+            const createdBooking = await prisma.booking.create({
                 data: {
                     orderId: commerceOrder,
                     name,
@@ -64,12 +72,14 @@ export async function POST(request: NextRequest) {
                     reason: motivo || '',
                     details: detalles || '',
                     appointmentDate: appointmentDate || null,
+                    appointmentDates: appointmentDates.length > 0 ? appointmentDates : appointmentDate ? [appointmentDate] : [],
                     attendeeTimeZone,
                     calEventTypeId: calEventTypeId || null,
                     status: 'PAID', // Se marca como pagado porque no requiere transacción
                     paidAt: new Date(),
                 }
             });
+            createdBookingId = createdBooking.id;
 
             // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
             await prisma.newsletter.upsert({
@@ -86,17 +96,37 @@ export async function POST(request: NextRequest) {
         if (calEventTypeId && appointmentDate) {
             try {
                 const { createCalBooking } = await import('@/lib/services/calcom');
-                const calResult = await createCalBooking({
-                    eventTypeId: parseInt(calEventTypeId),
-                    start: appointmentDate,
-                    name: name,
-                    email: email,
-                    notes: motivo || detalles || 'Agendamiento Gratuito / Cupón de Prueba',
-                    attendeeTimeZone,
-                });
-                
-                if (calResult.success) {
-                    calBookingId = calResult.bookingId;
+                const calBookingIds: string[] = [];
+                const starts = appointmentDates.length > 0 ? appointmentDates : [appointmentDate];
+
+                for (const [index, start] of starts.entries()) {
+                    const calResult = await createCalBooking({
+                        eventTypeId: parseInt(calEventTypeId),
+                        start,
+                        name: name,
+                        email: email,
+                        notes: starts.length > 1
+                            ? `Agendamiento gratuito / cupón - sesión ${index + 1} de ${starts.length}`
+                            : motivo || detalles || 'Agendamiento Gratuito / Cupón de Prueba',
+                        attendeeTimeZone,
+                    });
+
+                    if (calResult.success && calResult.bookingId) {
+                        calBookingIds.push(String(calResult.bookingId));
+                    }
+                }
+
+                calBookingId = calBookingIds[0] || null;
+
+                if (createdBookingId && calBookingIds.length > 0) {
+                    const { default: prisma } = await import('@/lib/db');
+                    await prisma.booking.update({
+                        where: { id: createdBookingId },
+                        data: {
+                            calBookingId,
+                            calBookingIds,
+                        },
+                    });
                 }
             } catch (calError) {
                 console.error('Cal.com booking error:', calError);

@@ -27,7 +27,7 @@ export function getCalEventTypeId(serviceType: string): number | null {
     const ids: Record<string, string | undefined> = {
         sesion: process.env.NEXT_PUBLIC_CALCOM_EVENT_SESION_ID,
         primeraConsulta: process.env.NEXT_PUBLIC_CALCOM_EVENT_PRIMERA_ID,
-        packSesiones: process.env.NEXT_PUBLIC_CALCOM_EVENT_PACK_ID,
+        packSesiones: process.env.NEXT_PUBLIC_CALCOM_EVENT_SESION_ID,
         evalTDAH: process.env.NEXT_PUBLIC_CALCOM_EVENT_EVALUACION_ID,
         evalAutismo: process.env.NEXT_PUBLIC_CALCOM_EVENT_EVALUACION_ID,
         evalInteligencia: process.env.NEXT_PUBLIC_CALCOM_EVENT_EVALUACION_ID,

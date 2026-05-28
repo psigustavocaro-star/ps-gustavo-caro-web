@@ -21,10 +21,18 @@ export async function POST(request: NextRequest) {
         const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
         const calEventTypeId = typeof body?.calEventTypeId === 'number' || typeof body?.calEventTypeId === 'string' ? body.calEventTypeId : null;
         const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
+        const appointmentDates = Array.isArray(body?.appointmentDates)
+            ? body.appointmentDates.filter((date: unknown): date is string => typeof date === 'string' && !Number.isNaN(Date.parse(date))).slice(0, 4)
+            : [];
+        const appointmentDate = appointmentDates[0] || (typeof body?.appointmentDate === 'string' ? body.appointmentDate : null);
         const email = emailRaw;
 
         if (!isEmail(email) || !name) {
             return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 });
+        }
+
+        if (serviceType === 'packSesiones' && appointmentDates.length !== 4) {
+            return NextResponse.json({ error: 'El pack requiere agendar 4 sesiones' }, { status: 400 });
         }
 
         // Determinar precio según tipo de servicio
@@ -100,7 +108,8 @@ export async function POST(request: NextRequest) {
                     amount,
                     reason: motivo || '',
                     details: detalles || '',
-                    appointmentDate: body.appointmentDate || null,
+                    appointmentDate,
+                    appointmentDates: appointmentDates.length > 0 ? appointmentDates : appointmentDate ? [appointmentDate] : [],
                     attendeeTimeZone,
                     calEventTypeId: calEventTypeId || null,
                     status: 'PENDING',

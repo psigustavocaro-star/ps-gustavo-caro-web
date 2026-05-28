@@ -15,12 +15,23 @@ const CHILE_REGIONS = [
 ];
 
 type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' | 'success';
+type PackSession = { date: string; time: string; rawStartTime: string; slotKey: string };
+
+const PACK_SESSION_COUNT = 4;
+
+const getDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 export default function Booking() {
     const [step, setStep] = useState<BookingStep>('intro');
     const [isProcessing, setIsProcessing] = useState(false);
     const [errors, setErrors] = useState<{ firstName?: string; firstSurname?: string; secondSurname?: string; email?: string; phone?: string; rut?: string; address?: string; region?: string; commune?: string }>({});
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
+    const [packSessions, setPackSessions] = useState<PackSession[]>([]);
     const [calBookingId, setCalBookingId] = useState<string | null>(null);
     const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
     const [formData, setFormData] = useState({
@@ -115,9 +126,43 @@ export default function Booking() {
     // Handler para cuando el usuario selecciona fecha y hora en el calendario custom
     const handleDateTimeSelection = (date: Date, time: string) => {
         const startIso = clinicWallTimeToIso(date, time);
+        const dateLabel = formatClinicDate(startIso, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const slotKey = `${getDateKey(date)} ${time}`;
+
+        if (formData.serviceType === 'packSesiones') {
+            setPackSessions(currentSessions => {
+                if (currentSessions.some(session => session.slotKey === slotKey)) {
+                    alert('Ese horario ya está seleccionado para este pack.');
+                    return currentSessions;
+                }
+
+                if (currentSessions.length >= PACK_SESSION_COUNT) {
+                    return currentSessions;
+                }
+
+                const nextSessions = [
+                    ...currentSessions,
+                    { date: dateLabel, time, rawStartTime: startIso, slotKey },
+                ];
+
+                setFormData(prev => ({
+                    ...prev,
+                    rawStartTime: nextSessions[0]?.rawStartTime || '',
+                }));
+
+                setBookingDetails({
+                    date: `${nextSessions.length} de ${PACK_SESSION_COUNT} sesiones seleccionadas`,
+                    time: nextSessions.map((session, index) => `${index + 1}. ${session.date} ${session.time}`).join(' · '),
+                });
+
+                return nextSessions;
+            });
+
+            return;
+        }
 
         setBookingDetails({
-            date: formatClinicDate(startIso, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+            date: dateLabel,
             time: time
         });
 
@@ -127,6 +172,43 @@ export default function Booking() {
         }));
 
         // Redirigir siempre a rellenar datos de contacto después de escoger bloque horario.
+        setStep('contact');
+    };
+
+    const handleRemovePackSession = (slotKey: string) => {
+        setPackSessions(currentSessions => {
+            const nextSessions = currentSessions.filter(session => session.slotKey !== slotKey);
+
+            setFormData(prev => ({
+                ...prev,
+                rawStartTime: nextSessions[0]?.rawStartTime || '',
+            }));
+
+            setBookingDetails(nextSessions.length > 0 ? {
+                date: `${nextSessions.length} de ${PACK_SESSION_COUNT} sesiones seleccionadas`,
+                time: nextSessions.map((session, index) => `${index + 1}. ${session.date} ${session.time}`).join(' · '),
+            } : {});
+
+            return nextSessions;
+        });
+    };
+
+    const handleSelectService = (serviceType: typeof formData.serviceType) => {
+        setPackSessions([]);
+        setBookingDetails({});
+        setFormData(prev => ({
+            ...prev,
+            serviceType,
+            rawStartTime: '',
+        }));
+    };
+
+    const handleContinueAfterSchedule = () => {
+        if (formData.serviceType === 'packSesiones' && packSessions.length !== PACK_SESSION_COUNT) {
+            alert(`Selecciona las ${PACK_SESSION_COUNT} sesiones del pack antes de continuar.`);
+            return;
+        }
+
         setStep('contact');
     };
 
@@ -219,6 +301,9 @@ export default function Booking() {
                     motivo: formData.reason || formData.details,
                     detalles: formData.details,
                     appointmentDate: formData.rawStartTime,
+                    appointmentDates: formData.serviceType === 'packSesiones'
+                        ? packSessions.map(session => session.rawStartTime)
+                        : formData.rawStartTime ? [formData.rawStartTime] : [],
                     attendeeTimeZone: formData.attendeeTimeZone,
                     calEventTypeId: formData.calEventTypeId,
                     newsletter: formData.newsletter,
@@ -327,6 +412,7 @@ export default function Booking() {
             calEventTypeId: null,
             coupon: ''
         });
+        setPackSessions([]);
         setAppliedCoupon({ status: 'none', discount: 0 });
         setErrors({});
         setStep('intro');
@@ -376,7 +462,7 @@ export default function Booking() {
                             <div className={styles.serviceCards}>
                                 <div 
                                     className={`${styles.serviceCard} ${formData.serviceType === 'sesion' ? styles.activeCard : ''}`}
-                                    onClick={() => setFormData({ ...formData, serviceType: 'sesion' })}
+                                    onClick={() => handleSelectService('sesion')}
                                 >
                                     <div className={styles.cardHeader}>
                                         <div className={styles.cardIcon}>🧠</div>
@@ -390,7 +476,7 @@ export default function Booking() {
 
                                 <div 
                                     className={`${styles.serviceCard} ${formData.serviceType === 'packSesiones' ? styles.activeCard : ''}`}
-                                    onClick={() => setFormData({ ...formData, serviceType: 'packSesiones' })}
+                                    onClick={() => handleSelectService('packSesiones')}
                                 >
                                     <div className={styles.cardHeader}>
                                         <div className={styles.cardIcon}>📦</div>
@@ -575,18 +661,58 @@ export default function Booking() {
                                 <span className={styles.summaryLabel}>Servicio Seleccionado</span>
                                 <div className={styles.summaryContent}>
                                     <p>{formData.serviceType === 'sesion' ? 'Psicoterapia Individual' : 'Pack 4 Sesiones'}</p>
+                                    {formData.serviceType === 'packSesiones' && (
+                                        <p className={styles.summaryNote}>Selecciona {PACK_SESSION_COUNT} horarios. Cada uno quedará agendado como sesión individual.</p>
+                                    )}
                                 </div>
                             </div>
+
+                            {formData.serviceType === 'packSesiones' && (
+                                <div className={styles.packSchedulePanel}>
+                                    <div className={styles.packScheduleHeader}>
+                                        <span>Sesiones del pack</span>
+                                        <strong>{packSessions.length}/{PACK_SESSION_COUNT}</strong>
+                                    </div>
+                                    {packSessions.length > 0 ? (
+                                        <div className={styles.packSessionList}>
+                                            {packSessions.map((session, index) => (
+                                                <div key={session.slotKey} className={styles.packSessionItem}>
+                                                    <div>
+                                                        <span>Sesión {index + 1}</span>
+                                                        <strong>{session.date}</strong>
+                                                        <small>{session.time} hrs Chile</small>
+                                                    </div>
+                                                    <button type="button" onClick={() => handleRemovePackSession(session.slotKey)}>Quitar</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className={styles.packEmpty}>Aún no has seleccionado horarios para el pack.</p>
+                                    )}
+                                </div>
+                            )}
 
                             <div className={styles.calendarContainer}>
                                 <CustomCalendar
                                     onSelectDateTime={handleDateTimeSelection}
-                                    bookedSlots={occupiedSlots}
+                                    bookedSlots={[
+                                        ...occupiedSlots,
+                                        ...packSessions.map(session => session.slotKey),
+                                    ]}
                                 />
                             </div>
 
                             <div className={styles.footerActions}>
                                 <button onClick={handleBack} className="btn-secondary">← Cambiar Servicio</button>
+                                {formData.serviceType === 'packSesiones' && (
+                                    <button
+                                        onClick={handleContinueAfterSchedule}
+                                        className="btn-primary"
+                                        disabled={packSessions.length !== PACK_SESSION_COUNT}
+                                    >
+                                        Continuar con {PACK_SESSION_COUNT} sesiones →
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
@@ -594,7 +720,16 @@ export default function Booking() {
                     {step === 'payment' && (
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Confirma tu Reserva</h2>
-                            <p className={styles.stepDesc}>Tu cita: <strong>{bookingDetails.date}</strong> a las <strong>{bookingDetails.time}</strong></p>
+                            {formData.serviceType === 'packSesiones' ? (
+                                <div className={styles.packConfirmBox}>
+                                    <span>Sesiones seleccionadas</span>
+                                    {packSessions.map((session, index) => (
+                                        <p key={session.slotKey}><strong>Sesión {index + 1}:</strong> {session.date} a las {session.time} hrs Chile</p>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className={styles.stepDesc}>Tu cita: <strong>{bookingDetails.date}</strong> a las <strong>{bookingDetails.time}</strong></p>
+                            )}
 
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>
