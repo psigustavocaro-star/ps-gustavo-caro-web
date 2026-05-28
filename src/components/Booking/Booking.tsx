@@ -667,39 +667,41 @@ export default function Booking() {
                                 </div>
                             </div>
 
-                            {formData.serviceType === 'packSesiones' && (
-                                <div className={styles.packSchedulePanel}>
-                                    <div className={styles.packScheduleHeader}>
-                                        <span>Sesiones del pack</span>
-                                        <strong>{packSessions.length}/{PACK_SESSION_COUNT}</strong>
-                                    </div>
-                                    {packSessions.length > 0 ? (
-                                        <div className={styles.packSessionList}>
-                                            {packSessions.map((session, index) => (
-                                                <div key={session.slotKey} className={styles.packSessionItem}>
-                                                    <div>
-                                                        <span>Sesión {index + 1}</span>
-                                                        <strong>{session.date}</strong>
-                                                        <small>{session.time} hrs Chile</small>
-                                                    </div>
-                                                    <button type="button" onClick={() => handleRemovePackSession(session.slotKey)}>Quitar</button>
-                                                </div>
-                                            ))}
+                            <div className={formData.serviceType === 'packSesiones' ? styles.scheduleWorkspace : ''}>
+                                {formData.serviceType === 'packSesiones' && (
+                                    <div className={styles.packSchedulePanel}>
+                                        <div className={styles.packScheduleHeader}>
+                                            <span>Sesiones del pack</span>
+                                            <strong>{packSessions.length}/{PACK_SESSION_COUNT}</strong>
                                         </div>
-                                    ) : (
-                                        <p className={styles.packEmpty}>Aún no has seleccionado horarios para el pack.</p>
-                                    )}
-                                </div>
-                            )}
+                                        {packSessions.length > 0 ? (
+                                            <div className={styles.packSessionList}>
+                                                {packSessions.map((session, index) => (
+                                                    <div key={session.slotKey} className={styles.packSessionItem}>
+                                                        <div>
+                                                            <span>Sesión {index + 1}</span>
+                                                            <strong>{session.date}</strong>
+                                                            <small>{session.time} hrs Chile</small>
+                                                        </div>
+                                                        <button type="button" onClick={() => handleRemovePackSession(session.slotKey)}>Quitar</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className={styles.packEmpty}>Aún no has seleccionado horarios para el pack.</p>
+                                        )}
+                                    </div>
+                                )}
 
-                            <div className={styles.calendarContainer}>
-                                <CustomCalendar
-                                    onSelectDateTime={handleDateTimeSelection}
-                                    bookedSlots={[
-                                        ...occupiedSlots,
-                                        ...packSessions.map(session => session.slotKey),
-                                    ]}
-                                />
+                                <div className={styles.calendarContainer}>
+                                    <CustomCalendar
+                                        onSelectDateTime={handleDateTimeSelection}
+                                        bookedSlots={[
+                                            ...occupiedSlots,
+                                            ...packSessions.map(session => session.slotKey),
+                                        ]}
+                                    />
+                                </div>
                             </div>
 
                             <div className={styles.footerActions}>
