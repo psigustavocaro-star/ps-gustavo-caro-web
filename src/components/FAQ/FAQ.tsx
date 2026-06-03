@@ -14,7 +14,7 @@ const faqs = [
     },
     {
         q: "¿Cómo se realizan los pagos?",
-        a: "El pago se realiza al momento de agendar a través de Flow (WebPay, tarjetas de crédito/débito). Para pacientes internacionales, también acepto PayPal. Recibirás confirmación inmediata y boleta electrónica."
+        a: "El pago se realiza al momento de agendar a través de Flow (WebPay, tarjetas de crédito/débito). Para pacientes internacionales, también acepto PayPal. Recibirás la confirmación de tu reserva por correo y la boleta de honorarios será gestionada después del pago."
     },
     {
         q: "¿Cuánto dura cada sesión?",
@@ -26,7 +26,7 @@ const faqs = [
     },
     {
         q: "¿Emites boleta de honorarios?",
-        a: "Sí, emito boleta electrónica de honorarios por cada sesión. Te llegará automáticamente a tu correo electrónico. Algunas Isapres permiten reembolso parcial por psicoterapia; te recomiendo consultar con tu plan."
+        a: "Sí, emito boleta de honorarios por las sesiones pagadas. La boleta se gestiona después de confirmado el pago y se envía a tu correo cuando esté emitida."
     },
     {
         q: "¿Es confidencial la información?",

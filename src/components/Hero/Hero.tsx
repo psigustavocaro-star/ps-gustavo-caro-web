@@ -51,14 +51,14 @@ export default function Hero() {
                         </div>
                         <p className={styles.invoiceNoteText}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.invoiceIcon}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                            Boleta automática reembolsable en Isapres y Seguros
+                            Boleta de honorarios gestionada después del pago
                         </p>
                     </div>
 
                     <div className={styles.trustFooter} style={{ marginTop: '24px' }}>
-                        <span className={styles.trustItem}>✓ Emisión inmediata SII</span>
                         <span className={styles.trustItem}>✓ Facilidad de pago online</span>
                         <span className={styles.trustItem}>✓ TCC Basada en evidencia</span>
+                        <span className={styles.trustItem}>✓ Atención online confidencial</span>
                     </div>
                 </motion.div>
 

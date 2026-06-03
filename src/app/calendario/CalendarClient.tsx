@@ -51,7 +51,7 @@ export default function CalendarClient() {
                         )}
                     </div>
                     <div className={styles.info}>
-                        <p><strong>Nota:</strong> Este calendario es solo para consulta. Para asegurar tu hora y recibir la boleta electrónica, utiliza el <a href="/agendar">formulario de reserva principal</a>.</p>
+                        <p><strong>Nota:</strong> Este calendario es solo para consulta. Para asegurar tu hora y dejar los datos necesarios para la boleta de honorarios, utiliza el <a href="/agendar">formulario de reserva principal</a>.</p>
                     </div>
                 </div>
             </section>

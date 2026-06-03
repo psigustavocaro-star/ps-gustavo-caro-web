@@ -59,7 +59,7 @@ export default function Services() {
                     transition={{ delay: 0.5 }}
                 >
                     <Link href="/agendar" className="btn-primary">Agendar mi sesión</Link>
-                    <p className={styles.note}>Boleta electrónica automática · Reembolsable en Isapres</p>
+                    <p className={styles.note}>Boleta de honorarios gestionada después del pago</p>
                 </motion.div>
             </div>
         </section>

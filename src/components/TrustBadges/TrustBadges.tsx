@@ -17,9 +17,9 @@ const badges = [
         color: "#6366f1" // Indigo
     },
     {
-        title: "Boleta Automática",
-        desc: "Reembolsable en Isapres/Seguros",
-        icon: "⚡",
+        title: "Gestión de Boleta",
+        desc: "Documento de honorarios posterior al pago",
+        icon: "📄",
         color: "#f59e0b" // Amber
     },
     {

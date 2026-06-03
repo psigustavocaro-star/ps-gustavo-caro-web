@@ -794,7 +794,7 @@ export default function Booking() {
                                         <div className={styles.securityBadges}>
                                             <span>🔒 Pago seguro con Flow</span>
                                             <span>🌎 PayPal internacional</span>
-                                            <span>📑 Boleta Manual Electrónica</span>
+                                            <span>📑 Boleta gestionada manualmente</span>
                                         </div>
                                     </>
                                 )}
@@ -842,12 +842,12 @@ export default function Booking() {
                             <p className={styles.stepDesc}>
                                 {calculateFinalPrice() === 0
                                     ? 'Se ha enviado un correo con los detalles y el link de acceso a tu sesión.'
-                                    : 'Se ha enviado un correo con el link de la sesión y tu boleta adjunta.'}
+                                    : 'Se ha enviado un correo con los detalles de tu sesión. La boleta de honorarios será gestionada después de confirmado el pago.'}
                             </p>
                             <div className={styles.infoBox}>
                                 <p><strong>📧 Revisa tu email:</strong> {formData.email}</p>
                                 {calculateFinalPrice() > 0 && (
-                                    <p><strong>📑 Boleta:</strong> Enviada automáticamente</p>
+                                    <p><strong>📑 Boleta:</strong> Se gestionará después de confirmado el pago</p>
                                 )}
                             </div>
                             <button onClick={resetForm} className="btn-primary">Listo</button>

@@ -132,7 +132,7 @@ function PaymentSuccessContent() {
 
                 <div className={styles.infoBox}>
                     <p>📧 <strong>Confirmación:</strong> Revisa tu bandeja de entrada o spam.</p>
-                    <p>📑 <strong>Boleta Electrónica:</strong> Emitida y enviada como archivo adjunto.</p>
+                    <p>📑 <strong>Boleta de honorarios:</strong> Será gestionada después de confirmado el pago.</p>
                     <p>🔗 <strong>Link de sesión:</strong> Recibirás el enlace de videollamada 24 horas antes.</p>
                 </div>
 
