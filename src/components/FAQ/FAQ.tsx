@@ -26,7 +26,7 @@ const faqs = [
     },
     {
         q: "¿Emites boleta de honorarios?",
-        a: "Sí, emito boleta de honorarios por las sesiones pagadas. La boleta se gestiona después de confirmado el pago y se envía a tu correo cuando esté emitida."
+        a: "Sí, emito boleta de honorarios por las sesiones pagadas. La boleta se gestiona después de confirmado el pago y puede servir para solicitar reembolso en Isapres o seguros, según las condiciones de tu plan."
     },
     {
         q: "¿Es confidencial la información?",

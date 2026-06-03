@@ -17,8 +17,8 @@ const badges = [
         color: "#6366f1" // Indigo
     },
     {
-        title: "Gestión de Boleta",
-        desc: "Documento de honorarios posterior al pago",
+        title: "Boleta de Honorarios",
+        desc: "Útil para reembolso según tu plan",
         icon: "📄",
         color: "#f59e0b" // Amber
     },
