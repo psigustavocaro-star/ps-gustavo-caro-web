@@ -56,6 +56,10 @@ export async function POST(request: NextRequest) {
                 amount = paymentConfig.pricing.evalAutismo;
                 subject = 'Evaluación TEA (Autismo)';
                 break;
+            case 'evalWiscV':
+                amount = paymentConfig.pricing.evalWiscV;
+                subject = 'Evaluación Cognitiva WISC-V';
+                break;
             case 'evalInteligencia':
                 amount = paymentConfig.pricing.evalInteligencia;
                 subject = 'Evaluación Intelectual';
@@ -77,7 +81,7 @@ export async function POST(request: NextRequest) {
         // Aplicar cupón (validación server-side)
         if (body.coupon) {
             const { applyCoupon } = await import('@/lib/services/coupons');
-            const couponResult = applyCoupon(body.coupon, amount);
+            const couponResult = applyCoupon(body.coupon, amount, serviceType);
             if (!couponResult.ok) {
                 return NextResponse.json({ error: couponResult.reason }, { status: 400 });
             }
@@ -121,13 +125,13 @@ export async function POST(request: NextRequest) {
                 where: { email },
                 update: { active: true, name },
                 create: { email: email.toLowerCase(), name, active: true }
-            }).catch((err: any) => console.error('Silent error registering newsletter:', err));
+            }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
 
             // Enviar bienvenida al newsletter (Paso 1 de la secuencia automática)
             const { sendNewsletterWelcome } = await import('@/lib/services/mail');
-            sendNewsletterWelcome(email, name).catch((err: any) => console.error('Silent newsletter mail error:', err));
-        } catch (dbError: any) {
-            console.error('API: Error al guardar en DB (continuando con pago):', dbError.message);
+            sendNewsletterWelcome(email, name).catch((err: unknown) => console.error('Silent newsletter mail error:', err));
+        } catch (dbError: unknown) {
+            console.error('API: Error al guardar en DB (continuando con pago):', dbError instanceof Error ? dbError.message : dbError);
         }
 
         // Crear pago en Flow

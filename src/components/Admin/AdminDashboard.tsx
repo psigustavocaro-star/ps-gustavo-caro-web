@@ -1,15 +1,12 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
-
-const CHILE_REGIONS = [
-    'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 
-    'Valparaíso', 'Metropolitana de Santiago', 'O\'Higgins', 'Maule', 
-    'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
-];
 
 const getBookingStatusLabel = (status?: string) => {
     const normalizedStatus = (status || '').toUpperCase();
@@ -44,7 +41,6 @@ export default function AdminDashboard() {
                 }
             })
             .catch(() => {});
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -153,7 +149,7 @@ export default function AdminDashboard() {
                 setSelectedPatient(editData);
                 fetchData();
             }
-        } catch (err) { alert('Error de conexión'); }
+        } catch { alert('Error de conexión'); }
         finally { setIsLoading(false); }
     };
 
@@ -197,7 +193,7 @@ export default function AdminDashboard() {
             }
 
             updateBookingInState(data.booking);
-        } catch (err) {
+        } catch {
             updateBookingInState(previousBooking);
             alert('Error de conexión al actualizar la boleta SII');
         }
@@ -233,7 +229,7 @@ export default function AdminDashboard() {
             } else {
                 alert('No se pudo eliminar: ' + data.error);
             }
-        } catch (err) { alert('Error al procesar eliminación'); }
+        } catch { alert('Error al procesar eliminación'); }
         finally { setIsLoading(false); }
     };
 
@@ -307,7 +303,7 @@ export default function AdminDashboard() {
             } else {
                 alert(`❌ Error al enviar el correo: ${data.error}`);
             }
-        } catch (err) { alert('Hubo un error de red al intentar enviar'); }
+        } catch { alert('Hubo un error de red al intentar enviar'); }
         finally { setIsLoading(false); }
     };
 
@@ -338,7 +334,7 @@ export default function AdminDashboard() {
             } else {
                 alert(`❌ No se pudo enviar ningún correo. Verifica si configuraste las claves de envío.`);
             }
-        } catch (err) { alert('Ocurrió un error en el envío de red'); }
+        } catch { alert('Ocurrió un error en el envío de red'); }
         finally { setIsLoading(false); }
     };
 
@@ -355,7 +351,7 @@ export default function AdminDashboard() {
                 alert('💾 Borrador de correo guardado perfectamente');
                 fetchData();
             }
-        } catch (err) { alert('No pudimos guardarlo en este momento'); }
+        } catch { alert('No pudimos guardarlo en este momento'); }
         finally { setIsLoading(false); }
     };
 
@@ -372,12 +368,12 @@ export default function AdminDashboard() {
                     <form onSubmit={handleLogin}>
                         <input className={styles.authInput} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Correo electrónico" required />
                         <input className={styles.authInput} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Tu contraseña" required />
-                        <button type="submit" className={styles.authSubmit}>Entrar a la Clínica</button>
+                        <button type="submit" className={styles.authSubmit} disabled={isLoading}>{isLoading ? 'Verificando...' : 'Entrar a la Clínica'}</button>
                     </form>
                     <div style={{ marginTop: '24px' }}>
-                        <a href="/" style={{ color: '#06b6d4', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>
+                        <Link href="/" style={{ color: '#06b6d4', textDecoration: 'none', fontWeight: 600, fontSize: '0.95rem' }}>
                             ← Regresar a la página principal
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -405,7 +401,7 @@ export default function AdminDashboard() {
                     <label className={styles.profileUploadBox} title="Haz clic para subir tu foto">
                         <input type="file" accept="image/*" style={{display: 'none'}} onChange={handleProfilePicChange} />
                         {profilePic ? (
-                            <img src={profilePic} alt="Tú" className={styles.profileImg} />
+                            <Image src={profilePic} alt="Tú" className={styles.profileImg} width={96} height={96} unoptimized />
                         ) : (
                             <span className={styles.dogAvatar}>🐕</span>
                         )}
@@ -424,14 +420,14 @@ export default function AdminDashboard() {
                 <div className={styles.publicLinks}>
                     <span>Ir a la web</span>
                     <div>
-                        <a href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</a>
-                        <a href="/agendar" onClick={() => setIsMobileMenuOpen(false)}>Agendar</a>
-                        <a href="/blog" onClick={() => setIsMobileMenuOpen(false)}>Blog</a>
-                        <a href="/sobre-mi" onClick={() => setIsMobileMenuOpen(false)}>Sobre mí</a>
+                        <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</Link>
+                        <Link href="/agendar" onClick={() => setIsMobileMenuOpen(false)}>Agendar</Link>
+                        <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
+                        <Link href="/sobre-mi" onClick={() => setIsMobileMenuOpen(false)}>Sobre mí</Link>
                     </div>
                 </div>
                 
-                <button onClick={() => setIsAuthenticated(false)} className={styles.logoutAction}>Cerrar Sesión</button>
+                <button onClick={handleLogout} className={styles.logoutAction}>Cerrar Sesión</button>
             </aside>
 
             <main className={styles.contentArea}>

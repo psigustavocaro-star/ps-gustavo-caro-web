@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Reveal from '../Animations/Reveal';
@@ -45,6 +46,51 @@ export default function Services() {
                         </div>
                     </div>
                 </div>
+
+                <motion.article
+                    className={styles.wiscFeature}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.65 }}
+                >
+                    <div className={styles.wiscImageWrap}>
+                        <Image
+                            src="/images/wisc-v-evaluacion.png"
+                            alt="Evaluación cognitiva infantil en un entorno clínico cálido y profesional"
+                            fill
+                            sizes="(max-width: 900px) 100vw, 48vw"
+                            className={styles.wiscImage}
+                        />
+                        <span className={styles.wiscImageBadge}>6 a 16 años 11 meses</span>
+                    </div>
+
+                    <div className={styles.wiscContent}>
+                        <span className={styles.wiscEyebrow}>Nuevo servicio · Evaluación estandarizada</span>
+                        <h3>Evaluación Cognitiva WISC-V</h3>
+                        <p className={styles.wiscLead}>Un proceso cuidadoso para comprender el perfil cognitivo, reconocer fortalezas y orientar apoyos concretos en el hogar y el contexto educativo.</p>
+                        <ul className={styles.wiscIncludes}>
+                            <li>Entrevista inicial y revisión de antecedentes.</li>
+                            <li>Aplicación completa, corrección e interpretación WISC-V.</li>
+                            <li>Informe profesional impreso y digital.</li>
+                            <li>Devolución posterior explicada con recomendaciones.</li>
+                        </ul>
+                        <div className={styles.wiscOffer}>
+                            <div>
+                                <span className={styles.wiscPrice}>$144.000</span>
+                                <span className={styles.wiscInstallments}>Equivalente a 4 sesiones de $36.000</span>
+                            </div>
+                            <div className={styles.wiscPromo}>
+                                <strong>Promo de lanzamiento</strong>
+                                <span>Usa WISC12 y paga $132.000</span>
+                            </div>
+                        </div>
+                        <div className={styles.wiscActions}>
+                            <Link href="/agendar" className="btn-primary">Agendar evaluación WISC-V</Link>
+                            <span>La primera fecha inicia el proceso; las siguientes instancias se coordinan posteriormente.</span>
+                        </div>
+                    </div>
+                </motion.article>
 
                 <WorkshopForm
                     isOpen={isWorkshopOpen}

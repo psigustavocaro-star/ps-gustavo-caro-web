@@ -40,7 +40,7 @@ export async function generateInvoice(data: InvoiceData): Promise<InvoiceResult>
  * Genera boleta via Bsale API
  */
 async function generateBsaleInvoice(data: InvoiceData): Promise<InvoiceResult> {
-    const { bsale, tipoDTE, emisor } = invoiceConfig;
+    const { bsale, tipoDTE } = invoiceConfig;
 
     try {
         // 1. Crear cliente si no existe
@@ -124,7 +124,7 @@ async function generateSIIInvoice(data: InvoiceData): Promise<InvoiceResult> {
     }
 
     const formatRut = (rut: string) => {
-        let clean = rut.replace(/\./g, '').replace(/\s/g, '');
+        const clean = rut.replace(/\./g, '').replace(/\s/g, '');
         if (!clean.includes('-') && clean.length > 1) {
             return clean.slice(0, -1) + '-' + clean.slice(-1);
         }

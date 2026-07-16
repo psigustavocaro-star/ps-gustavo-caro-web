@@ -59,7 +59,7 @@ export default function Testimonials() {
                                     <span key={index}>★</span>
                                 ))}
                             </div>
-                            <p className={styles.text}>"{t.text}"</p>
+                            <p className={styles.text}>“{t.text}”</p>
                             <div className={styles.footer}>
                                 <div
                                     className={styles.avatar}

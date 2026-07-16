@@ -15,6 +15,8 @@ const getServicePaymentDetails = (serviceType: string) => {
             return { amount: paymentConfig.pricing.evalTDAH, subject: 'Evaluación TDAH Adulto' };
         case 'evalAutismo':
             return { amount: paymentConfig.pricing.evalAutismo, subject: 'Evaluación TEA (Autismo)' };
+        case 'evalWiscV':
+            return { amount: paymentConfig.pricing.evalWiscV, subject: 'Evaluación Cognitiva WISC-V' };
         case 'evalInteligencia':
             return { amount: paymentConfig.pricing.evalInteligencia, subject: 'Evaluación Intelectual' };
         case 'evalNeuropsicologica':
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
 
         let amount: number = baseAmount;
         if (body.coupon) {
-            const result = applyCoupon(body.coupon, amount);
+            const result = applyCoupon(body.coupon, amount, serviceType);
             if (!result.ok) {
                 return NextResponse.json({ error: result.reason }, { status: 400 });
             }

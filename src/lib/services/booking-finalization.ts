@@ -18,8 +18,6 @@ export async function finalizePaidBooking({
     amount,
     paymentMethod,
     auditLabel = 'PAGO',
-    // rawPaymentData se ignora en el audit email para no incluir PII del proveedor.
-    rawPaymentData: _rawPaymentData,
 }: PaymentFinalizationOptions) {
     const auditData: AuditData = { orderId, paymentMethod, steps: {} };
     const { default: prisma } = await import('@/lib/db');

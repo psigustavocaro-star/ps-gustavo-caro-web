@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
         try {
             const formData = await request.formData();
             token = formData.get('token') as string;
-        } catch (e) {}
+        } catch {}
 
         // En caso excepcional que lo mande por query
         if (!token) {

@@ -34,7 +34,7 @@ export default function AvisoLegalPage() {
                         <h2>2. Objeto y Ámbito de Aplicación</h2>
                         <p>
                             El presente Aviso Legal regula el acceso y uso del sitio web
-                            <strong> psgustavocaro.cl</strong> (en adelante, "el Sitio").
+                            <strong> psgustavocaro.cl</strong> (en adelante, “el Sitio”).
                             Al acceder y utilizar este Sitio, usted acepta cumplir con los términos aquí establecidos.
                         </p>
                     </section>

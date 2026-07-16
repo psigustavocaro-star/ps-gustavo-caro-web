@@ -36,7 +36,7 @@ export default function TCCFocus() {
                     <div className={styles.header}>
                         <h2 className={styles.title}>¿Te identificas con alguna de estas situaciones?</h2>
                         <p className={styles.subtitle}>
-                            Como <strong>Psicólogo en Santiago</strong> especializado en <strong>Terapia Cognitivo Conductual (TCC)</strong>, mi objetivo es que dejes de "sobrevivir" al día a día y comiences a gestionar tu bienestar con herramientas probadas por la ciencia.
+                            Como <strong>Psicólogo en Santiago</strong> especializado en <strong>Terapia Cognitivo Conductual (TCC)</strong>, mi objetivo es que dejes de “sobrevivir” al día a día y comiences a gestionar tu bienestar con herramientas probadas por la ciencia.
                         </p>
                     </div>
                 </Reveal>

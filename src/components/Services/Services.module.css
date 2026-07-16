@@ -83,10 +83,70 @@
     line-height: 1.5;
 }
 
+.wiscFeature {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+    overflow: hidden;
+    max-width: 1120px;
+    margin: 0 auto 70px;
+    border: 1px solid rgba(64, 100, 91, 0.18);
+    border-radius: 32px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 243, 0.94));
+    box-shadow: 0 28px 75px rgba(32, 65, 58, 0.13);
+}
+
+.wiscImageWrap { position: relative; min-height: 600px; overflow: hidden; }
+.wiscImage { object-fit: cover; object-position: center; transition: transform 0.8s ease; }
+.wiscFeature:hover .wiscImage { transform: scale(1.025); }
+
+.wiscImageBadge {
+    position: absolute;
+    left: 24px;
+    bottom: 24px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(22, 60, 53, 0.9);
+    backdrop-filter: blur(10px);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.wiscContent { padding: clamp(36px, 5vw, 64px); display: flex; flex-direction: column; justify-content: center; }
+.wiscEyebrow { color: var(--primary); font-size: 0.77rem; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; margin-bottom: 14px; }
+.wiscContent h3 { color: var(--foreground); font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1.04; letter-spacing: -0.035em; margin-bottom: 20px; }
+.wiscLead { color: var(--foreground-light); font-size: 1.06rem; line-height: 1.7; }
+.wiscIncludes { list-style: none; padding: 0; margin: 26px 0; display: grid; gap: 12px; }
+.wiscIncludes li { position: relative; padding-left: 28px; color: var(--foreground-light); line-height: 1.5; }
+.wiscIncludes li::before { content: '✓'; position: absolute; left: 0; color: var(--primary); font-weight: 900; }
+
+.wiscOffer {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 18px;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 26px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(64, 100, 91, 0.14);
+}
+
+.wiscPrice, .wiscInstallments, .wiscPromo span { display: block; }
+.wiscPrice { color: var(--primary-dark); font-size: 1.8rem; font-weight: 850; letter-spacing: -0.04em; }
+.wiscInstallments, .wiscPromo span { color: var(--foreground-muted); font-size: 0.82rem; margin-top: 3px; }
+.wiscPromo { padding-left: 18px; border-left: 1px solid rgba(64, 100, 91, 0.18); }
+.wiscPromo strong { color: var(--primary-dark); font-size: 0.9rem; }
+.wiscActions { display: flex; align-items: center; gap: 18px; }
+.wiscActions span { max-width: 230px; color: var(--foreground-muted); font-size: 0.78rem; line-height: 1.45; }
+
 @media (max-width: 900px) {
     .serviceBenefits {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .wiscFeature { grid-template-columns: 1fr; }
+    .wiscImageWrap { min-height: 390px; }
 }
 
 @media (max-width: 640px) {
@@ -97,6 +157,13 @@
     .introText {
         font-size: 1.1rem;
     }
+
+    .wiscFeature { margin-inline: 8px; border-radius: 24px; }
+    .wiscImageWrap { min-height: 300px; }
+    .wiscContent { padding: 30px 24px 34px; }
+    .wiscOffer { grid-template-columns: 1fr; }
+    .wiscPromo { padding: 14px 0 0; border-left: 0; border-top: 1px solid rgba(64, 100, 91, 0.18); }
+    .wiscActions { align-items: flex-start; flex-direction: column; }
 }
 
 .cta {

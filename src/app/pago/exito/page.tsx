@@ -5,22 +5,14 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
-import CustomCalendar from '@/components/Booking/CustomCalendar';
-import { CLINIC_TIME_ZONE, clinicWallTimeToIso, formatClinicDate, formatClinicTime } from '@/lib/util/timezone';
+import { formatClinicDate, formatClinicTime } from '@/lib/util/timezone';
 
 function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('order') || 'N/A';
     const [booking, setBooking] = useState<{ serviceType: string, eventTypeId: string, appointmentDate?: string } | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [appointmentConfirmed, setAppointmentConfirmed] = useState(false);
+    const [loading, setLoading] = useState(orderId !== 'N/A');
     const [selectedDateTime, setSelectedDateTime] = useState<{ date: string; time: string } | null>(null);
-    const [attendeeTimeZone, setAttendeeTimeZone] = useState(CLINIC_TIME_ZONE);
-
-    useEffect(() => {
-        const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (detectedTimeZone) setAttendeeTimeZone(detectedTimeZone);
-    }, []);
 
     useEffect(() => {
         if (orderId && orderId !== 'N/A') {
@@ -33,7 +25,6 @@ function PaymentSuccessContent() {
                         setBooking(data);
                         // Si ya tiene fecha de cita, mostrar confirmación
                         if (data?.appointmentDate) {
-                            setAppointmentConfirmed(true);
                             setSelectedDateTime({
                                 date: formatClinicDate(data.appointmentDate, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
                                 time: formatClinicTime(data.appointmentDate)
@@ -47,40 +38,8 @@ function PaymentSuccessContent() {
                     setBooking(null);
                     setLoading(false);
                 });
-        } else {
-            setLoading(false);
         }
     }, [orderId]);
-
-    // Handler cuando se selecciona fecha y hora
-    const handleDateTimeSelection = async (date: Date, time: string) => {
-        const startIso = clinicWallTimeToIso(date, time);
-
-        // Guardar la cita en la base de datos
-        try {
-            const response = await fetch(`/api/bookings/${orderId}/schedule`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    appointmentDate: startIso,
-                    attendeeTimeZone
-                })
-            });
-
-            if (response.ok) {
-                setSelectedDateTime({
-                    date: formatClinicDate(startIso, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                    time: time
-                });
-                setAppointmentConfirmed(true);
-            } else {
-                alert('Error al confirmar la cita. Por favor intenta de nuevo.');
-            }
-        } catch (error) {
-            console.error('Error scheduling appointment:', error);
-            alert('Error de conexión. Por favor intenta de nuevo.');
-        }
-    };
 
     if (loading) {
         return <div className={styles.container}><div className={styles.card}>Cargando detalles de tu reserva...</div></div>;

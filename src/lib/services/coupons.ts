@@ -12,7 +12,7 @@ function devCouponsEnabled(): boolean {
     return process.env.ADMIN_COUPONS_ENABLED === 'true';
 }
 
-export function applyCoupon(rawCoupon: string | undefined, amount: number): CouponResult {
+export function applyCoupon(rawCoupon: string | undefined, amount: number, serviceType?: string): CouponResult {
     if (!rawCoupon) return { ok: true, amount };
     const code = rawCoupon.trim().toUpperCase();
     if (code.length === 0) return { ok: true, amount };
@@ -22,6 +22,12 @@ export function applyCoupon(rawCoupon: string | undefined, amount: number): Coup
     if (code === 'GUSTAVO10') {
         const next = Math.max(MIN_FLOW_AMOUNT, amount - 10000);
         return { ok: true, amount: next, meta: { applied: code } };
+    }
+
+    // WISC12: promoción exclusiva para la evaluación WISC-V
+    if (code === 'WISC12') {
+        if (serviceType !== 'evalWiscV') return { ok: false, reason: 'Cupón exclusivo para Evaluación WISC-V' };
+        return { ok: true, amount: Math.max(MIN_FLOW_AMOUNT, amount - 12000), meta: { applied: code } };
     }
 
     // TEST100: solo cuando ADMIN_COUPONS_ENABLED=true (entornos no productivos)

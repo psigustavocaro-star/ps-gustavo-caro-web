@@ -5,19 +5,17 @@ export const config = {
     matcher: ['/admingustavo/:path*', '/api/admin/:path*'],
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = await verifySessionToken(token);
 
     if (session) return NextResponse.next();
 
-    const isApi = request.nextUrl.pathname.startsWith('/api/');
-    if (isApi) {
+    if (request.nextUrl.pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    // /admingustavo without session: let the page render its login form
-    // The login form posts to /api/admin/login which is intentionally NOT under /api/admin/* matcher rules
-    // (we only protect /api/admin/* — login route lives at /api/auth/admin instead, see route file)
+    // La página administrativa puede renderizar su formulario de acceso.
+    // El login vive en /api/auth/admin y no coincide con el matcher protegido.
     return NextResponse.next();
 }

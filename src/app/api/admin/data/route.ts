@@ -19,13 +19,13 @@ export async function GET() {
         }).catch(() => null);
 
         const allBookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
-        const bookings = allBookings.filter((booking: any) => (booking.status || '').toUpperCase() === 'PAID');
+        const bookings = allBookings.filter((booking) => (booking.status || '').toUpperCase() === 'PAID');
         const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
         const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
 
         const patientsMap = new Map();
 
-        allBookings.forEach((b: any) => {
+        allBookings.forEach((b) => {
             if (!b.email) return;
             const email = b.email.toLowerCase().trim();
             if (!patientsMap.has(email)) {
@@ -54,7 +54,7 @@ export async function GET() {
             }
         });
 
-        newsletter.forEach((n: any) => {
+        newsletter.forEach((n) => {
             if (!n.email) return;
             const email = n.email.toLowerCase().trim();
             const p = patientsMap.get(email);

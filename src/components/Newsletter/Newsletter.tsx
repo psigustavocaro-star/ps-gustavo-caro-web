@@ -26,7 +26,7 @@ export default function Newsletter() {
             } else {
                 throw new Error('Error al suscribirse');
             }
-        } catch (err) {
+        } catch {
             setStatus('error');
             setMessage('Hubo un error. Inténtalo de nuevo.');
         }

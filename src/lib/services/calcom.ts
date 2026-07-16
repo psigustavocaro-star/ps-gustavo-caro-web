@@ -48,7 +48,7 @@ export async function createCalBooking(params: {
     }
 }
 
-export async function confirmCalBooking(bookingId: string) {
+export async function confirmCalBooking() {
     // En Cal.com v2, las reservas se pueden crear confirmadas por defecto si el tipo de evento lo permite.
     // Dejamos el placeholder por si se necesita confirmar manualmente vía PATCH.
     return { success: true };

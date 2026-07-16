@@ -114,6 +114,7 @@ export async function sendFreeBookingConfirmation(data: {
         'packSesiones': 'Pack de 4 Sesiones',
         'evalTDAH': 'Evaluación TDAH Adulto',
         'evalAutismo': 'Evaluación TEA (Autismo)',
+        'evalWiscV': 'Evaluación Cognitiva WISC-V',
         'evalInteligencia': 'Evaluación Intelectual',
         'evalNeuropsicologica': 'Evaluación Neuropsicológica Completa',
         'evalEmocional': 'Evaluación Socioemocional'

@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './CustomCalendar.module.css';
 import {
     weeklyAvailability,
     getAvailableSlotsForDay,
     isDateValid,
     isDateBlocked,
-    MIN_ADVANCE_DAYS,
     MAX_ADVANCE_DAYS
 } from '@/lib/config/availability';
 
@@ -27,7 +26,6 @@ export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: C
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
 
     const weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     const months = [

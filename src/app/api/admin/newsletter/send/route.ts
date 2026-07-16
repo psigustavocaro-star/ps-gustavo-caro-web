@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
                     }
 
                     return { email, success: true };
-                } catch (error: any) {
-                    const message = error?.message || 'Error inesperado al enviar';
+                } catch (error: unknown) {
+                    const message = error instanceof Error ? error.message : 'Error inesperado al enviar';
                     console.error(`Error sending to ${email}:`, error);
                     return { email, success: false, error: message };
                 }
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
             failed,
             error: sentCount === 0 ? 'No se pudo enviar a ningún destinatario' : undefined,
         }, { status: sentCount > 0 ? 200 : 502 });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('SEND NEWSLETTER ERROR:', error);
-        return NextResponse.json({ success: false, error: error.message || 'Error del servidor de correos' }, { status: 500 });
+        return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Error del servidor de correos' }, { status: 500 });
     }
 }

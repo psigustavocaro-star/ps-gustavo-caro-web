@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "make_favicon.js",
+    "make_favicon_transparent.js",
+    "remove_v2.js",
+    "remove_white.js",
   ]),
 ]);
 

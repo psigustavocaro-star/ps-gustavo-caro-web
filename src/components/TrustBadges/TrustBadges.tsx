@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import styles from './TrustBadges.module.css';
 
 const badges = [
@@ -43,7 +44,7 @@ export default function TrustBadges() {
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.1 }}
                     >
-                        <div className={styles.iconWrapper} style={{ '--accent': b.color } as any}>
+                        <div className={styles.iconWrapper} style={{ '--accent': b.color } as CSSProperties}>
                             <span className={styles.icon}>{b.icon}</span>
                         </div>
                         <div className={styles.text}>

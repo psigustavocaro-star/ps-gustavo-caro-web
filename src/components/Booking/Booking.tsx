@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 import { clpToUsd, FALLBACK_CLP_PER_USD } from '@/lib/util/currency';
@@ -18,6 +17,7 @@ type BookingStep = 'intro' | 'contact' | 'schedule' | 'payment' | 'processing' |
 type PackSession = { date: string; time: string; rawStartTime: string; slotKey: string };
 
 const PACK_SESSION_COUNT = 4;
+const PAYPAL_ENABLED = process.env.NEXT_PUBLIC_PAYPAL_ENABLED === 'true';
 
 const getDateKey = (date: Date) => {
     const year = date.getFullYear();
@@ -32,10 +32,9 @@ export default function Booking() {
     const [errors, setErrors] = useState<{ firstName?: string; firstSurname?: string; secondSurname?: string; email?: string; phone?: string; rut?: string; address?: string; region?: string; commune?: string }>({});
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [packSessions, setPackSessions] = useState<PackSession[]>([]);
-    const [calBookingId, setCalBookingId] = useState<string | null>(null);
     const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
     const [formData, setFormData] = useState({
-        serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
+        serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalWiscV' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
         reason: '',
         details: '',
         firstName: '',
@@ -217,12 +216,6 @@ export default function Booking() {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    // Validar teléfono chileno (opcional)
-    const isValidPhone = (phone: string) => {
-        if (!phone) return true; // Es opcional
-        return /^(\+?56)?(\s?)(9)(\s?)(\d{4})(\s?)(\d{4})$/.test(phone.replace(/\s/g, ''));
-    };
-
     // Validar RUT chileno
     const isValidRut = (rut: string) => {
         if (!rut) return false;
@@ -265,7 +258,7 @@ export default function Booking() {
         if (!formData.region.trim()) newErrors.region = 'Región requerida';
         if (!formData.commune.trim()) newErrors.commune = 'Comuna requerida';
 
-        setErrors(newErrors as any);
+        setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
@@ -326,15 +319,15 @@ export default function Booking() {
                 try {
                     const data = await response.json();
                     errorMsg = data.error || errorMsg;
-                } catch (e) {
+                } catch {
                     errorMsg = `Status ${response.status}: Error interno del servidor`;
                 }
                 alert(`Error: ${errorMsg}`);
                 setStep('payment');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Booking error:', error);
-            alert(`Error de conexión: ${error.message}`);
+            alert(`Error de conexión: ${error instanceof Error ? error.message : 'Error desconocido'}`);
             setStep('payment');
         } finally {
             setIsProcessing(false);
@@ -384,6 +377,8 @@ export default function Booking() {
             setAppliedCoupon({ status: 'valid', discount: basePrice > 350 ? basePrice - 350 : 0 });
         } else if (couponCode === 'GUSTAVO10') {
             setAppliedCoupon({ status: 'valid', discount: 10000 });
+        } else if (couponCode === 'WISC12' && formData.serviceType === 'evalWiscV') {
+            setAppliedCoupon({ status: 'valid', discount: 12000 });
         } else if (couponCode === 'GUSTAVO0' || couponCode === 'PRUEBA0') {
             setAppliedCoupon({ status: 'valid', discount: basePrice });
         } else {
@@ -460,7 +455,8 @@ export default function Booking() {
                             </div>
 
                             <div className={styles.serviceCards}>
-                                <div 
+                                <button
+                                    type="button"
                                     className={`${styles.serviceCard} ${formData.serviceType === 'sesion' ? styles.activeCard : ''}`}
                                     onClick={() => handleSelectService('sesion')}
                                 >
@@ -471,10 +467,11 @@ export default function Booking() {
                                     <h3 className={styles.cardTitle}>Psicoterapia Individual</h3>
                                     <p className={styles.cardText}>Atención personalizada focalizada en tus procesos emocionales, ansiedad o bienestar general.</p>
                                     <div className={styles.cardPrice}>${getServicePrice('sesion').toLocaleString('es-CL')} <span>CLP / sesión</span></div>
-                                    <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(getServicePrice('sesion'), clpPerUsd)} referencial · pago internacional con PayPal</div>
-                                </div>
+                                    {PAYPAL_ENABLED && <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(getServicePrice('sesion'), clpPerUsd)} referencial · pago internacional con PayPal</div>}
+                                </button>
 
-                                <div 
+                                <button
+                                    type="button"
                                     className={`${styles.serviceCard} ${formData.serviceType === 'packSesiones' ? styles.activeCard : ''}`}
                                     onClick={() => handleSelectService('packSesiones')}
                                 >
@@ -485,8 +482,23 @@ export default function Booking() {
                                     <h3 className={styles.cardTitle}>Pack 4 Sesiones</h3>
                                     <p className={styles.cardText}>Continuidad terapéutica asegurada con un plan mensual. Ideal para procesos profundos.</p>
                                     <div className={styles.cardPrice}>${getServicePrice('packSesiones').toLocaleString('es-CL')} <span>CLP / mes</span></div>
-                                    <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(getServicePrice('packSesiones'), clpPerUsd)} referencial · pago internacional con PayPal</div>
-                                </div>
+                                    {PAYPAL_ENABLED && <div className={styles.cardPriceUsd}>≈ USD ${clpToUsd(getServicePrice('packSesiones'), clpPerUsd)} referencial · pago internacional con PayPal</div>}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className={`${styles.serviceCard} ${formData.serviceType === 'evalWiscV' ? styles.activeCard : ''}`}
+                                    onClick={() => handleSelectService('evalWiscV')}
+                                >
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.cardIcon}>🧩</div>
+                                        <div className={styles.cardBadge}>Nueva evaluación</div>
+                                    </div>
+                                    <h3 className={styles.cardTitle}>Evaluación Cognitiva WISC-V</h3>
+                                    <p className={styles.cardText}>Para niños, niñas y adolescentes de 6 a 16 años 11 meses. Incluye aplicación, informe profesional y devolución explicada.</p>
+                                    <div className={styles.cardPrice}>${getServicePrice('evalWiscV').toLocaleString('es-CL')} <span>CLP · 4 × $36.000</span></div>
+                                    <div className={styles.cardPriceUsd}>Promo WISC12: paga $132.000 CLP</div>
+                                </button>
                             </div>
 
                             <div className={styles.footerActions}>
@@ -499,10 +511,12 @@ export default function Booking() {
                                 </button>
                             </div>
 
-                            <p className={styles.usdDisclaimer}>
-                                Los valores en USD son referenciales y se calculan al tipo de cambio del Banco Central de Chile (actualizado a diario).
-                                El monto final lo determina PayPal según su tasa de conversión al momento del pago.
-                            </p>
+                            {PAYPAL_ENABLED && (
+                                <p className={styles.usdDisclaimer}>
+                                    Los valores en USD son referenciales y se calculan al tipo de cambio del Banco Central de Chile (actualizado a diario).
+                                    El monto final lo determina PayPal según su tasa de conversión al momento del pago.
+                                </p>
+                            )}
                         </div>
                     )}
 
@@ -742,6 +756,7 @@ export default function Booking() {
                                                     formData.serviceType === 'packSesiones' ? 'Pack de 4 Sesiones' :
                                                         formData.serviceType === 'evalTDAH' ? 'Evaluación TDAH Adulto' :
                                                             formData.serviceType === 'evalAutismo' ? 'Evaluación TEA (Autismo)' :
+                                                                formData.serviceType === 'evalWiscV' ? 'Evaluación Cognitiva WISC-V' :
                                                                 formData.serviceType === 'evalInteligencia' ? 'Evaluación Intelectual' :
                                                                     formData.serviceType === 'evalNeuropsicologica' ? 'Evaluación Neuropsicológica Completa' :
                                                                         formData.serviceType === 'evalEmocional' ? 'Evaluación Socioemocional' :
@@ -749,7 +764,7 @@ export default function Booking() {
                                     }</span>
                                     <strong>
                                         <div>${calculateFinalPrice().toLocaleString('es-CL')} CLP</div>
-                                        {calculateFinalPrice() > 0 && (
+                                        {PAYPAL_ENABLED && calculateFinalPrice() > 0 && (
                                             <div className={styles.priceUsd}>≈ USD ${clpToUsd(calculateFinalPrice(), clpPerUsd)} (referencial para pago con PayPal)</div>
                                         )}
                                     </strong>
@@ -793,7 +808,7 @@ export default function Booking() {
                                         </p>
                                         <div className={styles.securityBadges}>
                                             <span>🔒 Pago seguro con Flow</span>
-                                            <span>🌎 PayPal internacional</span>
+                                            {PAYPAL_ENABLED && <span>🌎 PayPal internacional</span>}
                                             <span>📑 Boleta gestionada manualmente</span>
                                         </div>
                                     </>
@@ -809,7 +824,7 @@ export default function Booking() {
                                 </button>
                             </div>
 
-                            {!(formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree')) && (
+                            {PAYPAL_ENABLED && !(formData.serviceType === 'primeraConsulta' || formData.serviceType.startsWith('evalFree')) && (
                                 <div className={styles.alternativePayment}>
                                     <span className={styles.altLabel}>¿Vives fuera de Chile?</span>
                                     <button

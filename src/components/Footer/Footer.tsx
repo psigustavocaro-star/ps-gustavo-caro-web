@@ -1,15 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from './Footer.module.css';
 
 export default function Footer() {
-    const [year, setYear] = useState(2026);
-
-    useEffect(() => {
-        setYear(new Date().getFullYear());
-    }, []);
+    const year = new Date().getFullYear();
 
     return (
         <footer className={styles.footer} id="contacto">

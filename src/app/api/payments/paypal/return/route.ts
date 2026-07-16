@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.redirect(new URL(`/pago/exito?order=${encodeURIComponent(orderId)}`, request.url), 302);
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('PayPal return capture error:', error);
         return NextResponse.redirect(new URL(`/pago/exito?order=${encodeURIComponent(orderId)}&status=error`, request.url), 302);
     }

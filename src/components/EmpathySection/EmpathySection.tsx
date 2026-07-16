@@ -25,7 +25,7 @@ export default function EmpathySection() {
                     </div>
                     <div className={styles.quoteCard}>
                         <blockquote>
-                            "Mi objetivo no es solo tratar síntomas, es acompañar a personas únicas en su camino hacia una vida más plena y auténtica."
+                            “Mi objetivo no es solo tratar síntomas, es acompañar a personas únicas en su camino hacia una vida más plena y auténtica.”
                         </blockquote>
                         <cite>— Ps. Gustavo Caro</cite>
                     </div>

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
             return dates.map(formatInSantiago);
         });
 
-        let finalOccupiedSlots = [...occupiedFromDB];
+        const finalOccupiedSlots = [...occupiedFromDB];
 
         // 2. Si hay eventTypeId, consultar disponibilidad REAL (incluyendo Google Calendar)
         const calKey = process.env.CALCOM_API_KEY;
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         const occupiedSlots = Array.from(new Set(finalOccupiedSlots));
 
         return NextResponse.json({ success: true, occupiedSlots });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ success: false, error: 'Failed to fetch occupied slots' }, { status: 500 });
     }
 }

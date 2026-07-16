@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendBookingNotification } from '@/lib/services/mail';
 import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
 
 export const dynamic = 'force-dynamic';
@@ -30,20 +29,6 @@ export async function POST(request: NextRequest) {
 
         if (serviceType === 'packSesiones' && appointmentDates.length !== 4) {
             return NextResponse.json({ error: 'El pack requiere agendar 4 sesiones' }, { status: 400 });
-        }
-
-        // Determinar nombre del servicio para el email
-        let subject: string;
-        if (serviceType === 'primeraConsulta') {
-            subject = 'Primera Consulta (Gratis)';
-        } else if (serviceType === 'sesion') {
-            subject = 'Sesión de Psicoterapia Online';
-        } else if (serviceType === 'packSesiones') {
-            subject = 'Pack de 4 Sesiones';
-        } else if (serviceType.startsWith('eval')) {
-            subject = 'Evaluación Clínica';
-        } else {
-            subject = 'Servicio Clínico';
         }
 
         // Generar ID único de orden (aunque sea gratis para mantener consistencia)
@@ -86,7 +71,7 @@ export async function POST(request: NextRequest) {
                 where: { email },
                 update: { active: true, name },
                 create: { email: email.toLowerCase(), name, active: true }
-            }).catch((err: any) => console.error('Silent error registering newsletter:', err));
+            }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
         } catch (dbError) {
             console.error('Free booking DB error:', dbError);
         }

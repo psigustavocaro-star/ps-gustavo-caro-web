@@ -88,7 +88,6 @@ export const metadata: Metadata = {
 
 import SmoothScroll from "@/components/Providers/SmoothScroll";
 import InteractiveBackground from "@/components/Interactive/InteractiveBackground";
-import MobileFloatingCTA from "@/components/Floating/MobileFloatingCTA";
 
 export default function RootLayout({
   children,

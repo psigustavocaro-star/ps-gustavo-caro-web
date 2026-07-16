@@ -21,7 +21,6 @@ export default function InteractiveBackground() {
 
     const springConfig = { damping: 30, stiffness: 100 };
     const x = useSpring(mousePos.x * 50, springConfig);
-    const y = useSpring(mousePos.y * 50, springConfig);
 
     // Parallax effect based on scroll
     const scrollY1 = useTransform(scrollY, [0, 1000], [0, -100]);

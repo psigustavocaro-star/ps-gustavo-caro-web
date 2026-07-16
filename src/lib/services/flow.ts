@@ -59,7 +59,7 @@ export async function createFlowPayment(params: FlowPaymentParams): Promise<Flow
     let result;
     try {
         result = await response.json();
-    } catch (e) {
+    } catch {
         const text = await response.text();
         console.error('Flow response is not JSON:', text);
         throw new Error('Flow API returned invalid JSON');
