@@ -14,7 +14,7 @@ const faqs = [
     },
     {
         q: "¿Cómo se realizan los pagos?",
-        a: "El pago se realiza al momento de agendar a través de Flow (WebPay, tarjetas de crédito/débito). Para pacientes internacionales, también acepto PayPal. Recibirás la confirmación de tu reserva por correo y la boleta de honorarios será gestionada después del pago."
+        a: "El pago se realiza al momento de agendar a través de Flow (WebPay y tarjetas de crédito o débito). Recibirás la confirmación de tu reserva por correo y la boleta de honorarios será gestionada después del pago."
     },
     {
         q: "¿Cuánto dura cada sesión?",
