@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, DM_Sans } from "next/font/google";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import WhatsAppButton from "@/components/Floating/WhatsAppButton";
@@ -17,6 +17,11 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "700", "800"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  colorScheme: 'light',
+  themeColor: '#f0f9fa',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://psgustavocaro.cl'),
