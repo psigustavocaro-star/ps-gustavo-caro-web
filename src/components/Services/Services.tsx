@@ -62,32 +62,46 @@ export default function Services() {
                             sizes="(max-width: 900px) 100vw, 48vw"
                             className={styles.wiscImage}
                         />
-                        <span className={styles.wiscImageBadge}>6 a 16 años 11 meses</span>
+                        <span className={styles.wiscImageBadge}>Atención presencial · Santiago</span>
                     </div>
 
                     <div className={styles.wiscContent}>
-                        <span className={styles.wiscEyebrow}>Nuevo servicio · Evaluación estandarizada</span>
-                        <h3>Evaluación Cognitiva WISC-V</h3>
-                        <p className={styles.wiscLead}>Un proceso cuidadoso para comprender el perfil cognitivo, reconocer fortalezas y orientar apoyos concretos en el hogar y el contexto educativo.</p>
+                        <span className={styles.wiscEyebrow}>Oferta exclusiva web · Evaluaciones presenciales</span>
+                        <h3>Elige la evaluación que necesitas por $135.000</h3>
+                        <p className={styles.wiscLead}>Tres procesos clínicos con objetivos distintos, realizados presencialmente y con el mismo valor especial. Cada evaluación integra antecedentes, instrumentos pertinentes, análisis profesional e informe explicado.</p>
+                        <div className={styles.evaluationChoices}>
+                            <div className={styles.evaluationChoice}>
+                                <strong>WISC-V</strong>
+                                <span>Para niños, niñas y adolescentes de 6 a 16 años 11 meses. Permite comprender su perfil cognitivo, fortalezas y necesidades de apoyo escolar o clínico.</span>
+                            </div>
+                            <div className={styles.evaluationChoice}>
+                                <strong>Evaluación de TDAH</strong>
+                                <span>Explora atención, impulsividad y funciones ejecutivas mediante entrevista, cuestionarios y pruebas estandarizadas que apoyan la clarificación diagnóstica.</span>
+                            </div>
+                            <div className={styles.evaluationChoice}>
+                                <strong>Evaluación neurocognitiva</strong>
+                                <span>Examina memoria, atención, velocidad de procesamiento y funciones ejecutivas para comprender dificultades cognitivas y orientar apoyos.</span>
+                            </div>
+                        </div>
                         <ul className={styles.wiscIncludes}>
                             <li>Entrevista inicial y revisión de antecedentes.</li>
-                            <li>Aplicación completa, corrección e interpretación WISC-V.</li>
-                            <li>Informe profesional impreso y digital.</li>
-                            <li>Devolución posterior explicada con recomendaciones.</li>
+                            <li>Aplicación presencial de instrumentos según la evaluación elegida.</li>
+                            <li>Corrección, integración clínica e informe profesional.</li>
+                            <li>Devolución posterior explicada con orientaciones.</li>
                         </ul>
                         <div className={styles.wiscOffer}>
                             <div>
-                                <span className={styles.wiscPrice}>$144.000</span>
-                                <span className={styles.wiscInstallments}>Equivalente a 4 sesiones de $36.000</span>
+                                <span className={styles.wiscPrice}>$135.000</span>
+                                <span className={styles.wiscInstallments}>Valor total por cualquiera de las 3 evaluaciones</span>
                             </div>
                             <div className={styles.wiscPromo}>
-                                <strong>Promo de lanzamiento</strong>
-                                <span>Usa WISC12 y paga $132.000</span>
+                                <strong>Oferta exclusiva web</strong>
+                                <span>Aplicación + análisis + informe + devolución</span>
                             </div>
                         </div>
                         <div className={styles.wiscActions}>
-                            <Link href="/agendar" className="btn-primary">Agendar evaluación WISC-V</Link>
-                            <span>La primera fecha inicia el proceso; las siguientes instancias se coordinan posteriormente.</span>
+                            <Link href="/agendar" className="btn-primary">Reservar evaluación presencial</Link>
+                            <span>Pagas online y luego coordinamos por WhatsApp un rango de fechas compatible con la disponibilidad del centro.</span>
                         </div>
                     </div>
                 </motion.article>

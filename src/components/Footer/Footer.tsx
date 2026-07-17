@@ -46,7 +46,7 @@ export default function Footer() {
                         <p>
                             📱 <a href="https://wa.me/56922409953" target="_blank" rel="noopener noreferrer" className={styles.contactLink}>+56 9 2240 9953</a>
                         </p>
-                        <p>📍 Atención 100% Online</p>
+                            <p>📍 Psicoterapia online y evaluaciones presenciales</p>
                         <p>🇨🇱 Santiago, Chile</p>
                     </div>
                 </div>

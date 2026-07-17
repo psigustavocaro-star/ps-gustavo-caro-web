@@ -39,6 +39,12 @@
     margin-bottom: 30px;
 }
 
+.invalidText {
+    text-align: center;
+    color: var(--foreground-light);
+    margin-bottom: 24px;
+}
+
 .list {
     text-align: left;
     list-style: none;
@@ -166,4 +172,109 @@
 
 .detailRow strong {
     color: #059669;
+}
+
+.coordinationPanel {
+    margin-bottom: 30px;
+    padding: clamp(24px, 4vw, 36px);
+    text-align: left;
+    border: 1px solid rgba(37, 211, 102, 0.28);
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(240, 253, 244, 0.98), rgba(255, 255, 255, 0.98));
+    box-shadow: 0 18px 42px rgba(22, 101, 52, 0.08);
+}
+
+.coordinationEyebrow {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #15803d;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.coordinationPanel h2 {
+    color: var(--foreground);
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
+    margin-bottom: 10px;
+}
+
+.coordinationPanel > p {
+    color: var(--foreground-light);
+    line-height: 1.6;
+}
+
+.dateRangeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 24px 0 20px;
+}
+
+.dateRangeGrid label {
+    display: grid;
+    gap: 7px;
+    color: var(--foreground);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.dateRangeGrid input {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    color: var(--foreground);
+    background: white;
+    font: inherit;
+}
+
+.dateRangeGrid input:focus {
+    outline: 3px solid rgba(37, 211, 102, 0.16);
+    border-color: #25d366;
+}
+
+.whatsappButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 13px 20px;
+    border-radius: 14px;
+    color: white;
+    border: 0;
+    background: #128c7e;
+    box-shadow: 0 10px 24px rgba(18, 140, 126, 0.2);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.whatsappButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(18, 140, 126, 0.26);
+}
+
+.coordinationPanel small {
+    display: block;
+    margin-top: 10px;
+    color: var(--foreground-muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+.whatsappButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+@media (max-width: 600px) {
+    .dateRangeGrid {
+        grid-template-columns: 1fr;
+    }
 }

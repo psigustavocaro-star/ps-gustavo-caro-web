@@ -27,6 +27,7 @@ export async function GET(
             where: { orderId },
             select: {
                 serviceType: true,
+                amount: true,
                 status: true,
                 appointmentDate: true,
                 appointmentDates: true,
@@ -44,6 +45,7 @@ export async function GET(
 
         return NextResponse.json({
             serviceType: booking.serviceType,
+            amount: booking.amount,
             status: booking.status,
             appointmentDate: booking.appointmentDate,
             appointmentDates: booking.appointmentDates,

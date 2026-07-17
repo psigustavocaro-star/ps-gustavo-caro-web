@@ -77,11 +77,12 @@ export const serviceCatalog = {
     // Evaluaciones Neuropsicológicas
     evalTDAH: {
         id: 'evalTDAH',
-        name: 'Evaluación TDAH Adulto',
+        name: 'Evaluación de TDAH',
         price: paymentConfig.pricing.evalTDAH,
-        description: 'Evaluación completa de TDAH en adultos. Incluye 4 sesiones, aplicación de pruebas estandarizadas, entrevista clínica, sesión de feedback y entrega de informe detallado.',
-        duration: '4 sesiones',
-        includes: ['Entrevista clínica estructurada', 'Escalas ASRS, CAARS', 'Pruebas de atención CPT', 'Informe clínico'],
+        description: 'Proceso presencial para explorar indicadores de TDAH y su impacto en la atención, impulsividad y funciones ejecutivas. Incluye entrevista clínica, instrumentos estandarizados, integración de resultados, informe y devolución explicada.',
+        duration: 'Proceso presencial',
+        badge: 'Oferta exclusiva web',
+        includes: ['Entrevista clínica y antecedentes', 'Pruebas de atención y funciones ejecutivas', 'Cuestionarios estandarizados', 'Informe profesional', 'Devolución explicada y orientaciones'],
     },
     evalAutismo: {
         id: 'evalAutismo',
@@ -96,8 +97,8 @@ export const serviceCatalog = {
         name: 'Evaluación Cognitiva WISC-V',
         price: paymentConfig.pricing.evalWiscV,
         description: 'Evaluación estandarizada para niños, niñas y adolescentes de 6 a 16 años 11 meses. Incluye entrevista inicial, aplicación completa, corrección e interpretación, informe profesional y sesión posterior de devolución explicada.',
-        duration: '4 instancias',
-        badge: 'Promo WISC12',
+        duration: 'Proceso presencial',
+        badge: 'Oferta exclusiva web',
         includes: ['Entrevista y antecedentes', 'Aplicación completa WISC-V', 'Perfil cognitivo', 'Informe impreso y digital', 'Devolución explicada y recomendaciones'],
     },
     evalInteligencia: {
@@ -110,11 +111,12 @@ export const serviceCatalog = {
     },
     evalNeuropsicologica: {
         id: 'evalNeuropsicologica',
-        name: 'Evaluación Neuropsicológica Completa',
+        name: 'Evaluación Neurocognitiva',
         price: paymentConfig.pricing.evalNeuropsicologica,
-        description: 'Evaluación integral de funciones cognitivas: atención, memoria, funciones ejecutivas, lenguaje y más. Incluye 4-5 sesiones, batería completa de pruebas, sesión de feedback y entrega de informe.',
-        duration: '4-5 sesiones',
-        includes: ['Batería neuropsicológica', 'Pruebas de memoria', 'Funciones ejecutivas', 'Informe extenso'],
+        description: 'Evaluación presencial del funcionamiento cognitivo para comprender fortalezas y dificultades en atención, memoria, velocidad de procesamiento y funciones ejecutivas. Incluye informe profesional y devolución explicada.',
+        duration: 'Proceso presencial',
+        badge: 'Oferta exclusiva web',
+        includes: ['Entrevista y antecedentes relevantes', 'Atención y velocidad de procesamiento', 'Memoria y aprendizaje', 'Funciones ejecutivas', 'Informe y devolución explicada'],
     },
     evalEmocional: {
         id: 'evalEmocional',

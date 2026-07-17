@@ -112,11 +112,11 @@ export async function sendFreeBookingConfirmation(data: {
         'primeraConsulta': 'Primera Consulta Gratuita (20 min)',
         'sesion': 'Sesión de Psicoterapia Individual',
         'packSesiones': 'Pack de 4 Sesiones',
-        'evalTDAH': 'Evaluación TDAH Adulto',
+        'evalTDAH': 'Evaluación de TDAH Presencial',
         'evalAutismo': 'Evaluación TEA (Autismo)',
-        'evalWiscV': 'Evaluación Cognitiva WISC-V',
+        'evalWiscV': 'Evaluación Cognitiva WISC-V Presencial',
         'evalInteligencia': 'Evaluación Intelectual',
-        'evalNeuropsicologica': 'Evaluación Neuropsicológica Completa',
+        'evalNeuropsicologica': 'Evaluación Neurocognitiva Presencial',
         'evalEmocional': 'Evaluación Socioemocional'
     };
 

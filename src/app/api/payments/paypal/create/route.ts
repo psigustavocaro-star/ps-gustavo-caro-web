@@ -3,6 +3,7 @@ import { paymentConfig } from '@/lib/config/services';
 import { createPayPalOrder } from '@/lib/services/paypal';
 import { sendBookingNotification } from '@/lib/services/mail';
 import { applyCoupon } from '@/lib/services/coupons';
+import { isInPersonEvaluation } from '@/lib/config/pricing';
 import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
 
 export const dynamic = 'force-dynamic';
@@ -12,15 +13,15 @@ const getServicePaymentDetails = (serviceType: string) => {
         case 'packSesiones':
             return { amount: paymentConfig.pricing.packSesiones, subject: 'Pack de 4 Sesiones' };
         case 'evalTDAH':
-            return { amount: paymentConfig.pricing.evalTDAH, subject: 'Evaluación TDAH Adulto' };
+            return { amount: paymentConfig.pricing.evalTDAH, subject: 'Evaluación de TDAH Presencial' };
         case 'evalAutismo':
             return { amount: paymentConfig.pricing.evalAutismo, subject: 'Evaluación TEA (Autismo)' };
         case 'evalWiscV':
-            return { amount: paymentConfig.pricing.evalWiscV, subject: 'Evaluación Cognitiva WISC-V' };
+            return { amount: paymentConfig.pricing.evalWiscV, subject: 'Evaluación Cognitiva WISC-V Presencial' };
         case 'evalInteligencia':
             return { amount: paymentConfig.pricing.evalInteligencia, subject: 'Evaluación Intelectual' };
         case 'evalNeuropsicologica':
-            return { amount: paymentConfig.pricing.evalNeuropsicologica, subject: 'Evaluación Neuropsicológica Completa' };
+            return { amount: paymentConfig.pricing.evalNeuropsicologica, subject: 'Evaluación Neurocognitiva Presencial' };
         case 'evalEmocional':
             return { amount: paymentConfig.pricing.evalEmocional, subject: 'Evaluación Socioemocional' };
         case 'sesion':
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
 
         let amount: number = baseAmount;
         if (body.coupon) {
-            const result = applyCoupon(body.coupon, amount, serviceType);
+            const result = applyCoupon(body.coupon, amount);
             if (!result.ok) {
                 return NextResponse.json({ error: result.reason }, { status: 400 });
             }
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
                 appointmentDate,
                 appointmentDates: appointmentDates.length > 0 ? appointmentDates : appointmentDate ? [appointmentDate] : [],
                 attendeeTimeZone,
-                calEventTypeId: body.calEventTypeId || null,
+                calEventTypeId: isInPersonEvaluation(serviceType) ? null : body.calEventTypeId || null,
                 status: 'PENDING',
             },
         });

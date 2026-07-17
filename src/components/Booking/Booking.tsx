@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 import { clpToUsd, FALLBACK_CLP_PER_USD } from '@/lib/util/currency';
-import { getServicePrice, getCalEventTypeId } from '@/lib/config/pricing';
+import { getServicePrice, getCalEventTypeId, isInPersonEvaluation } from '@/lib/config/pricing';
 import { CLINIC_TIME_ZONE, clinicWallTimeToIso, formatClinicDate } from '@/lib/util/timezone';
 
 const CHILE_REGIONS = [
@@ -18,6 +18,22 @@ type PackSession = { date: string; time: string; rawStartTime: string; slotKey: 
 
 const PACK_SESSION_COUNT = 4;
 const PAYPAL_ENABLED = process.env.NEXT_PUBLIC_PAYPAL_ENABLED === 'true';
+
+const getServiceDisplayName = (serviceType: string) => {
+    const names: Record<string, string> = {
+        primeraConsulta: 'Primera Consulta',
+        sesion: 'Psicoterapia Individual',
+        packSesiones: 'Pack de 4 Sesiones',
+        evalTDAH: 'Evaluación de TDAH',
+        evalAutismo: 'Evaluación TEA (Autismo)',
+        evalWiscV: 'Evaluación Cognitiva WISC-V',
+        evalInteligencia: 'Evaluación Intelectual',
+        evalNeuropsicologica: 'Evaluación Neurocognitiva',
+        evalEmocional: 'Evaluación Socioemocional',
+    };
+
+    return names[serviceType] || 'Servicio';
+};
 
 const getDateKey = (date: Date) => {
     const year = date.getFullYear();
@@ -57,6 +73,7 @@ export default function Booking() {
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
     const [clpPerUsd, setClpPerUsd] = useState<number>(FALLBACK_CLP_PER_USD);
+    const isSelectedInPersonEvaluation = isInPersonEvaluation(formData.serviceType);
 
     // Fetch tipo de cambio CLP→USD vigente (mindicador.cl, cacheado server-side)
     useEffect(() => {
@@ -78,6 +95,11 @@ export default function Booking() {
     // Fetch occupied slots from DB + Cal.com (Real Availability)
     useEffect(() => {
         const fetchOccupied = async () => {
+            if (isInPersonEvaluation(formData.serviceType)) {
+                setOccupiedSlots([]);
+                return;
+            }
+
             try {
                 const url = formData.calEventTypeId 
                     ? `/api/bookings/occupied?eventTypeId=${formData.calEventTypeId}`
@@ -93,7 +115,7 @@ export default function Booking() {
             }
         };
         fetchOccupied();
-    }, [formData.calEventTypeId]);
+    }, [formData.calEventTypeId, formData.serviceType]);
 
     // Efecto para scroll automático al inicio de la sección cuando cambia el paso
     useEffect(() => {
@@ -195,10 +217,12 @@ export default function Booking() {
     const handleSelectService = (serviceType: typeof formData.serviceType) => {
         setPackSessions([]);
         setBookingDetails({});
+        setAppliedCoupon({ status: 'none', discount: 0 });
         setFormData(prev => ({
             ...prev,
             serviceType,
             rawStartTime: '',
+            coupon: '',
         }));
     };
 
@@ -377,8 +401,6 @@ export default function Booking() {
             setAppliedCoupon({ status: 'valid', discount: basePrice > 350 ? basePrice - 350 : 0 });
         } else if (couponCode === 'GUSTAVO10') {
             setAppliedCoupon({ status: 'valid', discount: 10000 });
-        } else if (couponCode === 'WISC12' && formData.serviceType === 'evalWiscV') {
-            setAppliedCoupon({ status: 'valid', discount: 12000 });
         } else if (couponCode === 'GUSTAVO0' || couponCode === 'PRUEBA0') {
             setAppliedCoupon({ status: 'valid', discount: basePrice });
         } else {
@@ -429,7 +451,7 @@ export default function Booking() {
                             <div className={styles.stepLine}></div>
                             <div className={`${styles.step} ${step === 'schedule' ? styles.activeStep : ''} ${['contact', 'payment', 'success'].includes(step) ? styles.completedStep : ''}`}>
                                 <span className={styles.stepNumber}>2</span>
-                                <span className={styles.stepLabel}>Horario</span>
+                                <span className={styles.stepLabel}>{isSelectedInPersonEvaluation ? 'Coordinación' : 'Horario'}</span>
                             </div>
                             <div className={styles.stepLine}></div>
                             <div className={`${styles.step} ${step === 'contact' ? styles.activeStep : ''} ${['payment', 'success'].includes(step) ? styles.completedStep : ''}`}>
@@ -487,17 +509,47 @@ export default function Booking() {
 
                                 <button
                                     type="button"
-                                    className={`${styles.serviceCard} ${formData.serviceType === 'evalWiscV' ? styles.activeCard : ''}`}
+                                    className={`${styles.serviceCard} ${styles.evaluationCard} ${formData.serviceType === 'evalWiscV' ? styles.activeCard : ''}`}
                                     onClick={() => handleSelectService('evalWiscV')}
                                 >
                                     <div className={styles.cardHeader}>
                                         <div className={styles.cardIcon}>🧩</div>
-                                        <div className={styles.cardBadge}>Nueva evaluación</div>
+                                        <div className={styles.cardBadge}>Oferta exclusiva web</div>
                                     </div>
                                     <h3 className={styles.cardTitle}>Evaluación Cognitiva WISC-V</h3>
-                                    <p className={styles.cardText}>Para niños, niñas y adolescentes de 6 a 16 años 11 meses. Incluye aplicación, informe profesional y devolución explicada.</p>
-                                    <div className={styles.cardPrice}>${getServicePrice('evalWiscV').toLocaleString('es-CL')} <span>CLP · 4 × $36.000</span></div>
-                                    <div className={styles.cardPriceUsd}>Promo WISC12: paga $132.000 CLP</div>
+                                    <p className={styles.cardText}>Para niños, niñas y adolescentes de 6 a 16 años 11 meses. Describe fortalezas, perfil cognitivo y necesidades de apoyo escolar o clínico.</p>
+                                    <div className={styles.cardPrice}>${getServicePrice('evalWiscV').toLocaleString('es-CL')} <span>CLP · valor total</span></div>
+                                    <div className={styles.cardPriceUsd}>Presencial · incluye informe y devolución</div>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className={`${styles.serviceCard} ${styles.evaluationCard} ${formData.serviceType === 'evalTDAH' ? styles.activeCard : ''}`}
+                                    onClick={() => handleSelectService('evalTDAH')}
+                                >
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.cardIcon}>🎯</div>
+                                        <div className={styles.cardBadge}>Oferta exclusiva web</div>
+                                    </div>
+                                    <h3 className={styles.cardTitle}>Evaluación de TDAH</h3>
+                                    <p className={styles.cardText}>Explora atención, impulsividad y funciones ejecutivas con entrevista, cuestionarios y pruebas que apoyan la clarificación diagnóstica.</p>
+                                    <div className={styles.cardPrice}>${getServicePrice('evalTDAH').toLocaleString('es-CL')} <span>CLP · valor total</span></div>
+                                    <div className={styles.cardPriceUsd}>Presencial · incluye informe y devolución</div>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className={`${styles.serviceCard} ${styles.evaluationCard} ${formData.serviceType === 'evalNeuropsicologica' ? styles.activeCard : ''}`}
+                                    onClick={() => handleSelectService('evalNeuropsicologica')}
+                                >
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.cardIcon}>🧠</div>
+                                        <div className={styles.cardBadge}>Oferta exclusiva web</div>
+                                    </div>
+                                    <h3 className={styles.cardTitle}>Evaluación Neurocognitiva</h3>
+                                    <p className={styles.cardText}>Examina memoria, atención, velocidad de procesamiento y funciones ejecutivas para orientar apoyos clínicos y cotidianos.</p>
+                                    <div className={styles.cardPrice}>${getServicePrice('evalNeuropsicologica').toLocaleString('es-CL')} <span>CLP · valor total</span></div>
+                                    <div className={styles.cardPriceUsd}>Presencial · incluye informe y devolución</div>
                                 </button>
                             </div>
 
@@ -507,7 +559,7 @@ export default function Booking() {
                                     className="btn-primary"
                                     disabled={formData.serviceType === ''}
                                 >
-                                    Continuar al Calendario →
+                                    {isSelectedInPersonEvaluation ? 'Continuar con la reserva →' : 'Continuar al calendario →'}
                                 </button>
                             </div>
 
@@ -670,63 +722,80 @@ export default function Booking() {
 
                     {step === 'schedule' && (
                         <div className={styles.stepContent}>
-                            <h2 className={styles.stepTitle}>Selecciona tu horario</h2>
+                            <h2 className={styles.stepTitle}>
+                                {isSelectedInPersonEvaluation ? 'Coordinación de tu evaluación presencial' : 'Selecciona tu horario'}
+                            </h2>
                             <div className={styles.appointmentSummary}>
                                 <span className={styles.summaryLabel}>Servicio Seleccionado</span>
                                 <div className={styles.summaryContent}>
-                                    <p>{formData.serviceType === 'sesion' ? 'Psicoterapia Individual' : 'Pack 4 Sesiones'}</p>
+                                    <p>{getServiceDisplayName(formData.serviceType)}</p>
                                     {formData.serviceType === 'packSesiones' && (
                                         <p className={styles.summaryNote}>Selecciona {PACK_SESSION_COUNT} horarios. Cada uno quedará agendado como sesión individual.</p>
                                     )}
                                 </div>
                             </div>
 
-                            <div className={formData.serviceType === 'packSesiones' ? styles.scheduleWorkspace : ''}>
-                                {formData.serviceType === 'packSesiones' && (
-                                    <div className={styles.packSchedulePanel}>
-                                        <div className={styles.packScheduleHeader}>
-                                            <span>Sesiones del pack</span>
-                                            <strong>{packSessions.length}/{PACK_SESSION_COUNT}</strong>
-                                        </div>
-                                        {packSessions.length > 0 ? (
-                                            <div className={styles.packSessionList}>
-                                                {packSessions.map((session, index) => (
-                                                    <div key={session.slotKey} className={styles.packSessionItem}>
-                                                        <div>
-                                                            <span>Sesión {index + 1}</span>
-                                                            <strong>{session.date}</strong>
-                                                            <small>{session.time} hrs Chile</small>
-                                                        </div>
-                                                        <button type="button" onClick={() => handleRemovePackSession(session.slotKey)}>Quitar</button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className={styles.packEmpty}>Aún no has seleccionado horarios para el pack.</p>
-                                        )}
-                                    </div>
-                                )}
-
-                                <div className={styles.calendarContainer}>
-                                    <CustomCalendar
-                                        onSelectDateTime={handleDateTimeSelection}
-                                        bookedSlots={[
-                                            ...occupiedSlots,
-                                            ...packSessions.map(session => session.slotKey),
-                                        ]}
-                                    />
+                            {isSelectedInPersonEvaluation ? (
+                                <div className={styles.presentialNotice}>
+                                    <span className={styles.presentialBadge}>Presencial · Santiago</span>
+                                    <h3>Primero reservas el proceso; luego confirmamos la sala y la fecha.</h3>
+                                    <p>Estas evaluaciones se realizan en un centro clínico cuya consulta se arrienda por hora. Por eso no mostramos horarios automáticos que podrían no estar disponibles.</p>
+                                    <ol>
+                                        <li>Completa tus datos y paga de forma segura mediante Flow.</li>
+                                        <li>Al finalizar elegirás un rango de fechas desde la próxima semana.</li>
+                                        <li>WhatsApp se abrirá con tu evaluación, orden de pago y rango preferido.</li>
+                                        <li>Confirmaremos contigo la fecha definitiva según disponibilidad del centro.</li>
+                                    </ol>
+                                    <p className={styles.presentialGuarantee}>El pago incluye aplicación, corrección e integración de resultados, informe profesional y devolución explicada.</p>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className={formData.serviceType === 'packSesiones' ? styles.scheduleWorkspace : ''}>
+                                    {formData.serviceType === 'packSesiones' && (
+                                        <div className={styles.packSchedulePanel}>
+                                            <div className={styles.packScheduleHeader}>
+                                                <span>Sesiones del pack</span>
+                                                <strong>{packSessions.length}/{PACK_SESSION_COUNT}</strong>
+                                            </div>
+                                            {packSessions.length > 0 ? (
+                                                <div className={styles.packSessionList}>
+                                                    {packSessions.map((session, index) => (
+                                                        <div key={session.slotKey} className={styles.packSessionItem}>
+                                                            <div>
+                                                                <span>Sesión {index + 1}</span>
+                                                                <strong>{session.date}</strong>
+                                                                <small>{session.time} hrs Chile</small>
+                                                            </div>
+                                                            <button type="button" onClick={() => handleRemovePackSession(session.slotKey)}>Quitar</button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className={styles.packEmpty}>Aún no has seleccionado horarios para el pack.</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className={styles.calendarContainer}>
+                                        <CustomCalendar
+                                            onSelectDateTime={handleDateTimeSelection}
+                                            bookedSlots={[
+                                                ...occupiedSlots,
+                                                ...packSessions.map(session => session.slotKey),
+                                            ]}
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             <div className={styles.footerActions}>
                                 <button onClick={handleBack} className="btn-secondary">← Cambiar Servicio</button>
-                                {formData.serviceType === 'packSesiones' && (
+                                {(formData.serviceType === 'packSesiones' || isSelectedInPersonEvaluation) && (
                                     <button
                                         onClick={handleContinueAfterSchedule}
                                         className="btn-primary"
-                                        disabled={packSessions.length !== PACK_SESSION_COUNT}
+                                        disabled={formData.serviceType === 'packSesiones' && packSessions.length !== PACK_SESSION_COUNT}
                                     >
-                                        Continuar con {PACK_SESSION_COUNT} sesiones →
+                                        {isSelectedInPersonEvaluation ? 'Continuar con la reserva →' : `Continuar con ${PACK_SESSION_COUNT} sesiones →`}
                                     </button>
                                 )}
                             </div>
@@ -743,25 +812,18 @@ export default function Booking() {
                                         <p key={session.slotKey}><strong>Sesión {index + 1}:</strong> {session.date} a las {session.time} hrs Chile</p>
                                     ))}
                                 </div>
+                            ) : isSelectedInPersonEvaluation ? (
+                                <div className={styles.packConfirmBox}>
+                                    <span>Coordinación presencial posterior al pago</span>
+                                    <p>Al finalizar elegirás un rango de fechas desde la próxima semana y podrás enviarlo por WhatsApp junto con tu orden.</p>
+                                </div>
                             ) : (
                                 <p className={styles.stepDesc}>Tu cita: <strong>{bookingDetails.date}</strong> a las <strong>{bookingDetails.time}</strong></p>
                             )}
 
                             <div className={styles.paymentBox}>
                                 <div className={styles.priceRow}>
-                                    <span>{
-                                        formData.serviceType === 'primeraConsulta' ? 'Primera Consulta (Gratis)' :
-                                            formData.serviceType.startsWith('evalFree') ? 'Sesión Inicial de Evaluación' :
-                                                formData.serviceType === 'sesion' ? 'Sesión de Psicoterapia Individual' :
-                                                    formData.serviceType === 'packSesiones' ? 'Pack de 4 Sesiones' :
-                                                        formData.serviceType === 'evalTDAH' ? 'Evaluación TDAH Adulto' :
-                                                            formData.serviceType === 'evalAutismo' ? 'Evaluación TEA (Autismo)' :
-                                                                formData.serviceType === 'evalWiscV' ? 'Evaluación Cognitiva WISC-V' :
-                                                                formData.serviceType === 'evalInteligencia' ? 'Evaluación Intelectual' :
-                                                                    formData.serviceType === 'evalNeuropsicologica' ? 'Evaluación Neuropsicológica Completa' :
-                                                                        formData.serviceType === 'evalEmocional' ? 'Evaluación Socioemocional' :
-                                                                            'Servicio'
-                                    }</span>
+                                    <span>{formData.serviceType.startsWith('evalFree') ? 'Sesión Inicial de Evaluación' : getServiceDisplayName(formData.serviceType)}</span>
                                     <strong>
                                         <div>${calculateFinalPrice().toLocaleString('es-CL')} CLP</div>
                                         {PAYPAL_ENABLED && calculateFinalPrice() > 0 && (
@@ -804,7 +866,9 @@ export default function Booking() {
                                             <p><strong>RUT:</strong> {formData.rut}</p>
                                         </div>
                                         <p className={styles.invoiceNote}>
-                                            Tras confirmar tu pago, el profesional recibirá una notificación para generar y enviarte manualmente tu boleta de honorarios a tu correo electrónico.
+                                            {isSelectedInPersonEvaluation
+                                                ? 'Este pago reserva el proceso de evaluación, pero no una fecha específica. Después del pago coordinaremos por WhatsApp la sala y el horario presencial según la disponibilidad del centro.'
+                                                : 'Tras confirmar tu pago, el profesional recibirá una notificación para generar y enviarte manualmente tu boleta de honorarios a tu correo electrónico.'}
                                         </p>
                                         <div className={styles.securityBadges}>
                                             <span>🔒 Pago seguro con Flow</span>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFlowPayment } from '@/lib/services/flow';
 import { paymentConfig } from '@/lib/config/services';
+import { isInPersonEvaluation } from '@/lib/config/pricing';
 import { sendBookingNotification } from '@/lib/services/mail';
 import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
 
@@ -19,7 +20,8 @@ export async function POST(request: NextRequest) {
         const serviceType = typeof body?.serviceType === 'string' ? body.serviceType : 'sesion';
         const motivo = typeof body?.motivo === 'string' ? body.motivo.slice(0, 2000) : '';
         const detalles = typeof body?.detalles === 'string' ? body.detalles.slice(0, 5000) : '';
-        const calEventTypeId = typeof body?.calEventTypeId === 'number' || typeof body?.calEventTypeId === 'string' ? body.calEventTypeId : null;
+        const requestedCalEventTypeId = typeof body?.calEventTypeId === 'number' || typeof body?.calEventTypeId === 'string' ? body.calEventTypeId : null;
+        const calEventTypeId = isInPersonEvaluation(serviceType) ? null : requestedCalEventTypeId;
         const attendeeTimeZone = typeof body?.attendeeTimeZone === 'string' ? body.attendeeTimeZone.slice(0, 80) : 'America/Santiago';
         const appointmentDates = Array.isArray(body?.appointmentDates)
             ? body.appointmentDates.filter((date: unknown): date is string => typeof date === 'string' && !Number.isNaN(Date.parse(date))).slice(0, 4)
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
                 break;
             case 'evalTDAH':
                 amount = paymentConfig.pricing.evalTDAH;
-                subject = 'Evaluación TDAH Adulto';
+                subject = 'Evaluación de TDAH Presencial';
                 break;
             case 'evalAutismo':
                 amount = paymentConfig.pricing.evalAutismo;
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
                 break;
             case 'evalWiscV':
                 amount = paymentConfig.pricing.evalWiscV;
-                subject = 'Evaluación Cognitiva WISC-V';
+                subject = 'Evaluación Cognitiva WISC-V Presencial';
                 break;
             case 'evalInteligencia':
                 amount = paymentConfig.pricing.evalInteligencia;
@@ -66,7 +68,7 @@ export async function POST(request: NextRequest) {
                 break;
             case 'evalNeuropsicologica':
                 amount = paymentConfig.pricing.evalNeuropsicologica;
-                subject = 'Evaluación Neuropsicológica Completa';
+                subject = 'Evaluación Neurocognitiva Presencial';
                 break;
             case 'evalEmocional':
                 amount = paymentConfig.pricing.evalEmocional;
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
         // Aplicar cupón (validación server-side)
         if (body.coupon) {
             const { applyCoupon } = await import('@/lib/services/coupons');
-            const couponResult = applyCoupon(body.coupon, amount, serviceType);
+            const couponResult = applyCoupon(body.coupon, amount);
             if (!couponResult.ok) {
                 return NextResponse.json({ error: couponResult.reason }, { status: 400 });
             }
