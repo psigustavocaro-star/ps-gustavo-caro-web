@@ -5,16 +5,19 @@ import { newsletterSequence } from '@/lib/config/newsletter-content';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const NEWSLETTER_INTERVAL_DAYS = Number(process.env.NEWSLETTER_INTERVAL_DAYS || 7);
+
 export async function processNewsletterSequence() {
-    // 1. Suscriptores activos que necesitan el siguiente correo (14 días desde el último)
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    // Suscriptores activos que necesitan el siguiente correo.
+    // Por defecto avanza semanalmente; puede ajustarse con NEWSLETTER_INTERVAL_DAYS.
+    const eligibleSince = new Date();
+    eligibleSince.setDate(eligibleSince.getDate() - NEWSLETTER_INTERVAL_DAYS);
 
     const subscribers = await prisma.newsletter.findMany({
         where: {
             active: true,
             currentStep: { lt: newsletterSequence.length },
-            lastSentAt: { lte: fourteenDaysAgo }
+            lastSentAt: { lte: eligibleSince }
         }
     });
 

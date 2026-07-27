@@ -4,12 +4,19 @@ import Footer from "@/components/Footer/Footer";
 import BlogSection from "@/components/Blog/BlogSection";
 import styles from "./blog.module.css";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
-    title: 'Blog y Recursos',
-    description: 'Artículos sobre salud mental, ansiedad, depresión, TDAH y más. Recursos descargables y herramientas TCC para tu bienestar.',
+    title: 'Blog de Salud Mental, Ansiedad, TDAH y Terapia TCC Online',
+    description: 'Artículos de psicología clínica sobre ansiedad, TDAH adulto, autismo, terapia cognitivo conductual, sueño, límites y salud mental en Chile.',
+    keywords: ['blog salud mental Chile', 'psicólogo online Chile', 'terapia cognitivo conductual', 'ansiedad', 'TDAH adulto', 'autismo adulto', 'psicoterapia online'],
+    alternates: {
+        canonical: '/blog',
+    },
     openGraph: {
-        title: 'Blog y Recursos | Ps. Gustavo Caro',
-        description: 'Artículos sobre salud mental y recursos TCC para tu bienestar emocional.',
+        title: 'Blog de Salud Mental y Terapia TCC | Ps. Gustavo Caro',
+        description: 'Recursos clínicos y psicoeducativos para ansiedad, TDAH, autismo, sueño, relaciones y bienestar emocional.',
+        url: '/blog',
     },
 };
 

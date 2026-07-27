@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './BlogSection.module.css';
-import { blogPosts } from '@/lib/data/blog';
+import { getPublishedBlogPosts } from '@/lib/data/blog';
 
 export default function BlogSection() {
-    // Mostrar todos los posts ordenados por fecha descendente
-    const latestPosts = [...blogPosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const latestPosts = getPublishedBlogPosts();
 
     return (
         <section className={styles.blog} id="blog">

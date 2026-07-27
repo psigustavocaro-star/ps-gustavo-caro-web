@@ -14,6 +14,7 @@ export interface BlogPost {
     author: string;
     category: 'Salud Mental' | 'Neurodiversidad' | 'Ansiedad' | 'Opinión' | 'Recursos';
     image: string;
+    keywords?: string[];
     resources?: BlogResource[];
 }
 
@@ -354,3 +355,393 @@ export const blogPosts: BlogPost[] = [
         ]
     }
 ];
+
+const scheduledTopics: Array<Omit<BlogPost, 'author' | 'content'> & { focus: string; sections: [[string, string], [string, string], [string, string]] }> = [
+    {
+        slug: 'cuando-retomar-terapia-despues-de-pausar',
+        title: '¿Cuando retomar terapia si dejaste el proceso en pausa?',
+        excerpt: 'Senales claras para saber si es momento de volver a terapia, incluso si no estas en crisis.',
+        date: '2026-07-27',
+        category: 'Recursos',
+        image: '/blog_minimal_therapy.png',
+        keywords: ['retomar terapia', 'psicologo online Chile', 'terapia cognitivo conductual', 'salud mental'],
+        focus: 'retomar terapia, continuidad terapeutica y prevencion de recaidas',
+        sections: [
+            ['No necesitas tocar fondo para volver', 'Muchas personas esperan sentirse al limite para pedir una nueva hora. Sin embargo, retomar terapia tambien puede ser una decision preventiva: revisar avances, ordenar lo que quedo pendiente y actualizar herramientas para el momento vital actual.'],
+            ['Senales de que conviene pedir una hora', 'Si notas mas irritabilidad, ansiedad, problemas de sueno, aislamiento, dificultad para decidir o retorno de patrones que ya habias trabajado, puede ser buen momento para volver. La terapia no tiene que empezar desde cero; muchas veces basta con reconectar el mapa.'],
+            ['Como usar una sesion de retorno', 'Una buena sesion de retorno puede enfocarse en tres preguntas: que cambio desde la ultima vez, que tema necesita prioridad y que estrategia concreta puedes practicar esta semana. Ese encuadre transforma la consulta en un espacio claro y util.']
+        ],
+    },
+    {
+        slug: 'ansiedad-domingo-en-la-noche',
+        title: 'Ansiedad del domingo en la noche: por que aparece y que hacer',
+        excerpt: 'La ansiedad anticipatoria antes de comenzar la semana es frecuente. Estas herramientas TCC pueden ayudarte a regularla.',
+        date: '2026-08-03',
+        category: 'Ansiedad',
+        image: '/blog/anxiety-tcc.png',
+        keywords: ['ansiedad domingo', 'ansiedad anticipatoria', 'terapia TCC ansiedad', 'psicologo ansiedad Chile'],
+        focus: 'ansiedad anticipatoria y rutina semanal',
+        sections: [
+            ['La mente se adelanta para intentar protegerte', 'El domingo por la noche muchas personas sienten presion, rumiacion o una sensacion de amenaza difusa. No siempre se debe a que la semana sera terrible; a veces el cerebro intenta controlar lo incierto adelantandose demasiado.'],
+            ['Separar planificacion de preocupacion', 'Planificar implica decidir acciones concretas. Preocuparse en bucle implica repetir escenarios sin resolverlos. Una pauta util es escribir tres pendientes reales y una primera accion pequena para cada uno.'],
+            ['Cuando pedir ayuda', 'Si la ansiedad anticipatoria afecta tu descanso, digestion, animo o vida familiar todos los domingos, puede ser una senal de que necesitas herramientas mas especificas y un plan terapeutico.']
+        ],
+    },
+    {
+        slug: 'tdah-adulto-senales-en-la-vida-diaria',
+        title: 'TDAH adulto: senales cotidianas que suelen pasar desapercibidas',
+        excerpt: 'No todo TDAH adulto se ve como hiperactividad. A veces aparece como desorden, agotamiento mental o dificultad para iniciar tareas.',
+        date: '2026-08-10',
+        category: 'Neurodiversidad',
+        image: '/blog/tdah-adulto.png',
+        keywords: ['TDAH adulto Chile', 'evaluacion TDAH adulto', 'psicologo TDAH', 'funciones ejecutivas'],
+        focus: 'TDAH adulto, evaluacion y estrategias clinicas',
+        sections: [
+            ['No es solo distraerse', 'En adultos, el TDAH puede aparecer como dificultad para iniciar tareas, perder objetos, olvidar compromisos, procrastinar hasta el limite o vivir con una sensacion constante de esfuerzo mental.'],
+            ['La culpa no organiza el cerebro', 'Muchas personas intentan resolver el TDAH con mas reto interno. Pero la culpa rara vez mejora la funcion ejecutiva. Lo que ayuda es disenar entornos, recordatorios, bloques de trabajo y metas visibles.'],
+            ['Evaluar para comprender', 'Una evaluacion no busca etiquetar por etiquetar. Busca entender como funciona tu atencion, que areas estan afectadas y que apoyos pueden hacer tu vida mas llevadera.']
+        ],
+    },
+    {
+        slug: 'insomnio-y-rumiacion-mental',
+        title: 'Insomnio y rumiacion: cuando la cama se vuelve una sala de reuniones',
+        excerpt: 'Si tu mente se activa justo al acostarte, estas estrategias pueden ayudarte a cortar el ciclo de rumiacion nocturna.',
+        date: '2026-08-17',
+        category: 'Recursos',
+        image: '/blog_sleep_urban_night_lights_1776139123834.png',
+        keywords: ['insomnio ansiedad', 'rumiacion nocturna', 'higiene del sueno', 'terapia cognitivo conductual'],
+        focus: 'insomnio, ansiedad nocturna e higiene del sueno',
+        sections: [
+            ['La cama no deberia ser oficina emocional', 'Cuando llevas pendientes, conversaciones inconclusas o preocupaciones acumuladas, la mente puede elegir el silencio de la noche para intentar resolverlo todo. El resultado suele ser mas activacion, no mas claridad.'],
+            ['Externalizar antes de dormir', 'Una tecnica simple es escribir preocupaciones y pendientes al menos 90 minutos antes de acostarte. No se trata de resolverlos todos, sino de senalarle al cerebro que no necesita sostenerlos en bucle.'],
+            ['Si se repite, conviene intervenir', 'Dormir mal de forma persistente afecta animo, memoria, paciencia y ansiedad. Si el insomnio se mantiene, la terapia puede ayudarte a ordenar rutinas y pensamientos que sostienen el problema.']
+        ],
+    },
+    {
+        slug: 'limites-sanos-sin-culpa',
+        title: 'Limites sanos: como decir que no sin sentir que fallaste',
+        excerpt: 'Poner limites no es alejarse de todos. Es cuidar el modo en que te vinculas contigo y con los demas.',
+        date: '2026-08-24',
+        category: 'Salud Mental',
+        image: '/blog/healthy-relationships.png',
+        keywords: ['limites sanos', 'dependencia emocional', 'relaciones sanas', 'psicoterapia online Chile'],
+        focus: 'limites, culpa y relaciones',
+        sections: [
+            ['El limite no es castigo', 'Un limite sano no busca herir ni controlar a otra persona. Busca expresar que necesitas para relacionarte sin pasar por encima de ti mismo.'],
+            ['La culpa puede aparecer aunque el limite sea correcto', 'Sentir culpa no siempre significa que hiciste algo malo. A veces solo indica que estas haciendo algo nuevo, especialmente si aprendiste a complacer para evitar conflicto.'],
+            ['Practicar frases concretas', 'Una frase util combina respeto y claridad: ahora no puedo comprometerme con eso, necesito revisarlo, prefiero no hablar de ese tema. La claridad suele proteger mas que la explicacion excesiva.']
+        ],
+    },
+    {
+        slug: 'burnout-en-chile-senales-tempranas',
+        title: 'Burnout en Chile: senales tempranas que no conviene normalizar',
+        excerpt: 'El agotamiento no aparece de un dia para otro. Aprende a reconocerlo antes de que te pase la cuenta.',
+        date: '2026-08-31',
+        category: 'Salud Mental',
+        image: '/blog/burnout-chile.png',
+        keywords: ['burnout Chile', 'estres laboral', 'agotamiento emocional', 'psicologo online'],
+        focus: 'burnout, estres laboral y autocuidado realista',
+        sections: [
+            ['El cansancio cronico no es medalla', 'En culturas laborales exigentes se suele premiar estar siempre disponible. Pero vivir agotado, irritable y desconectado no es productividad: es una senal de desgaste.'],
+            ['Sintomas que merecen atencion', 'Dificultad para descansar, cinismo, baja motivacion, errores frecuentes, dolores fisicos y sensacion de no llegar nunca pueden indicar burnout. No hay que esperar el colapso para intervenir.'],
+            ['Recuperar margen', 'El trabajo terapeutico puede ayudarte a revisar limites, autoexigencia, prioridades y formas de descanso que realmente reparen, no solo que distraigan por un rato.']
+        ],
+    },
+    {
+        slug: 'terapia-online-chile-como-aprovecharla',
+        title: 'Terapia online en Chile: como aprovechar mejor tus sesiones',
+        excerpt: 'La terapia online puede ser cercana, seria y efectiva si se cuida el encuadre y la participacion activa.',
+        date: '2026-09-07',
+        category: 'Recursos',
+        image: '/blog_minimal_door.png',
+        keywords: ['terapia online Chile', 'psicologo online Chile', 'TCC online', 'psicoterapia online'],
+        focus: 'terapia online, encuadre y continuidad',
+        sections: [
+            ['Online no significa informal', 'Una sesion online requiere privacidad, puntualidad, conexion estable y un espacio donde puedas hablar sin estar actuando para otros. Ese encuadre ayuda a que la terapia funcione.'],
+            ['Preparar la sesion mejora el resultado', 'Llegar con una idea de lo que quieres revisar, aunque sea breve, permite usar mejor el tiempo. Puedes anotar situaciones, emociones o preguntas de la semana.'],
+            ['Lo importante es la continuidad', 'La terapia online puede facilitar constancia porque reduce traslados y tiempos muertos. Esa continuidad suele ser clave para transformar herramientas en habitos reales.']
+        ],
+    },
+    {
+        slug: 'ansiedad-en-fiestas-patrias',
+        title: 'Ansiedad en Fiestas Patrias: reuniones, excesos y comparaciones',
+        excerpt: 'Septiembre puede ser alegre y tambien exigente. Algunas claves para cuidar tu salud mental en fechas sociales.',
+        date: '2026-09-14',
+        category: 'Ansiedad',
+        image: '/blog_ansiedad_santiago_1776137206965.png',
+        keywords: ['ansiedad fiestas patrias', 'salud mental septiembre', 'ansiedad social Chile', 'psicologo ansiedad'],
+        focus: 'ansiedad social, familia y autocuidado en celebraciones',
+        sections: [
+            ['No todas las celebraciones se viven igual', 'Para algunas personas las reuniones familiares o sociales generan tension, comparacion, preguntas incomodas o cansancio. Validar eso permite cuidarte mejor.'],
+            ['Anticipar limites concretos', 'Antes de asistir, define cuanto tiempo quieres quedarte, que temas no quieres conversar y que salida puedes usar si necesitas retirarte. Preparar no es exagerar; es autocuidado.'],
+            ['Volver al cuerpo', 'Comer, dormir y moverte con cierta regularidad ayuda a que el sistema nervioso no quede completamente desregulado despues de varios dias de intensidad social.']
+        ],
+    },
+    {
+        slug: 'autismo-adulto-diagnostico-tardio',
+        title: 'Autismo adulto y diagnostico tardio: entenderse despues de anos',
+        excerpt: 'Muchas personas adultas descubren tarde que su forma de sentir, socializar o regularse tenia una explicacion.',
+        date: '2026-09-21',
+        category: 'Neurodiversidad',
+        image: '/blog/tea-adulthood.png',
+        keywords: ['autismo adulto Chile', 'evaluacion TEA adulto', 'ADOS-2 Chile', 'neurodiversidad adulto'],
+        focus: 'autismo adulto, evaluacion TEA y diagnostico tardio',
+        sections: [
+            ['El alivio de encontrar una explicacion', 'Un diagnostico tardio puede remover dolor, pero tambien traer alivio. Muchas experiencias que parecian fallas personales pueden comprenderse como diferencias de procesamiento.'],
+            ['No se trata de encasillar', 'Evaluar TEA en adultos requiere historia de desarrollo, funcionamiento actual, sensibilidad sensorial, comunicacion social e instrumentos adecuados. El objetivo es orientar apoyos.'],
+            ['Despues del diagnostico viene la integracion', 'Comprenderse permite ajustar expectativas, relaciones, rutinas y formas de autocuidado. El diagnostico es una puerta, no el final del proceso.']
+        ],
+    },
+    {
+        slug: 'panic-attack-que-hacer-en-crisis',
+        title: 'Ataque de panico: que hacer durante los primeros minutos',
+        excerpt: 'Una guia clara para reconocer una crisis de panico y bajar la intensidad sin alimentar el miedo.',
+        date: '2026-09-28',
+        category: 'Ansiedad',
+        image: '/blog_minimal_hands.png',
+        keywords: ['ataque de panico', 'crisis de panico', 'ansiedad Chile', 'herramientas TCC panico'],
+        focus: 'panico, psicoeducacion y regulacion fisiologica',
+        sections: [
+            ['El panico se siente peligroso, pero no siempre lo es', 'Una crisis de panico puede sentirse como perdida de control, ahogo o amenaza fisica. Comprender la respuesta de adrenalina ayuda a no interpretarla como catastrofe inmediata.'],
+            ['No pelear con la ola', 'Intentar eliminar la sensacion a la fuerza suele aumentarla. Puede ayudar decir: esto es panico, es intenso, va a pasar. Nombrar el proceso baja el miedo secundario.'],
+            ['Entrenar antes de la crisis', 'Respiracion, anclaje sensorial y exposicion interoceptiva funcionan mejor cuando se practican fuera de la crisis. La terapia permite entrenarlas de forma gradual y segura.']
+        ],
+    },
+    {
+        slug: 'autoexigencia-y-perfeccionismo',
+        title: 'Autoexigencia y perfeccionismo: cuando hacerlo bien nunca alcanza',
+        excerpt: 'La autoexigencia puede impulsar, pero tambien desgastar. Aprende a distinguir esfuerzo sano de castigo interno.',
+        date: '2026-10-05',
+        category: 'Salud Mental',
+        image: '/blog_impostor_syndrome_reflection_1776139190697.png',
+        keywords: ['perfeccionismo', 'autoexigencia', 'sindrome del impostor', 'terapia TCC'],
+        focus: 'perfeccionismo, autoexigencia y TCC',
+        sections: [
+            ['El problema no es querer hacer las cosas bien', 'El perfeccionismo se vuelve problematico cuando nada parece suficiente, el error se vive como amenaza y descansar se siente como culpa.'],
+            ['La vara movil', 'Muchas personas perfeccionistas cumplen una meta y de inmediato suben la exigencia. Asi el logro nunca se registra; solo aparece el siguiente deber.'],
+            ['Trabajar con criterios realistas', 'La TCC ayuda a definir estandares claros, revisar pensamientos extremos y practicar conductas donde lo suficientemente bueno tambien sea aceptable.']
+        ],
+    },
+    {
+        slug: 'duelo-no-lineal',
+        title: 'El duelo no es lineal: por que algunos dias vuelven a doler',
+        excerpt: 'El duelo puede avanzar y retroceder. Comprenderlo ayuda a vivirlo con menos culpa.',
+        date: '2026-10-12',
+        category: 'Salud Mental',
+        image: '/blog_minimal_winter.png',
+        keywords: ['duelo', 'terapia duelo', 'salud mental Chile', 'psicologo online'],
+        focus: 'duelo, fechas sensibles y acompanamiento terapeutico',
+        sections: [
+            ['No se supera como una lista de tareas', 'El duelo suele moverse en oleadas. Puedes estar mejor y luego sentir que algo se reactiva por una fecha, una cancion, una conversacion o un recuerdo inesperado.'],
+            ['La culpa suele confundirse con amor', 'Muchas personas sienten que dejar de sufrir seria traicionar lo perdido. Trabajar el duelo permite construir una relacion distinta con el recuerdo, no borrarlo.'],
+            ['Acompanarse importa', 'Cuando el duelo se vuelve aislamiento, culpa persistente o imposibilidad de funcionar, la terapia puede ofrecer un espacio seguro para procesarlo sin apurar ni congelar.']
+        ],
+    },
+    {
+        slug: 'evaluacion-tdah-adulto-que-incluye',
+        title: 'Evaluacion TDAH adulto: que incluye y cuando conviene hacerla',
+        excerpt: 'Una evaluacion bien hecha ayuda a diferenciar TDAH de ansiedad, depresion, estres o problemas de sueno.',
+        date: '2026-10-19',
+        category: 'Neurodiversidad',
+        image: '/blog/late-diagnosis.png',
+        keywords: ['evaluacion TDAH adulto Chile', 'diagnostico TDAH', 'psicologo TDAH Santiago', 'TDAH adulto'],
+        focus: 'evaluacion TDAH adulto y diagnostico diferencial',
+        sections: [
+            ['No todo problema de concentracion es TDAH', 'La atencion puede verse afectada por ansiedad, depresion, trauma, estres, insomnio o sobrecarga digital. Por eso una evaluacion seria mira historia, sintomas y contexto.'],
+            ['Que se busca observar', 'Se revisan dificultades de atencion, impulsividad, organizacion, regulacion emocional, inicio de tareas e impacto funcional desde etapas tempranas hasta la vida adulta.'],
+            ['La utilidad del informe', 'Un informe puede orientar tratamiento, adaptaciones, derivaciones y estrategias concretas. La meta no es solo nombrar, sino ayudar a vivir mejor.']
+        ],
+    },
+    {
+        slug: 'salud-mental-hombres-consulta',
+        title: 'Salud mental en hombres: por que cuesta tanto pedir ayuda',
+        excerpt: 'Muchos hombres llegan a terapia cuando ya estan al limite. Hablar antes tambien es una forma de responsabilidad.',
+        date: '2026-10-26',
+        category: 'Opinión',
+        image: '/blog_minimal_cbt.png',
+        keywords: ['salud mental hombres', 'psicologo hombres Chile', 'terapia online hombres', 'depresion masculina'],
+        focus: 'salud mental masculina y barreras para pedir ayuda',
+        sections: [
+            ['La fortaleza mal entendida', 'A muchos hombres se les ensena a aguantar, resolver solos y no mostrar vulnerabilidad. Ese aprendizaje puede dificultar reconocer tristeza, miedo o agotamiento.'],
+            ['Sintomas que se disfrazan', 'La depresion o ansiedad en hombres a veces aparece como irritabilidad, aislamiento, consumo, trabajo excesivo o desconexion afectiva, no necesariamente como llanto visible.'],
+            ['Pedir ayuda tambien cuida a otros', 'Terapia no es dejar de ser fuerte. Es aprender a responder mejor ante lo que duele, antes de que el malestar se exprese de formas que danen la vida cotidiana.']
+        ],
+    },
+    {
+        slug: 'evaluacion-autismo-ados2-adultos',
+        title: 'Evaluacion de autismo con ADOS-2: que debes saber',
+        excerpt: 'El ADOS-2 puede ser parte de una evaluacion TEA, pero el diagnostico requiere mirar la historia completa de la persona.',
+        date: '2026-11-02',
+        category: 'Neurodiversidad',
+        image: '/blog/neuro-chile.png',
+        keywords: ['ADOS-2 Chile', 'evaluacion autismo adulto', 'evaluacion TEA', 'psicologo autismo Chile'],
+        focus: 'evaluacion TEA, ADOS-2 y neurodiversidad',
+        sections: [
+            ['El instrumento no reemplaza el criterio clinico', 'El ADOS-2 aporta informacion valiosa, pero debe integrarse con entrevistas, historia de desarrollo, funcionamiento actual y otras fuentes relevantes.'],
+            ['Por que muchas personas consultan en adultez', 'Algunas personas llegan despues de anos de enmascaramiento, agotamiento social o sensacion de no encajar. La evaluacion puede ayudar a entender patrones que venian de antes.'],
+            ['Despues de evaluar', 'El objetivo es orientar apoyos, ajustes y autocomprension. Un diagnostico responsable deberia abrir caminos practicos, no quedarse solo en una etiqueta.']
+        ],
+    },
+    {
+        slug: 'cierre-de-ano-salud-mental',
+        title: 'Cierre de ano y salud mental: como hacer un balance sin castigarte',
+        excerpt: 'Noviembre y diciembre pueden activar comparaciones y exigencias. Un balance amable tambien puede ser honesto.',
+        date: '2026-11-09',
+        category: 'Recursos',
+        image: '/blog_santiago_mountain_resilience_premium_1776139093323.png',
+        keywords: ['cierre de ano salud mental', 'ansiedad fin de ano', 'terapia fin de ano', 'psicologo Chile'],
+        focus: 'cierre de ano, balance personal y autocuidado',
+        sections: [
+            ['Balance no es juicio final', 'Revisar el ano no deberia convertirse en una lista de fracasos. Tambien puedes mirar lo que sostuviste, aprendiste, soltaste o empezaste a reconocer.'],
+            ['Cuidado con las comparaciones', 'Diciembre suele aumentar comparaciones laborales, familiares y personales. Recordar que cada historia tiene contexto ayuda a bajar la dureza interna.'],
+            ['Una revision terapeutica puede ordenar', 'Una sesion de cierre puede ayudarte a identificar avances, pendientes y necesidades reales para iniciar el proximo ano con mas claridad.']
+        ],
+    },
+    {
+        slug: 'ansiedad-por-dinero-fin-de-ano',
+        title: 'Ansiedad por dinero a fin de ano: cuando las cuentas tambien pesan emocionalmente',
+        excerpt: 'Gastos, regalos, deudas y expectativas pueden aumentar la ansiedad. Algunas estrategias para ordenar sin paralizarte.',
+        date: '2026-11-16',
+        category: 'Ansiedad',
+        image: '/blog_ritmo_estres_santiago_1776138845888.png',
+        keywords: ['ansiedad por dinero', 'estres financiero Chile', 'ansiedad fin de ano', 'terapia ansiedad'],
+        focus: 'estres financiero, ansiedad y fin de ano',
+        sections: [
+            ['El dinero tambien activa amenaza', 'Cuando las cuentas se acumulan, el sistema nervioso puede interpretar la situacion como peligro constante. No es solo un tema numerico; tambien es emocional.'],
+            ['Ordenar reduce incertidumbre', 'Hacer una lista realista de gastos, prioridades y limites puede bajar la ansiedad. Evitar mirar el problema suele hacerlo crecer en la mente.'],
+            ['Conversarlo sin verguenza', 'La ansiedad financiera puede traer culpa o aislamiento. En terapia se puede trabajar la relacion con control, miedo, decisiones y autocuidado en contextos exigentes.']
+        ],
+    },
+    {
+        slug: 'soledad-digital-y-vinculos',
+        title: 'Soledad digital: estar conectado no siempre es sentirse acompanado',
+        excerpt: 'Las redes pueden acercar, pero tambien intensificar comparacion, desconexion y sensacion de soledad.',
+        date: '2026-11-23',
+        category: 'Salud Mental',
+        image: '/blog/soledad-digital.png',
+        keywords: ['soledad digital', 'redes sociales ansiedad', 'salud mental y tecnologia', 'psicoterapia online'],
+        focus: 'soledad, redes sociales y vinculos',
+        sections: [
+            ['Mas contacto no siempre significa mas intimidad', 'Podemos hablar con muchas personas y aun asi sentirnos poco vistos. La conexion digital rapida no siempre reemplaza conversaciones seguras y profundas.'],
+            ['La comparacion agota', 'Mirar vidas editadas durante horas puede aumentar la sensacion de atraso o insuficiencia. Conviene observar que contenido te regula y cual te deja peor.'],
+            ['Volver a vinculos nutritivos', 'Una meta realista puede ser fortalecer una o dos relaciones seguras, no exponerte mas en todas partes. La salud mental tambien se cuida eligiendo entornos.']
+        ],
+    },
+    {
+        slug: 'como-preparar-primera-sesion-psicologica',
+        title: 'Como preparar tu primera sesion psicologica',
+        excerpt: 'Si nunca has ido a terapia, estas orientaciones pueden ayudarte a llegar con menos ansiedad y mas claridad.',
+        date: '2026-11-30',
+        category: 'Recursos',
+        image: '/blog_minimal_therapy.png',
+        keywords: ['primera sesion psicologica', 'psicologo online Chile', 'como empezar terapia', 'terapia TCC'],
+        focus: 'primera sesion, expectativas y alianza terapeutica',
+        sections: [
+            ['No tienes que llevar todo ordenado', 'Muchas personas creen que deben explicar perfecto lo que les pasa. No es necesario. Parte del trabajo terapeutico es ayudarte a ordenar la historia.'],
+            ['Que puede servir anotar', 'Puedes llevar tres elementos: que te preocupa, desde cuando ocurre y que impacto tiene en tu vida. Eso basta para empezar una conversacion clinica util.'],
+            ['La primera sesion tambien evalua ajuste', 'Es valido observar si te sientes escuchado, si el enfoque te hace sentido y si aparecen objetivos claros. La alianza terapeutica importa.']
+        ],
+    },
+    {
+        slug: 'navidad-duelo-y-familia',
+        title: 'Navidad, duelo y familia: cuando diciembre no se siente feliz',
+        excerpt: 'Las fiestas pueden remover ausencias, conflictos o cansancio emocional. No tienes que vivirlas de una sola manera.',
+        date: '2026-12-07',
+        category: 'Salud Mental',
+        image: '/blog_minimal_winter.png',
+        keywords: ['navidad duelo', 'salud mental diciembre', 'ansiedad fiestas', 'terapia duelo'],
+        focus: 'duelo, familia y fechas sensibles',
+        sections: [
+            ['La alegria obligatoria pesa', 'Diciembre suele instalar la idea de que todos deberian estar felices. Para quienes atraviesan duelo, distancia familiar o cansancio, esa expectativa puede doler mas.'],
+            ['Permisos emocionales', 'Puedes participar menos, retirarte antes, crear un ritual propio o elegir con quien compartir. Cuidarte no arruina la fecha; la vuelve mas habitable.'],
+            ['Pedir apoyo en fechas dificiles', 'Si estas fechas reactivan tristeza intensa, ansiedad o sensacion de soledad, una sesion puede ayudarte a preparar recursos concretos.']
+        ],
+    },
+    {
+        slug: 'propositos-de-ano-nuevo-salud-mental',
+        title: 'Propositos de ano nuevo: cambiar sin partir desde la culpa',
+        excerpt: 'Los cambios sostenibles nacen mejor desde claridad y cuidado, no desde castigo personal.',
+        date: '2026-12-14',
+        category: 'Recursos',
+        image: '/blog_self_care_psychology_therapeutic_1776139205529.png',
+        keywords: ['propositos ano nuevo', 'habitos salud mental', 'terapia cognitivo conductual', 'cambio de habitos'],
+        focus: 'habitos, metas y cambio conductual',
+        sections: [
+            ['La culpa motiva poco y dura menos', 'Muchas metas de enero nacen desde rechazo hacia uno mismo. Ese punto de partida suele producir planes rigidos, abandono rapido y mas frustracion.'],
+            ['Metas pequenas, contexto real', 'Un buen objetivo necesita ser concreto, medible y compatible con tu vida actual. No necesitas prometer una transformacion completa para empezar a moverte.'],
+            ['Acompanamiento para sostener cambios', 'La terapia puede ayudarte a convertir deseos amplios en pasos observables, revisar obstaculos y ajustar expectativas sin caer en todo o nada.']
+        ],
+    },
+    {
+        slug: 'terapia-cognitivo-conductual-en-ansiedad',
+        title: 'Terapia cognitivo conductual para ansiedad: que se trabaja en sesion',
+        excerpt: 'La TCC para ansiedad combina psicoeducacion, identificacion de pensamientos, exposicion gradual y cambios conductuales.',
+        date: '2026-12-21',
+        category: 'Ansiedad',
+        image: '/blog_minimal_cbt.png',
+        keywords: ['terapia cognitivo conductual ansiedad', 'TCC Chile', 'psicologo ansiedad Santiago', 'ansiedad tratamiento'],
+        focus: 'TCC, ansiedad y proceso terapeutico',
+        sections: [
+            ['Entender el circuito de ansiedad', 'Primero se identifica como se conectan situacion, pensamiento, sensacion fisica y conducta. Ese mapa permite intervenir con mas precision.'],
+            ['Reducir evitacion', 'Muchas conductas alivian a corto plazo pero mantienen la ansiedad a largo plazo. La exposicion gradual busca recuperar libertad, no forzar sufrimiento innecesario.'],
+            ['Medir avances', 'La TCC suele trabajar con objetivos y tareas entre sesiones. Esto ayuda a ver progreso, ajustar estrategias y mantener un proceso activo.']
+        ],
+    },
+    {
+        slug: 'iniciar-terapia-en-enero',
+        title: 'Iniciar terapia en enero: una forma concreta de cuidar el nuevo ano',
+        excerpt: 'Enero puede ser un buen momento para ordenar prioridades emocionales y comenzar un proceso con objetivos claros.',
+        date: '2026-12-28',
+        category: 'Recursos',
+        image: '/blog_minimal_door.png',
+        keywords: ['iniciar terapia enero', 'psicologo online Chile', 'agendar psicologo', 'terapia online'],
+        focus: 'inicio de terapia, objetivos y plan anual',
+        sections: [
+            ['No necesitas esperar a que el ano se complique', 'Comenzar terapia al inicio del ano puede ayudarte a definir prioridades, revisar patrones y construir herramientas antes de que la rutina vuelva con toda su carga.'],
+            ['Un plan emocional posible', 'La primera etapa puede enfocarse en objetivos concretos: ansiedad, autoestima, limites, organizacion, duelo, evaluacion o continuidad de un proceso anterior.'],
+            ['Dar el primer paso', 'Agendar una primera sesion no te compromete a tener todo resuelto. Solo abre un espacio para entender que necesitas y como trabajar en ello.']
+        ],
+    },
+];
+
+function renderScheduledPost(topic: (typeof scheduledTopics)[number]) {
+    const [first, second, third] = topic.sections;
+    return `
+        <p>Este articulo forma parte de una serie semanal pensada para acompanar el cierre de ano con herramientas de Terapia Cognitivo Conductual, psicoeducacion y orientaciones practicas para la vida cotidiana en Chile.</p>
+        <h3>${first[0]}</h3>
+        <p>${first[1]}</p>
+        <h3>${second[0]}</h3>
+        <p>${second[1]}</p>
+        <h3>${third[0]}</h3>
+        <p>${third[1]}</p>
+        <blockquote>Una pregunta util para esta semana: si este tema fuera un poco mas facil de manejar, que cambio pequeno notaria primero?</blockquote>
+        <h3>Cuando consultar</h3>
+        <p>Si este tema se repite, afecta tu descanso, tus vinculos, tu trabajo o tu sensacion de bienestar, puede ser buen momento para pedir apoyo profesional. La terapia no busca juzgar lo que te pasa: busca entenderlo y construir herramientas realistas para abordarlo.</p>
+        <p>Si necesitas acompanamiento, puedes agendar una sesion online con enfoque TCC y revisar juntos un plan de trabajo segun tu situacion.</p>
+    `;
+}
+
+const scheduledBlogPosts: BlogPost[] = scheduledTopics.map((topic) => ({
+    slug: topic.slug,
+    title: topic.title,
+    excerpt: topic.excerpt,
+    date: topic.date,
+    author: 'Ps. Gustavo Caro',
+    category: topic.category,
+    image: topic.image,
+    keywords: topic.keywords,
+    content: renderScheduledPost(topic),
+}));
+
+blogPosts.push(...scheduledBlogPosts);
+
+export function isBlogPostPublished(post: BlogPost, referenceDate = new Date()) {
+    const publishDate = new Date(`${post.date}T00:00:00-04:00`);
+    return publishDate.getTime() <= referenceDate.getTime();
+}
+
+export function getPublishedBlogPosts(referenceDate = new Date()) {
+    return blogPosts
+        .filter((post) => isBlogPostPublished(post, referenceDate))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}

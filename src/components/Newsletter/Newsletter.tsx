@@ -39,8 +39,8 @@ export default function Newsletter() {
                     <div className={styles.content}>
                         <h2 className={styles.title}>Novedades y Salud Mental</h2>
                         <p className={styles.desc}>
-                            Suscríbete para recibir consejos, artículos y novedades directamente en tu email.
-                            Sin spam, solo contenido de valor.
+                            Recibe una guia semanal con herramientas TCC, recordatorios de autocuidado y nuevos articulos para acompanar tu salud mental.
+                            Sin spam, solo contenido util y cercano.
                         </p>
                     </div>
                     <form className={styles.form} onSubmit={handleSubmit}>

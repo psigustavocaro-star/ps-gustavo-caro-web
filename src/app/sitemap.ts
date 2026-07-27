@@ -1,7 +1,9 @@
 import type { MetadataRoute } from 'next';
-import { blogPosts } from '@/lib/data/blog';
+import { getPublishedBlogPosts } from '@/lib/data/blog';
 
 const BASE = 'https://psgustavocaro.cl';
+
+export const dynamic = 'force-dynamic';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const now = new Date();
@@ -17,11 +19,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { url: `${BASE}/cookies`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
     ];
 
-    const blogRoutes: MetadataRoute.Sitemap = blogPosts.map(post => ({
+    const blogRoutes: MetadataRoute.Sitemap = getPublishedBlogPosts(now).map(post => ({
         url: `${BASE}/blog/${post.slug}`,
         lastModified: post.date ? new Date(post.date) : now,
-        changeFrequency: 'monthly',
-        priority: 0.7,
+        changeFrequency: 'weekly',
+        priority: 0.75,
     }));
 
     return [...staticRoutes, ...blogRoutes];

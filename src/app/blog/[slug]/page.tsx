@@ -1,4 +1,4 @@
-import { blogPosts } from "@/lib/data/blog";
+import { blogPosts, getPublishedBlogPosts, isBlogPostPublished } from "@/lib/data/blog";
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import Image from "next/image";
@@ -9,12 +9,14 @@ import styles from "./post.module.css";
 import BlogResources from "@/components/Blog/BlogResources";
 import BlogCTA from "@/components/Blog/BlogCTA";
 
+export const dynamic = 'force-dynamic';
+
 // Generate dynamic metadata for each blog post
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
     const post = blogPosts.find((p) => p.slug === slug);
 
-    if (!post) {
+    if (!post || !isBlogPostPublished(post)) {
         return {
             title: 'Artículo no encontrado',
         };
@@ -23,9 +25,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return {
         title: post.title,
         description: post.excerpt,
+        keywords: post.keywords,
+        alternates: {
+            canonical: `/blog/${post.slug}`,
+        },
         openGraph: {
             title: post.title,
             description: post.excerpt,
+            url: `/blog/${post.slug}`,
             type: 'article',
             publishedTime: post.date,
             authors: [post.author],
@@ -51,13 +58,42 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     const { slug } = await params;
     const post = blogPosts.find((p) => p.slug === slug);
 
-    if (!post) {
+    if (!post || !isBlogPostPublished(post)) {
         notFound();
     }
+
+    const articleJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.excerpt,
+        "image": `https://psgustavocaro.cl${post.image}`,
+        "datePublished": post.date,
+        "dateModified": post.date,
+        "author": {
+            "@type": "Person",
+            "name": post.author,
+            "url": "https://psgustavocaro.cl/sobre-mi"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Ps. Gustavo Caro",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://psgustavocaro.cl/icon.png"
+            }
+        },
+        "mainEntityOfPage": `https://psgustavocaro.cl/blog/${post.slug}`,
+        "keywords": post.keywords?.join(', '),
+    };
 
     return (
         <main>
             <Navbar />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+            />
             <article className={styles.post}>
                 <header className={styles.header}>
                     <div className="container">
@@ -114,7 +150,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
 // Generar rutas estáticas para mejor performance
 export async function generateStaticParams() {
-    return blogPosts.map((post) => ({
+    return getPublishedBlogPosts().map((post) => ({
         slug: post.slug,
     }));
 }

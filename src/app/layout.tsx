@@ -38,9 +38,18 @@ export const metadata: Metadata = {
     "psicólogo ansiedad",
     "psicólogo depresión",
     "TDAH adulto",
+    "evaluación TDAH adulto Chile",
+    "evaluación autismo adulto Chile",
+    "ADOS-2 Chile",
+    "psicoterapia online ansiedad",
+    "psicólogo clínico online",
     "psicoterapia online",
     "Gustavo Caro psicólogo"
   ],
+  category: "Salud mental",
+  alternates: {
+    canonical: "https://psgustavocaro.cl",
+  },
   authors: [{ name: "Ps. Gustavo Caro" }],
   creator: "Ps. Gustavo Caro",
   openGraph: {
@@ -133,6 +142,15 @@ export default function RootLayout({
                 "closes": "19:00"
               },
               "sameAs": [],
+              "knowsAbout": [
+                "Terapia Cognitivo Conductual",
+                "Ansiedad",
+                "Depresión",
+                "TDAH adulto",
+                "Autismo adulto",
+                "Evaluación psicológica",
+                "Psicoterapia online"
+              ],
               "areaServed": {
                 "@type": "Country",
                 "name": "Chile"
