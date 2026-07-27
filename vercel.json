@@ -6,7 +6,7 @@
         },
         {
             "path": "/api/cron/patient-reactivation",
-            "schedule": "38 6 27 7 *"
+            "schedule": "0 9 * * 1"
         }
     ]
 }
