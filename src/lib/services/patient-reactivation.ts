@@ -164,8 +164,7 @@ export async function processPatientReactivation() {
     }
 
     const sentCount = results.filter((result) => result.success).length;
-
-    return {
+    const summary = {
         success: true,
         inactiveDays,
         checkedPatients: latestByEmail.size,
@@ -174,4 +173,21 @@ export async function processPatientReactivation() {
         skippedOrFailedCount: results.length - sentCount,
         results,
     };
+
+    await resend.emails.send({
+        from: 'Web Ps. Gustavo Caro <notificaciones@psgustavocaro.cl>',
+        to: 'psi.gustavocaro@gmail.com',
+        subject: `Auditoria reactivacion pacientes: ${sentCount} enviados`,
+        html: `<pre style="font-family:monospace;font-size:13px;white-space:pre-wrap;">${JSON.stringify({
+            inactiveDays,
+            checkedPatients: latestByEmail.size,
+            candidateCount: candidates.length,
+            sentCount,
+            skippedOrFailedCount: results.length - sentCount,
+        }, null, 2)}</pre>`,
+    }).catch((error) => {
+        console.error('Patient reactivation audit email error:', error);
+    });
+
+    return summary;
 }
