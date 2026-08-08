@@ -106,6 +106,9 @@ export async function POST(request: NextRequest) {
             create: { email, name, active: true },
         }).catch((err: unknown) => console.error('Silent newsletter upsert error:', err));
 
+        const { markBookingLeadConverted } = await import('@/lib/services/booking-leads');
+        await markBookingLeadConverted(email).catch((err: unknown) => console.error('Silent booking lead conversion error:', err));
+
         const paypalOrder = await createPayPalOrder({
             amountClp: amount,
             commerceOrder,

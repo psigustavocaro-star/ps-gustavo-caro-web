@@ -26,6 +26,10 @@ export default function Footer() {
                             <li><Link href="/blog" className={styles.linkItem}>Blog</Link></li>
                             <li><Link href="/#servicios" className={styles.linkItem}>Servicios</Link></li>
                             <li><Link href="/agendar" className={styles.linkItem}>Agendar sesión</Link></li>
+                            <li><Link href="/psicologo-online-chile" className={styles.linkItem}>Psicólogo online</Link></li>
+                            <li><Link href="/psicologo-ansiedad" className={styles.linkItem}>Ansiedad</Link></li>
+                            <li><Link href="/evaluacion-tdah-adulto" className={styles.linkItem}>Evaluación TDAH</Link></li>
+                            <li><Link href="/evaluacion-autismo-adulto" className={styles.linkItem}>Evaluación TEA</Link></li>
                         </ul>
                     </div>
 

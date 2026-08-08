@@ -72,6 +72,9 @@ export async function POST(request: NextRequest) {
                 update: { active: true, name },
                 create: { email: email.toLowerCase(), name, active: true }
             }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
+
+            const { markBookingLeadConverted } = await import('@/lib/services/booking-leads');
+            await markBookingLeadConverted(email).catch((err: unknown) => console.error('Silent booking lead conversion error:', err));
         } catch (dbError) {
             console.error('Free booking DB error:', dbError);
         }

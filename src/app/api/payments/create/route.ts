@@ -132,6 +132,9 @@ export async function POST(request: NextRequest) {
             // Enviar bienvenida al newsletter (Paso 1 de la secuencia automática)
             const { sendNewsletterWelcome } = await import('@/lib/services/mail');
             sendNewsletterWelcome(email, name).catch((err: unknown) => console.error('Silent newsletter mail error:', err));
+
+            const { markBookingLeadConverted } = await import('@/lib/services/booking-leads');
+            await markBookingLeadConverted(email).catch((err: unknown) => console.error('Silent booking lead conversion error:', err));
         } catch (dbError: unknown) {
             console.error('API: Error al guardar en DB (continuando con pago):', dbError instanceof Error ? dbError.message : dbError);
         }

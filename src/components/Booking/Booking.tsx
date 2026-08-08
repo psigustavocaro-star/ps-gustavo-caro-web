@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styles from './Booking.module.css';
 import CustomCalendar from './CustomCalendar';
 import { clpToUsd, FALLBACK_CLP_PER_USD } from '@/lib/util/currency';
@@ -74,6 +74,47 @@ export default function Booking() {
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
     const [clpPerUsd, setClpPerUsd] = useState<number>(FALLBACK_CLP_PER_USD);
     const isSelectedInPersonEvaluation = isInPersonEvaluation(formData.serviceType);
+    const bookingLeadPayload = useMemo(() => ({
+        email: formData.email,
+        name: `${formData.firstName} ${formData.secondName} ${formData.firstSurname} ${formData.secondSurname}`.replace(/\s+/g, ' ').trim() || formData.name,
+        firstName: formData.firstName,
+        secondName: formData.secondName,
+        firstSurname: formData.firstSurname,
+        secondSurname: formData.secondSurname,
+        phone: formData.phone,
+        rut: formData.rut,
+        address: formData.address,
+        region: formData.region,
+        commune: formData.commune,
+        serviceType: formData.serviceType,
+        motivo: formData.reason,
+        detalles: formData.details,
+        appointmentDate: formData.rawStartTime,
+        appointmentDates: formData.serviceType === 'packSesiones'
+            ? packSessions.map(session => session.rawStartTime)
+            : formData.rawStartTime ? [formData.rawStartTime] : [],
+        attendeeTimeZone: formData.attendeeTimeZone,
+        calEventTypeId: formData.calEventTypeId,
+    }), [
+        formData.email,
+        formData.name,
+        formData.firstName,
+        formData.secondName,
+        formData.firstSurname,
+        formData.secondSurname,
+        formData.phone,
+        formData.rut,
+        formData.address,
+        formData.region,
+        formData.commune,
+        formData.serviceType,
+        formData.reason,
+        formData.details,
+        formData.rawStartTime,
+        formData.attendeeTimeZone,
+        formData.calEventTypeId,
+        packSessions,
+    ]);
 
     // Fetch tipo de cambio CLP→USD vigente (mindicador.cl, cacheado server-side)
     useEffect(() => {
@@ -91,6 +132,45 @@ export default function Booking() {
             setFormData(prev => ({ ...prev, attendeeTimeZone: detectedTimeZone }));
         }
     }, []);
+
+    useEffect(() => {
+        if (!['contact', 'payment', 'processing'].includes(step)) return;
+        if (!isValidEmail(bookingLeadPayload.email)) return;
+
+        const timeout = window.setTimeout(() => {
+            fetch('/api/booking-leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingLeadPayload),
+                keepalive: true,
+            }).catch(() => {});
+        }, 1500);
+
+        return () => window.clearTimeout(timeout);
+    }, [bookingLeadPayload, step]);
+
+    useEffect(() => {
+        const handlePageHide = () => {
+            if (!['contact', 'payment'].includes(step)) return;
+            if (!isValidEmail(bookingLeadPayload.email)) return;
+
+            const body = JSON.stringify(bookingLeadPayload);
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/booking-leads', new Blob([body], { type: 'application/json' }));
+                return;
+            }
+
+            fetch('/api/booking-leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body,
+                keepalive: true,
+            }).catch(() => {});
+        };
+
+        window.addEventListener('pagehide', handlePageHide);
+        return () => window.removeEventListener('pagehide', handlePageHide);
+    }, [bookingLeadPayload, step]);
 
     // Fetch occupied slots from DB + Cal.com (Real Availability)
     useEffect(() => {
