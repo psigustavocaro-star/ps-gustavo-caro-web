@@ -2,15 +2,15 @@
 'use client';
 
 import { jsPDF } from 'jspdf';
-import { BlogResource } from '@/lib/data/blog';
+import { ClinicalResource } from '@/lib/data/resources';
 import styles from './BlogResources.module.css';
 
 interface BlogResourcesProps {
-    resources: BlogResource[];
+    resources: ClinicalResource[];
 }
 
 export default function BlogResources({ resources }: BlogResourcesProps) {
-    const handleDownload = (resource: BlogResource) => {
+    const handleDownload = (resource: ClinicalResource) => {
         const doc = new jsPDF();
 
         // Estilos del PDF
@@ -37,7 +37,7 @@ export default function BlogResources({ resources }: BlogResourcesProps) {
 
         doc.setFontSize(9);
         doc.setTextColor(148, 163, 184);
-        doc.text('Documento generado en www.psgustavocaro.cl', 105, 285, { align: 'center' });
+        doc.text('Ps. Gustavo Caro | psgustavocaro.cl | Material psicoeducativo', 105, 285, { align: 'center' });
 
         doc.save(`${resource.id}-ps-gustavo-caro.pdf`);
     };

@@ -16,9 +16,11 @@ type SEOLandingProps = {
     benefits: string[];
     process: string[];
     faqs: FAQItem[];
+    details?: Array<{ title: string; text: string }>;
+    relatedResources?: Array<{ label: string; href: string }>;
 };
 
-export default function SEOLanding({ eyebrow, title, description, service, benefits, process, faqs }: SEOLandingProps) {
+export default function SEOLanding({ eyebrow, title, description, service, benefits, process, faqs, details = [], relatedResources = [] }: SEOLandingProps) {
     const faqSchema = {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
@@ -50,6 +52,21 @@ export default function SEOLanding({ eyebrow, title, description, service, benef
                     </div>
                 </div>
             </section>
+
+            {details.length > 0 && (
+                <section className={styles.detailSection}>
+                    <div className="container">
+                        <div className={styles.detailGrid}>
+                            {details.map((detail) => (
+                                <article key={detail.title}>
+                                    <h2>{detail.title}</h2>
+                                    <p>{detail.text}</p>
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             <section className={styles.section}>
                 <div className="container">
@@ -106,6 +123,22 @@ export default function SEOLanding({ eyebrow, title, description, service, benef
                     </div>
                 </div>
             </section>
+
+            {relatedResources.length > 0 && (
+                <section className={styles.resourcesBand}>
+                    <div className="container">
+                        <div>
+                            <span className={styles.kicker}>Para seguir leyendo</span>
+                            <h2>Recursos relacionados</h2>
+                        </div>
+                        <div className={styles.resourceLinks}>
+                            {relatedResources.map((resource) => (
+                                <Link key={resource.href} href={resource.href}>{resource.label}<span aria-hidden="true">→</span></Link>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
             <Footer />
         </main>
     );

@@ -1,9 +1,6 @@
-export interface BlogResource {
-    id: string;
-    title: string;
-    description: string;
-    content: string;
-}
+import { clinicalResources, type ClinicalResource } from './resources';
+
+export type BlogResource = ClinicalResource;
 
 export interface BlogPost {
     slug: string;
@@ -721,7 +718,107 @@ function renderScheduledPost(topic: (typeof scheduledTopics)[number]) {
     `;
 }
 
-const scheduledBlogPosts: BlogPost[] = scheduledTopics.map((topic) => ({
+const detailedClinicalPosts: BlogPost[] = [
+    {
+        slug: 'tdah-adulto-senales-en-la-vida-diaria',
+        title: 'TDAH en adultos: señales cotidianas, evaluación y apoyos posibles',
+        excerpt: 'Dificultad para iniciar tareas, olvidar plazos o vivir apagando incendios no confirma un diagnóstico, pero puede ser una buena razón para consultar.',
+        date: '2026-08-10',
+        author: 'Ps. Gustavo Caro',
+        category: 'Neurodiversidad',
+        image: '/blog/tdah-adulto.png',
+        keywords: ['TDAH adulto Chile', 'señales TDAH adultos', 'evaluación TDAH adulto', 'funciones ejecutivas'],
+        resources: clinicalResources.filter((resource) => resource.id === 'organizacion-tdah'),
+        content: `
+            <p>Muchas personas adultas llegan a consulta diciendo que siempre han sido “desordenadas”, que necesitan una presión enorme para empezar o que logran rendir, pero a un costo que nadie ve. El TDAH puede ser una explicación relevante en algunos casos, aunque una lista de dificultades cotidianas por sí sola no basta para diagnosticarlo.</p>
+            <p>Una evaluación responsable mira el patrón completo: desde cuándo están presentes las dificultades, en qué contextos aparecen, cuánto afectan el funcionamiento y qué otras variables pueden estar influyendo. Ansiedad, depresión, falta de sueño, sobrecarga, consumo de sustancias o un contexto muy exigente también pueden afectar atención y organización.</p>
+            <h3>Señales que vale la pena observar</h3>
+            <p>En la adultez, el TDAH no siempre se presenta como hiperactividad visible. Puede aparecer como dificultad para estimar tiempos, olvidos frecuentes, problemas para sostener rutinas, cambios constantes de foco, postergación, impulsividad al tomar decisiones o una sensación persistente de estar llegando tarde a todo.</p>
+            <p>También es común la compensación: personas muy responsables que usan listas, alarmas, largas jornadas o perfeccionismo para no olvidar nada. Estas estrategias pueden funcionar durante años, pero a veces se vuelven insuficientes al aumentar las demandas laborales, familiares o académicas.</p>
+            <h3>Diagnóstico no es etiqueta rápida</h3>
+            <p>Una evaluación clínica integra entrevista, antecedentes de infancia, instrumentos estandarizados cuando corresponde e impacto funcional. El objetivo no es encontrar una explicación única a toda la historia, sino aclarar qué está pasando y qué apoyos serían útiles.</p>
+            <p>Si existe TDAH, comprenderlo puede reducir mucha culpa. No porque todo quede resuelto por un nombre, sino porque permite diseñar estrategias más realistas: ajustar el entorno, dividir tareas, externalizar recordatorios y decidir si se requiere coordinación con otros profesionales.</p>
+            <h3>Una herramienta para el día a día</h3>
+            <p>Cuando iniciar una tarea cuesta, reducir el tamaño del primer paso suele ser más efectivo que aumentar la presión. “Abrir el archivo y escribir el título” es una meta más útil que “terminar el informe”. Un temporizador breve y un entorno con menos distractores ayudan a que el inicio no dependa de encontrar motivación perfecta.</p>
+            <h3>Cuando consultar</h3>
+            <p>Conviene pedir orientación si estas dificultades se repiten en más de un área de la vida, generan consecuencias relevantes o te obligan a hacer un esfuerzo desproporcionado para sostener lo cotidiano. Una entrevista inicial permite evaluar si corresponde un proceso de psicoterapia, una evaluación de TDAH u otra alternativa clínica.</p>
+        `,
+    },
+    {
+        slug: 'insomnio-y-rumiacion-mental',
+        title: 'Insomnio y rumiación mental: cómo cortar el ciclo sin pelear con el sueño',
+        excerpt: 'Cuando el cuerpo se acuesta pero la mente sigue resolviendo pendientes, el problema no suele ser falta de disciplina. Estas pautas pueden ayudar a entender el ciclo.',
+        date: '2026-08-17',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: '/blog_sleep_urban_night_lights_1776139123834.png',
+        keywords: ['insomnio ansiedad', 'rumiación nocturna', 'higiene del sueño TCC', 'psicólogo sueño Chile'],
+        resources: clinicalResources.filter((resource) => resource.id === 'plan-de-pausa'),
+        content: `
+            <p>Hay noches en que el cansancio está, pero dormir no ocurre. Aparecen conversaciones que se repiten, correos que no respondiste, decisiones pendientes o escenarios que la mente intenta resolver a las dos de la mañana. No es raro que esto se viva como una batalla: mientras más urgente parece dormir, más alerta se siente el cuerpo.</p>
+            <p>El insomnio puede tener múltiples causas médicas, emocionales y conductuales. Por eso, si es persistente, intenso o afecta de forma importante tu funcionamiento, es recomendable evaluarlo con un profesional de salud. Las pautas de este artículo no reemplazan esa consulta.</p>
+            <h3>Por qué la cama se vuelve un lugar de alerta</h3>
+            <p>Cuando pasamos mucho tiempo en la cama preocupándonos, revisando el teléfono o calculando cuántas horas quedan para levantarse, el cerebro empieza a asociar ese espacio con esfuerzo y vigilancia. El sueño no responde bien a la presión: es un proceso que aparece con mayor facilidad cuando baja la activación.</p>
+            <p>La rumiación tiene una promesa engañosa: si sigo pensando, quizá encontraré una solución. Sin embargo, de noche la mente suele repetir el problema sin generar acciones nuevas. Distinguir planificación de rumiación es un primer paso útil.</p>
+            <h3>Una descarga antes de acostarte</h3>
+            <p>Reserva diez minutos, idealmente antes de entrar a la cama, para escribir pendientes y preocupaciones. Junto a cada pendiente anota una próxima acción concreta o una fecha para revisarlo. El objetivo no es solucionar todo: es demostrarle a tu mente que no necesita sostenerlo en memoria durante la noche.</p>
+            <h3>Qué hacer si el sueño no llega</h3>
+            <p>Si llevas un rato largo despierto y notas que estás cada vez más frustrado, puede ser mejor levantarte y hacer una actividad tranquila con luz tenue hasta que reaparezca somnolencia. Evita convertir el teléfono o el trabajo en compañía nocturna: activan más de lo que calman.</p>
+            <h3>Un criterio de cuidado</h3>
+            <p>El objetivo no es alcanzar una rutina perfecta. Es observar patrones y crear señales de cierre que sean sostenibles. Si hay ronquidos intensos, pausas respiratorias, uso frecuente de medicamentos para dormir, ánimo muy bajo o ansiedad persistente, consulta para revisar el cuadro completo.</p>
+        `,
+    },
+    {
+        slug: 'limites-sanos-sin-culpa',
+        title: 'Poner límites sin culpa: una habilidad que se practica en relaciones reales',
+        excerpt: 'Decir que no no tiene que ser agresivo ni justificarse hasta el agotamiento. Una guía para comenzar a poner límites claros y respetuosos.',
+        date: '2026-08-24',
+        author: 'Ps. Gustavo Caro',
+        category: 'Recursos',
+        image: '/blog/healthy-relationships.png',
+        keywords: ['poner límites sin culpa', 'límites sanos', 'asertividad terapia', 'psicólogo relaciones Chile'],
+        resources: clinicalResources.filter((resource) => resource.id === 'plan-de-pausa'),
+        content: `
+            <p>Para muchas personas, poner un límite se siente como una amenaza para el vínculo. Aparece el temor a decepcionar, a ser visto como egoísta o a iniciar un conflicto. Por eso es común decir que sí cuando se quiere decir que no y luego sentir resentimiento, agotamiento o culpa.</p>
+            <p>Un límite no es una forma de controlar a los demás. Es una manera de comunicar qué puedes hacer, qué no estás disponible para sostener y qué necesitas para cuidarte dentro de una relación. Puede generar incomodidad, pero la incomodidad no es una señal automática de que estás haciendo algo mal.</p>
+            <h3>La diferencia entre explicar y pedir permiso</h3>
+            <p>Dar un contexto breve puede ser considerado; dar explicaciones interminables suele ocurrir cuando buscamos que la otra persona valide una decisión que ya tomamos. Prueba con frases simples: “Hoy no puedo”, “prefiero hablar de esto en otro momento” o “puedo ayudarte hasta cierta hora”.</p>
+            <h3>Esperar alguna reacción</h3>
+            <p>La respuesta de la otra persona no siempre será cómoda. Puede haber sorpresa, frustración o desacuerdo. El límite no necesita convencer a todos para ser válido. Lo importante es que sea claro, proporcional y coherente con lo que después puedes sostener.</p>
+            <h3>Practicar en situaciones pequeñas</h3>
+            <p>Es más fácil empezar con límites de bajo riesgo: responder un mensaje cuando tengas tiempo, decir que no a un favor puntual o pedir que no te llamen durante una reunión. La práctica permite observar que muchos vínculos toleran mejor la claridad de lo que la ansiedad anticipa.</p>
+            <h3>Cuando la culpa es muy intensa</h3>
+            <p>Si cada intento de poner límites activa miedo, culpa extrema o dinámicas de manipulación, puede ser útil explorarlo en terapia. A veces el problema no es encontrar la frase correcta, sino entender la historia relacional que vuelve tan difícil priorizarse.</p>
+        `,
+    },
+    {
+        slug: 'burnout-en-chile-senales-tempranas',
+        title: 'Burnout y estrés laboral: señales tempranas antes de normalizar el agotamiento',
+        excerpt: 'El cansancio sostenido no siempre se resuelve con un fin de semana libre. Cómo identificar señales de sobrecarga y recuperar margen de acción.',
+        date: '2026-08-31',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: '/blog/burnout-chile.png',
+        keywords: ['burnout Chile', 'estrés laboral', 'agotamiento laboral', 'psicólogo burnout'],
+        resources: clinicalResources.filter((resource) => resource.id === 'plan-de-pausa'),
+        content: `
+            <p>En contextos de alta demanda, es fácil convertir el agotamiento en una medalla: seguir respondiendo fuera de horario, dormir poco y prometer que la próxima semana habrá tiempo para recuperarse. El problema es que, cuando esto se mantiene, el cuerpo y la mente empiezan a cobrar una cuenta que no se resuelve solo con voluntad.</p>
+            <p>El burnout no es sinónimo de cualquier día difícil. Suele describir un desgaste vinculado al trabajo que combina cansancio intenso, distancia o cinismo frente a las tareas y sensación de menor eficacia. Cada situación necesita evaluarse en su contexto; no corresponde autodiagnosticarse con una publicación.</p>
+            <h3>Señales que conviene tomar en serio</h3>
+            <p>Problemas de sueño, irritabilidad, dolores tensionales, dificultad para concentrarse, aislamiento, errores poco habituales o una sensación constante de estar atrasado pueden ser señales de sobrecarga. También importa observar si el descanso dejó de recuperar o si todo empieza a sentirse como una obligación.</p>
+            <h3>Lo individual no explica todo</h3>
+            <p>Organizar una agenda o aprender a decir que no puede ayudar, pero no convierte condiciones laborales excesivas en algo aceptable. Una mirada clínica responsable considera horario, rol, estabilidad, apoyo, exigencias de cuidado y recursos reales de cada persona.</p>
+            <h3>Recuperar una zona de decisión</h3>
+            <p>Cuando todo parece urgente, busca una acción que devuelva algo de margen: definir una hora de cierre, negociar prioridades, pedir apoyo, tomar una pausa breve antes de responder o consultar por opciones formales dentro de tu trabajo. No resuelve todo, pero puede interrumpir la inercia.</p>
+            <h3>Consultar no es rendirse</h3>
+            <p>La terapia puede ser un espacio para ordenar el impacto emocional, revisar límites y decidir próximos pasos sin reducir un problema complejo a “gestionar mejor el estrés”. Si hay síntomas físicos importantes o ánimo muy bajo, también puede requerirse evaluación médica.</p>
+        `,
+    },
+];
+
+const scheduledBlogPosts: BlogPost[] = scheduledTopics
+    .filter((topic) => !detailedClinicalPosts.some((post) => post.slug === topic.slug))
+    .map((topic) => ({
     slug: topic.slug,
     title: topic.title,
     excerpt: topic.excerpt,
@@ -733,7 +830,7 @@ const scheduledBlogPosts: BlogPost[] = scheduledTopics.map((topic) => ({
     content: renderScheduledPost(topic),
 }));
 
-blogPosts.push(...scheduledBlogPosts);
+blogPosts.push(...detailedClinicalPosts, ...scheduledBlogPosts);
 
 export function isBlogPostPublished(post: BlogPost, referenceDate = new Date()) {
     const publishDate = new Date(`${post.date}T00:00:00-04:00`);

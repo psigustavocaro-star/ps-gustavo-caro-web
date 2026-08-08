@@ -24,12 +24,16 @@ export default function Footer() {
                             <li><Link href="/" className={styles.linkItem}>Inicio</Link></li>
                             <li><Link href="/#sobre-mi" className={styles.linkItem}>Sobre mí</Link></li>
                             <li><Link href="/blog" className={styles.linkItem}>Blog</Link></li>
+                            <li><Link href="/recursos" className={styles.linkItem}>Recursos gratuitos</Link></li>
                             <li><Link href="/#servicios" className={styles.linkItem}>Servicios</Link></li>
                             <li><Link href="/agendar" className={styles.linkItem}>Agendar sesión</Link></li>
                             <li><Link href="/psicologo-online-chile" className={styles.linkItem}>Psicólogo online</Link></li>
                             <li><Link href="/psicologo-ansiedad" className={styles.linkItem}>Ansiedad</Link></li>
                             <li><Link href="/evaluacion-tdah-adulto" className={styles.linkItem}>Evaluación TDAH</Link></li>
                             <li><Link href="/evaluacion-autismo-adulto" className={styles.linkItem}>Evaluación TEA</Link></li>
+                            <li><Link href="/psicologo-depresion" className={styles.linkItem}>Ánimo bajo y depresión</Link></li>
+                            <li><Link href="/psicologo-estres-laboral" className={styles.linkItem}>Estrés laboral</Link></li>
+                            <li><Link href="/psicologo-autoestima" className={styles.linkItem}>Autoestima</Link></li>
                         </ul>
                     </div>
 

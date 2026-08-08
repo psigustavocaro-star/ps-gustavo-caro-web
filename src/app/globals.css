@@ -34,7 +34,7 @@
   --accent-dark: #0891b2;
 
   /* Neutrals - Grises Neutros */
-  --background: #ffffff;
+  --background: rgba(251, 255, 255, 0.76);
   --background-alt: #f8fafc;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
@@ -112,7 +112,7 @@ body {
 }
 
 body {
-  background-color: #f0f9fa;
+  background-color: #f4fbfa;
   /* Very light calipso / Cyan 50 */
   color: var(--foreground);
   font-family: var(--font-body);
@@ -122,10 +122,10 @@ body {
 
   /* Modern subtle texture with calipso tint - Optimized */
   background-image:
-    radial-gradient(circle at 0% 0%, rgba(8, 145, 178, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 100% 0%, rgba(13, 148, 136, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(8, 145, 178, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 0% 100%, rgba(13, 148, 136, 0.05) 0%, transparent 40%);
+    radial-gradient(ellipse 70% 42% at 5% 2%, rgba(34, 211, 238, 0.14), transparent 72%),
+    radial-gradient(ellipse 58% 36% at 96% 16%, rgba(45, 212, 191, 0.12), transparent 76%),
+    radial-gradient(ellipse 55% 34% at 78% 70%, rgba(251, 146, 60, 0.08), transparent 78%),
+    radial-gradient(ellipse 64% 38% at 9% 94%, rgba(14, 165, 233, 0.1), transparent 76%);
   background-attachment: fixed;
 
   /* Performance optimizations for smooth scrolling */
@@ -186,6 +186,7 @@ section {
   padding: var(--section-padding);
   position: relative;
 }
+
 
 /* ============================================
    TYPOGRAPHY UTILITIES

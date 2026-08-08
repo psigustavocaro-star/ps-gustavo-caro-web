@@ -1,0 +1,35 @@
+.page { min-height: 100vh; }
+
+.hero {
+    padding: 156px 0 76px;
+    background: linear-gradient(135deg, rgba(224, 247, 250, 0.82), rgba(244, 251, 250, 0.94) 48%, rgba(255, 247, 237, 0.72));
+    border-bottom: 1px solid rgba(8, 145, 178, 0.12);
+}
+
+.hero p {
+    margin: 0 0 12px;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    max-width: 850px;
+    margin: 0;
+    font-size: clamp(2.45rem, 5vw, 4.6rem);
+    line-height: 1.04;
+    letter-spacing: 0;
+}
+
+.hero span {
+    display: block;
+    max-width: 640px;
+    margin-top: 18px;
+    color: var(--foreground-light);
+    font-size: 1.14rem;
+    line-height: 1.7;
+}
+
+@media (max-width: 768px) { .hero { padding: 120px 0 58px; } }

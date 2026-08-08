@@ -13,69 +13,69 @@ type NewsletterTopic = {
 const topics: NewsletterTopic[] = [
     {
         id: 1,
-        weekOf: '2026-07-27',
-        subject: 'Un espacio para retomar tu bienestar',
-        preheader: 'Una invitacion cercana para volver a mirar como estas y pedir apoyo si lo necesitas.',
-        theme: 'Retomar tambien es avanzar',
-        reflection: 'A veces uno espera sentirse muy mal para pedir hora, pero la terapia tambien sirve para ordenar, prevenir recaidas y volver a escucharte antes de que todo pese demasiado.',
-        exercise: 'Esta semana preguntate: que senal pequena me esta dando mi cuerpo o mi animo que no quiero seguir ignorando?',
-        reminder: 'Si pausaste tu proceso o quedaste con temas pendientes, este puede ser un buen momento para retomarlo con calma.',
-        cta: 'Agendar una sesion'
+        weekOf: '2026-08-10',
+        subject: 'No tienes que esperar a estar al límite para pedir una hora',
+        preheader: 'Una pausa breve para revisar cómo llegaste a agosto.',
+        theme: 'Un chequeo emocional también es cuidado',
+        reflection: 'Agosto suele traer el regreso a un ritmo más intenso: trabajo, estudios, pendientes y la sensación de que hay que ponerse al día rápido. Si notas que estás más irritable, desconectado o con la mente acelerada, no hace falta esperar a una crisis para mirarlo.',
+        exercise: 'Completa esta frase sin corregirte: “Si pudiera quitarme un peso de encima esta semana, sería…”. Luego elige una acción de menos de diez minutos que vaya en esa dirección.',
+        reminder: 'Una sesión puede servir para ordenar, prevenir que el cansancio se acumule o retomar un proceso que quedó en pausa.',
+        cta: 'Revisar horarios disponibles'
     },
     {
         id: 2,
         weekOf: '2026-08-03',
-        subject: 'Ansiedad: cuando la mente intenta protegerte de mas',
-        preheader: 'Una mirada TCC para entender la ansiedad sin pelearte contigo.',
-        theme: 'La ansiedad no es enemiga, es una alarma sensible',
-        reflection: 'La ansiedad suele aparecer cuando tu mente intenta anticipar riesgos. El problema no es tener alarma, sino vivir como si todo fuera incendio.',
-        exercise: 'Anota una preocupacion frecuente y separala en dos columnas: hechos comprobables e interpretaciones. Esa distancia baja la intensidad.',
-        reminder: 'Si la ansiedad esta afectando tu descanso, trabajo o relaciones, no tienes que esperar a que se haga inmanejable.',
-        cta: 'Ver horarios disponibles'
+        subject: 'Cuando la actualidad te deja con la mente encendida',
+        preheader: 'Una forma de informarte sin quedar atrapado en la alarma.',
+        theme: 'Informarse no debería costarte todo tu descanso',
+        reflection: 'Entre noticias locales, conflictos que se siguen desde lejos y un flujo constante de redes, es comprensible que el sistema nervioso se quede en alerta. Estar informado no exige exponerte de manera continua a contenido que te desregula.',
+        exercise: 'Prueba definir una ventana concreta para informarte, idealmente fuera de la última hora del día. Al terminar, haz una transición breve: agua, una caminata, música o una conversación que te devuelva al presente.',
+        reminder: 'Si la preocupación se está filtrando en tu sueño, trabajo o vínculos, podemos revisarla con herramientas más específicas.',
+        cta: 'Agendar una sesión'
     },
     {
         id: 3,
         weekOf: '2026-08-10',
-        subject: 'Un chequeo emocional tambien cuenta como autocuidado',
-        preheader: 'No todo autocuidado es descansar: a veces es revisar lo que vienes sosteniendo.',
-        theme: 'Autocuidado con evidencia, no solo fuerza de voluntad',
-        reflection: 'Cuidarse no siempre se siente comodo. A veces implica poner limites, pedir ayuda, dormir mejor o conversar aquello que llevas evitando.',
-        exercise: 'Elige una conducta pequena de cuidado para repetir tres dias: caminar 10 minutos, dormir sin pantalla o escribir lo que sientes.',
-        reminder: 'Si necesitas ordenar prioridades o recuperar energia emocional, una sesion puede ser un punto de partida concreto.',
-        cta: 'Reservar una hora'
+        subject: 'Estás cansado o estás sobrepasado?',
+        preheader: 'No es lo mismo, y distinguirlo puede cambiar la respuesta.',
+        theme: 'No todo cansancio se resuelve empujando más fuerte',
+        reflection: 'El cansancio esperable mejora cuando recuperas energía. La sobrecarga, en cambio, suele seguir contigo incluso cuando paras: cuesta dormir, concentrarse, responder con calma o disfrutar algo simple. No es flojera; es información importante.',
+        exercise: 'Haz dos listas cortas: “lo urgente hoy” y “lo que puede esperar”. Deja solo tres cosas en la primera. Reducir la lista no elimina tus responsabilidades, pero puede bajar la sensación de amenaza.',
+        reminder: 'Si llevas semanas funcionando por inercia, una sesión puede ayudarte a recuperar prioridades y margen de acción.',
+        cta: 'Conversarlo en sesión'
     },
     {
         id: 4,
         weekOf: '2026-08-17',
-        subject: 'TDAH adulto: no es flojera, es funcionamiento ejecutivo',
-        preheader: 'Una explicacion clara para mirar el TDAH adulto con menos culpa y mas estrategia.',
-        theme: 'Comprender tu atencion cambia la forma de cuidarte',
-        reflection: 'Muchas personas adultas llegan a consulta despues de anos creyendo que eran desordenadas o inconsistentes, cuando en realidad necesitaban herramientas acordes a su forma de procesar.',
-        exercise: 'Prueba trabajar una tarea en bloques de 20 minutos con una meta visible y concreta. No busques motivacion perfecta: disena el inicio.',
-        reminder: 'Si sospechas TDAH o ya tienes diagnostico y quieres organizar mejor tu dia a dia, podemos evaluarlo y trabajarlo.',
-        cta: 'Consultar por evaluacion'
+        subject: 'TDAH adulto: entender no es etiquetarse',
+        preheader: 'Una duda diagnóstica merece una evaluación cuidadosa, no un video de 30 segundos.',
+        theme: 'Menos culpa, más observación clínica',
+        reflection: 'Olvidar cosas, postergar o sentir que todo exige demasiado esfuerzo puede tener distintas explicaciones. En algunos casos se relaciona con TDAH; en otros, con ansiedad, sueño, sobrecarga u otros factores. Mirar el patrón completo es lo que permite orientar bien.',
+        exercise: 'Durante una semana anota una situación concreta en la que te costó iniciar, organizarte o sostener atención. Incluye contexto, sueño, exigencia y qué hiciste para resolverlo. Los ejemplos reales son más útiles que una etiqueta rápida.',
+        reminder: 'Si esta duda te acompaña hace tiempo, puedes consultar por una entrevista inicial para definir el camino más adecuado.',
+        cta: 'Consultar por evaluación'
     },
     {
         id: 5,
         weekOf: '2026-08-24',
-        subject: 'Dormir mejor empieza antes de acostarte',
-        preheader: 'Una pauta breve para preparar al cerebro para descansar.',
-        theme: 'El descanso se entrena durante el dia',
-        reflection: 'Cuando llegas a la cama con la mente acelerada, no es falta de voluntad. Muchas veces el sistema nervioso nunca recibio la senal de bajar revoluciones.',
-        exercise: 'Durante tres noches, deja una nota escrita con pendientes y preocupaciones 90 minutos antes de dormir. Tu mente no tiene que resolver todo en la almohada.',
-        reminder: 'Si el insomnio, la rumiacion o el cansancio se repiten, vale la pena trabajarlo con estructura.',
-        cta: 'Agendar apoyo'
+        subject: 'Para dormir, tu mente necesita una salida del día',
+        preheader: 'Una pauta sencilla cuando los pendientes se instalan en la almohada.',
+        theme: 'La noche no tiene que ser la oficina de tus preocupaciones',
+        reflection: 'Cuando por fin baja el ruido externo, muchas personas recién escuchan todo lo que quedaron sosteniendo. No se trata de obligarte a dejar de pensar; se trata de darle a esas preocupaciones un lugar antes de acostarte.',
+        exercise: 'Escribe pendientes y preocupaciones en una hoja. Junto a cada una, anota “próximo paso” o “volver a mirar el día…”. Guarda la hoja fuera del dormitorio. La idea es que tu mente no tenga que actuar como agenda de respaldo.',
+        reminder: 'Si el sueño sigue siendo difícil, hay intervenciones psicológicas específicas que vale la pena revisar.',
+        cta: 'Pedir apoyo'
     },
     {
         id: 6,
         weekOf: '2026-08-31',
-        subject: 'Poner limites sin sentirte culpable',
-        preheader: 'Una invitacion a cuidar tus vinculos sin abandonarte.',
-        theme: 'Los limites tambien son una forma de relacionarse',
-        reflection: 'Decir que no no significa querer menos. Muchas veces significa dejar de sostener acuerdos que ya estaban pasando por encima de tu bienestar.',
-        exercise: 'Identifica una situacion donde dices que si por miedo. Escribe una frase limite breve, respetuosa y concreta.',
-        reminder: 'Si te cuesta poner limites o terminas agotado por complacer, terapia puede ayudarte a practicarlo sin culpa excesiva.',
-        cta: 'Conversar en sesion'
+        subject: 'Un límite breve puede ser más claro que una explicación larga',
+        preheader: 'No necesitas defender cada necesidad que tienes.',
+        theme: 'Decir que no también puede cuidar un vínculo',
+        reflection: 'Cuando tememos incomodar, solemos explicar de más o postergar una respuesta hasta que ya estamos agotados. Un límite respetuoso no garantiza que la otra persona esté de acuerdo, pero sí deja claro qué puedes sostener sin abandonarte.',
+        exercise: 'Ensaya una frase corta: “Hoy no puedo”, “necesito pensarlo antes de responder” o “prefiero no hablar de eso ahora”. No agregues una justificación adicional durante el ensayo.',
+        reminder: 'Si cada límite activa mucha culpa o miedo, ese patrón se puede trabajar con calma en terapia.',
+        cta: 'Agendar una hora'
     },
     {
         id: 7,
@@ -282,6 +282,7 @@ function renderNewsletter(topic: NewsletterTopic, name: string) {
             <div style="margin: 30px 0; text-align: center;">
                 <a href="${siteUrl}/agendar" style="background: #0891b2; color: #ffffff; padding: 13px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">${topic.cta}</a>
             </div>
+            <p style="text-align:center; margin:-10px 0 26px;"><a href="${siteUrl}/recursos" style="color:#0e7490; font-weight:bold; text-decoration:underline;">Ver recursos gratuitos de apoyo</a></p>
             <p style="font-size: 14px; color: #52616b;">Si este correo te llega en un momento sensible, leelo a tu ritmo. La idea no es presionarte, sino recordarte que puedes volver a pedir apoyo cuando lo necesites.</p>
             <p>Un abrazo,<br/><strong>Ps. Gustavo Caro</strong></p>
         </div>

@@ -1,6 +1,6 @@
 .blog {
-    padding: 160px 0;
-    background: #ffffff;
+    padding: 110px 0;
+    background: transparent;
     position: relative;
     overflow: hidden;
 }
@@ -8,63 +8,64 @@
 .header {
     text-align: left; /* Shift look to left-aligned editorial */
     max-width: var(--container-width);
-    margin: 0 auto 100px;
-    padding: 0 60px;
+    margin: 0 auto 64px;
+    padding: 0 24px;
 }
 
 .title {
-    font-size: clamp(4rem, 10vw, 7rem);
-    font-weight: 900;
+    font-size: clamp(2.35rem, 5vw, 4rem);
+    font-weight: 800;
     color: var(--foreground);
     margin-bottom: 32px;
-    letter-spacing: -0.06em;
-    line-height: 0.85;
+    letter-spacing: 0;
+    line-height: 1.04;
     background: linear-gradient(to right, var(--primary-dark) 0%, var(--primary) 50%, var(--foreground) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-    font-size: 1.6rem;
+    font-size: 1.14rem;
     color: var(--foreground-muted);
     max-width: 800px;
     line-height: 1.4;
     font-weight: 500;
-    border-left: 6px solid var(--primary-light);
-    padding-left: 30px;
+    border-left: 3px solid var(--primary-light);
+    padding-left: 18px;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-    gap: 80px 60px;
-    padding: 0 60px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 34px 24px;
+    padding: 0 24px;
     max-width: var(--container-width);
     margin: 0 auto;
 }
 
 .card {
-    background: transparent;
-    border-radius: 0; /* Modern brutalist/editorial look */
-    overflow: visible;
-    border: none;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(8, 145, 178, 0.11);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
 .card:hover {
-    transform: translateY(-20px);
+    transform: translateY(-5px);
+    border-color: rgba(8, 145, 178, 0.34);
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.09);
 }
 
 .imageWrapper {
     position: relative;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    border-radius: 32px;
-    margin-bottom: 32px;
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.15);
+    border-radius: 0;
+    margin-bottom: 0;
 }
 
 .image {
@@ -93,7 +94,7 @@
 }
 
 .content {
-    padding: 0;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -117,22 +118,21 @@
 }
 
 .postTitle {
-    font-size: 2.2rem;
-    font-weight: 900;
-    line-height: 1.1;
+    font-size: 1.42rem;
+    font-weight: 800;
+    line-height: 1.18;
     color: var(--foreground);
     margin-bottom: 20px;
-    letter-spacing: -0.05em;
-    transition: all 0.3s ease;
+    letter-spacing: 0;
+    transition: color 0.2s ease;
 }
 
 .card:hover .postTitle {
     color: var(--primary);
-    transform: translateX(10px);
 }
 
 .excerpt {
-    font-size: 1.15rem;
+    font-size: 0.98rem;
     color: var(--foreground-light);
     line-height: 1.5;
     margin-bottom: 32px;
@@ -140,27 +140,26 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .readMore {
     margin-top: auto;
-    font-weight: 900;
+    font-weight: 800;
     color: var(--foreground);
     display: flex;
     align-items: center;
     gap: 12px;
     font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0;
     text-decoration: underline;
-    text-underline-offset: 8px;
+    text-underline-offset: 5px;
     transition: all 0.3s ease;
 }
 
 .readMore:hover {
     color: var(--primary);
-    gap: 20px;
+    gap: 16px;
 }
 
 .readMore:hover span {
@@ -182,7 +181,7 @@
 }
 
 @media (max-width: 768px) {
-    .blog { padding: 60px 0; }
+    .blog { padding: 66px 0; }
     .grid { grid-template-columns: 1fr; gap: 32px; padding: 0 20px; }
     .title { font-size: 2.5rem; }
     .header { padding: 0 20px; margin-bottom: 40px; }

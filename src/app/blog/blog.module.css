@@ -1,5 +1,5 @@
 .hero {
-    background: #ffffff;
+    background: linear-gradient(135deg, rgba(231, 251, 248, 0.8), rgba(255, 255, 255, 0.62) 58%, rgba(255, 247, 237, 0.62));
     padding: 160px 0 100px;
     position: relative;
     border-bottom: 1px solid var(--border);
@@ -10,9 +10,9 @@
     font-weight: 300;
     color: var(--foreground);
     margin-bottom: 30px;
-    letter-spacing: -0.04em;
+    letter-spacing: 0;
     line-height: 1;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--font-heading);
 }
 
 .title span {

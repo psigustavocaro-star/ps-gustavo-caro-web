@@ -9,6 +9,7 @@ import EmpathySection from "@/components/EmpathySection/EmpathySection";
 import FAQ from "@/components/FAQ/FAQ";
 import Newsletter from "@/components/Newsletter/Newsletter";
 import Footer from "@/components/Footer/Footer";
+import ResourcesLibrary from "@/components/Resources/ResourcesLibrary";
 
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
       <Services />
       <Testimonials />
       <EmpathySection />
+      <ResourcesLibrary compact />
       <FAQ />
       <Newsletter />
       <Footer />

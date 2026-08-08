@@ -53,6 +53,7 @@ export default function Navbar() {
                     <li><Link href="/#sobre-mi" className={styles.navLink}>Sobre mí</Link></li>
                     <li><Link href="/#servicios" className={styles.navLink}>Servicios</Link></li>
                     <li><Link href="/blog" className={styles.navLink}>Blog</Link></li>
+                    <li><Link href="/recursos" className={styles.navLink}>Recursos</Link></li>
                     <li><Link href="/calendario" className={styles.navLink}>Disponibilidad</Link></li>
                     <li><Link href="/#faq" className={styles.navLink}>FAQ</Link></li>
                     <li><Link href="/#contacto" className={styles.navLink}>Contacto</Link></li>
@@ -85,6 +86,7 @@ export default function Navbar() {
                         <li><Link href="/#sobre-mi" onClick={closeMenu}>Sobre mí</Link></li>
                         <li><Link href="/#servicios" onClick={closeMenu}>Servicios</Link></li>
                         <li><Link href="/blog" onClick={closeMenu}>Blog</Link></li>
+                        <li><Link href="/recursos" onClick={closeMenu}>Recursos</Link></li>
                         <li><Link href="/calendario" onClick={closeMenu}>Disponibilidad</Link></li>
                         <li><Link href="/#faq" onClick={closeMenu}>FAQ</Link></li>
                         <li><Link href="/#contacto" onClick={closeMenu}>Contacto</Link></li>
