@@ -7,6 +7,7 @@ import Link from 'next/link';
 import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
+import { getInvoiceSessionSlots, getIssuedInvoiceSessionIds, stampIssuedInvoiceSessionIds } from '@/lib/invoice-sessions';
 
 const getBookingStatusLabel = (status?: string) => {
     const normalizedStatus = (status || '').toUpperCase();
@@ -169,6 +170,10 @@ export default function AdminDashboard() {
     };
 
     const handleToggleSiiReceipt = async (booking: any, issued: boolean) => {
+        if (issued && getIssuedInvoiceSessionIds(booking).length > 0 && !confirm('Esto marcará una boleta única para todo el proceso y borrará las marcas por sesión. ¿Continuar?')) {
+            return;
+        }
+
         const previousBooking = { ...booking };
         const optimisticBooking = {
             ...booking,
@@ -199,7 +204,54 @@ export default function AdminDashboard() {
         }
     };
 
-    const renderSiiReceiptToggle = (booking: any) => (
+    const handleToggleSessionReceipt = async (booking: any, sessionId: string, issued: boolean) => {
+        if (booking.siiReceiptIssued && !confirm('Esta reserva está marcada con boleta única. Al registrar una sesión por separado se cambiará a modalidad por sesión. ¿Continuar?')) {
+            return;
+        }
+
+        const previousBooking = { ...booking };
+        const currentSessionIds = getIssuedInvoiceSessionIds(booking);
+        const optimisticBooking = {
+            ...booking,
+            siiReceiptIssued: false,
+            siiReceiptIssuedAt: null,
+            details: stampIssuedInvoiceSessionIds(
+                booking.details,
+                issued
+                    ? Array.from(new Set([...currentSessionIds, sessionId]))
+                    : currentSessionIds.filter((id) => id !== sessionId),
+            ),
+        };
+
+        updateBookingInState(optimisticBooking);
+
+        try {
+            const res = await fetch(`/api/admin/bookings/${encodeURIComponent(booking.id)}/sii-receipt`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ issued, sessionId }),
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                updateBookingInState(previousBooking);
+                alert(data.error || 'No se pudo actualizar la boleta de esta sesión');
+                return;
+            }
+
+            updateBookingInState(data.booking);
+        } catch {
+            updateBookingInState(previousBooking);
+            alert('Error de conexión al actualizar la boleta de esta sesión');
+        }
+    };
+
+    const renderSiiReceiptToggle = (booking: any) => {
+        const sessionSlots = getInvoiceSessionSlots(booking);
+        const issuedSessionCount = getIssuedInvoiceSessionIds(booking).filter((id) => sessionSlots.some((session) => session.id === id)).length;
+        const hasMultipleSessions = sessionSlots.length > 1;
+
+        return (
         <label className={`${styles.receiptToggle} ${booking.siiReceiptIssued ? styles.receiptToggleOn : ''}`}>
             <input
                 type="checkbox"
@@ -208,11 +260,12 @@ export default function AdminDashboard() {
             />
             <span className={styles.receiptCheck}>{booking.siiReceiptIssued ? '✓' : ''}</span>
             <span>
-                <strong>Boleta SII</strong>
-                <small>{booking.siiReceiptIssued ? 'Emitida' : 'Por emitir'}</small>
+                <strong>{hasMultipleSessions ? 'Boleta única' : 'Boleta SII'}</strong>
+                <small>{booking.siiReceiptIssued ? 'Emitida' : hasMultipleSessions ? `${issuedSessionCount}/${sessionSlots.length} por sesión` : 'Por emitir'}</small>
             </span>
         </label>
-    );
+        );
+    };
 
     const handleDeletePatient = async (emailToDel: string) => {
         if (!confirm(`¿Estás ABSOLUTAMENTE SEGURO de querer eliminar todo el historial y cuenta de ${emailToDel}? Esto no se puede deshacer.`)) return;
@@ -695,17 +748,76 @@ export default function AdminDashboard() {
                                     <h3>💳 Historial de pagos ({getPaidBookings(selectedPatient.bookings).length})</h3>
                                     {getPaidBookings(selectedPatient.bookings).length > 0 ? (
                                         <div className={styles.sessionsScroll}>
-                                            {getPaidBookings(selectedPatient.bookings).map((b: any, i: number) => (
-                                                <div key={b.id || i} className={styles.sessionLine}>
-                                                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                        <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
-                                                        <span className={styles.sessionService}>{b.serviceType}</span>
+                                            {getPaidBookings(selectedPatient.bookings).map((b: any, i: number) => {
+                                                const invoiceSessions = getInvoiceSessionSlots(b);
+                                                const issuedSessionIds = getIssuedInvoiceSessionIds(b);
+                                                const hasMultipleSessions = invoiceSessions.length > 1;
+
+                                                if (!hasMultipleSessions) {
+                                                    return (
+                                                        <div key={b.id || i} className={styles.sessionLine}>
+                                                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                                                <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
+                                                                <span className={styles.sessionService}>{b.serviceType}</span>
+                                                            </div>
+                                                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
+                                                                <span style={{fontWeight: 800, fontSize: '0.9rem', color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                const amountPerSession = Math.round((Number(b.amount) || 0) / invoiceSessions.length);
+
+                                                return (
+                                                    <div key={b.id || i} className={styles.invoiceBookingGroup}>
+                                                        <div className={styles.invoiceBookingHeader}>
+                                                            <div>
+                                                                <strong>{b.serviceType}</strong>
+                                                                <span>{invoiceSessions.length} sesiones incluidas</span>
+                                                            </div>
+                                                            <strong>${(Number(b.amount) || 0).toLocaleString('es-CL')}</strong>
+                                                        </div>
+                                                        <label className={styles.invoiceModeToggle}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={Boolean(b.siiReceiptIssued)}
+                                                                onChange={(event) => handleToggleSiiReceipt(b, event.target.checked)}
+                                                            />
+                                                            <span>Boleta única para todo el proceso</span>
+                                                        </label>
+                                                        <div className={styles.sessionReceiptList}>
+                                                            {invoiceSessions.map((session) => {
+                                                                const issuedForSession = issuedSessionIds.includes(session.id);
+                                                                const sessionLabel = session.date
+                                                                    ? `${new Date(session.date).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })} · Sesión ${session.number}`
+                                                                    : `Sesión ${session.number}`;
+
+                                                                return (
+                                                                    <label key={session.id} className={`${styles.sessionReceipt} ${issuedForSession || b.siiReceiptIssued ? styles.sessionReceiptOn : ''}`}>
+                                                                        <span>
+                                                                            <strong>{sessionLabel}</strong>
+                                                                            <small>${amountPerSession.toLocaleString('es-CL')} aprox.</small>
+                                                                        </span>
+                                                                        {b.siiReceiptIssued ? (
+                                                                            <em>Incluida en boleta única</em>
+                                                                        ) : (
+                                                                            <span className={styles.sessionReceiptControl}>
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={issuedForSession}
+                                                                                    onChange={(event) => handleToggleSessionReceipt(b, session.id, event.target.checked)}
+                                                                                />
+                                                                                <span>{issuedForSession ? 'Boleta emitida' : 'Marcar boleta'}</span>
+                                                                            </span>
+                                                                        )}
+                                                                    </label>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     </div>
-                                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
-                                                        <span style={{fontWeight: 800, fontSize: '0.9rem', color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     ) : (
                                         <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay pagos registrados todavía.</p>

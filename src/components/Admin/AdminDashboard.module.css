@@ -432,6 +432,27 @@
 .sessionService { color: #64748b; font-size: 0.8rem; }
 .sessionTag { font-size: 0.65rem; color: #0891b2; background: #ecfeff; padding: 2px 8px; border-radius: 6px; font-weight: 800; }
 
+.invoiceBookingGroup {
+    padding: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #ffffff;
+}
+.invoiceBookingHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.invoiceBookingHeader div { display: flex; flex-direction: column; gap: 2px; }
+.invoiceBookingHeader strong { color: #0f172a; font-size: 0.86rem; }
+.invoiceBookingHeader span { color: #64748b; font-size: 0.75rem; }
+.invoiceModeToggle { display: flex; align-items: center; gap: 8px; margin: 12px 0; color: #334155; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.invoiceModeToggle input, .sessionReceiptControl input { accent-color: #0f766e; width: 16px; height: 16px; }
+.sessionReceiptList { display: flex; flex-direction: column; gap: 6px; }
+.sessionReceipt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
+.sessionReceipt > span:first-child { display: flex; flex-direction: column; gap: 2px; }
+.sessionReceipt strong { color: #0f172a; font-size: 0.78rem; }
+.sessionReceipt small { color: #64748b; font-size: 0.72rem; }
+.sessionReceiptOn { background: #f0fdfa; border-color: #99f6e4; }
+.sessionReceipt em { color: #0f766e; font-size: 0.72rem; font-style: normal; font-weight: 800; text-align: right; }
+.sessionReceiptControl { display: flex; align-items: center; gap: 6px; color: #0f766e; font-size: 0.72rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
+
 .modalActions { display: flex; gap: 12px; margin-top: 32px; }
 
 /* AUTHENTICATION */
