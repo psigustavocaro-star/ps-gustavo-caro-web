@@ -158,6 +158,18 @@ export default function AdminDashboard() {
         setBookings(currentBookings => currentBookings.map(booking => (
             booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
         )));
+        setPatients(currentPatients => currentPatients.map((patient: any) => {
+            if (!patient.bookings?.some((booking: any) => booking.id === updatedBooking.id)) {
+                return patient;
+            }
+
+            return {
+                ...patient,
+                bookings: patient.bookings.map((booking: any) => (
+                    booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
+                )),
+            };
+        }));
         setSelectedPatient((currentPatient: any) => {
             if (!currentPatient?.bookings) return currentPatient;
             return {
