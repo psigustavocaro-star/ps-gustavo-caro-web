@@ -275,6 +275,10 @@ export default function AdminDashboard() {
         return `${cleanRut.slice(0, -1)}-${cleanRut.slice(-1)}`;
     };
 
+    const getPaidBookings = (patientBookings: any[] = []) => (
+        patientBookings.filter((booking) => (booking.status || '').toUpperCase() === 'PAID')
+    );
+
     const openPatientFromBooking = (booking: any) => {
         const bookingEmail = booking.email?.trim().toLowerCase();
         const patient = patients.find((candidate) => candidate.email?.trim().toLowerCase() === bookingEmail);
@@ -688,24 +692,23 @@ export default function AdminDashboard() {
                                 </div>
                                 
                                 <div className={styles.sessionsBox}>
-                                    <h3>📅 Historial Médico ({selectedPatient.bookings.length} citas)</h3>
-                                    {selectedPatient.bookings.length > 0 ? (
+                                    <h3>💳 Historial de pagos ({getPaidBookings(selectedPatient.bookings).length})</h3>
+                                    {getPaidBookings(selectedPatient.bookings).length > 0 ? (
                                         <div className={styles.sessionsScroll}>
-                                            {selectedPatient.bookings.map((b: any, i: number) => (
+                                            {getPaidBookings(selectedPatient.bookings).map((b: any, i: number) => (
                                                 <div key={b.id || i} className={styles.sessionLine}>
                                                     <div style={{display: 'flex', flexDirection: 'column'}}>
                                                         <span className={styles.sessionDate}>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL')}</span>
                                                         <span className={styles.sessionService}>{b.serviceType}</span>
                                                     </div>
-                                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px'}}>
+                                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
                                                         <span style={{fontWeight: 800, fontSize: '0.9rem', color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</span>
-                                                        <span className={styles.sessionTag}>{getBookingStatusLabel(b.status)}</span>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay citas registradas todavía.</p>
+                                        <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay pagos registrados todavía.</p>
                                     )}
                                 </div>
                             </div>
