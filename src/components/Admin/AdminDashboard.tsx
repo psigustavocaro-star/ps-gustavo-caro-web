@@ -275,6 +275,19 @@ export default function AdminDashboard() {
         return `${cleanRut.slice(0, -1)}-${cleanRut.slice(-1)}`;
     };
 
+    const openPatientFromBooking = (booking: any) => {
+        const bookingEmail = booking.email?.trim().toLowerCase();
+        const patient = patients.find((candidate) => candidate.email?.trim().toLowerCase() === bookingEmail);
+
+        if (!patient) {
+            alert('No se encontró una ficha asociada a esta reserva. Actualiza los datos e inténtalo nuevamente.');
+            return;
+        }
+
+        setSelectedPatient(patient);
+        setIsEditing(false);
+    };
+
     const toggleSelectAll = () => {
         if (selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0) {
             setSelectedRecipients([]);
@@ -545,7 +558,7 @@ export default function AdminDashboard() {
                     {activeTab === 'bookings' && (
                         <div className={styles.responsiveList}>
                             <table className={styles.friendlyTable}>
-                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th></tr></thead>
+                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Ficha</th></tr></thead>
                                 <tbody>{bookings.map(b => (
                                     <tr key={b.id}>
                                         <td>{b.name}</td>
@@ -554,6 +567,7 @@ export default function AdminDashboard() {
                                         <td style={{fontWeight: 700, color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</td>
                                         <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span></td>
                                         <td>{renderSiiReceiptToggle(b)}</td>
+                                        <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(b)}>Abrir ficha</button></td>
                                     </tr>
                                 ))}</tbody>
                             </table>
@@ -571,6 +585,7 @@ export default function AdminDashboard() {
                                         <div className={styles.mobileBookingFooter}>
                                             <span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span>
                                             {renderSiiReceiptToggle(b)}
+                                            <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(b)}>Abrir ficha</button>
                                         </div>
                                     </div>
                                 ))}
