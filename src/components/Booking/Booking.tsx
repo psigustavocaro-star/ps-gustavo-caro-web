@@ -73,6 +73,47 @@ export default function Booking() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState<{ status: 'none' | 'valid' | 'invalid', discount: number }>({ status: 'none', discount: 0 });
+    const [returningPatient, setReturningPatient] = useState<{ open: boolean; email: string; rut: string; status: 'idle' | 'looking' | 'found' | 'notfound' | 'error' }>({ open: false, email: '', rut: '', status: 'idle' });
+
+    const handleReturningLookup = async () => {
+        if (!returningPatient.email || !returningPatient.rut) {
+            setReturningPatient(prev => ({ ...prev, status: 'error' }));
+            return;
+        }
+        setReturningPatient(prev => ({ ...prev, status: 'looking' }));
+        try {
+            const res = await fetch('/api/bookings/lookup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: returningPatient.email, rut: returningPatient.rut }),
+            });
+            if (!res.ok) {
+                setReturningPatient(prev => ({ ...prev, status: 'error' }));
+                return;
+            }
+            const data = await res.json();
+            if (data.found) {
+                setFormData(prev => ({
+                    ...prev,
+                    email: returningPatient.email.toLowerCase().trim(),
+                    firstName: data.data.firstName || prev.firstName,
+                    secondName: data.data.secondName || prev.secondName,
+                    firstSurname: data.data.firstSurname || prev.firstSurname,
+                    secondSurname: data.data.secondSurname || prev.secondSurname,
+                    phone: data.data.phone || prev.phone,
+                    rut: data.data.rut || returningPatient.rut,
+                    address: data.data.address || prev.address,
+                    region: data.data.region || prev.region,
+                    commune: data.data.commune || prev.commune,
+                }));
+                setReturningPatient(prev => ({ ...prev, status: 'found', open: false }));
+            } else {
+                setReturningPatient(prev => ({ ...prev, status: 'notfound' }));
+            }
+        } catch {
+            setReturningPatient(prev => ({ ...prev, status: 'error' }));
+        }
+    };
     const [clpPerUsd, setClpPerUsd] = useState<number>(FALLBACK_CLP_PER_USD);
     const isSelectedInPersonEvaluation = isInPersonEvaluation(formData.serviceType);
     const bookingLeadPayload = useMemo(() => ({
@@ -658,7 +699,78 @@ export default function Booking() {
                         <div className={styles.stepContent}>
                             <h2 className={styles.stepTitle}>Identificación del Paciente</h2>
                             <p className={styles.stepDesc}>Datos necesarios para tu boleta de honorarios y ficha clínica.</p>
-                            
+
+                            <div className={styles.returningBox}>
+                                {!returningPatient.open && returningPatient.status !== 'found' && (
+                                    <button
+                                        type="button"
+                                        className={styles.returningToggle}
+                                        onClick={() => setReturningPatient(prev => ({ ...prev, open: true, status: 'idle' }))}
+                                    >
+                                        ¿Ya has agendado antes? Autocompleta tus datos →
+                                    </button>
+                                )}
+                                {returningPatient.status === 'found' && (
+                                    <div className={styles.returningSuccess}>
+                                        ✓ Datos autocompletados. Revísalos y continúa.
+                                    </div>
+                                )}
+                                {returningPatient.open && (
+                                    <div className={styles.returningForm}>
+                                        <p className={styles.returningHint}>
+                                            Ingresa el correo y RUT que usaste antes. Si coinciden,
+                                            autocompletamos tus datos administrativos.
+                                        </p>
+                                        <div className={styles.returningRow}>
+                                            <input
+                                                type="email"
+                                                placeholder="Correo electrónico"
+                                                className={styles.input}
+                                                value={returningPatient.email}
+                                                onChange={(e) => setReturningPatient(prev => ({ ...prev, email: e.target.value }))}
+                                                autoComplete="email"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="RUT (con o sin puntos)"
+                                                className={styles.input}
+                                                value={returningPatient.rut}
+                                                onChange={(e) => setReturningPatient(prev => ({ ...prev, rut: e.target.value }))}
+                                                autoComplete="off"
+                                            />
+                                        </div>
+                                        <div className={styles.returningActions}>
+                                            <button
+                                                type="button"
+                                                className="btn-secondary"
+                                                onClick={() => setReturningPatient(prev => ({ ...prev, open: false }))}
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn-primary"
+                                                onClick={handleReturningLookup}
+                                                disabled={returningPatient.status === 'looking'}
+                                            >
+                                                {returningPatient.status === 'looking' ? 'Buscando…' : 'Buscar mis datos'}
+                                            </button>
+                                        </div>
+                                        {returningPatient.status === 'notfound' && (
+                                            <p className={styles.returningError}>
+                                                No encontramos una reserva anterior con esos datos.
+                                                Puedes continuar llenando el formulario manualmente.
+                                            </p>
+                                        )}
+                                        {returningPatient.status === 'error' && (
+                                            <p className={styles.returningError}>
+                                                Hubo un error. Intenta de nuevo o llena el formulario manualmente.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className={styles.formGrid}>
                                 <div className={styles.formGroup}>
                                     <label>Primer Nombre *</label>

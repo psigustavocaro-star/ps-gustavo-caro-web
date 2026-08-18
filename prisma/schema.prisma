@@ -49,13 +49,32 @@ model Booking {
 }
 
 model Newsletter {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  name        String?
-  active      Boolean  @default(true)
-  currentStep Int      @default(0) // Indica en qué correo de la secuencia va (0 a 24)
-  lastSentAt  DateTime @default(now())
-  createdAt   DateTime @default(now())
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  name               String?
+  active             Boolean   @default(false)
+  confirmedAt        DateTime?
+  confirmationToken  String?
+  currentStep        Int       @default(0) // Indica en qué correo de la secuencia va (0 a 24)
+  lastSentAt         DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+
+  @@index([confirmationToken])
+}
+
+model ConsentLog {
+  id           String   @id @default(uuid())
+  email        String
+  type         String   // privacy | newsletter | cookies
+  version      String   // versión de la política aceptada (yyyy-mm)
+  granted      Boolean  @default(true)
+  ip           String?
+  userAgent    String?
+  context      String?  // texto libre: "booking", "newsletter-signup", "cookie-banner"
+  createdAt    DateTime @default(now())
+
+  @@index([email])
+  @@index([type, createdAt])
 }
 
 model EmailTemplate {

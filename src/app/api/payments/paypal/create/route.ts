@@ -5,6 +5,7 @@ import { sendBookingNotification } from '@/lib/services/mail';
 import { applyCoupon } from '@/lib/services/coupons';
 import { isInPersonEvaluation } from '@/lib/config/pricing';
 import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
+import { logConsent } from '@/lib/services/consent-log';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,11 +101,31 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        await prisma.newsletter.upsert({
-            where: { email },
-            update: { active: true, name },
-            create: { email, name, active: true },
-        }).catch((err: unknown) => console.error('Silent newsletter upsert error:', err));
+        await logConsent({
+            email,
+            type: 'privacy',
+            granted: true,
+            context: 'booking-flow-paypal',
+            ip,
+            userAgent: request.headers.get('user-agent'),
+        });
+
+        if (body?.newsletter === true) {
+            await prisma.newsletter.upsert({
+                where: { email },
+                update: { active: true, name, confirmedAt: new Date() },
+                create: { email, name, active: true, confirmedAt: new Date() },
+            }).catch((err: unknown) => console.error('Silent newsletter upsert error:', err));
+
+            await logConsent({
+                email,
+                type: 'newsletter',
+                granted: true,
+                context: 'booking-flow-paypal',
+                ip,
+                userAgent: request.headers.get('user-agent'),
+            });
+        }
 
         const { markBookingLeadConverted } = await import('@/lib/services/booking-leads');
         await markBookingLeadConverted(email).catch((err: unknown) => console.error('Silent booking lead conversion error:', err));

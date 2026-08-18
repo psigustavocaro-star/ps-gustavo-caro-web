@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
+import { logConsent } from '@/lib/services/consent-log';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,12 +67,33 @@ export async function POST(request: NextRequest) {
             });
             createdBookingId = createdBooking.id;
 
-            // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
-            await prisma.newsletter.upsert({
-                where: { email },
-                update: { active: true, name },
-                create: { email: email.toLowerCase(), name, active: true }
-            }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
+            // Registro digital del consentimiento explícito de privacidad (Ley 21.719)
+            await logConsent({
+                email,
+                type: 'privacy',
+                granted: true,
+                context: 'booking-flow-free',
+                ip,
+                userAgent: request.headers.get('user-agent'),
+            });
+
+            // Newsletter opcional: solo suscribimos si el usuario marcó el checkbox
+            if (body?.newsletter === true) {
+                await prisma.newsletter.upsert({
+                    where: { email },
+                    update: { active: true, name, confirmedAt: new Date() },
+                    create: { email: email.toLowerCase(), name, active: true, confirmedAt: new Date() }
+                }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
+
+                await logConsent({
+                    email,
+                    type: 'newsletter',
+                    granted: true,
+                    context: 'booking-flow-free',
+                    ip,
+                    userAgent: request.headers.get('user-agent'),
+                });
+            }
 
             const { markBookingLeadConverted } = await import('@/lib/services/booking-leads');
             await markBookingLeadConverted(email).catch((err: unknown) => console.error('Silent booking lead conversion error:', err));

@@ -4,6 +4,7 @@ import { paymentConfig } from '@/lib/config/services';
 import { isInPersonEvaluation } from '@/lib/config/pricing';
 import { sendBookingNotification } from '@/lib/services/mail';
 import { isEmail, isNonEmptyString, rateLimit, ipFromHeaders } from '@/lib/util/validation';
+import { logConsent } from '@/lib/services/consent-log';
 
 export const dynamic = 'force-dynamic';
 
@@ -122,12 +123,33 @@ export async function POST(request: NextRequest) {
                 }
             });
 
-            // Suscribir al newsletter AUTOMÁTICAMENTE (Requerimiento del profesional para cada agendamiento)
-            await prisma.newsletter.upsert({
-                where: { email },
-                update: { active: true, name },
-                create: { email: email.toLowerCase(), name, active: true }
-            }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
+            // Registro digital del consentimiento explícito de privacidad (Ley 21.719)
+            await logConsent({
+                email,
+                type: 'privacy',
+                granted: true,
+                context: 'booking-flow',
+                ip,
+                userAgent: request.headers.get('user-agent'),
+            });
+
+            // Newsletter opcional: solo suscribimos si el usuario marcó el checkbox
+            if (body?.newsletter === true) {
+                await prisma.newsletter.upsert({
+                    where: { email },
+                    update: { active: true, name, confirmedAt: new Date() },
+                    create: { email: email.toLowerCase(), name, active: true, confirmedAt: new Date() }
+                }).catch((err: unknown) => console.error('Silent error registering newsletter:', err));
+
+                await logConsent({
+                    email,
+                    type: 'newsletter',
+                    granted: true,
+                    context: 'booking-flow',
+                    ip,
+                    userAgent: request.headers.get('user-agent'),
+                });
+            }
 
             // Enviar bienvenida al newsletter (Paso 1 de la secuencia automática)
             const { sendNewsletterWelcome } = await import('@/lib/services/mail');
