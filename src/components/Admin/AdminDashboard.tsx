@@ -48,6 +48,8 @@ export default function AdminDashboard() {
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState<any>(null);
     const [selectedPatient, setSelectedPatient] = useState<any>(null);
+    const [patientConsents, setPatientConsents] = useState<any[]>([]);
+    const [loadingConsents, setLoadingConsents] = useState(false);
     const [templates, setTemplates] = useState<any[]>([]);
     const [editingTemplate, setEditingTemplate] = useState<any>(null);
     const [title, setTitle] = useState('');
@@ -56,6 +58,42 @@ export default function AdminDashboard() {
     const [showPreviousMonths, setShowPreviousMonths] = useState(false);
     
     const editorRef = useRef<HTMLDivElement>(null);
+
+    // Carga histórico de consentimientos al abrir el detalle del paciente
+    useEffect(() => {
+        if (!selectedPatient?.email) {
+            setPatientConsents([]);
+            return;
+        }
+        setLoadingConsents(true);
+        fetch(`/api/admin/consent-log?email=${encodeURIComponent(selectedPatient.email)}`, { credentials: 'include' })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => setPatientConsents(d?.consents || []))
+            .catch(() => setPatientConsents([]))
+            .finally(() => setLoadingConsents(false));
+    }, [selectedPatient?.email]);
+
+    const handleDownloadArcoExport = () => {
+        if (!selectedPatient?.email) return;
+        const url = `/api/admin/arco-export?email=${encodeURIComponent(selectedPatient.email)}`;
+        window.open(url, '_blank');
+    };
+
+    const consentTypeLabel = (t: string) => {
+        if (t === 'privacy') return '🛡️ Política de privacidad';
+        if (t === 'newsletter') return '📧 Newsletter';
+        if (t === 'cookies') return '🍪 Cookies';
+        return t;
+    };
+
+    const consentContextLabel = (c?: string | null) => {
+        if (!c) return '';
+        if (c === 'booking-flow') return 'Agendamiento (Flow)';
+        if (c === 'booking-flow-free') return 'Agendamiento gratuito';
+        if (c === 'booking-flow-paypal') return 'Agendamiento (PayPal)';
+        if (c === 'newsletter-double-optin') return 'Doble opt-in email';
+        return c;
+    };
 
     const currentMonthKey = useMemo(() => {
         const now = new Date();
@@ -756,6 +794,43 @@ export default function AdminDashboard() {
                                     <div className={styles.dataField}><label>Residencia</label><span>{[selectedPatient.address, selectedPatient.commune, selectedPatient.region].filter(Boolean).join(', ') || 'Sin detalles'}</span></div>
                                 </div>
                                 
+                                <div className={styles.sessionsBox}>
+                                    <h3>🛡️ Consentimientos registrados ({patientConsents.length})</h3>
+                                    {loadingConsents ? (
+                                        <p style={{ fontSize: '0.85rem', color: '#64748b', padding: '8px 0' }}>Cargando...</p>
+                                    ) : patientConsents.length === 0 ? (
+                                        <p style={{ fontSize: '0.85rem', color: '#64748b', padding: '8px 0' }}>
+                                            No hay consentimientos registrados aún. (Los consentimientos empiezan a registrarse desde la última actualización del sitio.)
+                                        </p>
+                                    ) : (
+                                        <div className={styles.sessionsScroll}>
+                                            {patientConsents.map((c: any) => (
+                                                <div key={c.id} className={styles.sessionLine} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                                    <div>
+                                                        <div style={{ fontWeight: 600 }}>{consentTypeLabel(c.type)}</div>
+                                                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                                                            Versión política: {c.version} · Contexto: {consentContextLabel(c.context) || '—'}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ fontSize: '0.78rem', color: '#334155', textAlign: 'right' }}>
+                                                        <div>{new Date(c.createdAt).toLocaleString('es-CL')}</div>
+                                                        {c.ip && <div style={{ color: '#94a3b8' }}>IP: {c.ip}</div>}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div style={{ marginTop: 12 }}>
+                                        <button
+                                            className={styles.syncBtn}
+                                            style={{ backgroundColor: 'rgba(8, 145, 178, 0.1)', color: '#0891b2', borderColor: 'rgba(8, 145, 178, 0.2)' }}
+                                            onClick={handleDownloadArcoExport}
+                                        >
+                                            📥 Descargar datos personales (JSON ARCO)
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div className={styles.sessionsBox}>
                                     <h3>💳 Historial de pagos ({getPaidBookings(selectedPatient.bookings).length})</h3>
                                     {getPaidBookings(selectedPatient.bookings).length > 0 ? (
