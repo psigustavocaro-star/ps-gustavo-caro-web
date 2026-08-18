@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, DM_Sans } from "next/font/google";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import WhatsAppButton from "@/components/Floating/WhatsAppButton";
+import CookieBanner from "@/components/CookieBanner/CookieBanner";
 import "./globals.css";
 import { Providers } from "@/components/Providers/Providers";
 
@@ -190,6 +191,7 @@ export default function RootLayout({
             <div id="main-content">{children}</div>
             {/* <MobileFloatingCTA /> Se omite porque el Sidebar navega abajo en mobile */}
             <WhatsAppButton />
+            <CookieBanner />
           </SmoothScroll>
         </Providers>
       </body>

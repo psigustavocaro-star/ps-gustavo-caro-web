@@ -65,6 +65,7 @@ export default function Booking() {
         region: '',
         commune: '',
         newsletter: true,
+        privacyConsent: false,
         rawStartTime: '',
         attendeeTimeZone: CLINIC_TIME_ZONE,
         calEventTypeId: null as number | null,
@@ -504,6 +505,7 @@ export default function Booking() {
             region: '',
             commune: '',
             newsletter: true,
+            privacyConsent: false,
             rawStartTime: '',
             attendeeTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || CLINIC_TIME_ZONE,
             calEventTypeId: null,
@@ -782,16 +784,37 @@ export default function Booking() {
                                 <label className={styles.checkboxLabel}>
                                     <input
                                         type="checkbox"
+                                        checked={formData.privacyConsent}
+                                        onChange={(e) => setFormData({ ...formData, privacyConsent: e.target.checked })}
+                                        required
+                                        aria-required="true"
+                                    />
+                                    <span>
+                                        He leído y acepto la <a href="/privacidad" target="_blank" rel="noopener">Política de Privacidad</a> y autorizo el tratamiento de mis datos personales
+                                        para fines de agendamiento, atención clínica y facturación, conforme a las leyes 19.628 y 21.719 sobre protección de la vida privada.
+                                        <span className={styles.requiredMark}> *</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div className={styles.formGroupCheckbox}>
+                                <label className={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
                                         checked={formData.newsletter}
                                         onChange={(e) => setFormData({ ...formData, newsletter: e.target.checked })}
                                     />
-                                    <span>Quiero recibir noticias y recursos de salud mental.</span>
+                                    <span>Quiero recibir noticias y recursos de salud mental. Puedo darme de baja en cualquier momento.</span>
                                 </label>
                             </div>
 
                             <div className={styles.buttonGroup}>
                                 <button onClick={handleBack} className="btn-secondary">← Volver</button>
                                 <button onClick={() => {
+                                    if (!formData.privacyConsent) {
+                                        alert('Debes aceptar la Política de Privacidad para continuar.');
+                                        return;
+                                    }
                                     const fullName = `${formData.firstName} ${formData.secondName} ${formData.firstSurname} ${formData.secondSurname}`.replace(/\s+/g, ' ').trim();
                                     setFormData(prev => ({ ...prev, name: fullName }));
                                     if(validateContact()) setStep('payment');

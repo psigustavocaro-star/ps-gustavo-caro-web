@@ -1,0 +1,80 @@
+.banner {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 9998;
+    background: rgba(15, 23, 42, 0.98);
+    color: #f1f5f9;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    padding: 16px 20px;
+    max-width: 780px;
+    margin: 0 auto;
+    animation: slideUp 0.35s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.inner {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.text {
+    flex: 1;
+    min-width: 260px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0;
+    color: #cbd5e1;
+}
+
+.text a {
+    color: #67e8f9;
+    text-decoration: underline;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btnPrimary,
+.btnGhost {
+    padding: 9px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 0;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btnPrimary {
+    background: #0891b2;
+    color: white;
+}
+
+.btnPrimary:hover { background: #0e7490; }
+
+.btnGhost {
+    background: transparent;
+    color: #cbd5e1;
+    border: 1px solid rgba(203, 213, 225, 0.35);
+}
+
+.btnGhost:hover { background: rgba(255, 255, 255, 0.05); }
+
+@media (max-width: 520px) {
+    .buttons { width: 100%; justify-content: stretch; }
+    .btnPrimary, .btnGhost { flex: 1; }
+}

@@ -1,15 +1,25 @@
-
 import { Resend } from 'resend';
 import prisma from '@/lib/db';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
+import { createUnsubscribeToken, unsubscribeUrl } from '@/lib/util/unsubscribe';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://psgustavocaro.cl';
 
 const NEWSLETTER_INTERVAL_DAYS = Number(process.env.NEWSLETTER_INTERVAL_DAYS || 7);
 
+function appendUnsubscribeFooter(html: string, unsubUrl: string): string {
+    const footer = `
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
+        <p style="font-size: 0.8rem; color: #64748b; text-align: center;">
+            Recibes este correo porque te suscribiste al newsletter de Ps. Gustavo Caro.<br/>
+            <a href="${unsubUrl}" style="color: #64748b; text-decoration: underline;">Darme de baja</a>
+        </p>
+    `;
+    return html + footer;
+}
+
 export async function processNewsletterSequence() {
-    // Suscriptores activos que necesitan el siguiente correo.
-    // Por defecto avanza semanalmente; puede ajustarse con NEWSLETTER_INTERVAL_DAYS.
     const eligibleSince = new Date();
     eligibleSince.setDate(eligibleSince.getDate() - NEWSLETTER_INTERVAL_DAYS);
 
@@ -27,14 +37,24 @@ export async function processNewsletterSequence() {
 
         if (emailContent) {
             try {
+                const token = await createUnsubscribeToken(sub.email);
+                const unsubUrl = unsubscribeUrl(BASE_URL, sub.email, token);
+                const html = appendUnsubscribeFooter(
+                    emailContent.content(sub.name || 'amigo/a'),
+                    unsubUrl
+                );
+
                 await resend.emails.send({
                     from: 'Ps. Gustavo Caro <newsletter@psgustavocaro.cl>',
                     to: sub.email,
                     subject: emailContent.subject,
-                    html: emailContent.content(sub.name || 'amigo/a')
+                    headers: {
+                        'List-Unsubscribe': `<${unsubUrl}>`,
+                        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                    },
+                    html,
                 });
 
-                // Actualizar en la DB
                 await prisma.newsletter.update({
                     where: { id: sub.id },
                     data: {
@@ -42,7 +62,6 @@ export async function processNewsletterSequence() {
                         lastSentAt: new Date()
                     }
                 });
-
             } catch (error) {
                 console.error(`Newsletter send error step=${nextStep}:`, error);
             }

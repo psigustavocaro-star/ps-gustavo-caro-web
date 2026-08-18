@@ -1011,6 +1011,16 @@
     cursor: pointer;
 }
 
+.checkboxLabel a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.requiredMark {
+    color: #dc2626;
+    font-weight: 700;
+}
+
 /* ============================================
    FORM GRID
    ============================================ */

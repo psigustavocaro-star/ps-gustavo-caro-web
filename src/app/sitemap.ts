@@ -26,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { url: `${BASE}/aviso-legal`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
         { url: `${BASE}/privacidad`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
         { url: `${BASE}/cookies`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
+        { url: `${BASE}/derechos-arco`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     ];
 
     const blogRoutes: MetadataRoute.Sitemap = getPublishedBlogPosts(now).map(post => ({

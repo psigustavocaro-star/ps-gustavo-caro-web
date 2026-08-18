@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next';
 export default function robots(): MetadataRoute.Robots {
     return {
         rules: [
-            { userAgent: '*', allow: '/', disallow: ['/api/', '/admingustavo', '/pago/'] },
+            { userAgent: '*', allow: '/', disallow: ['/api/', '/admingustavo', '/pago/', '/newsletter/baja'] },
         ],
         sitemap: 'https://psgustavocaro.cl/sitemap.xml',
         host: 'https://psgustavocaro.cl',
