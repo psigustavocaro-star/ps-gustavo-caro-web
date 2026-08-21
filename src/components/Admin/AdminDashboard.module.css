@@ -346,6 +346,82 @@
 }
 .receiptToggleOn small { color: #0f766e; }
 
+.expandSessionsButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    min-height: 30px;
+    margin-left: 8px;
+    padding: 4px 8px;
+    border: 1px solid #bae6fd;
+    border-radius: 7px;
+    background: #ecfeff;
+    color: #0e7490;
+    font-size: 0.92rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.expandSessionsButton:hover { background: #cffafe; border-color: #0891b2; }
+
+.bookingSessionsRow td {
+    padding: 0 16px 16px;
+    background: #f8fafc;
+}
+
+.bookingSessions {
+    max-width: 740px;
+    padding: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.bookingSessionsHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: #0f172a;
+    font-size: 0.82rem;
+}
+
+.bookingSessionsHeader span { color: #0e7490; font-weight: 700; }
+.bookingSessionsList { display: grid; gap: 8px; }
+
+.bookingSession {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #f8fafc;
+}
+
+.bookingSessionIssued { background: #f0fdfa; border-color: #99f6e4; }
+.bookingSession > div { display: grid; gap: 2px; }
+.bookingSession strong { color: #0f172a; font-size: 0.8rem; }
+.bookingSession > div span { color: #64748b; font-size: 0.78rem; text-transform: capitalize; }
+
+.sessionInvoiceControl {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #0e7490;
+    font-size: 0.76rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.sessionInvoiceControl input { width: 16px; height: 16px; accent-color: #0f766e; }
+.sessionInvoiceControl input:disabled { cursor: not-allowed; opacity: 0.45; }
+.sessionInvoiceControl:has(input:disabled) { color: #94a3b8; cursor: not-allowed; }
+.sessionInvoiceStatus { color: #0f766e; font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+
 .bookingPatientBtn {
     min-height: 38px;
     padding: 9px 12px;
@@ -515,6 +591,7 @@
 .cardInfo span { font-size: 0.9rem; color: #64748b; }
 .cardSubtitle { color: #0891b2 !important; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
 .mobileBookingFooter { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mobileCard .bookingSessions { width: 100%; max-width: none; }
 
 @media (max-width: 1200px) { 
     .studioLayout { grid-template-columns: 1fr; } 
@@ -560,6 +637,8 @@
     .listContainer { padding: 0; background: transparent; border: none; }
     .friendlyTable { display: none; } /* Ocultar tabla en móvil */
     .mobileCards { display: flex; } /* Mostrar cards en móvil */
+    .bookingSessionsHeader, .bookingSession { align-items: flex-start; flex-direction: column; }
+    .sessionInvoiceControl, .sessionInvoiceStatus { min-height: 28px; }
 
     .modalContent { padding: 24px; border-radius: 24px; width: 95%; max-height: 85vh; border: none; }
     .dataGrid { grid-template-columns: 1fr; gap: 12px; }

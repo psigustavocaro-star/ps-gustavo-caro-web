@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { Fragment, useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './AdminDashboard.module.css';
@@ -56,6 +56,7 @@ export default function AdminDashboard() {
     const [content, setContent] = useState('');
     const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
     const [showPreviousMonths, setShowPreviousMonths] = useState(false);
+    const [expandedBookingIds, setExpandedBookingIds] = useState<string[]>([]);
     
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -314,6 +315,62 @@ export default function AdminDashboard() {
                 <small>{booking.siiReceiptIssued ? 'Emitida' : hasMultipleSessions ? `${issuedSessionCount}/${sessionSlots.length} por sesión` : 'Por emitir'}</small>
             </span>
         </label>
+        );
+    };
+
+    const toggleBookingSessions = (bookingId: string) => {
+        setExpandedBookingIds(currentIds => (
+            currentIds.includes(bookingId)
+                ? currentIds.filter(id => id !== bookingId)
+                : [...currentIds, bookingId]
+        ));
+    };
+
+    const renderBookingSessions = (booking: any) => {
+        const sessionSlots = getInvoiceSessionSlots(booking);
+        if (sessionSlots.length <= 1) return null;
+
+        const issuedSessionIds = getIssuedInvoiceSessionIds(booking);
+        const issuedSessionCount = issuedSessionIds.filter((id) => sessionSlots.some((session) => session.id === id)).length;
+
+        return (
+            <div className={styles.bookingSessions}>
+                <div className={styles.bookingSessionsHeader}>
+                    <strong>Detalle de sesiones</strong>
+                    <span>{booking.siiReceiptIssued ? 'Boleta única emitida' : `${issuedSessionCount}/${sessionSlots.length} boletas emitidas`}</span>
+                </div>
+                <div className={styles.bookingSessionsList}>
+                    {sessionSlots.map((session) => {
+                        const issued = issuedSessionIds.includes(session.id);
+                        const hasDate = Boolean(session.date);
+                        const dateLabel = hasDate
+                            ? new Date(session.date as string).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+                            : 'Fecha aun no agendada';
+
+                        return (
+                            <div key={session.id} className={`${styles.bookingSession} ${issued || booking.siiReceiptIssued ? styles.bookingSessionIssued : ''}`}>
+                                <div>
+                                    <strong>Sesion {session.number}</strong>
+                                    <span>{dateLabel}</span>
+                                </div>
+                                {booking.siiReceiptIssued ? (
+                                    <span className={styles.sessionInvoiceStatus}>Incluida en boleta unica</span>
+                                ) : (
+                                    <label className={styles.sessionInvoiceControl}>
+                                        <input
+                                            type="checkbox"
+                                            checked={issued}
+                                            disabled={!hasDate}
+                                            onChange={event => handleToggleSessionReceipt(booking, session.id, event.target.checked)}
+                                        />
+                                        <span>{issued ? 'Boleta emitida' : hasDate ? 'Marcar boleta' : 'Pendiente de agendar'}</span>
+                                    </label>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
         );
     };
 
@@ -666,17 +723,28 @@ export default function AdminDashboard() {
                         <div className={styles.responsiveList}>
                             <table className={styles.friendlyTable}>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Ficha</th></tr></thead>
-                                <tbody>{bookings.map(b => (
-                                    <tr key={b.id}>
-                                        <td>{b.name}</td>
-                                        <td>{new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</td>
-                                        <td>{b.serviceType}</td>
-                                        <td style={{fontWeight: 700, color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</td>
-                                        <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span></td>
-                                        <td>{renderSiiReceiptToggle(b)}</td>
-                                        <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(b)}>Abrir ficha</button></td>
-                                    </tr>
-                                ))}</tbody>
+                                <tbody>{bookings.map(b => {
+                                    const hasMultipleSessions = getInvoiceSessionSlots(b).length > 1;
+                                    const isExpanded = expandedBookingIds.includes(b.id);
+
+                                    return (
+                                        <Fragment key={b.id}>
+                                            <tr>
+                                                <td>{b.name}</td>
+                                                <td>
+                                                    {new Date(b.appointmentDate || b.createdAt).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(b.appointmentDate || b.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+                                                    {hasMultipleSessions && <button className={styles.expandSessionsButton} onClick={() => toggleBookingSessions(b.id)} aria-expanded={isExpanded} title={isExpanded ? 'Ocultar sesiones' : 'Ver sesiones'}>{isExpanded ? '-' : '+'}</button>}
+                                                </td>
+                                                <td>{b.serviceType}</td>
+                                                <td style={{fontWeight: 700, color: '#0f172a'}}>${(Number(b.amount) || 0).toLocaleString('es-CL')}</td>
+                                                <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span></td>
+                                                <td>{renderSiiReceiptToggle(b)}</td>
+                                                <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(b)}>Abrir ficha</button></td>
+                                            </tr>
+                                            {hasMultipleSessions && isExpanded && <tr className={styles.bookingSessionsRow}><td colSpan={7}>{renderBookingSessions(b)}</td></tr>}
+                                        </Fragment>
+                                    );
+                                })}</tbody>
                             </table>
                             <div className={styles.mobileCards}>
                                 {bookings.map(b => (
@@ -692,8 +760,10 @@ export default function AdminDashboard() {
                                         <div className={styles.mobileBookingFooter}>
                                             <span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(b.status)}</span>
                                             {renderSiiReceiptToggle(b)}
+                                            {getInvoiceSessionSlots(b).length > 1 && <button className={styles.expandSessionsButton} onClick={() => toggleBookingSessions(b.id)} aria-expanded={expandedBookingIds.includes(b.id)}>{expandedBookingIds.includes(b.id) ? '- Sesiones' : '+ Sesiones'}</button>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(b)}>Abrir ficha</button>
                                         </div>
+                                        {expandedBookingIds.includes(b.id) && renderBookingSessions(b)}
                                     </div>
                                 ))}
                             </div>
