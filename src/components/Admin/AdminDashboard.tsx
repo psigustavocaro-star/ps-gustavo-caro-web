@@ -365,14 +365,18 @@ export default function AdminDashboard() {
         const issued = getIssuedInvoiceSessionIds(booking).includes(session.id);
 
         return (
-            <label className={styles.sessionInvoiceControl}>
+            <label className={`${styles.receiptToggle} ${issued ? styles.receiptToggleOn : ''} ${!hasDate ? styles.receiptToggleDisabled : ''}`}>
                 <input
                     type="checkbox"
                     checked={issued}
                     disabled={!hasDate}
                     onChange={event => handleToggleSessionReceipt(booking, session.id, event.target.checked)}
                 />
-                <span>{issued ? 'Boleta emitida' : hasDate ? 'Marcar boleta' : 'Pendiente de agendar'}</span>
+                <span className={styles.receiptCheck}>{issued ? '✓' : ''}</span>
+                <span>
+                    <strong>Boleta SII</strong>
+                    <small>{issued ? 'Emitida' : hasDate ? 'Por emitir' : 'Pendiente de agendar'}</small>
+                </span>
             </label>
         );
     };

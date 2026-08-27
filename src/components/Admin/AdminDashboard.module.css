@@ -345,6 +345,7 @@
     border-color: #0f766e;
 }
 .receiptToggleOn small { color: #0f766e; }
+.receiptToggleDisabled { cursor: not-allowed; opacity: 0.65; }
 
 .calendarIntro {
     margin: 0 0 16px;
