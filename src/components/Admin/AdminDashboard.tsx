@@ -173,7 +173,12 @@ export default function AdminDashboard() {
             const secondDate = second.session?.date || second.booking.appointmentDate || second.booking.createdAt;
             const firstTime = first.session && !first.session.date ? Number.MAX_SAFE_INTEGER : Date.parse(firstDate);
             const secondTime = second.session && !second.session.date ? Number.MAX_SAFE_INTEGER : Date.parse(secondDate);
-            return firstTime - secondTime;
+            const firstIsPending = first.session && !first.session.date;
+            const secondIsPending = second.session && !second.session.date;
+
+            if (firstIsPending) return 1;
+            if (secondIsPending) return -1;
+            return secondTime - firstTime;
         })
     ), [bookings]);
 
@@ -719,7 +724,7 @@ export default function AdminDashboard() {
 
                     {activeTab === 'bookings' && (
                         <div className={styles.responsiveList}>
-                            <p className={styles.calendarIntro}>Cada cita y sesión se ordena por fecha para que puedas revisar sus boletas a tiempo.</p>
+                            <p className={styles.calendarIntro}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
                             <table className={styles.friendlyTable}>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {
