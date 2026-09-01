@@ -14,7 +14,7 @@ export default function TerminosAtencionPage() {
             <div className="container">
                 <article className={styles.content}>
                     <h1>Condiciones de Atención y Cancelación</h1>
-                    <p className={styles.updated}>Última actualización: agosto 2026</p>
+                    <p className={styles.updated}>Última actualización: enero 2026</p>
 
                     <section>
                         <h2>1. Alcance de la atención</h2>
