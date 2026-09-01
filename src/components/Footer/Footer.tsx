@@ -41,6 +41,7 @@ export default function Footer() {
                         <h4>Legal</h4>
                         <ul className={styles.linkList}>
                             <li><Link href="/aviso-legal" className={styles.linkItem}>Aviso Legal</Link></li>
+                            <li><Link href="/terminos-atencion" className={styles.linkItem}>Condiciones de atención y cancelación</Link></li>
                             <li><Link href="/privacidad" className={styles.linkItem}>Política de Privacidad</Link></li>
                             <li><Link href="/cookies" className={styles.linkItem}>Política de Cookies</Link></li>
                         </ul>

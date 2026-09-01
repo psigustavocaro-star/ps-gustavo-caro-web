@@ -902,7 +902,7 @@ export default function Booking() {
                                         aria-required="true"
                                     />
                                     <span>
-                                        He leído y acepto la <a href="/privacidad" target="_blank" rel="noopener">Política de Privacidad</a> y autorizo el tratamiento de mis datos personales
+                                        He leído y acepto la <a href="/privacidad" target="_blank" rel="noopener">Política de Privacidad</a> y las <a href="/terminos-atencion" target="_blank" rel="noopener">Condiciones de Atención y Cancelación</a>. Autorizo el tratamiento de mis datos personales
                                         para fines de agendamiento, atención clínica y facturación, conforme a las leyes 19.628 y 21.719 sobre protección de la vida privada.
                                         <span className={styles.requiredMark}> *</span>
                                     </span>
@@ -1117,7 +1117,7 @@ export default function Booking() {
                                 </div>
                             )}
 
-                            <p className={styles.disclaimer}>Al continuar aceptas los términos de servicio y política de privacidad.</p>
+                            <p className={styles.disclaimer}>Al continuar aceptas las <a href="/terminos-atencion" target="_blank" rel="noopener">condiciones de atención y cancelación</a>, incluida la política de aviso con 48 horas de anticipación.</p>
                         </div>
                     )}
 
