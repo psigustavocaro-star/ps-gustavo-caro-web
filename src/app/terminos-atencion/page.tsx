@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import styles from '../privacidad/legal.module.css';
+import styles from './terminos.module.css';
 
 export const metadata = {
     title: 'Condiciones de Atención y Cancelación',
@@ -31,7 +31,8 @@ export default function TerminosAtencionPage() {
                             La reserva se confirma una vez completado el proceso de agendamiento y, cuando
                             corresponda, verificado el pago. Se solicita conectarse o llegar puntualmente a la
                             hora acordada. Los retrasos reducen el tiempo disponible de la sesión y no extienden
-                            automáticamente su duración.
+                            automáticamente su duración. Un atraso de <strong>15 minutos o más</strong>, sin aviso,
+                            se considera inasistencia.
                         </p>
                     </section>
 
@@ -48,8 +49,8 @@ export default function TerminosAtencionPage() {
                                 considera reservada y no corresponde devolución del monto pagado.
                             </li>
                             <li>
-                                La inasistencia sin aviso se considera como sesión realizada para efectos de
-                                reserva y pago.
+                                La inasistencia sin aviso, incluido un atraso de 15 minutos o más, se considera
+                                como sesión realizada para efectos de reserva y pago.
                             </li>
                             <li>
                                 Situaciones excepcionales, como una urgencia médica acreditable, pueden ser
