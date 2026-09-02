@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
-import { createCalBooking, rescheduleCalBooking } from '@/lib/services/calcom';
+import { cancelCalBooking, createCalBooking, rescheduleCalBooking } from '@/lib/services/calcom';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,8 +30,20 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (currentCalBookingId) {
             const result = await rescheduleCalBooking({ bookingUid: currentCalBookingId, start: appointmentDate, rescheduledBy: booking.email });
-            if (!result.success) return NextResponse.json({ success: false, error: result.error }, { status: 409 });
-            newCalBookingId = result.bookingId;
+            if (result.success) {
+                newCalBookingId = result.bookingId;
+            } else if (booking.calEventTypeId) {
+                // Algunas reservas antiguas de Cal.com no admiten el endpoint de mover.
+                // En ese caso, reemplazamos la reserva de forma segura: primero se crea la nueva
+                // y sólo después se anula la antigua.
+                const replacement = await createCalBooking({ eventTypeId: booking.calEventTypeId, start: appointmentDate, name: booking.name || 'Paciente', email: booking.email, attendeeTimeZone: booking.attendeeTimeZone });
+                if (!replacement.success) return NextResponse.json({ success: false, error: 'La nueva hora no está disponible en Cal.com. Elige otra e inténtalo nuevamente.' }, { status: 409 });
+                const cancelled = await cancelCalBooking(currentCalBookingId, 'Fecha corregida por administración.');
+                if (!cancelled.success) return NextResponse.json({ success: false, error: 'La nueva cita fue creada, pero no se pudo anular la anterior. Revísala en Cal.com antes de reintentar.' }, { status: 409 });
+                newCalBookingId = replacement.bookingId;
+            } else {
+                return NextResponse.json({ success: false, error: result.error }, { status: 409 });
+            }
         } else if (booking.calEventTypeId) {
             const result = await createCalBooking({ eventTypeId: booking.calEventTypeId, start: appointmentDate, name: booking.name || 'Paciente', email: booking.email, attendeeTimeZone: booking.attendeeTimeZone });
             if (!result.success) return NextResponse.json({ success: false, error: 'Cal.com no tiene disponibilidad para esa hora.' }, { status: 409 });
