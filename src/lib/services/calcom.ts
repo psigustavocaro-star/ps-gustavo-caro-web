@@ -129,7 +129,7 @@ export async function cancelCalBooking(bookingUid: string, reason?: string): Pro
         if (response.ok) return { success: true };
 
         // Fallback v1
-        const fallbackRes = await fetch(`https://api.cal.com/v1/bookings/${bookingUid}/cancel`, {
+        const fallbackRes = await fetch(`https://api.cal.com/v1/bookings?id=${encodeURIComponent(bookingUid)}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ apiKey, reason: reason || 'Cancelado desde CRM' })
