@@ -1,4 +1,7 @@
 
+type CalBookingResult = { success: true; bookingId: string } | { success: false; error: string };
+type CalActionResult = { success: true } | { success: false; error: string };
+
 export async function createCalBooking(params: {
     eventTypeId: number;
     start: string;
@@ -6,7 +9,7 @@ export async function createCalBooking(params: {
     email: string;
     notes?: string;
     attendeeTimeZone?: string | null;
-}) {
+}): Promise<CalBookingResult> {
     const apiKey = process.env.CALCOM_API_KEY;
 
     if (!apiKey) {
@@ -20,7 +23,7 @@ export async function createCalBooking(params: {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
-                'cal-api-version': '2024-08-13'
+                'cal-api-version': '2026-02-25'
             },
             body: JSON.stringify({
                 eventTypeId: params.eventTypeId,
@@ -36,8 +39,16 @@ export async function createCalBooking(params: {
         const data = await response.json();
 
         if (response.ok && (data.status === 'success' || response.status === 201)) {
-            const bookingId = data.data?.id || data.id;
-            return { success: true, bookingId };
+            // Los endpoints de cancelar/reprogramar de Cal.com usan `uid`, no el id numérico.
+            // Guardamos ese UID en calBookingId/calBookingIds para que las operaciones posteriores
+            // afecten exactamente el evento creado en Google Calendar.
+            const bookingId = data.data?.uid || data.uid || data.data?.id || data.id;
+            if (!bookingId) return { success: false, error: 'Cal.com no devolvió el identificador de la reserva' };
+            if (data.data?.status === 'pending' || data.status === 'pending') {
+                const confirmed = await confirmCalBooking(String(bookingId));
+                if (!confirmed.success) return confirmed;
+            }
+            return { success: true, bookingId: String(bookingId) };
         } else {
             console.error('Cal.com booking error:', response.status, data?.message || data?.error);
             return { success: false, error: `Cal.com error ${response.status}` };
@@ -48,13 +59,24 @@ export async function createCalBooking(params: {
     }
 }
 
-export async function confirmCalBooking() {
-    // En Cal.com v2, las reservas se pueden crear confirmadas por defecto si el tipo de evento lo permite.
-    // Dejamos el placeholder por si se necesita confirmar manualmente vía PATCH.
-    return { success: true };
+export async function confirmCalBooking(bookingUid: string): Promise<CalActionResult> {
+    const apiKey = process.env.CALCOM_API_KEY;
+    if (!apiKey || !bookingUid) return { success: false, error: 'Datos de confirmación incompletos' };
+    try {
+        const response = await fetch(`https://api.cal.com/v2/bookings/${bookingUid}/confirm`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${apiKey}`, 'cal-api-version': '2026-02-25' },
+        });
+        if (response.ok) return { success: true };
+        console.error('Cal.com confirm error:', response.status);
+        return { success: false, error: 'Cal.com confirm failed' };
+    } catch (error) {
+        console.error('Cal.com confirm network error:', error);
+        return { success: false, error: 'Cal.com confirm network error' };
+    }
 }
 
-export async function cancelCalBooking(bookingUid: string, reason?: string) {
+export async function cancelCalBooking(bookingUid: string, reason?: string): Promise<CalActionResult> {
     const apiKey = process.env.CALCOM_API_KEY;
 
     if (!apiKey) {
@@ -68,7 +90,7 @@ export async function cancelCalBooking(bookingUid: string, reason?: string) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
-                'cal-api-version': '2024-08-13'
+                'cal-api-version': '2026-02-25'
             },
             body: JSON.stringify({ cancellationReason: reason || 'Cancelado por el administrador desde CRM' })
         });

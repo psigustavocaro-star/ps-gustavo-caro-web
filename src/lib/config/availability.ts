@@ -39,32 +39,28 @@ export const weeklyAvailability: AvailabilityConfig = {
     1: { // Lunes
         enabled: true,
         slots: [
-            { start: '18:30', end: '21:45' }
+            { start: '18:30', end: '20:15' }
         ]
     },
     2: { // Martes
         enabled: true,
         slots: [
-            { start: '18:30', end: '21:45' }
+            { start: '18:30', end: '20:15' }
         ]
     },
     3: { // Miércoles
-        enabled: true,
-        slots: [
-            { start: '18:30', end: '21:45' }
-        ]
+        enabled: false,
+        slots: []
     },
     4: { // Jueves
         enabled: true,
         slots: [
-            { start: '18:30', end: '21:45' }
+            { start: '18:30', end: '20:15' }
         ]
     },
     5: { // Viernes
-        enabled: true,
-        slots: [
-            { start: '20:30', end: '21:30' }
-        ]
+        enabled: false,
+        slots: []
     },
     6: { // Sábado
         enabled: false,

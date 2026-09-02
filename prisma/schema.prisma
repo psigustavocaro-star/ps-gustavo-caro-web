@@ -38,6 +38,7 @@ model Booking {
   calEventTypeId  Int?
   siiReceiptIssued   Boolean  @default(false)
   siiReceiptIssuedAt DateTime?
+  appointmentCancellations AppointmentCancellation[]
   createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -46,6 +47,24 @@ model Booking {
   @@index([status, paidAt])
   @@index([createdAt])
   @@index([siiReceiptIssued])
+}
+
+model AppointmentCancellation {
+  id                      String   @id @default(uuid())
+  bookingId               String
+  booking                 Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  appointmentIndex        Int
+  originalAppointmentDate String
+  reason                  String?
+  calCancelledAt          DateTime?
+  emailSentAt             DateTime?
+  rebookedAt              DateTime?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@unique([bookingId, appointmentIndex, originalAppointmentDate])
+  @@index([originalAppointmentDate])
+  @@index([emailSentAt])
 }
 
 model Newsletter {

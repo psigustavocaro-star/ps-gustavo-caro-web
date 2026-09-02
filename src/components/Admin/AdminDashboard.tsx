@@ -210,6 +210,34 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleCancelDay = async () => {
+        const date = window.prompt('¿Qué día deseas cancelar? Usa el formato AAAA-MM-DD, por ejemplo: 2026-09-07.');
+        if (!date) return;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            alert('Escribe la fecha en formato AAAA-MM-DD.');
+            return;
+        }
+        const reason = window.prompt('Mensaje opcional para los pacientes. Si lo dejas vacío, se indicará “por motivos de fuerza mayor”.') || '';
+        if (!window.confirm(`Se cancelarán las sesiones del ${date} en Cal.com y se enviará a cada paciente su enlace privado para reagendar. ¿Continuar?`)) return;
+
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/admin/appointment-cancellations', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date, reason }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible cancelar la jornada.');
+            const summary = data.summary;
+            const failures = summary.failed ? `\n\nHubo ${summary.failed} caso(s) que no se pudo completar. Puedes volver a intentarlo: no se duplicarán los correos ya enviados.` : '';
+            alert(`Listo: ${summary.cancelled} evento(s) cancelado(s) en Cal.com y ${summary.emailed} correo(s) enviado(s) para ${summary.affected} sesión(es).${failures}`);
+            fetchData();
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'No fue posible cancelar la jornada.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleUpdatePatient = async () => {
         setIsLoading(true);
         try {
@@ -728,7 +756,10 @@ export default function AdminDashboard() {
 
                     {activeTab === 'bookings' && (
                         <div className={styles.responsiveList}>
-                            <p className={styles.calendarIntro}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
+                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '18px' }}>
+                                <p className={styles.calendarIntro} style={{ margin: 0 }}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
+                                <button className={styles.actionBtn} onClick={handleCancelDay} disabled={isLoading}>Cancelar y reagendar un día</button>
+                            </div>
                             <table className={styles.friendlyTable}>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {

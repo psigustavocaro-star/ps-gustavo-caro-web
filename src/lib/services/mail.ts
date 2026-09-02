@@ -2,6 +2,115 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function escapeHtml(value: string) {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function formatAppointmentDate(date: string) {
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) return 'la fecha acordada';
+
+    return new Intl.DateTimeFormat('es-CL', {
+        timeZone: 'America/Santiago',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).format(parsed);
+}
+
+/**
+ * Correo transaccional para una sesión cancelada por el profesional.
+ * No lleva enlace de desuscripción porque es una comunicación sobre una cita ya reservada.
+ */
+export function renderProfessionalCancellationEmail(data: {
+    patientName: string;
+    appointmentDate: string;
+    rescheduleUrl: string;
+    reason?: string;
+}) {
+    const patientName = escapeHtml(data.patientName.trim() || '');
+    const appointmentDate = escapeHtml(formatAppointmentDate(data.appointmentDate));
+    const rescheduleUrl = escapeHtml(data.rescheduleUrl);
+    const reason = escapeHtml(data.reason?.trim() || 'Por motivos de fuerza mayor');
+
+    return `
+        <div style="background:#f4f7f8;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#263238;line-height:1.6">
+            <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(38,50,56,.08)">
+                <div style="background:#0f6b78;padding:28px 36px;color:#ffffff">
+                    <p style="margin:0 0 6px;font-size:14px;letter-spacing:.04em;text-transform:uppercase;opacity:.85">Ps. Gustavo Caro</p>
+                    <h1 style="margin:0;font-size:25px;line-height:1.25">Necesitamos reprogramar tu sesión</h1>
+                </div>
+                <div style="padding:32px 36px">
+                    <p style="margin-top:0">Hola${patientName ? ` ${patientName}` : ''},</p>
+                    <p>Espero que estés bien. ${reason}, debo cancelar nuestra sesión agendada para el <strong style="text-transform:capitalize">${appointmentDate}</strong>.</p>
+                    <p>Lamento sinceramente los inconvenientes que esto pueda causarte. Quiero que puedas elegir con tranquilidad una nueva hora que te acomode; el pago y tu reserva se mantienen sin cambios.</p>
+                    <p style="text-align:center;margin:30px 0">
+                        <a href="${rescheduleUrl}" style="display:inline-block;background:#0f6b78;color:#ffffff;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:9px">Elegir una nueva hora</a>
+                    </p>
+                    <p>Si ninguna de las alternativas te resulta conveniente, puedes responder directamente a este correo y buscamos una opción.</p>
+                    <p style="margin-bottom:0">Gracias por tu comprensión.<br/>Un abrazo,<br/><strong>Ps. Gustavo Caro</strong></p>
+                </div>
+            </div>
+            <p style="max-width:600px;margin:18px auto 0;text-align:center;font-size:12px;color:#64748b">Este es un aviso relacionado con una sesión que ya tienes agendada.</p>
+        </div>
+    `;
+}
+
+export async function sendProfessionalCancellationEmail(data: {
+    patientName: string;
+    email: string;
+    appointmentDate: string;
+    rescheduleUrl: string;
+    reason?: string;
+}) {
+    const response = await resend.emails.send({
+        from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
+        to: data.email,
+        subject: 'Importante: debemos reprogramar tu sesión',
+        html: renderProfessionalCancellationEmail(data),
+    });
+
+    if (response.error) {
+        throw new Error(response.error.message || 'No fue posible enviar el correo de reprogramación');
+    }
+
+    return response.data;
+}
+
+export async function sendRescheduleConfirmationEmail(data: {
+    patientName: string;
+    email: string;
+    appointmentDate: string;
+}) {
+    const name = escapeHtml(data.patientName.trim());
+    const date = escapeHtml(formatAppointmentDate(data.appointmentDate));
+    const response = await resend.emails.send({
+        from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
+        to: data.email,
+        subject: 'Confirmación de tu nueva hora',
+        html: `
+            <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:32px;color:#263238;line-height:1.6">
+                <h1 style="color:#0f6b78">Tu nueva hora está confirmada</h1>
+                <p>Hola${name ? ` ${name}` : ''},</p>
+                <p>Tu sesión quedó reprogramada para el <strong style="text-transform:capitalize">${date}</strong>.</p>
+                <p>Gracias por tu comprensión. Si necesitas ayuda, responde directamente a este correo.</p>
+                <p>Un abrazo,<br/><strong>Ps. Gustavo Caro</strong></p>
+            </div>
+        `,
+    });
+    if (response.error) throw new Error(response.error.message || 'No fue posible enviar la confirmación');
+    return response.data;
+}
+
 export async function sendBookingNotification(data: {
     name: string;
     email: string;

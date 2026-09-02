@@ -1,0 +1,8 @@
+.page { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; background: #f4f7f8; }
+.card { width: min(100%, 780px); padding: clamp(26px, 6vw, 48px); background: #fff; border-radius: 20px; box-shadow: 0 12px 32px rgba(15, 107, 120, .12); color: #263238; }
+.card h1 { margin: 8px 0 14px; font-size: clamp(28px, 5vw, 40px); line-height: 1.12; color: #164e63; }
+.card p { font-size: 17px; line-height: 1.65; }
+.eyebrow { color: #0f6b78; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.error { margin: 16px 0; padding: 12px 14px; border-radius: 8px; background: #fff1f2; color: #9f1239; }
+.saving { padding: 24px 0; text-align: center; color: #0f6b78; font-weight: 700; }
+.secondaryButton { display: inline-block; margin-top: 18px; padding: 12px 18px; border-radius: 8px; background: #0f6b78; color: #fff; font-weight: 700; text-decoration: none; }
