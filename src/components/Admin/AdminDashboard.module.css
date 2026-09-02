@@ -318,6 +318,8 @@
 .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
 .badgeCalypso { background: #ecfeff; color: #0891b2; border: 1px solid #cffafe; }
 .badgeGeneric { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+.agendaStatus { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.awaitingReschedule { display: inline-flex; padding: 4px 7px; border: 1px solid #fed7aa; border-radius: 6px; background: #fff7ed; color: #c2410c; font-size: 0.62rem; font-weight: 800; line-height: 1.2; }
 
 .receiptToggle {
     display: inline-flex;

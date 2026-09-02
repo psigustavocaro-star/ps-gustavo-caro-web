@@ -19,6 +19,11 @@ const getBookingStatusLabel = (status?: string) => {
 
 const getPaymentDate = (booking: any) => new Date(booking.paidAt || booking.createdAt);
 
+const isAwaitingReschedule = (booking: any, appointmentIndex: number) =>
+    Boolean(booking.appointmentCancellations?.some((cancellation: any) =>
+        cancellation.appointmentIndex === appointmentIndex && !cancellation.rebookedAt
+    ));
+
 const getServiceDisplayName = (serviceType?: string) => {
     const names: Record<string, string> = {
         primeraConsulta: 'Primera consulta',
@@ -823,6 +828,8 @@ export default function AdminDashboard() {
                                     const date = session?.date || booking.appointmentDate || booking.createdAt;
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
+                                    const appointmentIndex = session ? session.number - 1 : 0;
+                                    const awaitingReschedule = isAwaitingReschedule(booking, appointmentIndex);
 
                                     return (
                                         <tr key={session ? `${booking.id}-${session.id}` : booking.id}>
@@ -833,9 +840,9 @@ export default function AdminDashboard() {
                                                 {session && <small className={styles.calendarSessionMeta}>Sesion {session.number} de {sessionCount}</small>}
                                             </td>
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
-                                            <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span></td>
+                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{awaitingReschedule && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}</div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
-                                            <td>{hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, session ? session.number - 1 : 0, String(date))}>Reprogramar</button>}</td>
+                                            <td>{hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
                                         </tr>
                                     );
@@ -846,6 +853,8 @@ export default function AdminDashboard() {
                                     const date = session?.date || booking.appointmentDate || booking.createdAt;
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
+                                    const appointmentIndex = session ? session.number - 1 : 0;
+                                    const awaitingReschedule = isAwaitingReschedule(booking, appointmentIndex);
 
                                     return (
                                     <div key={session ? `${booking.id}-${session.id}` : booking.id} className={styles.mobileCard}>
@@ -858,9 +867,9 @@ export default function AdminDashboard() {
                                             <span className={styles.cardSubtitle}>{getServiceDisplayName(booking.serviceType)}{session ? ` · Sesion ${session.number} de ${sessionCount}` : ''}</span>
                                         </div>
                                         <div className={styles.mobileBookingFooter}>
-                                            <span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>
+                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{awaitingReschedule && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}</div>
                                             {renderCalendarReceiptToggle(booking, session)}
-                                            {hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, session ? session.number - 1 : 0, String(date))}>Reprogramar</button>}
+                                            {hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
                                         </div>
                                     </div>

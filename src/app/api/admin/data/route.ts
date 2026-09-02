@@ -18,7 +18,10 @@ export async function GET() {
             },
         }).catch(() => null);
 
-        const allBookings = await prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
+        const allBookings = await prisma.booking.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: { appointmentCancellations: true },
+        }).catch(() => []);
         const bookings = allBookings.filter((booking) => (booking.status || '').toUpperCase() === 'PAID');
         const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
         const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
