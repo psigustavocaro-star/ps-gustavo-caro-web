@@ -17,7 +17,14 @@ const getBookingStatusLabel = (status?: string) => {
     return status || 'Sin estado';
 };
 
-const getPaymentDate = (booking: any) => new Date(booking.paidAt || booking.createdAt);
+const getScheduledRevenueEntries = (booking: any) => {
+    const sessions = getInvoiceSessionSlots(booking);
+    const amountPerSession = (Number(booking.amount) || 0) / sessions.length;
+
+    return sessions
+        .filter(session => session.date)
+        .map(session => ({ date: new Date(session.date as string), amount: amountPerSession }));
+};
 
 const isAwaitingReschedule = (booking: any, appointmentIndex: number) =>
     Boolean(booking.appointmentCancellations?.some((cancellation: any) =>
@@ -127,13 +134,10 @@ export default function AdminDashboard() {
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
         return bookings
-            .filter(b => {
-                const date = getPaymentDate(b);
-                return (b.status || '').toUpperCase() === 'PAID' &&
-                       date.getMonth() === currentMonth &&
-                       date.getFullYear() === currentYear;
-            })
-            .reduce((sum, b) => sum + (Number(b.amount) || 0), 0)
+            .filter(b => (b.status || '').toUpperCase() === 'PAID')
+            .flatMap(getScheduledRevenueEntries)
+            .filter(({ date }) => date.getMonth() === currentMonth && date.getFullYear() === currentYear)
+            .reduce((sum, session) => sum + session.amount, 0)
             .toLocaleString('es-CL');
     }, [bookings]);
 
@@ -142,20 +146,20 @@ export default function AdminDashboard() {
 
         bookings
             .filter(b => (b.status || '').toUpperCase() === 'PAID')
-            .forEach(b => {
-                const paidDate = getPaymentDate(b);
-                if (Number.isNaN(paidDate.getTime())) return;
+            .flatMap(getScheduledRevenueEntries)
+            .forEach(({ date, amount }) => {
+                if (Number.isNaN(date.getTime())) return;
 
-                const key = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
                 const existing = monthlyMap.get(key) || {
                     key,
-                    label: paidDate.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }),
+                    label: date.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }),
                     total: 0,
                     count: 0,
-                    date: new Date(paidDate.getFullYear(), paidDate.getMonth(), 1),
+                    date: new Date(date.getFullYear(), date.getMonth(), 1),
                 };
 
-                existing.total += Number(b.amount) || 0;
+                existing.total += amount;
                 existing.count += 1;
                 monthlyMap.set(key, existing);
             });
@@ -727,7 +731,7 @@ export default function AdminDashboard() {
                     <div className={styles.statCard}>
                         <div className={styles.statIcon}>💰</div>
                         <div className={styles.statInfo}>
-                            <h3>Ganancias del Mes</h3>
+                            <h3>Ingresos agendados del mes</h3>
                             <p>${monthlyEarnings}</p>
                         </div>
                     </div>
@@ -762,8 +766,8 @@ export default function AdminDashboard() {
                                 <div key={`${month.date.getFullYear()}-${month.date.getMonth()}`} className={styles.historyItem}>
                                     <span>{month.label}</span>
                                     <strong>${month.total.toLocaleString('es-CL')}</strong>
-                                    <small>{month.count} pago{month.count === 1 ? '' : 's'} confirmado{month.count === 1 ? '' : 's'}</small>
-                                    <em>Promedio ${(Math.round(month.total / Math.max(month.count, 1))).toLocaleString('es-CL')} por pago</em>
+                                    <small>{month.count} {month.count === 1 ? 'sesión pagada' : 'sesiones pagadas'}</small>
+                                    <em>Promedio ${(Math.round(month.total / Math.max(month.count, 1))).toLocaleString('es-CL')} por sesión</em>
                                 </div>
                                 ))}
                             </div>
