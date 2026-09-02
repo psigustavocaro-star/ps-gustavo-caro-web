@@ -45,6 +45,18 @@ const getServiceDisplayName = (serviceType?: string) => {
     return names[serviceType || ''] || serviceType || 'Servicio';
 };
 
+const manualServiceOptions = [
+    { value: 'sesion', label: 'Psicoterapia individual', price: 36000 },
+    { value: 'primeraConsulta', label: 'Primera consulta', price: 0 },
+    { value: 'packSesiones', label: 'Pack de 4 sesiones', price: 140000 },
+    { value: 'evalTDAH', label: 'Evaluación TDAH', price: 135000 },
+    { value: 'evalAutismo', label: 'Evaluación TEA (Autismo)', price: 220000 },
+    { value: 'evalWiscV', label: 'Evaluación WISC-V', price: 135000 },
+    { value: 'evalInteligencia', label: 'Evaluación intelectual', price: 160000 },
+    { value: 'evalNeuropsicologica', label: 'Evaluación neuropsicológica', price: 135000 },
+    { value: 'evalEmocional', label: 'Evaluación socioemocional', price: 140000 },
+];
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState('');
@@ -85,6 +97,8 @@ export default function AdminDashboard() {
     const [rescheduleModal, setRescheduleModal] = useState<{ mode: 'day' | 'individual'; booking?: any; appointmentIndex?: number; label?: string } | null>(null);
     const [rescheduleDate, setRescheduleDate] = useState('');
     const [rescheduleReason, setRescheduleReason] = useState('');
+    const [manualBookingModal, setManualBookingModal] = useState(false);
+    const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', appointmentDates: [''], sendEmail: true });
     
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -261,6 +275,39 @@ export default function AdminDashboard() {
             fetchData();
         } catch (error) {
             alert(error instanceof Error ? error.message : 'No fue posible iniciar la reprogramación.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const openManualBooking = () => {
+        setManualBooking({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', appointmentDates: [''], sendEmail: true });
+        setManualBookingModal(true);
+    };
+
+    const updateManualDate = (index: number, value: string) => {
+        setManualBooking(current => ({ ...current, appointmentDates: current.appointmentDates.map((date, itemIndex) => itemIndex === index ? value : date) }));
+    };
+
+    const submitManualBooking = async () => {
+        const appointmentDates = manualBooking.appointmentDates.filter(Boolean).map(date => new Date(date).toISOString());
+        if (!manualBooking.name.trim() || !manualBooking.email.trim() || !appointmentDates.length) {
+            alert('Completa el nombre, correo y al menos una fecha para continuar.');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/admin/manual-bookings', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...manualBooking, appointmentDates }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible registrar el pago.');
+            alert(`Pago registrado como pagado. ${data.scheduledInCal ? `${data.scheduledInCal} cita(s) creada(s) en Cal.com.` : 'La cita quedó registrada en la agenda.'}`);
+            setManualBookingModal(false);
+            fetchData();
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'No fue posible registrar el pago.');
         } finally {
             setIsLoading(false);
         }
@@ -657,6 +704,36 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            {manualBookingModal && (
+                <div className={styles.modalOverlay} onMouseDown={() => !isLoading && setManualBookingModal(false)}>
+                    <div className={`${styles.modalContent} ${styles.manualBookingModal}`} onMouseDown={event => event.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <div>
+                                <span className={styles.rescheduleEyebrow}>Pago recibido por transferencia</span>
+                                <h2>Registrar paciente y cita</h2>
+                            </div>
+                            <button className={styles.closeIcon} onClick={() => setManualBookingModal(false)} disabled={isLoading} aria-label="Cerrar">✕</button>
+                        </div>
+                        <p className={styles.rescheduleDescription}>Se guardará como pago confirmado. Las fechas futuras se crearán también en Cal.com para bloquear la agenda y enviar la invitación correspondiente.</p>
+                        <div className={styles.manualFormGrid}>
+                            <label className={styles.rescheduleField}><span>Nombre completo</span><input value={manualBooking.name} onChange={event => setManualBooking(current => ({ ...current, name: event.target.value }))} placeholder="Nombre del paciente" /></label>
+                            <label className={styles.rescheduleField}><span>Correo electrónico</span><input type="email" value={manualBooking.email} onChange={event => setManualBooking(current => ({ ...current, email: event.target.value }))} placeholder="paciente@correo.cl" /></label>
+                            <label className={styles.rescheduleField}><span>Teléfono <em>opcional</em></span><input type="tel" value={manualBooking.phone} onChange={event => setManualBooking(current => ({ ...current, phone: event.target.value }))} placeholder="+56 9 ..." /></label>
+                            <label className={styles.rescheduleField}><span>Servicio</span><select value={manualBooking.serviceType} onChange={event => { const option = manualServiceOptions.find(item => item.value === event.target.value); setManualBooking(current => ({ ...current, serviceType: event.target.value, amount: String(option?.price ?? current.amount) })); }}>{manualServiceOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+                            <label className={styles.rescheduleField}><span>Monto pagado (CLP)</span><input type="number" min="0" step="1" value={manualBooking.amount} onChange={event => setManualBooking(current => ({ ...current, amount: event.target.value }))} /></label>
+                        </div>
+                        <div className={styles.manualDates}>
+                            <div className={styles.manualDatesHeader}><span>Fechas agendadas</span><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: [...current.appointmentDates, ''] }))}>+ Añadir fecha</button></div>
+                            {manualBooking.appointmentDates.map((date, index) => <div className={styles.manualDateRow} key={index}><input type="datetime-local" value={date} onChange={event => updateManualDate(index, event.target.value)} /><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: current.appointmentDates.length === 1 ? [''] : current.appointmentDates.filter((_, itemIndex) => itemIndex !== index) }))} aria-label="Quitar fecha">✕</button></div>)}
+                        </div>
+                        <label className={styles.manualEmailOption}><input type="checkbox" checked={manualBooking.sendEmail} onChange={event => setManualBooking(current => ({ ...current, sendEmail: event.target.checked }))} /> Enviar confirmación de pago al paciente</label>
+                        <div className={styles.modalActions}>
+                            <button className={styles.syncBtn} onClick={() => setManualBookingModal(false)} disabled={isLoading}>Volver</button>
+                            <button className={styles.primaryBtn} onClick={submitManualBooking} disabled={isLoading}>{isLoading ? 'Registrando…' : 'Registrar como pagado'}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* Botón menú móvil */}
             <button 
@@ -820,7 +897,7 @@ export default function AdminDashboard() {
                         <div className={styles.responsiveList}>
                             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '18px' }}>
                                 <p className={styles.calendarIntro} style={{ margin: 0 }}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
-                                <button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>📅 Reagendar una jornada</button>
+                                <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>📅 Reagendar una jornada</button></div>
                             </div>
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
