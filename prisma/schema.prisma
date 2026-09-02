@@ -39,6 +39,7 @@ model Booking {
   siiReceiptIssued   Boolean  @default(false)
   siiReceiptIssuedAt DateTime?
   appointmentCancellations AppointmentCancellation[]
+  refundRequests AppointmentRefundRequest[]
   createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -47,6 +48,32 @@ model Booking {
   @@index([status, paidAt])
   @@index([createdAt])
   @@index([siiReceiptIssued])
+}
+
+model PatientAccount {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AppointmentRefundRequest {
+  id                String   @id @default(uuid())
+  bookingId         String
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  appointmentIndex  Int
+  appointmentDate   String
+  grossAmount       Int
+  flowCommission    Int
+  refundAmount      Int
+  bankDataEncrypted String   @db.Text
+  status            String   @default("PENDING")
+  requestedAt       DateTime @default(now())
+  completedAt       DateTime?
+
+  @@unique([bookingId, appointmentIndex, appointmentDate])
+  @@index([status, requestedAt])
 }
 
 model AppointmentCancellation {
