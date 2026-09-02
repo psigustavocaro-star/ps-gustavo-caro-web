@@ -31,6 +31,12 @@ const isAwaitingReschedule = (booking: any, appointmentIndex: number) =>
         cancellation.appointmentIndex === appointmentIndex && !cancellation.rebookedAt
     ));
 
+const toDateTimeLocal = (value: string) => {
+    const date = new Date(value);
+    const offset = date.getTimezoneOffset() * 60_000;
+    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+};
+
 const getServiceDisplayName = (serviceType?: string) => {
     const names: Record<string, string> = {
         primeraConsulta: 'Primera consulta',
@@ -97,6 +103,8 @@ export default function AdminDashboard() {
     const [rescheduleModal, setRescheduleModal] = useState<{ mode: 'day' | 'individual'; booking?: any; appointmentIndex?: number; label?: string } | null>(null);
     const [rescheduleDate, setRescheduleDate] = useState('');
     const [rescheduleReason, setRescheduleReason] = useState('');
+    const [dateEditModal, setDateEditModal] = useState<{ booking: any; appointmentIndex: number; label: string } | null>(null);
+    const [editedAppointmentDate, setEditedAppointmentDate] = useState('');
     const [manualBookingModal, setManualBookingModal] = useState(false);
     const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
     
@@ -252,6 +260,31 @@ export default function AdminDashboard() {
             mode: 'individual', booking, appointmentIndex,
             label: `${booking.name || 'Paciente'}${date ? ` · ${new Date(date).toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}` : ''}`,
         });
+    };
+
+    const openDateEdit = (booking: any, appointmentIndex: number, date: string) => {
+        setEditedAppointmentDate(toDateTimeLocal(date));
+        setDateEditModal({ booking, appointmentIndex, label: `${booking.name || 'Paciente'} · ${new Date(date).toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}` });
+    };
+
+    const submitDateEdit = async () => {
+        if (!dateEditModal || !editedAppointmentDate) return;
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/admin/bookings/${dateEditModal.booking.id}/appointment`, {
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ appointmentIndex: dateEditModal.appointmentIndex, appointmentDate: new Date(editedAppointmentDate).toISOString() }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible modificar la fecha.');
+            alert('Fecha actualizada. Cal.com envió la invitación actualizada al paciente.');
+            setDateEditModal(null);
+            fetchData();
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'No fue posible modificar la fecha.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const submitReschedule = async () => {
@@ -707,6 +740,22 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            {dateEditModal && (
+                <div className={styles.modalOverlay} onMouseDown={() => !isLoading && setDateEditModal(null)}>
+                    <div className={`${styles.modalContent} ${styles.dateEditModal}`} onMouseDown={event => event.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <div><span className={styles.rescheduleEyebrow}>Corrección administrativa</span><h2>Modificar fecha</h2></div>
+                            <button className={styles.closeIcon} onClick={() => setDateEditModal(null)} disabled={isLoading} aria-label="Cerrar">✕</button>
+                        </div>
+                        <p className={styles.rescheduleDescription}>Cambiarás la fecha de {dateEditModal.label}. Cal.com moverá la cita y actualizará la invitación del paciente.</p>
+                        <label className={styles.rescheduleField}><span>Nueva fecha y hora</span><input type="datetime-local" value={editedAppointmentDate} onChange={event => setEditedAppointmentDate(event.target.value)} /></label>
+                        <div className={styles.modalActions}>
+                            <button className={styles.syncBtn} onClick={() => setDateEditModal(null)} disabled={isLoading}>Volver</button>
+                            <button className={styles.primaryBtn} onClick={submitDateEdit} disabled={isLoading}>{isLoading ? 'Actualizando…' : 'Guardar nueva fecha'}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {manualBookingModal && (
                 <div className={styles.modalOverlay} onMouseDown={() => !isLoading && setManualBookingModal(false)}>
                     <div className={`${styles.modalContent} ${styles.manualBookingModal}`} onMouseDown={event => event.stopPropagation()}>
@@ -927,7 +976,7 @@ export default function AdminDashboard() {
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
                                             <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{awaitingReschedule && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}</div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
-                                            <td>{hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button>}</td>
+                                            <td>{hasDate && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
                                         </tr>
                                     );
@@ -954,7 +1003,7 @@ export default function AdminDashboard() {
                                         <div className={styles.mobileBookingFooter}>
                                             <div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{awaitingReschedule && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}</div>
                                             {renderCalendarReceiptToggle(booking, session)}
-                                            {hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button>}
+                                            {hasDate && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
                                         </div>
                                     </div>

@@ -76,6 +76,37 @@ export async function confirmCalBooking(bookingUid: string): Promise<CalActionRe
     }
 }
 
+export async function rescheduleCalBooking(params: {
+    bookingUid: string;
+    start: string;
+    rescheduledBy?: string;
+    reason?: string;
+}): Promise<CalBookingResult> {
+    const apiKey = process.env.CALCOM_API_KEY;
+    if (!apiKey || !params.bookingUid) return { success: false, error: 'Datos de reprogramación incompletos' };
+    try {
+        const response = await fetch(`https://api.cal.com/v2/bookings/${params.bookingUid}/reschedule`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+                'cal-api-version': '2026-02-25',
+            },
+            body: JSON.stringify({ start: params.start, rescheduledBy: params.rescheduledBy, reschedulingReason: params.reason || 'Corrección administrativa de fecha.' }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.status === 'error') {
+            console.error('Cal.com reschedule error:', response.status, data?.message || data?.error);
+            return { success: false, error: 'Cal.com no pudo mover esta cita' };
+        }
+        const bookingId = data.data?.uid || data.data?.rescheduledToUid || data.uid;
+        return bookingId ? { success: true, bookingId: String(bookingId) } : { success: false, error: 'Cal.com no devolvió la nueva cita' };
+    } catch (error) {
+        console.error('Cal.com reschedule network error:', error);
+        return { success: false, error: 'No se pudo conectar con Cal.com' };
+    }
+}
+
 export async function cancelCalBooking(bookingUid: string, reason?: string): Promise<CalActionResult> {
     const apiKey = process.env.CALCOM_API_KEY;
 

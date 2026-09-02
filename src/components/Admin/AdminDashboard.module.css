@@ -309,7 +309,7 @@
 .agendaTable .receiptCheck { width: 19px; height: 19px; border-radius: 6px; }
 .agendaTable .receiptToggle strong { font-size: 0.7rem; }
 .agendaTable .receiptToggle small { font-size: 0.64rem; }
-.agendaTable .reschedulePatientBtn, .agendaTable .bookingPatientBtn { width: 100%; min-height: 35px; padding: 8px 7px; font-size: 0.72rem; }
+.agendaTable .reschedulePatientBtn, .agendaTable .bookingPatientBtn, .agendaTable .editDateBtn { width: 100%; min-height: 32px; padding: 7px; font-size: 0.7rem; }
 .agendaPatientName { display: block; color: #0f172a; font-weight: 800; line-height: 1.35; }
 .agendaDate { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .agendaDate strong { color: #0f172a; font-size: 0.86rem; text-transform: capitalize; }
@@ -434,6 +434,9 @@
     transition: 0.2s ease;
 }
 .reschedulePatientBtn:hover { background: #ffedd5; border-color: #fb923c; }
+.agendaActionGroup { display: flex; flex-direction: column; gap: 6px; }
+.editDateBtn { min-height: 36px; padding: 8px 10px; border: 1px solid #bae6fd; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: .76rem; font-weight: 800; cursor: pointer; transition: .2s; white-space: nowrap; }
+.editDateBtn:hover { background: #e0f2fe; border-color: #7dd3fc; }
 
 .actionBtn { 
     background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); 
@@ -527,6 +530,7 @@
 
 .rescheduleModal { max-width: 570px; }
 .manualBookingModal { max-width: 680px; }
+.dateEditModal { max-width: 520px; }
 .manualFormGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
 .manualFormGrid .rescheduleField { margin-top: 14px; }
 .rescheduleField select { width: 100%; box-sizing: border-box; min-height: 48px; border: 1px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; font: inherit; padding: 12px 14px; outline: none; transition: .2s; }
