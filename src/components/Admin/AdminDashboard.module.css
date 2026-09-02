@@ -535,6 +535,7 @@
 .manualDatesHeader { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #334155; font-size: .84rem; font-weight: 800; }
 .manualDatesHeader button { border: 0; background: transparent; color: #0e7490; font: inherit; font-weight: 800; cursor: pointer; }
 .manualDateRow { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.manualDateRow label { width: 100px; flex: 0 0 100px; color: #475569; font-size: .75rem; font-weight: 800; }
 .manualDateRow input { flex: 1; min-width: 0; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a; font: inherit; padding: 10px 12px; color-scheme: light; }
 .manualDateRow button { width: 34px; height: 34px; border: 0; border-radius: 9px; background: #fff1f2; color: #e11d48; cursor: pointer; font-weight: 800; }
 .manualEmailOption { display: flex; align-items: center; gap: 9px; margin-top: 16px; color: #475569; font-size: .84rem; font-weight: 700; cursor: pointer; }
@@ -662,6 +663,8 @@
     .modalContent { padding: 24px; border-radius: 24px; width: 95%; max-height: 85vh; border: none; }
     .dataGrid { grid-template-columns: 1fr; gap: 12px; }
     .manualFormGrid { grid-template-columns: 1fr; gap: 0; }
+    .manualDateRow { align-items: flex-start; flex-wrap: wrap; }
+    .manualDateRow label { width: 100%; flex-basis: 100%; }
     .agendaActions { width: 100%; }
     .agendaActions button { flex: 1; }
     .modalActions { flex-direction: column; gap: 10px; }

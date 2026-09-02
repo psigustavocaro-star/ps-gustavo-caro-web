@@ -7,7 +7,7 @@ import Link from 'next/link';
 import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
-import { getInvoiceSessionSlots, getIssuedInvoiceSessionIds, stampIssuedInvoiceSessionIds } from '@/lib/invoice-sessions';
+import { getIncludedSessionCount, getInvoiceSessionSlots, getIssuedInvoiceSessionIds, stampIssuedInvoiceSessionIds } from '@/lib/invoice-sessions';
 
 const getBookingStatusLabel = (status?: string) => {
     const normalizedStatus = (status || '').toUpperCase();
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
     const [rescheduleDate, setRescheduleDate] = useState('');
     const [rescheduleReason, setRescheduleReason] = useState('');
     const [manualBookingModal, setManualBookingModal] = useState(false);
-    const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', appointmentDates: [''], sendEmail: true });
+    const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
     
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -185,6 +185,9 @@ export default function AdminDashboard() {
         earningsHistory.filter(month => month.key !== currentMonthKey)
     ), [currentMonthKey, earningsHistory]);
 
+    const manualIncludedSessions = getIncludedSessionCount(manualBooking.serviceType);
+    const manualRemainingSessions = manualIncludedSessions - manualBooking.completedSessions;
+
     const calendarEntries = useMemo<any[]>(() => (
         bookings.flatMap<any>((booking: any) => {
             const sessionSlots = getInvoiceSessionSlots(booking);
@@ -193,7 +196,7 @@ export default function AdminDashboard() {
                 return [{ booking, session: null, sessionCount: 1 }];
             }
 
-            return sessionSlots.map((session) => ({ booking, session, sessionCount: sessionSlots.length }));
+            return sessionSlots.filter(session => !session.completed).map((session) => ({ booking, session, sessionCount: sessionSlots.length }));
         }).sort((first, second) => {
             const firstDate = first.session?.date || first.booking.appointmentDate || first.booking.createdAt;
             const secondDate = second.session?.date || second.booking.appointmentDate || second.booking.createdAt;
@@ -281,7 +284,7 @@ export default function AdminDashboard() {
     };
 
     const openManualBooking = () => {
-        setManualBooking({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', appointmentDates: [''], sendEmail: true });
+        setManualBooking({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
         setManualBookingModal(true);
     };
 
@@ -714,17 +717,18 @@ export default function AdminDashboard() {
                             </div>
                             <button className={styles.closeIcon} onClick={() => setManualBookingModal(false)} disabled={isLoading} aria-label="Cerrar">✕</button>
                         </div>
-                        <p className={styles.rescheduleDescription}>Se guardará como pago confirmado. Las fechas futuras se crearán también en Cal.com para bloquear la agenda y enviar la invitación correspondiente.</p>
+                        <p className={styles.rescheduleDescription}>El monto se propone automáticamente según el servicio, pero puedes corregirlo. Las fechas futuras se crearán también en Cal.com para bloquear la agenda y enviar la invitación correspondiente.</p>
                         <div className={styles.manualFormGrid}>
                             <label className={styles.rescheduleField}><span>Nombre completo</span><input value={manualBooking.name} onChange={event => setManualBooking(current => ({ ...current, name: event.target.value }))} placeholder="Nombre del paciente" /></label>
                             <label className={styles.rescheduleField}><span>Correo electrónico</span><input type="email" value={manualBooking.email} onChange={event => setManualBooking(current => ({ ...current, email: event.target.value }))} placeholder="paciente@correo.cl" /></label>
                             <label className={styles.rescheduleField}><span>Teléfono <em>opcional</em></span><input type="tel" value={manualBooking.phone} onChange={event => setManualBooking(current => ({ ...current, phone: event.target.value }))} placeholder="+56 9 ..." /></label>
-                            <label className={styles.rescheduleField}><span>Servicio</span><select value={manualBooking.serviceType} onChange={event => { const option = manualServiceOptions.find(item => item.value === event.target.value); setManualBooking(current => ({ ...current, serviceType: event.target.value, amount: String(option?.price ?? current.amount) })); }}>{manualServiceOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+                            <label className={styles.rescheduleField}><span>Servicio</span><select value={manualBooking.serviceType} onChange={event => { const option = manualServiceOptions.find(item => item.value === event.target.value); const sessionCount = getIncludedSessionCount(event.target.value); setManualBooking(current => ({ ...current, serviceType: event.target.value, amount: String(option?.price ?? current.amount), completedSessions: 0, appointmentDates: Array.from({ length: sessionCount }, () => '') })); }}>{manualServiceOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
                             <label className={styles.rescheduleField}><span>Monto pagado (CLP)</span><input type="number" min="0" step="1" value={manualBooking.amount} onChange={event => setManualBooking(current => ({ ...current, amount: event.target.value }))} /></label>
+                            {manualIncludedSessions > 1 && <label className={styles.rescheduleField}><span>Sesiones ya realizadas</span><select value={manualBooking.completedSessions} onChange={event => { const completedSessions = Number(event.target.value); const remaining = manualIncludedSessions - completedSessions; setManualBooking(current => ({ ...current, completedSessions, appointmentDates: current.appointmentDates.slice(0, remaining).concat(Array(Math.max(remaining - current.appointmentDates.length, 0)).fill('')) })); }}>{Array.from({ length: manualIncludedSessions }, (_, index) => <option key={index} value={index}>{index === 0 ? 'Ninguna aún' : `${index} de ${manualIncludedSessions} realizadas`}</option>)}</select></label>}
                         </div>
                         <div className={styles.manualDates}>
-                            <div className={styles.manualDatesHeader}><span>Fechas agendadas</span><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: [...current.appointmentDates, ''] }))}>+ Añadir fecha</button></div>
-                            {manualBooking.appointmentDates.map((date, index) => <div className={styles.manualDateRow} key={index}><input type="datetime-local" value={date} onChange={event => updateManualDate(index, event.target.value)} /><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: current.appointmentDates.length === 1 ? [''] : current.appointmentDates.filter((_, itemIndex) => itemIndex !== index) }))} aria-label="Quitar fecha">✕</button></div>)}
+                            <div className={styles.manualDatesHeader}><span>{manualIncludedSessions > 1 ? `Fechas pendientes · sesiones ${manualBooking.completedSessions + 1} a ${manualIncludedSessions}` : 'Fecha agendada'}</span>{manualBooking.appointmentDates.length < manualRemainingSessions && <button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: [...current.appointmentDates, ''] }))}>+ Añadir fecha</button>}</div>
+                            {manualBooking.appointmentDates.map((date, index) => <div className={styles.manualDateRow} key={index}><label>{manualIncludedSessions > 1 ? `Sesión ${manualBooking.completedSessions + index + 1} de ${manualIncludedSessions}` : 'Sesión'}</label><input type="datetime-local" value={date} onChange={event => updateManualDate(index, event.target.value)} /><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: current.appointmentDates.length === 1 ? [''] : current.appointmentDates.filter((_, itemIndex) => itemIndex !== index) }))} aria-label="Quitar fecha">✕</button></div>)}
                         </div>
                         <label className={styles.manualEmailOption}><input type="checkbox" checked={manualBooking.sendEmail} onChange={event => setManualBooking(current => ({ ...current, sendEmail: event.target.checked }))} /> Enviar confirmación de pago al paciente</label>
                         <div className={styles.modalActions}>
@@ -909,7 +913,7 @@ export default function AdminDashboard() {
                                     const date = session?.date || booking.appointmentDate || booking.createdAt;
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
-                                    const appointmentIndex = session ? session.number - 1 : 0;
+                                    const appointmentIndex = session?.appointmentIndex ?? 0;
                                     const awaitingReschedule = isAwaitingReschedule(booking, appointmentIndex);
 
                                     return (
@@ -934,7 +938,7 @@ export default function AdminDashboard() {
                                     const date = session?.date || booking.appointmentDate || booking.createdAt;
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
-                                    const appointmentIndex = session ? session.number - 1 : 0;
+                                    const appointmentIndex = session?.appointmentIndex ?? 0;
                                     const awaitingReschedule = isAwaitingReschedule(booking, appointmentIndex);
 
                                     return (

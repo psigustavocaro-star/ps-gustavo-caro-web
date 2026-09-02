@@ -5,6 +5,7 @@ import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 import { getCalEventTypeId, PRICING } from '@/lib/config/pricing';
 import { cancelCalBooking, createCalBooking } from '@/lib/services/calcom';
 import { sendBookingConfirmation } from '@/lib/services/mail';
+import { getIncludedSessionCount, stampCompletedSessionCount } from '@/lib/invoice-sessions';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,7 @@ export async function POST(request: NextRequest) {
         const serviceType = typeof body.serviceType === 'string' ? body.serviceType : '';
         const amount = Number(body.amount);
         const sendEmail = body.sendEmail !== false;
+        const completedSessions = Number.isInteger(body.completedSessions) ? body.completedSessions : 0;
         const appointmentDates = Array.isArray(body.appointmentDates)
             ? body.appointmentDates.filter((value: unknown) => typeof value === 'string' && !Number.isNaN(Date.parse(value)))
             : [];
@@ -32,6 +34,10 @@ export async function POST(request: NextRequest) {
         }
         if (!validServices.has(serviceType) || !Number.isInteger(amount) || amount < 0 || amount > 5_000_000) {
             return NextResponse.json({ success: false, error: 'Revisa el servicio y el monto ingresado.' }, { status: 400 });
+        }
+        const includedSessions = getIncludedSessionCount(serviceType);
+        if (completedSessions < 0 || completedSessions >= includedSessions || appointmentDates.length > includedSessions - completedSessions) {
+            return NextResponse.json({ success: false, error: 'Revisa las sesiones realizadas y las fechas pendientes.' }, { status: 400 });
         }
         if (!appointmentDates.length || new Set(appointmentDates).size !== appointmentDates.length) {
             return NextResponse.json({ success: false, error: 'Ingresa al menos una fecha válida, sin repetirla.' }, { status: 400 });
@@ -74,6 +80,7 @@ export async function POST(request: NextRequest) {
                 status: 'PAID',
                 paidAt: new Date(),
                 reason: 'Pago por transferencia manual registrado desde el panel administrativo.',
+                details: stampCompletedSessionCount('', completedSessions),
                 appointmentDate: appointmentDates[0],
                 appointmentDates,
                 attendeeTimeZone: 'America/Santiago',
