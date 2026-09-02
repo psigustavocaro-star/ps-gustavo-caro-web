@@ -300,6 +300,21 @@
 .friendlyTable tr td:last-child { border-radius: 0 12px 12px 0; text-align: right; }
 .friendlyTable tr:hover td { background: #f1f5f9; }
 
+/* Agenda: tabla compacta para mantener la lectura clara aun con acciones por sesión. */
+.agendaTable { table-layout: fixed; border-spacing: 0 6px; }
+.agendaTable th { padding: 0 10px 7px; font-size: 0.68rem; line-height: 1.25; }
+.agendaTable td { padding: 12px 10px; vertical-align: middle; font-size: 0.86rem; line-height: 1.35; overflow-wrap: anywhere; }
+.agendaTable tr td:first-child { font-size: 0.88rem; }
+.agendaTable .receiptToggle { min-width: 0; width: 100%; gap: 7px; padding: 7px 8px; border-radius: 10px; }
+.agendaTable .receiptCheck { width: 19px; height: 19px; border-radius: 6px; }
+.agendaTable .receiptToggle strong { font-size: 0.7rem; }
+.agendaTable .receiptToggle small { font-size: 0.64rem; }
+.agendaTable .reschedulePatientBtn, .agendaTable .bookingPatientBtn { width: 100%; min-height: 35px; padding: 8px 7px; font-size: 0.72rem; }
+.agendaPatientName { display: block; color: #0f172a; font-weight: 800; line-height: 1.35; }
+.agendaDate { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+.agendaDate strong { color: #0f172a; font-size: 0.86rem; text-transform: capitalize; }
+.agendaDate small { color: #64748b; font-size: 0.76rem; font-weight: 700; }
+
 .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
 .badgeCalypso { background: #ecfeff; color: #0891b2; border: 1px solid #cffafe; }
 .badgeGeneric { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }

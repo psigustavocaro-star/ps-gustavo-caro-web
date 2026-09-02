@@ -813,7 +813,11 @@ export default function AdminDashboard() {
                                 <p className={styles.calendarIntro} style={{ margin: 0 }}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
                                 <button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>📅 Reagendar una jornada</button>
                             </div>
-                            <table className={styles.friendlyTable}>
+                            <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
+                                <colgroup>
+                                    <col style={{ width: '16%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />
+                                    <col style={{ width: '10%' }} /><col style={{ width: '15%' }} /><col style={{ width: '11%' }} /><col style={{ width: '11%' }} />
+                                </colgroup>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Acción</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {
                                     const date = session?.date || booking.appointmentDate || booking.createdAt;
@@ -822,8 +826,8 @@ export default function AdminDashboard() {
 
                                     return (
                                         <tr key={session ? `${booking.id}-${session.id}` : booking.id}>
-                                            <td>{booking.name}</td>
-                                            <td>{hasDate ? <>{new Date(date).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(date).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</> : <span className={styles.pendingDate}>Pendiente de agendar</span>}</td>
+                                            <td><span className={styles.agendaPatientName}>{booking.name}</span></td>
+                                            <td>{hasDate ? <span className={styles.agendaDate}><strong>{new Date(date).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}</strong><small>{new Date(date).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })} h</small></span> : <span className={styles.pendingDate}>Pendiente de agendar</span>}</td>
                                             <td>
                                                 <span>{getServiceDisplayName(booking.serviceType)}</span>
                                                 {session && <small className={styles.calendarSessionMeta}>Sesion {session.number} de {sessionCount}</small>}
