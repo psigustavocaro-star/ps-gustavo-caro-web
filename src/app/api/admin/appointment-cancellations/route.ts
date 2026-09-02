@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Booking } from '@prisma/client';
 import prisma from '@/lib/db';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 import { createRescheduleToken } from '@/lib/auth/reschedule-link';
@@ -23,18 +24,31 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const date = typeof body.date === 'string' ? body.date : '';
+        const bookingId = typeof body.bookingId === 'string' ? body.bookingId : '';
+        const appointmentIndex = Number.isInteger(body.appointmentIndex) ? body.appointmentIndex : 0;
         const reason = typeof body.reason === 'string' ? body.reason.trim().slice(0, 300) : '';
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            return NextResponse.json({ success: false, error: 'Fecha inválida' }, { status: 400 });
-        }
+        let sessions: Array<{ booking: Booking; appointmentDate: string; appointmentIndex: number }> = [];
 
-        const bookings = await prisma.booking.findMany({ where: { status: 'PAID' } });
-        const sessions = bookings.flatMap(booking => {
+        if (bookingId) {
+            if (appointmentIndex < 0) return NextResponse.json({ success: false, error: 'Sesión inválida' }, { status: 400 });
+            const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+            if (!booking || booking.status !== 'PAID') return NextResponse.json({ success: false, error: 'No se encontró una reserva pagada' }, { status: 404 });
             const appointments = booking.appointmentDates.length ? booking.appointmentDates : booking.appointmentDate ? [booking.appointmentDate] : [];
-            return appointments
-                .map((appointmentDate, appointmentIndex) => ({ booking, appointmentDate, appointmentIndex }))
-                .filter(session => clinicDateKey(session.appointmentDate) === date);
-        });
+            const appointmentDate = appointments[appointmentIndex];
+            if (!appointmentDate) return NextResponse.json({ success: false, error: 'La sesión seleccionada no tiene fecha' }, { status: 400 });
+            sessions = [{ booking, appointmentDate, appointmentIndex }];
+        } else {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                return NextResponse.json({ success: false, error: 'Fecha inválida' }, { status: 400 });
+            }
+            const bookings = await prisma.booking.findMany({ where: { status: 'PAID' } });
+            sessions = bookings.flatMap(booking => {
+                const appointments = booking.appointmentDates.length ? booking.appointmentDates : booking.appointmentDate ? [booking.appointmentDate] : [];
+                return appointments
+                    .map((appointmentDate, itemIndex) => ({ booking, appointmentDate, appointmentIndex: itemIndex }))
+                    .filter(item => clinicDateKey(item.appointmentDate) === date);
+            });
+        }
         if (!sessions.length) return NextResponse.json({ success: true, summary: { affected: 0, cancelled: 0, emailed: 0, failed: 0 } });
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://psgustavocaro.cl';

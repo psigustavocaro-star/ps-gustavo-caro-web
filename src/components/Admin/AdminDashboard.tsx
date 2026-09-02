@@ -70,6 +70,9 @@ export default function AdminDashboard() {
     const [content, setContent] = useState('');
     const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
     const [showPreviousMonths, setShowPreviousMonths] = useState(false);
+    const [rescheduleModal, setRescheduleModal] = useState<{ mode: 'day' | 'individual'; booking?: any; appointmentIndex?: number; label?: string } | null>(null);
+    const [rescheduleDate, setRescheduleDate] = useState('');
+    const [rescheduleReason, setRescheduleReason] = useState('');
     
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -210,29 +213,45 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleCancelDay = async () => {
-        const date = window.prompt('¿Qué día deseas cancelar? Usa el formato AAAA-MM-DD, por ejemplo: 2026-09-07.');
-        if (!date) return;
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            alert('Escribe la fecha en formato AAAA-MM-DD.');
+    const openDayReschedule = () => {
+        setRescheduleDate(new Date().toISOString().slice(0, 10));
+        setRescheduleReason('');
+        setRescheduleModal({ mode: 'day' });
+    };
+
+    const openIndividualReschedule = (booking: any, appointmentIndex: number, date?: string) => {
+        setRescheduleDate(date ? new Date(date).toISOString().slice(0, 10) : '');
+        setRescheduleReason('');
+        setRescheduleModal({
+            mode: 'individual', booking, appointmentIndex,
+            label: `${booking.name || 'Paciente'}${date ? ` · ${new Date(date).toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}` : ''}`,
+        });
+    };
+
+    const submitReschedule = async () => {
+        if (!rescheduleModal) return;
+        if (rescheduleModal.mode === 'day' && !/^\d{4}-\d{2}-\d{2}$/.test(rescheduleDate)) {
+            alert('Selecciona una fecha para continuar.');
             return;
         }
-        const reason = window.prompt('Mensaje opcional para los pacientes. Si lo dejas vacío, se indicará “por motivos de fuerza mayor”.') || '';
-        if (!window.confirm(`Se cancelarán las sesiones del ${date} en Cal.com y se enviará a cada paciente su enlace privado para reagendar. ¿Continuar?`)) return;
-
         setIsLoading(true);
         try {
             const response = await fetch('/api/admin/appointment-cancellations', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date, reason }),
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rescheduleModal.mode === 'day'
+                    ? { date: rescheduleDate, reason: rescheduleReason }
+                    : { bookingId: rescheduleModal.booking.id, appointmentIndex: rescheduleModal.appointmentIndex, reason: rescheduleReason }),
             });
             const data = await response.json();
-            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible cancelar la jornada.');
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible iniciar la reprogramación.');
             const summary = data.summary;
             const failures = summary.failed ? `\n\nHubo ${summary.failed} caso(s) que no se pudo completar. Puedes volver a intentarlo: no se duplicarán los correos ya enviados.` : '';
             alert(`Listo: ${summary.cancelled} evento(s) cancelado(s) en Cal.com y ${summary.emailed} correo(s) enviado(s) para ${summary.affected} sesión(es).${failures}`);
+            setRescheduleModal(null);
             fetchData();
         } catch (error) {
-            alert(error instanceof Error ? error.message : 'No fue posible cancelar la jornada.');
+            alert(error instanceof Error ? error.message : 'No fue posible iniciar la reprogramación.');
         } finally {
             setIsLoading(false);
         }
@@ -595,6 +614,40 @@ export default function AdminDashboard() {
     return (
         <div className={`${styles.adminMain} ${isMobileMenuOpen ? styles.menuOpen : ''}`}>
             <div className={styles.ambientAura}></div>
+            {rescheduleModal && (
+                <div className={styles.modalOverlay} onMouseDown={() => !isLoading && setRescheduleModal(null)}>
+                    <div className={`${styles.modalContent} ${styles.rescheduleModal}`} onMouseDown={event => event.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <div>
+                                <span className={styles.rescheduleEyebrow}>{rescheduleModal.mode === 'day' ? 'Agenda del día' : 'Sesión individual'}</span>
+                                <h2>{rescheduleModal.mode === 'day' ? 'Reagendar una jornada' : 'Reagendar esta sesión'}</h2>
+                            </div>
+                            <button className={styles.closeIcon} onClick={() => setRescheduleModal(null)} disabled={isLoading} aria-label="Cerrar">✕</button>
+                        </div>
+                        <p className={styles.rescheduleDescription}>
+                            {rescheduleModal.mode === 'day'
+                                ? 'Elige el día que no atenderás. Verás canceladas las sesiones de esa fecha y cada paciente recibirá su enlace privado para escoger una nueva hora.'
+                                : `Se cancelará únicamente la sesión de ${rescheduleModal.label}. La persona recibirá su enlace privado para reagendar.`}
+                        </p>
+                        {rescheduleModal.mode === 'day' && (
+                            <label className={styles.rescheduleField}>
+                                <span>Fecha a reagendar</span>
+                                <input type="date" value={rescheduleDate} onChange={event => setRescheduleDate(event.target.value)} required />
+                            </label>
+                        )}
+                        <label className={styles.rescheduleField}>
+                            <span>Mensaje adicional <em>opcional</em></span>
+                            <textarea value={rescheduleReason} onChange={event => setRescheduleReason(event.target.value)} placeholder="Por ejemplo: tendré un compromiso impostergable." maxLength={300} />
+                        </label>
+                        <div className={styles.modalActions}>
+                            <button className={styles.syncBtn} onClick={() => setRescheduleModal(null)} disabled={isLoading}>Volver</button>
+                            <button className={styles.primaryBtn} onClick={submitReschedule} disabled={isLoading}>
+                                {isLoading ? 'Enviando…' : 'Confirmar y enviar enlaces'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* Botón menú móvil */}
             <button 
@@ -758,10 +811,10 @@ export default function AdminDashboard() {
                         <div className={styles.responsiveList}>
                             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '18px' }}>
                                 <p className={styles.calendarIntro} style={{ margin: 0 }}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
-                                <button className={styles.actionBtn} onClick={handleCancelDay} disabled={isLoading}>Cancelar y reagendar un día</button>
+                                <button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>📅 Reagendar una jornada</button>
                             </div>
                             <table className={styles.friendlyTable}>
-                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Ficha</th></tr></thead>
+                                <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Acción</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {
                                     const date = session?.date || booking.appointmentDate || booking.createdAt;
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
@@ -778,6 +831,7 @@ export default function AdminDashboard() {
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
                                             <td><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
+                                            <td>{hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, session ? session.number - 1 : 0, String(date))}>Reprogramar</button>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
                                         </tr>
                                     );
@@ -802,6 +856,7 @@ export default function AdminDashboard() {
                                         <div className={styles.mobileBookingFooter}>
                                             <span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>
                                             {renderCalendarReceiptToggle(booking, session)}
+                                            {hasDate && <button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, session ? session.number - 1 : 0, String(date))}>Reprogramar</button>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
                                         </div>
                                     </div>
