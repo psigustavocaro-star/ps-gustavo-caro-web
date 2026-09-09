@@ -69,6 +69,7 @@ model PatientAccount {
   occupation   String?
   companion    String?
   address      String?
+  country      String?
   region       String?
   commune      String?
   phone        String?

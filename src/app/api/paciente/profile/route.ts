@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { PATIENT_SESSION_COOKIE, verifyPatientSession } from '@/lib/auth/patient-session';
 import { encryptRefundData } from '@/lib/security/refund-data';
 
-const fields = ['firstName', 'secondName', 'firstSurname', 'secondSurname', 'birthDate', 'gender', 'occupation', 'companion', 'address', 'region', 'commune', 'phone', 'educationLevel', 'emergencyContact'] as const;
+const fields = ['firstName', 'secondName', 'firstSurname', 'secondSurname', 'birthDate', 'gender', 'occupation', 'companion', 'address', 'country', 'region', 'commune', 'phone', 'educationLevel', 'emergencyContact'] as const;
 const clinicalFields = ['diagnoses', 'medications', 'genogram'] as const;
 const clean = (value: unknown, max = 160) => typeof value === 'string' ? value.trim().slice(0, max) : '';
 
