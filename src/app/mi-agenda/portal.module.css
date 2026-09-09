@@ -25,7 +25,7 @@
 .help a { color: var(--teal); font-weight: 700; }
 .logout, .subtleButton, .cancelButton { border: 1px solid #c5dcd6; border-radius: 999px; padding: 9px 15px; background: #fff; color: var(--teal); font: 700 13px var(--font-body); cursor: pointer; }
 
-.hero { display: grid; grid-template-columns: 1.12fr .88fr; height: 270px; min-height: 0; margin-bottom: 22px; padding: 0; overflow: hidden; border-radius: 24px; background: #e8f1ed; }
+.hero { display: grid; grid-template-columns: 1.12fr .88fr; min-height: 326px; margin-bottom: 22px; padding: 0; overflow: hidden; border-radius: 24px; background: #e8f1ed; }
 .heroCopy { display: flex; flex-direction: column; justify-content: center; padding: 30px 40px; }
 .eyebrow { margin: 0 0 8px; color: #1f7772; font-size: 11px; font-weight: 800; letter-spacing: .14em; }
 .hero h1, .passwordCard h2, .sectionHeader h2, .nextCard h3, .guidance h3, .modal h2, .bankFields h3 { font-family: var(--font-heading); }
