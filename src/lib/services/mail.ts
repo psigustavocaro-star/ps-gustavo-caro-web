@@ -27,6 +27,65 @@ function formatAppointmentDate(date: string) {
     }).format(parsed);
 }
 
+export function renderPortalActivationEmail(data: {
+    name?: string;
+    activationUrl: string;
+    expiresAt: Date;
+}) {
+    const name = escapeHtml(data.name?.trim() || '');
+    const activationUrl = escapeHtml(data.activationUrl);
+    const expiresAt = new Intl.DateTimeFormat('es-CL', {
+        timeZone: 'America/Santiago', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(data.expiresAt);
+
+    return `<!doctype html>
+<html lang="es"><body style="margin:0;padding:0;background:#edf3f2;color:#193d42;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Crea tu acceso privado para gestionar tus sesiones.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#edf3f2;padding:34px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#ffffff;border-radius:22px;overflow:hidden;box-shadow:0 14px 38px rgba(22,65,69,.13);">
+        <tr><td style="background:#0b6e69;padding:30px 42px 32px;background-image:linear-gradient(135deg,#075f61,#15969a);">
+          <div style="font-size:12px;letter-spacing:1.8px;font-weight:700;color:#d8fbf7;text-transform:uppercase;">Ps. Gustavo Caro</div>
+          <div style="margin-top:18px;display:inline-block;border:1px solid rgba(255,255,255,.38);border-radius:999px;padding:7px 11px;font-size:11px;letter-spacing:.8px;font-weight:700;color:#ffffff;text-transform:uppercase;">Nuevo · Portal del paciente</div>
+          <h1 style="margin:18px 0 0;color:#ffffff;font-size:31px;line-height:1.18;letter-spacing:-.5px;">Tu espacio personal<br/>está listo para ti</h1>
+        </td></tr>
+        <tr><td style="padding:35px 42px 12px;">
+          <p style="margin:0 0 16px;font-size:17px;line-height:1.6;">Hola${name ? ` ${name}` : ''},</p>
+          <p style="margin:0;font-size:16px;line-height:1.65;color:#34555a;">Creamos un espacio privado para que puedas revisar tus sesiones, solicitar cambios cuando lo necesites y mantener tus datos de contacto al día.</p>
+        </td></tr>
+        <tr><td style="padding:22px 42px 12px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
+            <td width="33.33%" valign="top" style="padding:0 7px 0 0;"><div style="background:#f1f8f7;border-radius:12px;padding:15px 12px;min-height:75px;"><div style="font-size:18px;line-height:1">◷</div><div style="margin-top:8px;font-size:12px;line-height:1.35;font-weight:700;color:#225c5a;">Tus sesiones</div></div></td>
+            <td width="33.33%" valign="top" style="padding:0 4px;"><div style="background:#f1f8f7;border-radius:12px;padding:15px 12px;min-height:75px;"><div style="font-size:18px;line-height:1">↔</div><div style="margin-top:8px;font-size:12px;line-height:1.35;font-weight:700;color:#225c5a;">Solicita cambios</div></div></td>
+            <td width="33.33%" valign="top" style="padding:0 0 0 7px;"><div style="background:#f1f8f7;border-radius:12px;padding:15px 12px;min-height:75px;"><div style="font-size:18px;line-height:1">⌁</div><div style="margin-top:8px;font-size:12px;line-height:1.35;font-weight:700;color:#225c5a;">Acceso privado</div></div></td>
+          </tr></table>
+        </td></tr>
+        <tr><td align="center" style="padding:28px 42px 18px;"><a href="${activationUrl}" style="display:inline-block;background:#d47a4c;color:#ffffff;text-decoration:none;font-size:16px;font-weight:700;padding:15px 25px;border-radius:10px;box-shadow:0 5px 10px rgba(172,86,46,.18);">Crear mi acceso seguro</a></td></tr>
+        <tr><td style="padding:0 42px 31px;"><div style="border-left:3px solid #9bd6cd;background:#f6fbfa;border-radius:0 10px 10px 0;padding:13px 15px;font-size:13px;line-height:1.55;color:#496669;"><strong style="color:#245a5a;">Un enlace, una sola vez.</strong><br/>Este acceso vence el ${escapeHtml(expiresAt)}. Al abrirlo podrás crear tu propia contraseña.</div></td></tr>
+        <tr><td style="border-top:1px solid #dce9e7;padding:22px 42px 30px;"><p style="margin:0;font-size:12px;line-height:1.55;color:#647b7e;">No enviamos contraseñas por correo. No compartas este enlace. Si no esperabas este mensaje, puedes ignorarlo con tranquilidad.</p><p style="margin:14px 0 0;font-size:11px;line-height:1.45;color:#829397;word-break:break-all;">Si el botón no funciona, copia este enlace en tu navegador:<br/><a href="${activationUrl}" style="color:#397d7b;">${activationUrl}</a></p></td></tr>
+      </table>
+      <p style="max-width:620px;margin:18px auto 0;font-size:11px;line-height:1.5;color:#708487;">Ps. Gustavo Caro · Comunicación privada de acceso a tu portal.</p>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+export async function sendPortalActivationEmail(data: {
+    email: string;
+    name?: string;
+    activationUrl: string;
+    expiresAt: Date;
+}) {
+    const response = await resend.emails.send({
+        from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
+        to: data.email,
+        subject: 'Crea tu acceso al portal de pacientes',
+        html: renderPortalActivationEmail(data),
+    });
+    if (response.error) throw new Error(response.error.message || 'No fue posible enviar la invitación.');
+    return response.data;
+}
+
 /**
  * Correo transaccional para una sesión cancelada por el profesional.
  * No lleva enlace de desuscripción porque es una comunicación sobre una cita ya reservada.
