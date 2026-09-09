@@ -59,8 +59,46 @@ model PatientAccount {
   mustChangePassword Boolean @default(true)
   resetTokenHash String?
   resetTokenExpiresAt DateTime?
+  rut          String?
+  firstName    String?
+  secondName   String?
+  firstSurname String?
+  secondSurname String?
+  birthDate    String?
+  gender       String?
+  occupation   String?
+  companion    String?
+  address      String?
+  region       String?
+  commune      String?
+  phone        String?
+  educationLevel String?
+  emergencyContact String?
+  profileAudits PatientProfileAudit[]
+  clinicalUpdates PatientClinicalUpdate[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model PatientProfileAudit {
+  id               String @id @default(uuid())
+  patientAccountId String
+  patientAccount   PatientAccount @relation(fields: [patientAccountId], references: [id], onDelete: Cascade)
+  changedFields    String[]
+  createdAt        DateTime @default(now())
+}
+
+model PatientClinicalUpdate {
+  id               String @id @default(uuid())
+  patientAccountId String
+  patientAccount   PatientAccount @relation(fields: [patientAccountId], references: [id], onDelete: Cascade)
+  encryptedPayload String @db.Text
+  status           String @default("PENDING")
+  createdAt        DateTime @default(now())
+  reviewedAt       DateTime?
+  reviewNote       String?
+
+  @@index([status, createdAt])
 }
 
 model PatientAppointmentRequest {

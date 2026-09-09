@@ -15,6 +15,8 @@ export default function PatientPortal() {
   const [data, setData] = useState<any>();
   const [modal, setModal] = useState<Modal | null>(null);
   const [notice, setNotice] = useState('');
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const load = () => fetch('/api/paciente/me').then(response => response.ok ? response.json() : Promise.reject()).then(setData).catch(() => { window.location.href = '/mi-cuenta'; });
   useEffect(() => { void load(); }, []);
   if (!data) return <main className={styles.loading}>Preparando tu espacio personal…</main>;
@@ -43,9 +45,12 @@ export default function PatientPortal() {
     <section className={styles.hero}>
       <div className={styles.heroCopy}><p className={styles.eyebrow}>TU ESPACIO PERSONAL</p><h1>Hola, qué bueno<br />verte por aquí.</h1><p className={styles.intro}>Aquí puedes revisar tus sesiones y gestionar cualquier solicitud con tiempo y tranquilidad.</p><div className={styles.patientLine}><span className={styles.avatar}>{data.email.slice(0, 1).toUpperCase()}</span><span><b>{data.email}</b><small>Portal del paciente</small></span></div></div>
       <div className={styles.heroPhoto}><Image src="/images/patient-real.png" alt="Persona en un momento de calma" fill sizes="(max-width: 800px) 100vw, 380px" priority /></div>
+      <div className={styles.cardActions}><button onClick={() => setProfileOpen(true)}>Editar mis datos</button><button className={styles.subtleButton} onClick={() => setPasswordOpen(true)}>Cambiar contraseña</button></div>
     </section>
 
     {data.mustChangePassword && <PasswordCard done={() => { void load(); }} />}
+    {profileOpen && <ProfileModal profile={data.profile} onClose={() => setProfileOpen(false)} onSaved={() => { setProfileOpen(false); setNotice('Tus datos personales fueron actualizados.'); void load(); }} />}
+    {passwordOpen && <PasswordModal onClose={() => setPasswordOpen(false)} onSaved={() => { setPasswordOpen(false); setNotice('Tu contraseña fue actualizada.'); }} />}
     {notice && <div className={styles.notice}><span>✓</span>{notice}<button onClick={() => setNotice('')}>×</button></div>}
 
     <section className={styles.contentGrid}>
@@ -63,6 +68,10 @@ export default function PatientPortal() {
     {modal && <RequestModal modal={modal} onClose={() => setModal(null)} onSubmit={submitRequest} />}
   </main>;
 }
+
+function PasswordModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) { const [password, setPassword] = useState(''); const [error, setError] = useState(''); return <div className={styles.backdrop} role="dialog" aria-modal="true"><form onSubmit={async e => { e.preventDefault(); const r = await fetch('/api/paciente/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); if (r.ok) onSaved(); else setError('Usa al menos 10 caracteres.'); }} className={styles.modal}><button type="button" className={styles.modalClose} onClick={onClose}>×</button><header className={styles.modalHeader}><p className={styles.eyebrow}>SEGURIDAD</p><h2>Cambiar contraseña</h2></header><div className={styles.modalBody}><label className={styles.field}><span>Nueva contraseña</span><input required minLength={10} type="password" value={password} onChange={e => setPassword(e.target.value)} /></label>{error && <p>{error}</p>}</div><footer className={styles.modalActions}><button className={styles.primaryButton}>Guardar contraseña</button></footer></form></div>; }
+
+function ProfileModal({ profile, onClose, onSaved }: { profile: any; onClose: () => void; onSaved: () => void }) { const [form, setForm] = useState<any>(profile || {}); const [error, setError] = useState(''); const update=(key:string,value:string)=>setForm((p:any)=>({...p,[key]:value})); const labels: Array<[string,string,string]> = [['firstName','Primer nombre','text'],['secondName','Segundo nombre','text'],['firstSurname','Apellido paterno','text'],['secondSurname','Apellido materno','text'],['birthDate','Fecha de nacimiento','date'],['gender','Género','text'],['occupation','Ocupación','text'],['companion','Acompañante','text'],['address','Dirección','text'],['region','Región','text'],['commune','Comuna','text'],['phone','Teléfono','tel'],['educationLevel','Nivel educacional','text'],['emergencyContact','Contacto de emergencia','text']]; return <div className={styles.backdrop} role="dialog" aria-modal="true"><form onSubmit={async e=>{e.preventDefault(); const r=await fetch('/api/paciente/profile',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)}); if(r.ok) onSaved(); else setError('No fue posible guardar los cambios.');}} className={styles.modal}><button type="button" className={styles.modalClose} onClick={onClose}>×</button><header className={styles.modalHeader}><p className={styles.eyebrow}>MI INFORMACIÓN</p><h2>Editar datos personales</h2><p>El correo y RUT se protegen como identificadores de tu cuenta. Para corregirlos, solicita apoyo al profesional.</p></header><div className={styles.modalBody}>{labels.map(([key,label,type])=><label key={key} className={styles.field}><span>{label}</span><input type={type} value={form[key] || ''} onChange={e=>update(key,e.target.value)} /></label>)}<p>Antecedentes clínicos: al enviarlos quedarán pendientes de revisión y no reemplazarán automáticamente tu ficha.</p>{['diagnoses','medications','genogram'].map(key=><label key={key} className={styles.field}><span>{key==='diagnoses'?'Diagnósticos':key==='medications'?'Medicamentos':'Genograma / antecedentes familiares'}</span><textarea onChange={e=>update(key,e.target.value)} /></label>)}{error&&<p>{error}</p>}</div><footer className={styles.modalActions}><button className={styles.primaryButton}>Guardar cambios</button></footer></form></div>; }
 
 function SessionCard({ session, featured, onRequest }: { session: any; featured: boolean; onRequest: (modal: Modal) => void }) {
   const allowed = Date.parse(session.date) - Date.now() >= 172800000;

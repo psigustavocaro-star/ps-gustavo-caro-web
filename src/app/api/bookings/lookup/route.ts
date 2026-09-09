@@ -31,6 +31,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ found: false }, { status: 200 });
         }
 
+        const account = await prisma.patientAccount.findUnique({ where: { email } });
+        if (account && normalizeRut(account.rut || '') === rut) {
+            return NextResponse.json({ found: true, data: { firstName: account.firstName || '', secondName: account.secondName || '', firstSurname: account.firstSurname || '', secondSurname: account.secondSurname || '', phone: account.phone || '', rut: account.rut || '', address: account.address || '', region: account.region || '', commune: account.commune || '', country: 'Chile' } });
+        }
+
         // Buscamos la reserva más reciente que coincida con email + RUT normalizado.
         // Comparamos RUT en Postgres normalizándolo también.
         const bookings = await prisma.booking.findMany({
