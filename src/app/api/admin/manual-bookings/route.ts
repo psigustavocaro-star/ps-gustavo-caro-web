@@ -91,8 +91,10 @@ export async function POST(request: NextRequest) {
         });
 
         if (sendEmail) {
+            const { ensurePatientAccount } = await import('@/lib/services/patient-account');
+            const temporaryPassword = await ensurePatientAccount(email);
             await sendBookingConfirmation({
-                name, email, phone, reason: booking.reason || '', details: '', amount, orderId,
+                name, email, phone, reason: booking.reason || '', details: '', amount, orderId, temporaryPassword: temporaryPassword || undefined,
             }).catch(error => console.error('Manual booking confirmation email error:', error));
         }
 

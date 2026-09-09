@@ -149,6 +149,11 @@
 }
 .syncBtn:hover { border-color: #0891b2; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 
+/* Solicitudes: vista integrada al panel, no una página independiente. */
+.requestsPanel { display: grid; gap: 22px; padding: 2px 0 24px; }.requestsLoading, .requestsEmpty { padding: 28px; border: 1px dashed #cbded9; border-radius: 16px; background: #fff; color: #64748b; text-align: center; }
+.requestOverview { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px; border: 1px solid #cce7e2; border-radius: 20px; background: linear-gradient(120deg, #effaf8, #fff); }.requestOverview span, .requestSectionHeader span { color: #0f766e; font-size: .7rem; font-weight: 900; letter-spacing: .1em; }.requestOverview h2 { margin: 5px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 1.55rem; }.requestOverview p { margin: 0; color: #64748b; font-size: .9rem; }.requestKpis { display: flex; gap: 10px; }.requestKpis div { min-width: 88px; padding: 12px; border-radius: 13px; background: #fff; text-align: center; box-shadow: 0 4px 12px rgba(8,145,178,.08); }.requestKpis strong, .requestKpis small { display: block; }.requestKpis strong { color: #0f766e; font-size: 1.4rem; }.requestKpis small { color: #64748b; font-size: .7rem; font-weight: 700; }
+.requestFeedback { margin: 0; padding: 12px 14px; border-radius: 12px; background: #e6f5ef; color: #176b58; font-weight: 700; }.requestSectionHeader { display: flex; align-items: end; justify-content: space-between; margin-top: 10px; }.requestSectionHeader h3 { margin: 4px 0 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 1.25rem; }.requestSectionHeader small { color: #64748b; font-weight: 600; }.requestCards { display: grid; gap: 12px; }.requestCard { padding: 20px; border: 1px solid #e0ebe8; border-radius: 17px; background: #fff; box-shadow: 0 3px 10px rgba(15,23,42,.03); }.requestCardTop { display: flex; align-items: start; justify-content: space-between; gap: 16px; }.requestCardTop h3 { margin: 8px 0 4px; color: #0f172a; font-size: 1rem; }.requestCardTop p { margin: 0; color: #64748b; font-size: .84rem; }.requestCancelTag, .requestChangeTag, .refundTag, .pendingStatus { display: inline-flex; align-items: center; border-radius: 99px; padding: 5px 9px; font-size: .72rem; font-weight: 800; }.requestCancelTag { background: #fff1f2; color: #be123c; }.requestChangeTag { background: #eff6ff; color: #0369a1; }.refundTag { background: #fff7e6; color: #a16207; }.pendingStatus { background: #fff5db; color: #a16207; }.requestMessage { margin: 15px 0 0; padding: 12px; border-radius: 10px; background: #f8faf9; color: #475569; font-size: .9rem; line-height: 1.5; }.requestActions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 16px; }.approveRequest, .rejectRequest { border-radius: 9px; padding: 9px 13px; font-weight: 800; cursor: pointer; }.approveRequest { border: 1px solid #0f766e; background: #0f766e; color: #fff; }.rejectRequest { border: 1px solid #e2e8f0; background: #fff; color: #64748b; }.refundCard { border-color: #e9dfc8; }.refundAmount { color: #0f766e; font-family: 'Outfit', sans-serif; font-size: 1.4rem; }.refundDetails { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }.refundDetails span { padding: 7px 9px; border-radius: 8px; background: #f4f8f7; color: #64748b; font-size: .78rem; }.refundDetails b { margin-left: 4px; color: #334155; }.bankData { margin-top: 15px; padding: 13px; border-left: 3px solid #0f766e; border-radius: 0 10px 10px 0; background: #f1f8f5; color: #315d59; }.bankData b { font-size: .78rem; }.bankData p { margin: 6px 0 0; font-size: .82rem; line-height: 1.55; }
+
 /* STATS CARDS */
 .dashboardStats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px; }
 .statCard { 
@@ -320,6 +325,7 @@
 .badgeGeneric { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 .agendaStatus { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
 .awaitingReschedule { display: inline-flex; padding: 4px 7px; border: 1px solid #fed7aa; border-radius: 6px; background: #fff7ed; color: #c2410c; font-size: 0.62rem; font-weight: 800; line-height: 1.2; }
+.rescheduleAttention { display: inline-flex; padding: 4px 7px; border: 1px solid #fecaca; border-radius: 6px; background: #fef2f2; color: #b91c1c; font-size: 0.62rem; font-weight: 800; line-height: 1.2; }
 
 .receiptToggle {
     display: inline-flex;
@@ -540,7 +546,7 @@
 .manualDatesHeader button { border: 0; background: transparent; color: #0e7490; font: inherit; font-weight: 800; cursor: pointer; }
 .manualDateRow { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .manualDateRow label { width: 100px; flex: 0 0 100px; color: #475569; font-size: .75rem; font-weight: 800; }
-.manualDateRow input { flex: 1; min-width: 0; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a; font: inherit; padding: 10px 12px; color-scheme: light; }
+.manualDateRow > div { flex: 1; min-width: 0; }
 .manualDateRow button { width: 34px; height: 34px; border: 0; border-radius: 9px; background: #fff1f2; color: #e11d48; cursor: pointer; font-weight: 800; }
 .manualEmailOption { display: flex; align-items: center; gap: 9px; margin-top: 16px; color: #475569; font-size: .84rem; font-weight: 700; cursor: pointer; }
 .manualEmailOption input { width: 16px; height: 16px; accent-color: #0891b2; }
@@ -663,6 +669,7 @@
     .friendlyTable { display: none; } /* Ocultar tabla en móvil */
     .mobileCards { display: flex; } /* Mostrar cards en móvil */
     .sessionInvoiceControl, .sessionInvoiceStatus { min-height: 28px; }
+    .requestOverview, .requestSectionHeader { align-items: flex-start; flex-direction: column; }.requestOverview { padding: 20px; }.requestKpis { width: 100%; }.requestKpis div { flex: 1; }.requestCard { padding: 16px; }.requestCardTop { flex-direction: column; }.requestActions { justify-content: stretch; }.requestActions button { flex: 1; }.refundDetails { display: grid; grid-template-columns: 1fr; }
 
     .modalContent { padding: 24px; border-radius: 24px; width: 95%; max-height: 85vh; border: none; }
     .dataGrid { grid-template-columns: 1fr; gap: 12px; }

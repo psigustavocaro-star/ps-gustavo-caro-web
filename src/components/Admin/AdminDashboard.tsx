@@ -8,6 +8,8 @@ import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
 import { getIncludedSessionCount, getInvoiceSessionSlots, getIssuedInvoiceSessionIds, stampIssuedInvoiceSessionIds } from '@/lib/invoice-sessions';
+import Requests from '@/app/admingustavo/solicitudes/requests';
+import AdminDateTimePicker from './AdminDateTimePicker';
 
 const getBookingStatusLabel = (status?: string) => {
     const normalizedStatus = (status || '').toUpperCase();
@@ -26,10 +28,21 @@ const getScheduledRevenueEntries = (booking: any) => {
         .map(session => ({ date: new Date(session.date as string), amount: amountPerSession }));
 };
 
-const isAwaitingReschedule = (booking: any, appointmentIndex: number) =>
-    Boolean(booking.appointmentCancellations?.some((cancellation: any) =>
-        cancellation.appointmentIndex === appointmentIndex && !cancellation.rebookedAt
-    ));
+const getRescheduleState = (booking: any, appointmentIndex: number) => {
+    const cancellation = booking.appointmentCancellations?.find((item: any) =>
+        item.appointmentIndex === appointmentIndex && !item.rebookedAt
+    );
+
+    if (!cancellation) return { awaiting: false, needsAttention: false };
+
+    // Un enlace de reprogramación solo es válido cuando el evento anterior ya
+    // está cancelado en Cal.com y el paciente efectivamente recibió su correo.
+    // Antes, un intento fallido se veía como si estuviera listo.
+    return {
+        awaiting: Boolean(cancellation.calCancelledAt && cancellation.emailSentAt),
+        needsAttention: !cancellation.calCancelledAt || !cancellation.emailSentAt,
+    };
+};
 
 const toDateTimeLocal = (value: string) => {
     const date = new Date(value);
@@ -70,7 +83,7 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing'>('patients');
+    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing' | 'requests'>('patients');
     const [profilePic, setProfilePic] = useState<string | null>(null);
 
     useEffect(() => {
@@ -87,6 +100,7 @@ export default function AdminDashboard() {
             })
             .catch(() => {});
     }, []);
+
 
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -724,7 +738,7 @@ export default function AdminDashboard() {
                         {rescheduleModal.mode === 'day' && (
                             <label className={styles.rescheduleField}>
                                 <span>Fecha a reagendar</span>
-                                <input type="date" value={rescheduleDate} onChange={event => setRescheduleDate(event.target.value)} required />
+                                <AdminDateTimePicker value={rescheduleDate} onChange={setRescheduleDate} withTime={false} ariaLabel="Fecha a reagendar" />
                             </label>
                         )}
                         <label className={styles.rescheduleField}>
@@ -748,7 +762,7 @@ export default function AdminDashboard() {
                             <button className={styles.closeIcon} onClick={() => setDateEditModal(null)} disabled={isLoading} aria-label="Cerrar">✕</button>
                         </div>
                         <p className={styles.rescheduleDescription}>Cambiarás la fecha de {dateEditModal.label}. Cal.com moverá la cita y actualizará la invitación del paciente.</p>
-                        <label className={styles.rescheduleField}><span>Nueva fecha y hora</span><input type="datetime-local" value={editedAppointmentDate} onChange={event => setEditedAppointmentDate(event.target.value)} /></label>
+                        <label className={styles.rescheduleField}><span>Nueva fecha y hora</span><AdminDateTimePicker value={editedAppointmentDate} onChange={setEditedAppointmentDate} ariaLabel="Nueva fecha y hora" /></label>
                         <div className={styles.modalActions}>
                             <button className={styles.syncBtn} onClick={() => setDateEditModal(null)} disabled={isLoading}>Volver</button>
                             <button className={styles.primaryBtn} onClick={submitDateEdit} disabled={isLoading}>{isLoading ? 'Actualizando…' : 'Guardar nueva fecha'}</button>
@@ -777,7 +791,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className={styles.manualDates}>
                             <div className={styles.manualDatesHeader}><span>{manualIncludedSessions > 1 ? `Fechas pendientes · sesiones ${manualBooking.completedSessions + 1} a ${manualIncludedSessions}` : 'Fecha agendada'}</span>{manualBooking.appointmentDates.length < manualRemainingSessions && <button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: [...current.appointmentDates, ''] }))}>+ Añadir fecha</button>}</div>
-                            {manualBooking.appointmentDates.map((date, index) => <div className={styles.manualDateRow} key={index}><label>{manualIncludedSessions > 1 ? `Sesión ${manualBooking.completedSessions + index + 1} de ${manualIncludedSessions}` : 'Sesión'}</label><input type="datetime-local" value={date} onChange={event => updateManualDate(index, event.target.value)} /><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: current.appointmentDates.length === 1 ? [''] : current.appointmentDates.filter((_, itemIndex) => itemIndex !== index) }))} aria-label="Quitar fecha">✕</button></div>)}
+                            {manualBooking.appointmentDates.map((date, index) => <div className={styles.manualDateRow} key={index}><label>{manualIncludedSessions > 1 ? `Sesión ${manualBooking.completedSessions + index + 1} de ${manualIncludedSessions}` : 'Sesión'}</label><AdminDateTimePicker value={date} onChange={value => updateManualDate(index, value)} ariaLabel={`Fecha y hora de la sesión ${index + 1}`} /><button type="button" onClick={() => setManualBooking(current => ({ ...current, appointmentDates: current.appointmentDates.length === 1 ? [''] : current.appointmentDates.filter((_, itemIndex) => itemIndex !== index) }))} aria-label="Quitar fecha">✕</button></div>)}
                         </div>
                         <label className={styles.manualEmailOption}><input type="checkbox" checked={manualBooking.sendEmail} onChange={event => setManualBooking(current => ({ ...current, sendEmail: event.target.checked }))} /> Enviar confirmación de pago al paciente</label>
                         <div className={styles.modalActions}>
@@ -819,6 +833,7 @@ export default function AdminDashboard() {
                     <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => { setActiveTab('bookings'); setIsMobileMenuOpen(false); }}>🗓️ Calendario</button>
                     <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => { setActiveTab('newsletter'); setIsMobileMenuOpen(false); }}>💌 Newsletter</button>
                     <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => { setActiveTab('marketing'); setIsMobileMenuOpen(false); }}>✍️ Mi Blog</button>
+                    <button className={activeTab === 'requests' ? styles.active : ''} onClick={() => { setActiveTab('requests'); setIsMobileMenuOpen(false); }}>📥 Solicitudes</button>
                 </nav>
 
                 <div className={styles.publicLinks}>
@@ -837,7 +852,7 @@ export default function AdminDashboard() {
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
                     <div>
-                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Newsletter' : 'Mi Blog'}</h1>
+                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Newsletter' : activeTab === 'requests' ? 'Solicitudes' : 'Mi Blog'}</h1>
                         <p>Trabajando para mantener la salud mental al alcance de todos.</p>
                     </div>
                     <button onClick={fetchData} className={styles.syncBtn}>🔄 Actualizar Datos</button>
@@ -908,6 +923,7 @@ export default function AdminDashboard() {
                 )}
 
                 <div className={styles.listContainer}>
+                    {activeTab === 'requests' && <Requests />}
                     {activeTab === 'patients' && (
                         <div className={styles.responsiveList}>
                             {/* Vista para Desktop */}
@@ -963,7 +979,7 @@ export default function AdminDashboard() {
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
                                     const appointmentIndex = session?.appointmentIndex ?? 0;
-                                    const awaitingReschedule = isAwaitingReschedule(booking, appointmentIndex);
+                                    const rescheduleState = getRescheduleState(booking, appointmentIndex);
 
                                     return (
                                         <tr key={session ? `${booking.id}-${session.id}` : booking.id}>
@@ -974,7 +990,7 @@ export default function AdminDashboard() {
                                                 {session && <small className={styles.calendarSessionMeta}>Sesion {session.number} de {sessionCount}</small>}
                                             </td>
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
-                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{awaitingReschedule && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}</div></td>
+                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
                                             <td>{hasDate && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
@@ -988,7 +1004,7 @@ export default function AdminDashboard() {
                                     const hasDate = Boolean(session?.date || booking.appointmentDate);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
                                     const appointmentIndex = session?.appointmentIndex ?? 0;
-                                    const awaitingReschedule = isAwaitingReschedule(booking, appointmentIndex);
+                                    const rescheduleState = getRescheduleState(booking, appointmentIndex);
 
                                     return (
                                     <div key={session ? `${booking.id}-${session.id}` : booking.id} className={styles.mobileCard}>
@@ -1000,8 +1016,8 @@ export default function AdminDashboard() {
                                             <span>{hasDate ? <>{new Date(date).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(date).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</> : 'Pendiente de agendar'}</span>
                                             <span className={styles.cardSubtitle}>{getServiceDisplayName(booking.serviceType)}{session ? ` · Sesion ${session.number} de ${sessionCount}` : ''}</span>
                                         </div>
-                                        <div className={styles.mobileBookingFooter}>
-                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{awaitingReschedule && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}</div>
+                                            <div className={styles.mobileBookingFooter}>
+                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div>
                                             {renderCalendarReceiptToggle(booking, session)}
                                             {hasDate && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>

@@ -6,7 +6,9 @@ import Image from 'next/image';
 import Magnetic from '../Common/Magnetic';
 import styles from './Navbar.module.css';
 
-export default function Navbar() {
+type NavbarProps = { patientAuthenticated?: boolean; onPatientLogout?: () => void };
+
+export default function Navbar({ patientAuthenticated = false, onPatientLogout }: NavbarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -60,11 +62,7 @@ export default function Navbar() {
                 </ul>
 
                 <div className={styles.navActions}>
-                    <Magnetic>
-                        <Link href="/agendar" className={styles.cta} onClick={closeMenu}>
-                            Agendar sesión
-                        </Link>
-                    </Magnetic>
+                    {patientAuthenticated ? <button type="button" onClick={onPatientLogout} className={styles.patientLogout}>Cerrar sesión</button> : <><Link href="/mi-cuenta" className={styles.portalLink} onClick={closeMenu}>Portal pacientes</Link><Magnetic><Link href="/agendar" className={styles.cta} onClick={closeMenu}>Agendar sesión</Link></Magnetic></>}
 
                     {/* Hamburger Button for Mobile */}
                     <button
@@ -90,13 +88,11 @@ export default function Navbar() {
                         <li><Link href="/calendario" onClick={closeMenu}>Disponibilidad</Link></li>
                         <li><Link href="/#faq" onClick={closeMenu}>FAQ</Link></li>
                         <li><Link href="/#contacto" onClick={closeMenu}>Contacto</Link></li>
+                        <li><Link href="/mi-cuenta" onClick={closeMenu}>Portal del paciente</Link></li>
                     </ul>
 
                     <div className={styles.mobileCtaWrapper}>
-                        <Link href="/agendar" className={styles.mobileCta} onClick={closeMenu}>
-                            Agendar sesión ahora
-                        </Link>
-                        <p className={styles.mobileFooterText}>Reserva tu hora online</p>
+                        {patientAuthenticated ? <button type="button" className={styles.mobileCta} onClick={() => { onPatientLogout?.(); closeMenu(); }}>Cerrar sesión</button> : <><Link href="/agendar" className={styles.mobileCta} onClick={closeMenu}>Agendar sesión ahora</Link><p className={styles.mobileFooterText}>Reserva tu hora online</p></>}
                     </div>
                 </div>
             </div>

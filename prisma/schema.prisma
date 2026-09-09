@@ -36,10 +36,12 @@ model Booking {
   calBookingId    String?
   calBookingIds   String[] @default([])
   calEventTypeId  Int?
+  meetUrl         String?
   siiReceiptIssued   Boolean  @default(false)
   siiReceiptIssuedAt DateTime?
   appointmentCancellations AppointmentCancellation[]
   refundRequests AppointmentRefundRequest[]
+  patientRequests PatientAppointmentRequest[]
   createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -54,8 +56,26 @@ model PatientAccount {
   id           String   @id @default(uuid())
   email        String   @unique
   passwordHash String
+  mustChangePassword Boolean @default(true)
+  resetTokenHash String?
+  resetTokenExpiresAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model PatientAppointmentRequest {
+  id               String   @id @default(uuid())
+  bookingId        String
+  booking          Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  appointmentIndex Int
+  appointmentDate  String
+  type             String
+  message          String?
+  status           String   @default("PENDING")
+  createdAt        DateTime @default(now())
+  reviewedAt       DateTime?
+  reviewNote       String?
+  @@index([status, createdAt])
 }
 
 model AppointmentRefundRequest {

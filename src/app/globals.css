@@ -395,3 +395,9 @@ select optgroup {
     scroll-behavior: auto !important;
   }
 }
+
+/* El portal es una experiencia privada: no hereda la navegación de marketing. */
+body:has([data-patient-portal]) aside,
+body:has([data-patient-portal]) [class*="WhatsAppButton"] {
+  display: none !important;
+}

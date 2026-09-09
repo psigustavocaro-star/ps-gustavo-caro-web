@@ -125,6 +125,8 @@ export async function finalizePaidBooking({
 
     if (booking.status !== 'PAID') {
         try {
+            const { ensurePatientAccount } = await import('@/lib/services/patient-account');
+            const temporaryPassword = await ensurePatientAccount(clientEmail);
             const { sendBookingConfirmation } = await import('@/lib/services/mail');
             await sendBookingConfirmation({
                 name: clientName,
@@ -134,6 +136,7 @@ export async function finalizePaidBooking({
                 details: booking.details || '',
                 amount: paidAmount,
                 orderId,
+                temporaryPassword: temporaryPassword || undefined,
             });
             auditData.steps.resend = 'OK';
         } catch (mailErr) {

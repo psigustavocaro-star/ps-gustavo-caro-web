@@ -128,11 +128,49 @@ export async function cancelCalBooking(bookingUid: string, reason?: string): Pro
 
         if (response.ok) return { success: true };
 
-        // Fallback v1
-        const fallbackRes = await fetch(`https://api.cal.com/v1/bookings?id=${encodeURIComponent(bookingUid)}`, {
+        // Las primeras reservas que importamos guardaron el ID interno numérico
+        // de Cal.com. La API v2 cancela por UID. Antes de usar el respaldo v1,
+        // buscamos el UID equivalente en las próximas reservas y reintentamos
+        // con el endpoint actual (que es el que actualiza Google Calendar).
+        if (/^\d+$/.test(bookingUid)) {
+            const lookup = await fetch('https://api.cal.com/v2/bookings?status=upcoming&take=100', {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    'cal-api-version': '2026-05-01',
+                },
+            });
+            if (lookup.ok) {
+                const lookupData = await lookup.json();
+                const match = Array.isArray(lookupData?.data)
+                    ? lookupData.data.find((booking: { id?: string | number; uid?: string }) => String(booking.id) === bookingUid)
+                    : null;
+                if (match?.uid) {
+                    const resolvedResponse = await fetch(`https://api.cal.com/v2/bookings/${match.uid}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${apiKey}`,
+                            'cal-api-version': '2026-02-25',
+                        },
+                        body: JSON.stringify({ cancellationReason: reason || 'Cancelado por el administrador desde CRM' }),
+                    });
+                    if (resolvedResponse.ok) return { success: true };
+                }
+            }
+        }
+
+        // Algunas reservas creadas antes de la migración a v2 guardan el ID
+        // numérico de Cal.com, no su UID. La API v1 espera sus credenciales y
+        // el motivo como parámetros de consulta; enviarlos en el body hacía que
+        // esas reservas no pudieran cancelarse.
+        const fallbackParams = new URLSearchParams({
+            id: bookingUid,
+            allRemainingBookings: 'false',
+            cancellationReason: reason || 'Cancelado desde el panel de administración',
+            apiKey,
+        });
+        const fallbackRes = await fetch(`https://api.cal.com/v1/bookings?${fallbackParams.toString()}`, {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ apiKey, reason: reason || 'Cancelado desde CRM' })
         });
 
         if (fallbackRes.ok) return { success: true };

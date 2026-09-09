@@ -1,0 +1,2 @@
+import prisma from '@/lib/db'; import { hashPatientPassword } from '@/lib/auth/patient-session'; import { randomBytes } from 'crypto';
+export async function ensurePatientAccount(email:string){const normalized=email.toLowerCase().trim(),old=await prisma.patientAccount.findUnique({where:{email:normalized}});if(old)return null;const temporary=`Portal-${randomBytes(7).toString('base64url')}!`;await prisma.patientAccount.create({data:{email:normalized,passwordHash:hashPatientPassword(temporary),mustChangePassword:true}});return temporary;}

@@ -155,8 +155,9 @@ export async function sendBookingConfirmation(data: {
     details: string;
     amount: number;
     orderId: string;
+    temporaryPassword?: string;
 }) {
-    const { name, email, phone, reason, details, amount, orderId } = data;
+    const { name, email, phone, reason, details, amount, orderId, temporaryPassword } = data;
 
     try {
         // Enviar a Gustavo
@@ -196,6 +197,8 @@ export async function sendBookingConfirmation(data: {
                     <li><strong>Monto:</strong> $${amount.toLocaleString('es-CL')}</li>
                     <li><strong>ID de Orden:</strong> ${orderId}</li>
                 </ul>
+                <p><strong>Tu portal de paciente:</strong> puedes revisar tus sesiones y solicitar cambios en <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://psgustavocaro.cl'}/mi-cuenta">Mi portal</a>.</p>
+                ${temporaryPassword ? `<p>Tu contraseña temporal es: <strong>${escapeHtml(temporaryPassword)}</strong>. Por seguridad, se te pedirá cambiarla al ingresar por primera vez.</p>` : ''}
                 <p>Si tienes alguna duda, puedes responderme directamente a este correo.</p>
                 <p>Atentamente,<br />Ps. Gustavo Caro</p>
             `,

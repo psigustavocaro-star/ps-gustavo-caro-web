@@ -814,6 +814,72 @@ const detailedClinicalPosts: BlogPost[] = [
             <p>La terapia puede ser un espacio para ordenar el impacto emocional, revisar límites y decidir próximos pasos sin reducir un problema complejo a “gestionar mejor el estrés”. Si hay síntomas físicos importantes o ánimo muy bajo, también puede requerirse evaluación médica.</p>
         `,
     },
+    {
+        slug: 'ansiedad-al-despertar-que-hacer',
+        title: 'Ansiedad al despertar: por qué aparece y qué puedes hacer al comenzar el día',
+        excerpt: 'Despertar con el pecho apretado o pensamientos acelerados es una experiencia frecuente. Entender el ciclo permite responder con más cuidado y menos culpa.',
+        date: '2026-09-03',
+        author: 'Ps. Gustavo Caro',
+        category: 'Ansiedad',
+        image: '/blog/ansiedad-ciudad.png',
+        keywords: ['ansiedad al despertar', 'ansiedad en la mañana', 'cómo calmar la ansiedad', 'psicólogo ansiedad Chile'],
+        resources: clinicalResources.filter((resource) => resource.id === 'plan-de-pausa'),
+        content: `
+            <p>Para algunas personas, la ansiedad aparece antes incluso de levantarse: una sensación de urgencia en el cuerpo, tensión en el pecho o una lista de preocupaciones que llega de golpe. Aunque resulta desconcertante, no significa necesariamente que el día vaya a salir mal ni que estés fallando en manejar tus emociones.</p>
+            <p>Al despertar, el organismo realiza cambios normales para activar la vigilia. Si vienes con sobrecarga, mal descanso, preocupaciones acumuladas o un periodo difícil, esa activación puede sentirse más intensa. La ansiedad también puede estar relacionada con causas médicas, medicamentos o consumo de sustancias; por eso, cuando es nueva, intensa o persistente, conviene consultar y revisar el cuadro completo.</p>
+            <h3>Evitar convertir la primera sensación en una predicción</h3>
+            <p>Un pensamiento habitual es: “si amanecí así, no voy a poder con el día”. En terapia cognitivo-conductual, se trabaja en diferenciar una sensación de una conclusión. Puedes notar la ansiedad sin tratarla como una profecía: “mi cuerpo está activado; puedo darme unos minutos antes de decidir qué significa”.</p>
+            <h3>Una secuencia breve para recuperar orientación</h3>
+            <p>Antes de revisar el teléfono o los mensajes, prueba con una pauta sencilla: pon ambos pies en el suelo, mira a tu alrededor y nombra cinco objetos; toma agua; abre una ventana o busca luz natural; y define una única acción posible para los próximos diez minutos. No se trata de eliminar la ansiedad a la fuerza, sino de ofrecerle al sistema nervioso señales concretas de seguridad y dirección.</p>
+            <h3>Planificar sin alimentar el bucle</h3>
+            <p>Si aparecen muchos pendientes, anota solo los tres más relevantes y el primer paso de cada uno. Por ejemplo, en lugar de “resolver el trabajo”, escribe “abrir el correo y responder el mensaje de prioridad”. Convertir una preocupación difusa en una acción acotada ayuda a distinguir planificación de rumiación.</p>
+            <h3>Cuándo buscar apoyo</h3>
+            <p>Considera pedir orientación si esta experiencia se repite durante semanas, afecta tu sueño, trabajo o vínculos, o viene acompañada de crisis de pánico, ánimo muy bajo o evitación importante. Un proceso terapéutico puede ayudarte a identificar qué mantiene la ansiedad y construir herramientas acordes a tu contexto. Si sientes que podrías hacerte daño o estás en peligro inmediato, busca apoyo de emergencia en tu zona o contacta a alguien de confianza de inmediato.</p>
+        `,
+    },
+    {
+        slug: 'primera-sesion-psicologo-online-como-prepararse',
+        title: 'Primera sesión con un psicólogo online: qué esperar y cómo aprovecharla',
+        excerpt: 'No necesitas tener tu historia perfectamente ordenada para comenzar terapia. Esta guía aclara qué suele ocurrir en la primera sesión online.',
+        date: '2026-09-04',
+        author: 'Ps. Gustavo Caro',
+        category: 'Recursos',
+        image: '/blog_minimal_therapy.png',
+        keywords: ['primera sesión psicólogo online', 'cómo empezar terapia', 'psicoterapia online Chile', 'qué preguntar a un psicólogo'],
+        content: `
+            <p>Tomar la decisión de pedir una primera hora puede dar alivio y, al mismo tiempo, mucha incertidumbre. Algunas personas se preguntan qué tienen que contar, si su problema “es suficiente” o si sabrán explicarse. La respuesta corta es que no necesitas llegar con todo resuelto: parte del trabajo terapéutico consiste justamente en ordenar lo que hoy se siente confuso.</p>
+            <h3>Qué suele pasar en una primera sesión</h3>
+            <p>Habitualmente, el profesional explica cómo trabajará, los acuerdos de confidencialidad y las condiciones del espacio. Luego explora el motivo de consulta, el contexto actual, antecedentes relevantes y qué te gustaría que fuera diferente. No siempre se llega a una conclusión definitiva ese día; una buena primera sesión permite empezar a construir una comprensión compartida y acordar próximos pasos.</p>
+            <h3>Cómo preparar el espacio online</h3>
+            <p>Busca, en lo posible, un lugar privado donde puedas hablar sin interrupciones. Revisa la conexión, usa audífonos si te hacen sentir más cómodo y ten agua a mano. Si compartes casa y la privacidad es difícil, puedes avisarlo: pensar alternativas forma parte de cuidar el encuadre de la sesión.</p>
+            <h3>Preguntas que puedes hacer</h3>
+            <p>Es válido preguntar por el enfoque terapéutico, la frecuencia sugerida, cómo se revisan los avances, qué ocurre si una sesión no te resulta útil y cómo se manejan las urgencias. También puedes decir qué te ayuda a sentirte seguro en una conversación. La terapia es una relación de trabajo, no un examen que debas aprobar.</p>
+            <h3>Una nota para después</h3>
+            <p>Al terminar, anota una o dos ideas que te hayan quedado. No necesitas evaluar toda la terapia por una única hora, pero sí observar si hubo escucha, claridad y un trato respetuoso. La alianza terapéutica se construye con el tiempo y es una parte importante del proceso.</p>
+        `,
+    },
+    {
+        slug: 'duelo-por-ruptura-pareja-como-afrontarlo',
+        title: 'Duelo por una ruptura de pareja: cómo atravesarlo sin apurarte a “superar”',
+        excerpt: 'Una separación puede activar tristeza, rabia, ansiedad y dudas. No hay una forma única de vivir el duelo, pero sí maneras de cuidarse durante el proceso.',
+        date: '2026-09-05',
+        author: 'Ps. Gustavo Caro',
+        category: 'Salud Mental',
+        image: '/blog_minimal_door.png',
+        keywords: ['duelo por ruptura de pareja', 'cómo superar una ruptura', 'ansiedad después de terminar', 'terapia de pareja Chile'],
+        resources: clinicalResources.filter((resource) => resource.id === 'plan-de-pausa'),
+        content: `
+            <p>Cuando una relación termina, no solo cambia la presencia de una persona. También se mueven rutinas, proyectos, vínculos compartidos y la imagen que tenías del futuro. Por eso es esperable que el duelo por una ruptura tenga momentos de tristeza, enojo, alivio, nostalgia o confusión, incluso cuando sabes que la decisión era necesaria.</p>
+            <h3>No existe un calendario emocional correcto</h3>
+            <p>Compararte con la forma en que otras personas “superan” una separación suele agregar presión a un momento ya difícil. El duelo no avanza en línea recta: un día puede sentirse estable y al siguiente una canción, una fecha o una conversación puede reactivar el dolor. Eso no significa que estés retrocediendo.</p>
+            <h3>Separar el vínculo real de la idealización</h3>
+            <p>Después de terminar, la mente puede seleccionar solo los buenos momentos y convertirlos en una prueba de que no debiste irte o dejar ir. Una práctica útil es escribir dos listas: lo que extrañas y las razones concretas por las que la relación no estaba funcionando. Ambas cosas pueden ser verdaderas al mismo tiempo.</p>
+            <h3>Cuidados pequeños que sostienen</h3>
+            <p>En las primeras semanas, prioriza lo básico: comer, dormir lo mejor posible, mantener contacto con una o dos personas de confianza y reducir conductas que te dejan más expuesto, como revisar compulsivamente redes sociales. No se trata de borrar la historia, sino de crear suficiente estabilidad para poder procesarla.</p>
+            <h3>Cuándo puede ayudar la terapia</h3>
+            <p>Buscar apoyo no implica que estés viviendo “mal” el duelo. Puede ser útil si la ruptura activa ansiedad intensa, aislamiento, pérdida marcada de funcionamiento, patrones relacionales que se repiten o una autocrítica muy dura. En terapia es posible entender qué pasó, elaborar la pérdida y recuperar una relación más amable contigo mismo. Si aparecen ideas de hacerte daño o sientes que no puedes mantenerte a salvo, busca ayuda de emergencia de inmediato.</p>
+        `,
+    },
 ];
 
 const scheduledBlogPosts: BlogPost[] = scheduledTopics
