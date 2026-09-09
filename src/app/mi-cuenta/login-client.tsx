@@ -19,6 +19,7 @@ export default function Page() {
     const [error, setError] = useState('');
     const [passwordUpdated, setPasswordUpdated] = useState(false);
     const [recoverySent, setRecoverySent] = useState(false);
+    const [expiredLink, setExpiredLink] = useState(false);
 
     async function submit(event: React.FormEvent) {
         event.preventDefault();
@@ -27,7 +28,14 @@ export default function Page() {
         const body = mode === 'login' ? { email, password } : mode === 'forgot' ? { email } : { token: reset, password };
         const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await response.json();
-        if (!response.ok) return setError(data.error || 'No fue posible completar la acción.');
+        if (!response.ok) {
+            if (mode === 'reset' && data.code === 'RESET_LINK_EXPIRED') {
+                setMode('forgot');
+                setExpiredLink(true);
+                return;
+            }
+            return setError(data.error || 'No fue posible completar la acción.');
+        }
         if (mode === 'login') location.href = data.mustChangePassword ? '/mi-agenda?change=1' : '/mi-agenda';
         else if (mode === 'forgot') setRecoverySent(true);
         else setPasswordUpdated(true);
@@ -44,14 +52,15 @@ export default function Page() {
 
     return <><Navbar /><main style={page}><form onSubmit={submit} style={card}>
         <div style={{ color: '#0b6e69', fontWeight: 800, letterSpacing: 1, fontSize: 12 }}>PS. GUSTAVO CARO</div>
-        <h1 style={{ color: '#173f43', margin: '10px 0' }}>{mode === 'forgot' ? 'Recupera tu acceso' : mode === 'reset' ? 'Crea tu nueva contraseña' : 'Tu espacio de sesiones'}</h1>
-        <p style={{ color: '#5b6b6d', lineHeight: 1.5 }}>{mode === 'login' ? 'Ingresa para revisar tus citas y solicitar cambios con tranquilidad.' : mode === 'forgot' ? 'Te enviaremos un enlace privado para crear una nueva contraseña.' : 'Elige una contraseña de al menos 10 caracteres para proteger tu información.'}</p>
+        <h1 style={{ color: '#173f43', margin: '10px 0' }}>{mode === 'forgot' ? expiredLink ? 'Este enlace ya no está disponible' : 'Recupera tu acceso' : mode === 'reset' ? 'Crea tu nueva contraseña' : 'Tu espacio de sesiones'}</h1>
+        <p style={{ color: '#5b6b6d', lineHeight: 1.5 }}>{mode === 'login' ? 'Ingresa para revisar tus citas y solicitar cambios con tranquilidad.' : mode === 'forgot' ? expiredLink ? 'No pasa nada: ingresa tu correo y te enviaremos un enlace nuevo y seguro.' : 'Te enviaremos un enlace privado para crear una nueva contraseña.' : 'Elige una contraseña de al menos 10 caracteres para proteger tu información.'}</p>
         {mode !== 'reset' && <input required type="email" placeholder="Correo electrónico" value={email} onChange={event => setEmail(event.target.value)} style={input} />}
         {mode !== 'forgot' && <input required type="password" minLength={10} placeholder="Contraseña" value={password} onChange={event => setPassword(event.target.value)} style={input} />}
         {error && <p role="alert" style={{ color: '#a04444', fontSize: 14 }}>{error}</p>}
+        {expiredLink && !recoverySent && <p aria-live="polite" style={{ color: '#7b5a17', background: '#fff8e8', borderRadius: 10, padding: '12px 14px', fontSize: 14, lineHeight: 1.45 }}>⌛ Por seguridad, los enlaces sólo se pueden utilizar una vez.</p>}
         {recoverySent && <p aria-live="polite" style={{ color: '#17705b', background: '#eaf7f2', borderRadius: 10, padding: '12px 14px', fontSize: 14, lineHeight: 1.45 }}>Si existe una cuenta asociada, enviamos un enlace seguro a ese correo.</p>}
         <button style={primary}>{mode === 'login' ? 'Ingresar al portal' : mode === 'forgot' ? 'Enviar enlace seguro' : 'Guardar mi contraseña'}</button>
         {mode === 'login' && <button type="button" onClick={() => { setError(''); setMode('forgot'); }} style={linkButton}>Olvidé mi contraseña</button>}
-        {mode === 'forgot' && <button type="button" onClick={() => { setRecoverySent(false); setError(''); setMode('login'); }} style={linkButton}>Volver a ingresar</button>}
+        {mode === 'forgot' && <button type="button" onClick={() => { setRecoverySent(false); setExpiredLink(false); setError(''); setMode('login'); }} style={linkButton}>Volver a ingresar</button>}
     </form></main></>;
 }

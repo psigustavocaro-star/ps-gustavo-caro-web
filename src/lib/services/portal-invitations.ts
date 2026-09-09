@@ -4,7 +4,9 @@ import { hashPatientPassword } from '@/lib/auth/patient-session';
 import { publicAppUrl } from '@/lib/config/public-url';
 import { sendPortalActivationEmail } from '@/lib/services/mail';
 
-const ACTIVATION_HOURS = 72;
+// Initial invitations are deliberately generous, while password-recovery
+// links remain short-lived. Every link is still unique and single-use.
+const ACTIVATION_HOURS = 30 * 24;
 
 export async function preparePortalActivation(email: string) {
     const normalizedEmail = email.trim().toLowerCase();
