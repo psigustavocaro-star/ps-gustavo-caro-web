@@ -34,6 +34,9 @@
 .patientLine { display: flex; align-items: center; gap: 9px; margin-top: 17px; font-size: 13px; }
 .patientLine small, .requestRow small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
 .avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: #fff; color: var(--teal); font-weight: 800; }
+.heroActions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+.heroActions button { border: 0; border-radius: 9px; padding: 10px 13px; background: var(--teal); color: #fff; font: 700 13px var(--font-body); cursor: pointer; }
+.heroActions .subtleButton { border: 1px solid #c5dcd6; background: #fff; color: var(--teal); }
 .heroPhoto { position: relative; min-height: 0; overflow: hidden; }
 .heroPhoto :global(img) { object-fit: cover; object-position: center 36%; filter: saturate(.8); }
 .heroPhoto::after { position: absolute; inset: 0; content: ''; background: linear-gradient(90deg, #e8f1ed 0%, transparent 28%, rgba(22,55,52,.17)); }

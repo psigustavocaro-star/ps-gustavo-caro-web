@@ -43,9 +43,8 @@ export default function PatientPortal() {
     <Navbar patientAuthenticated onPatientLogout={async () => { await fetch('/api/paciente/logout', { method: 'POST' }); window.location.href = '/mi-cuenta'; }} />
 
     <section className={styles.hero}>
-      <div className={styles.heroCopy}><p className={styles.eyebrow}>TU ESPACIO PERSONAL</p><h1>Hola, qué bueno<br />verte por aquí.</h1><p className={styles.intro}>Aquí puedes revisar tus sesiones y gestionar cualquier solicitud con tiempo y tranquilidad.</p><div className={styles.patientLine}><span className={styles.avatar}>{data.email.slice(0, 1).toUpperCase()}</span><span><b>{data.email}</b><small>Portal del paciente</small></span></div></div>
+      <div className={styles.heroCopy}><p className={styles.eyebrow}>TU ESPACIO PERSONAL</p><h1>Hola, qué bueno<br />verte por aquí.</h1><p className={styles.intro}>Aquí puedes revisar tus sesiones y gestionar cualquier solicitud con tiempo y tranquilidad.</p><div className={styles.patientLine}><span className={styles.avatar}>{data.email.slice(0, 1).toUpperCase()}</span><span><b>{data.email}</b><small>Portal del paciente</small></span></div><div className={styles.heroActions}><button onClick={() => setProfileOpen(true)}>Editar mis datos</button><button className={styles.subtleButton} onClick={() => setPasswordOpen(true)}>Cambiar contraseña</button></div></div>
       <div className={styles.heroPhoto}><Image src="/images/patient-real.png" alt="Persona en un momento de calma" fill sizes="(max-width: 800px) 100vw, 380px" priority /></div>
-      <div className={styles.cardActions}><button onClick={() => setProfileOpen(true)}>Editar mis datos</button><button className={styles.subtleButton} onClick={() => setPasswordOpen(true)}>Cambiar contraseña</button></div>
     </section>
 
     {data.mustChangePassword && <PasswordCard done={() => { void load(); }} />}
