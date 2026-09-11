@@ -172,6 +172,12 @@ button {
   font-family: inherit;
 }
 
+/* A clear keyboard focus is part of a calm, accessible experience. */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid rgba(8, 145, 178, 0.42);
+  outline-offset: 3px;
+}
+
 /* ============================================
    LAYOUT
    ============================================ */
@@ -223,18 +229,20 @@ section {
   font-weight: 600;
   font-size: 1rem;
   text-align: center;
-  /* transition handled by Framer Motion on Magnetic */
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
   box-shadow: var(--shadow-primary);
   border: none;
   cursor: pointer;
 }
 
 .btn-primary:hover {
+  transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(8, 145, 178, 0.35);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(1px) scale(0.985);
+  filter: brightness(.96);
 }
 
 .btn-primary:disabled {

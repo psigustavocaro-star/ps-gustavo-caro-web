@@ -6,7 +6,7 @@ import styles from './FAQ.module.css';
 const faqs = [
     {
         q: "¿Cómo funciona la terapia online?",
-        a: "La sesión se realiza a través de una plataforma de videollamada segura. Solo necesitas una conexión a internet estable, un espacio privado y un dispositivo con cámara y micrófono. La efectividad es equivalente a la terapia presencial, con la ventaja de la comodidad y ahorro de tiempo."
+        a: "La sesión se realiza a través de una plataforma de videollamada. Solo necesitas una conexión a internet estable, un espacio privado y un dispositivo con cámara y micrófono. En la primera sesión conversamos si esta modalidad se ajusta a tus necesidades."
     },
     {
         q: "¿Qué pasa si no puedo asistir a mi cita?",

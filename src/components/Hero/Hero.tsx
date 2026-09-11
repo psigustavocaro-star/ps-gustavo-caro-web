@@ -33,12 +33,12 @@ export default function Hero() {
 
                     <Reveal>
                         <h1 className={styles.title}>
-                            Tu bienestar merece un espacio <span>seguro</span> y profesional.
+                            Terapia online para volver a sentirte <span>en calma</span>.
                         </h1>
                     </Reveal>
 
                     <p className={styles.description}>
-                        Hola, soy Gustavo Caro, Psicólogo Clínico con <strong>Especialización en Terapia Cognitivo Conductual</strong> por la Universidad de Chile. Experto en salud mental con herramientas concretas para tu bienestar emocional.
+                        Soy Gustavo Caro, Psicólogo Clínico con <strong>especialización en Terapia Cognitivo Conductual</strong> por la Universidad de Chile. Acompaño a personas adultas que quieren comprender lo que les ocurre y construir cambios posibles en su vida cotidiana.
                     </p>
 
                     <div className={styles.actions}>
@@ -51,14 +51,14 @@ export default function Hero() {
                         </div>
                         <p className={styles.invoiceNoteText}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.invoiceIcon}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                            Boleta de honorarios para posible reembolso en Isapres y seguros
+                            Sesiones online de 45–50 minutos · pago seguro · boleta de honorarios
                         </p>
                     </div>
 
                     <div className={styles.trustFooter} style={{ marginTop: '24px' }}>
-                        <span className={styles.trustItem}>✓ Facilidad de pago online</span>
-                        <span className={styles.trustItem}>✓ TCC Basada en evidencia</span>
-                        <span className={styles.trustItem}>✓ Atención online confidencial</span>
+                        <span className={styles.trustItem}>1. Elige tu horario</span>
+                        <span className={styles.trustItem}>2. Recibe tu confirmación</span>
+                        <span className={styles.trustItem}>3. Conéctate desde donde estés</span>
                     </div>
                 </motion.div>
 

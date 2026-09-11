@@ -39,9 +39,9 @@ export default function Testimonials() {
         <section className={styles.testimonials}>
             <div className="container">
                 <div className={styles.header}>
-                    <span className={styles.tag}>Testimonios Verificados</span>
-                    <h2 className="section-title">Voces de Confianza</h2>
-                    <p className={styles.subtitle}>Relatos de quienes han encontrado herramientas concretas para su bienestar.</p>
+                    <span className={styles.tag}>Experiencias de pacientes</span>
+                    <h2 className="section-title">Voces de confianza</h2>
+                    <p className={styles.subtitle}>Relatos compartidos de forma anónima para resguardar la confidencialidad.</p>
                 </div>
 
                 <div className={styles.grid}>
@@ -80,7 +80,7 @@ export default function Testimonials() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
-                    <span>Testimonios reales de pacientes. Nombres abreviados por confidencialidad.</span>
+                    <span>Testimonios publicados con datos abreviados para proteger la identidad de cada persona.</span>
                 </div>
             </div>
         </section>

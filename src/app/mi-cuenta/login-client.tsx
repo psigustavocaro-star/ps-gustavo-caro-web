@@ -7,8 +7,8 @@ import Navbar from '@/components/Navbar/Navbar';
 const page: React.CSSProperties = { minHeight: '100vh', background: 'linear-gradient(135deg,#edf8f6,#f8faf8)', display: 'grid', placeItems: 'center', padding: '110px 20px 20px', fontFamily: 'var(--font-body)' };
 const card: React.CSSProperties = { width: '100%', maxWidth: 440, background: '#fff', padding: 36, borderRadius: 24, boxShadow: '0 20px 60px #164e6330', border: '1px solid #d9ece7' };
 const input: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: 14, marginTop: 12, borderRadius: 10, border: '1px solid #b9d8d3', fontSize: 15 };
-const primary: React.CSSProperties = { width: '100%', boxSizing: 'border-box', display: 'block', textAlign: 'center', padding: 14, marginTop: 20, border: 0, borderRadius: 10, background: '#0b6e69', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none' };
-const linkButton: React.CSSProperties = { display: 'block', margin: '16px auto 0', border: 0, background: 'none', color: '#0b6e69', fontWeight: 700 };
+const primary: React.CSSProperties = { width: '100%', boxSizing: 'border-box', display: 'block', textAlign: 'center', padding: 14, marginTop: 20, border: 0, borderRadius: 10, background: '#0b6e69', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', cursor: 'pointer', transition: 'transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease', boxShadow: '0 7px 18px rgba(11, 110, 105, .22)' };
+const linkButton: React.CSSProperties = { display: 'block', margin: '16px auto 0', border: 0, background: 'none', color: '#0b6e69', fontWeight: 700, cursor: 'pointer', borderRadius: 8, padding: '6px 10px', transition: 'background 160ms ease, transform 160ms ease' };
 
 export default function Page() {
     const query = useSearchParams();
@@ -20,25 +20,31 @@ export default function Page() {
     const [passwordUpdated, setPasswordUpdated] = useState(false);
     const [recoverySent, setRecoverySent] = useState(false);
     const [expiredLink, setExpiredLink] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     async function submit(event: React.FormEvent) {
         event.preventDefault();
         setError('');
-        const endpoint = mode === 'login' ? '/api/paciente/login' : mode === 'forgot' ? '/api/paciente/forgot-password' : '/api/paciente/reset-password';
-        const body = mode === 'login' ? { email, password } : mode === 'forgot' ? { email } : { token: reset, password };
-        const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-        const data = await response.json();
-        if (!response.ok) {
-            if (mode === 'reset' && data.code === 'RESET_LINK_EXPIRED') {
-                setMode('forgot');
-                setExpiredLink(true);
-                return;
+        setSubmitting(true);
+        try {
+            const endpoint = mode === 'login' ? '/api/paciente/login' : mode === 'forgot' ? '/api/paciente/forgot-password' : '/api/paciente/reset-password';
+            const body = mode === 'login' ? { email, password } : mode === 'forgot' ? { email } : { token: reset, password };
+            const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await response.json();
+            if (!response.ok) {
+                if (mode === 'reset' && data.code === 'RESET_LINK_EXPIRED') {
+                    setMode('forgot');
+                    setExpiredLink(true);
+                    return;
+                }
+                return setError(data.error || 'No fue posible completar la acción.');
             }
-            return setError(data.error || 'No fue posible completar la acción.');
-        }
-        if (mode === 'login') location.href = data.mustChangePassword ? '/mi-agenda?change=1' : '/mi-agenda';
-        else if (mode === 'forgot') setRecoverySent(true);
-        else setPasswordUpdated(true);
+            if (mode === 'login') location.href = data.mustChangePassword ? '/mi-agenda?change=1' : '/mi-agenda';
+            else if (mode === 'forgot') setRecoverySent(true);
+            else setPasswordUpdated(true);
+        } catch {
+            setError('No fue posible conectar con el portal. Intenta nuevamente.');
+        } finally { setSubmitting(false); }
     }
 
     if (passwordUpdated) return <><Navbar /><main style={page}><section style={{ ...card, textAlign: 'center' }} aria-live="polite">
@@ -59,7 +65,7 @@ export default function Page() {
         {error && <p role="alert" style={{ color: '#a04444', fontSize: 14 }}>{error}</p>}
         {expiredLink && !recoverySent && <p aria-live="polite" style={{ color: '#7b5a17', background: '#fff8e8', borderRadius: 10, padding: '12px 14px', fontSize: 14, lineHeight: 1.45 }}>⌛ Por seguridad, los enlaces sólo se pueden utilizar una vez.</p>}
         {recoverySent && <p aria-live="polite" style={{ color: '#17705b', background: '#eaf7f2', borderRadius: 10, padding: '12px 14px', fontSize: 14, lineHeight: 1.45 }}>Si existe una cuenta asociada, enviamos un enlace seguro a ese correo.</p>}
-        <button style={primary}>{mode === 'login' ? 'Ingresar al portal' : mode === 'forgot' ? 'Enviar enlace seguro' : 'Guardar mi contraseña'}</button>
+        <button disabled={submitting} aria-busy={submitting} style={{ ...primary, opacity: submitting ? .72 : 1, transform: submitting ? 'scale(.985)' : undefined }}>{submitting ? 'Procesando…' : mode === 'login' ? 'Ingresar al portal' : mode === 'forgot' ? 'Enviar enlace seguro' : 'Guardar mi contraseña'}</button>
         {mode === 'login' && <button type="button" onClick={() => { setError(''); setMode('forgot'); }} style={linkButton}>Olvidé mi contraseña</button>}
         {mode === 'forgot' && <button type="button" onClick={() => { setRecoverySent(false); setExpiredLink(false); setError(''); setMode('login'); }} style={linkButton}>Volver a ingresar</button>}
     </form></main></>;

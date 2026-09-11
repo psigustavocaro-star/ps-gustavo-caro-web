@@ -8,7 +8,7 @@ import styles from './TCCFocus.module.css';
 const focalPoints = [
     {
         title: "Crisis de Ansiedad y Pánico",
-        description: "¿Sientes que pierdes el control o que el miedo te paraliza en el metro o el trabajo? La TCC es el 'Gold Standard' para desactivar la respuesta de alarma de tu cerebro, dándote herramientas para recuperar tu libertad en Santiago y donde sea que estés.",
+        description: "¿Sientes que pierdes el control o que el miedo te paraliza en el metro o el trabajo? Podemos comprender qué mantiene la alarma activa y practicar herramientas para recuperar mayor libertad en tu día a día.",
         keywords: "Ansiedad, Crisis de Pánico, Agorafobia"
     },
     {
@@ -36,7 +36,7 @@ export default function TCCFocus() {
                     <div className={styles.header}>
                         <h2 className={styles.title}>¿Te identificas con alguna de estas situaciones?</h2>
                         <p className={styles.subtitle}>
-                            Como <strong>Psicólogo en Santiago</strong> especializado en <strong>Terapia Cognitivo Conductual (TCC)</strong>, mi objetivo es que dejes de “sobrevivir” al día a día y comiences a gestionar tu bienestar con herramientas probadas por la ciencia.
+                            Como <strong>psicólogo en Santiago</strong> con enfoque en <strong>Terapia Cognitivo Conductual (TCC)</strong>, trabajo con herramientas basadas en evidencia y adaptadas a tu historia, contexto y objetivos.
                         </p>
                     </div>
                 </Reveal>
@@ -64,7 +64,7 @@ export default function TCCFocus() {
 
                 <Reveal>
                     <div className={styles.footer}>
-                        <p>La <strong>Terapia Online en Chile</strong> permite que accedamos a este tratamiento de alta efectividad sin importar las distancias, con la misma calidad de la atención presencial.</p>
+                        <p>La <strong>terapia online en Chile</strong> ofrece un espacio confidencial y accesible para iniciar un proceso desde donde estés.</p>
                     </div>
                 </Reveal>
             </div>

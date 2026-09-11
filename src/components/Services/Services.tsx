@@ -22,27 +22,26 @@ export default function Services() {
                     transition={{ duration: 0.6 }}
                 >
                     <span className={styles.label}>Servicios Profesionales</span>
-                    <Reveal><h2 className={styles.title}>Mi Enfoque de Trabajo</h2></Reveal>
-                    <p className={styles.subtitle}>Calidad clínica y calidez humana en cada etapa del proceso.</p>
+                    <Reveal><h2 className={styles.title}>Terapia y evaluaciones, con caminos claros</h2></Reveal>
+                    <p className={styles.subtitle}>Dos procesos distintos, explicados para que puedas elegir con tranquilidad.</p>
                 </motion.div>
 
                 <div className={styles.descriptionBlock}>
                     <p className={styles.introText}>
-                        Ofrezco servicios especializados de psicoterapia y evaluación desde un enfoque clínico riguroso y humano.
-                        Todos los procesos se adaptan a las necesidades particulares de cada persona.
+                        La psicoterapia online está orientada a personas adultas que buscan un espacio de trabajo regular. Las evaluaciones son procesos presenciales, con objetivos, instrumentos y entrega de informe definidos desde el inicio.
                     </p>
                     <div className={styles.serviceBenefits}>
                         <div className={styles.benefit}>
-                            <strong>Enfoque TCC</strong>
-                            <span>Basado en evidencia científica y objetivos claros.</span>
+                            <strong>Psicoterapia online</strong>
+                            <span>Sesiones de 45–50 minutos, con objetivos acordados y herramientas para la vida cotidiana.</span>
                         </div>
                         <div className={styles.benefit}>
-                            <strong>Evaluación Exhaustiva</strong>
-                            <span>Uso de baterías neuropsicológicas estandarizadas.</span>
+                            <strong>Evaluaciones presenciales</strong>
+                            <span>Entrevista, instrumentos pertinentes, integración clínica e informe explicado.</span>
                         </div>
                         <div className={styles.benefit}>
-                            <strong>Soporte Continuo</strong>
-                            <span>Seguimiento y materiales post-sesión.</span>
+                            <strong>Proceso informado</strong>
+                            <span>Antes de reservar conoces modalidad, valor, coordinación y condiciones de atención.</span>
                         </div>
                     </div>
                 </div>

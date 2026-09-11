@@ -58,10 +58,10 @@ export default function About() {
                     <span className={styles.subtitle}>Mi Enfoque Humano y Científico</span>
                     <Reveal><h2 className={styles.sectionTitle}>Entender tu mente para sanar tu corazón.</h2></Reveal>
                     <p className={styles.text}>
-                        Soy psicólogo clínico con <strong>Especialización en Terapia Cognitivo Conductual (TCC)</strong> por la Universidad de Chile. Mi práctica integra la evidencia científica con el uso de instrumentos de alta precisión diagnóstica, como las certificaciones en <strong>ADOS-2</strong> (Autismo) y <strong>WISC-V</strong> (Inteligencia), permitiendo un abordaje integral en niños, adolescentes y adultos.
+                        Soy psicólogo clínico con <strong>Especialización en Terapia Cognitivo Conductual (TCC)</strong> por la Universidad de Chile. En psicoterapia acompaño principalmente a personas adultas; las evaluaciones de niños, adolescentes y adultos se abordan de manera presencial y con un proceso diferenciado.
                     </p>
                     <p className={styles.text}>
-                        Con formación de postgrado en salud mental y adicciones (UCC), mi trayectoria integra el trabajo clínico con niños, adolescentes y adultos, adaptando la intervención a las necesidades únicas de cada etapa vital. Mi enfoque, **especializado en TCC**, busca ser resolutivo sin perder la calidez humana; mi compromiso es brindarte un espacio de seguridad y rigor técnico, donde la ciencia de la conducta se pone al servicio de tu bienestar y autonomía emocional.
+                        Con formación de postgrado en salud mental y adicciones (UCC), trabajo desde una mirada clínica cuidadosa y basada en evidencia. El proceso parte por comprender tu situación, acordar objetivos realistas y revisar juntos qué está siendo útil en el camino.
                     </p>
 
                     <div className={styles.expertiseList}>

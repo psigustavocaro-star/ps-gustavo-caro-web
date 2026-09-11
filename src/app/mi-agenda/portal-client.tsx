@@ -47,15 +47,16 @@ export default function PatientPortal() {
   }).sort((a: any, b: any) => Date.parse(a.date) - Date.parse(b.date));
   const upcoming = sessions.filter((session: any) => Date.parse(session.date) > Date.now())[0];
 
-  async function submitRequest(event: React.FormEvent<HTMLFormElement>) {
+  async function submitRequest(event: React.FormEvent<HTMLFormElement>): Promise<boolean> {
     event.preventDefault();
-    if (!modal) return;
+    if (!modal) return false;
     const form = new FormData(event.currentTarget);
     const bank = Object.fromEntries(['holderName', 'rut', 'email', 'bank', 'accountType', 'accountNumber'].map(key => [key, String(form.get(key) || '')]));
     const response = await fetch('/api/paciente/requests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: modal.booking.id, appointmentIndex: modal.index, type: modal.type, message: form.get('message'), bank }) });
     const result = await response.json();
     setNotice(response.ok ? 'Recibí tu solicitud. La revisaré personalmente y te responderé apenas tenga una actualización.' : result.error);
     if (response.ok) { setModal(null); void load(); }
+    return response.ok;
   }
 
   return <main className={styles.patientPortal} data-patient-portal>
@@ -88,18 +89,24 @@ export default function PatientPortal() {
   </main>;
 }
 
-function PasswordModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) { const [password, setPassword] = useState(''); const [error, setError] = useState(''); return <div className={styles.backdrop} role="dialog" aria-modal="true"><form onSubmit={async e => { e.preventDefault(); const r = await fetch('/api/paciente/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); if (r.ok) onSaved(); else setError('Usa al menos 10 caracteres.'); }} className={styles.modal}><button type="button" className={styles.modalClose} onClick={onClose}>×</button><header className={styles.modalHeader}><p className={styles.eyebrow}>SEGURIDAD</p><h2>Cambiar contraseña</h2></header><div className={styles.modalBody}><label className={styles.field}><span>Nueva contraseña</span><input required minLength={10} type="password" value={password} onChange={e => setPassword(e.target.value)} /></label>{error && <p>{error}</p>}</div><footer className={styles.modalActions}><button className={styles.primaryButton}>Guardar contraseña</button></footer></form></div>; }
+function PasswordModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  return <div className={styles.backdrop} role="dialog" aria-modal="true"><form onSubmit={async e => { e.preventDefault(); setSaving(true); setError(''); try { const r = await fetch('/api/paciente/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); if (r.ok) onSaved(); else setError('Usa al menos 10 caracteres.'); } catch { setError('No fue posible guardar la contraseña. Intenta nuevamente.'); } finally { setSaving(false); } }} className={styles.modal}><button type="button" className={styles.modalClose} onClick={onClose} disabled={saving} aria-label="Cerrar">×</button><header className={styles.modalHeader}><p className={styles.eyebrow}>SEGURIDAD</p><h2>Cambiar contraseña</h2></header><div className={styles.modalBody}><label className={styles.field}><span>Nueva contraseña</span><input required minLength={10} type="password" value={password} onChange={e => setPassword(e.target.value)} /></label>{error && <p role="alert">{error}</p>}</div><footer className={styles.modalActions}><button className={styles.primaryButton} disabled={saving} aria-busy={saving}>{saving ? 'Guardando…' : 'Guardar contraseña'}</button></footer></form></div>;
+}
 
 function ProfileModal({ profile, onClose, onSaved }: { profile: any; onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState<any>({ ...(profile || {}), country: profile?.country || 'Chile' });
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const update = (key: string, value: string) => setForm((previous: any) => ({ ...previous, [key]: value }));
   const labels: Array<[string, string, string]> = [['firstName', 'Primer nombre', 'text'], ['secondName', 'Segundo nombre', 'text'], ['firstSurname', 'Apellido paterno', 'text'], ['secondSurname', 'Apellido materno', 'text'], ['birthDate', 'Fecha de nacimiento', 'date'], ['gender', 'Género', 'text'], ['occupation', 'Ocupación', 'text'], ['companion', 'Acompañante', 'text'], ['address', 'Dirección', 'text'], ['phone', 'Teléfono', 'tel'], ['educationLevel', 'Nivel educacional', 'text'], ['emergencyContact', 'Contacto de emergencia', 'text']];
   const regions = form.country === 'Chile' ? Object.keys(chileanLocations) : [];
   const communes = form.country === 'Chile' ? chileanLocations[form.region] || [] : [];
   return <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="profile-title">
-    <form onSubmit={async event => { event.preventDefault(); const response = await fetch('/api/paciente/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) }); if (response.ok) onSaved(); else setError('No fue posible guardar los cambios.'); }} className={styles.modal}>
-      <button type="button" className={styles.modalClose} onClick={onClose} aria-label="Cerrar ventana de edición">×</button>
+    <form onSubmit={async event => { event.preventDefault(); setSaving(true); setError(''); try { const response = await fetch('/api/paciente/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) }); if (response.ok) onSaved(); else setError('No fue posible guardar los cambios.'); } catch { setError('No fue posible conectar. Intenta nuevamente.'); } finally { setSaving(false); } }} className={styles.modal}>
+      <button type="button" className={styles.modalClose} onClick={onClose} disabled={saving} aria-label="Cerrar ventana de edición">×</button>
       <header className={styles.modalHeader}><p className={styles.eyebrow}>MI INFORMACIÓN</p><h2 id="profile-title">Editar datos personales</h2><p>El correo y RUT se protegen como identificadores de tu cuenta. Para corregirlos, solicita apoyo al profesional.</p><div className={styles.scrollHint}><span>↓</span> Desplázate para completar tus datos.</div></header>
       <div className={styles.modalBody}>
         {labels.slice(0, 8).map(([key, label, type]) => <label key={key} className={styles.field}><span>{label}</span><input type={type} value={form[key] || ''} onChange={event => update(key, event.target.value)} /></label>)}
@@ -108,9 +115,9 @@ function ProfileModal({ profile, onClose, onSaved }: { profile: any; onClose: ()
         {labels.slice(8).map(([key, label, type]) => <label key={key} className={styles.field}><span>{label}</span><input type={type} value={form[key] || ''} onChange={event => update(key, event.target.value)} /></label>)}
         <p>Antecedentes clínicos: al enviarlos quedarán pendientes de revisión y no reemplazarán automáticamente tu ficha.</p>
         {['diagnoses', 'medications', 'genogram'].map(key => <label key={key} className={styles.field}><span>{key === 'diagnoses' ? 'Diagnósticos' : key === 'medications' ? 'Medicamentos' : 'Genograma / antecedentes familiares'}</span><textarea onChange={event => update(key, event.target.value)} /></label>)}
-        {error && <p>{error}</p>}
+        {error && <p role="alert">{error}</p>}
       </div>
-      <footer className={styles.modalActions}><button className={styles.primaryButton}>Guardar cambios</button></footer>
+      <footer className={styles.modalActions}><button className={styles.primaryButton} disabled={saving} aria-busy={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button></footer>
     </form>
   </div>;
 }
@@ -120,20 +127,21 @@ function SessionCard({ session, featured, onRequest }: { session: any; featured:
   return <article className={`${styles.sessionCard} ${featured ? styles.featured : ''}`}><div className={styles.calendarTile}><b>{new Date(session.date).getDate()}</b><span>{new Intl.DateTimeFormat('es-CL', { month: 'short' }).format(new Date(session.date)).replace('.', '')}</span></div><div className={styles.sessionInfo}><div className={styles.sessionTitle}><h3>{serviceNames[session.booking.serviceType] || session.booking.serviceType}</h3>{session.booking.serviceType === 'packSesiones' && <span>Sesión {session.index + 1} de {session.total}</span>}</div><p className={styles.dateLine}>◷ {displayDate(session.date)}</p>{session.booking.meetUrl && <a href={session.booking.meetUrl} target="_blank" rel="noreferrer" className={styles.meetLink}>Unirme por Google Meet <span>↗</span></a>}<div className={styles.cardActions}>{allowed ? <><button onClick={() => onRequest({ booking: session.booking, index: session.index, type: 'CHANGE' })}>Solicitar cambio</button><button onClick={() => onRequest({ booking: session.booking, index: session.index, type: 'CANCEL' })} className={styles.subtleButton}>Solicitar anulación</button></> : <span className={styles.locked}>Esta sesión está dentro de las 48 horas.</span>}</div></div></article>;
 }
 
-function PasswordCard({ done }: { done: () => void }) { const [password, setPassword] = useState(''); const [error, setError] = useState(''); return <section className={styles.passwordCard}><div className={styles.lockIcon}>⌁</div><div><p className={styles.eyebrow}>UN ÚLTIMO PASO</p><h2>Protege tu espacio personal</h2><p>Crea una contraseña personal para continuar. Solo te tomará un momento.</p></div><form onSubmit={async event => { event.preventDefault(); const response = await fetch('/api/paciente/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); if (response.ok) done(); else setError('La contraseña debe tener al menos 10 caracteres.'); }}><input required minLength={10} type="password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Nueva contraseña" /><button>Guardar y continuar</button>{error && <small>{error}</small>}</form></section>; }
+function PasswordCard({ done }: { done: () => void }) { const [password, setPassword] = useState(''); const [error, setError] = useState(''); const [saving, setSaving] = useState(false); return <section className={styles.passwordCard}><div className={styles.lockIcon}>⌁</div><div><p className={styles.eyebrow}>UN ÚLTIMO PASO</p><h2>Protege tu espacio personal</h2><p>Crea una contraseña personal para continuar. Solo te tomará un momento.</p></div><form onSubmit={async event => { event.preventDefault(); setSaving(true); setError(''); try { const response = await fetch('/api/paciente/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); if (response.ok) done(); else setError('La contraseña debe tener al menos 10 caracteres.'); } catch { setError('No fue posible guardar la contraseña. Intenta nuevamente.'); } finally { setSaving(false); } }}><input required minLength={10} type="password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Nueva contraseña" /><button disabled={saving} aria-busy={saving}>{saving ? 'Guardando…' : 'Guardar y continuar'}</button>{error && <small role="alert">{error}</small>}</form></section>; }
 
-function RequestModal({ modal, onClose, onSubmit }: { modal: Modal; onClose: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
+function RequestModal({ modal, onClose, onSubmit }: { modal: Modal; onClose: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<boolean> }) {
   const cancellation = modal.type === 'CANCEL';
+  const [sending, setSending] = useState(false);
   const bankFields = [['holderName', 'Nombre del titular'], ['rut', 'RUT'], ['email', 'Correo para la devolución'], ['bank', 'Banco'], ['accountType', 'Tipo de cuenta'], ['accountNumber', 'Número de cuenta']];
   return <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="request-title">
-    <form onSubmit={onSubmit} className={styles.modal}>
-      <button type="button" className={styles.modalClose} onClick={onClose} aria-label="Cerrar">×</button>
+    <form onSubmit={async event => { setSending(true); try { await onSubmit(event); } finally { setSending(false); } }} className={styles.modal}>
+      <button type="button" className={styles.modalClose} onClick={onClose} disabled={sending} aria-label="Cerrar">×</button>
       <header className={styles.modalHeader}><p className={styles.eyebrow}>{cancellation ? 'SOLICITUD DE ANULACIÓN' : 'SOLICITUD DE CAMBIO'}</p><h2 id="request-title">{cancellation ? 'Gestionemos tu anulación' : 'Cuéntame qué necesitas'}</h2><p>No haré cambios en tu sesión hasta revisar personalmente tu solicitud.</p>{cancellation && <div className={styles.scrollHint}><span>↓</span> Completa tus datos de transferencia. Desplázate para continuar.</div>}</header>
       <div className={styles.modalBody}>
         <label className={styles.field}><span>Mensaje <em>opcional</em></span><textarea name="message" placeholder={cancellation ? '¿Hay algo que debamos considerar?' : 'Indica qué día u horario te acomodaría mejor.'} /></label>
         {cancellation && <section className={styles.bankFields}><div className={styles.bankHeading}><h3>Datos para tu transferencia</h3><p><span>✓</span> Quedarán cifrados y solo yo podré verlos.</p></div><div className={styles.bankGrid}>{bankFields.map(([name, label]) => <label key={name} className={styles.field}><span>{label}</span><input required name={name} placeholder={label} autoComplete={name === 'email' ? 'email' : 'off'} /></label>)}</div></section>}
       </div>
-      <footer className={styles.modalActions}><button className={styles.primaryButton}>Enviar solicitud</button><button type="button" onClick={onClose} className={styles.cancelButton}>Volver</button></footer>
+      <footer className={styles.modalActions}><button className={styles.primaryButton} disabled={sending} aria-busy={sending}>{sending ? 'Enviando…' : 'Enviar solicitud'}</button><button type="button" onClick={onClose} className={styles.cancelButton} disabled={sending}>Volver</button></footer>
     </form>
   </div>;
 }
