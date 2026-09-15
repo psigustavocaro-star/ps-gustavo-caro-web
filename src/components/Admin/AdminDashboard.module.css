@@ -825,3 +825,29 @@
 .overviewFlow .dashboardStats, .overviewFlow .overviewGrid { flex: 0 0 auto; margin: 0 !important; }
 .overviewFlow .overviewGrid { align-content: start; padding: 0 !important; }
 .overviewFlow .historyLauncher { margin-top: 0; }
+
+/* El espaciado editorial global pertenece al sitio público, no al panel. */
+.contentArea :global(section) { padding: 0; }
+.contentArea .earningsHistory { padding: 24px; }
+.contentArea .campaignShelf { padding: 18px 20px 16px; }
+.contentArea .campaignComposer { padding: 22px 24px; }
+.contentArea .audiencePanel, .contentArea .libraryPanel { padding: 18px; }
+.contentArea .contentLibrary { padding: 21px; }
+
+/* Cada sesión inmediata funciona como acceso directo a la ficha clínica. */
+.nextSessionRow { border-radius: 10px; transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.nextSessionRow:hover { border-top-color: transparent; background: linear-gradient(90deg, #e9fbfd, #f8feff); box-shadow: inset 3px 0 0 #22b8d0, 0 5px 14px rgba(8, 145, 178, .08); transform: translateX(2px); }
+.nextSessionRow:hover .nextSessionDate { background: #c8f3f8; }.nextSessionRow:hover time { color: #087b98; }
+.nextSessionRow:focus-visible { outline: 3px solid rgba(34, 184, 208, .35); outline-offset: 2px; }
+
+/* La ficha prioriza la revisión financiera sin comprimir las sesiones. */
+.modalContent { max-width: 780px; padding: 32px; }
+.paymentHistoryBox { padding: 22px; border-color: #cfeaf0; background: linear-gradient(145deg, #f8fdfe, #f2fbfc); }
+.paymentHistoryHint { margin: -4px 0 14px; color: #5d7c82; font-size: .78rem; line-height: 1.45; }
+.paymentHistoryBox .sessionsScroll { max-height: 330px; gap: 9px; padding-right: 6px; }
+.paymentHistoryBox .sessionLine, .paymentHistoryBox .invoiceBookingGroup { border-color: #d6edf1; }
+
+@media (max-width: 768px) {
+    .modalContent { max-width: none; padding: 24px; }
+    .paymentHistoryBox .sessionsScroll { max-height: 280px; }
+}

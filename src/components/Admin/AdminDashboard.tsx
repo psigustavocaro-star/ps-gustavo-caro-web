@@ -1031,7 +1031,12 @@ export default function AdminDashboard() {
                             <button onClick={() => setActiveTab('bookings')}>Ver agenda completa</button>
                         </div>
                         {overviewMetrics.next.length ? <div className={styles.nextSessionList}>{overviewMetrics.next.map(({ booking, session }) => (
-                            <button key={`${booking.id}-${session.id}`} className={styles.nextSessionRow} onClick={() => setActiveTab('bookings')}>
+                            <button
+                                key={`${booking.id}-${session.id}`}
+                                className={styles.nextSessionRow}
+                                onClick={() => openPatientFromBooking(booking)}
+                                title={`Abrir ficha de ${booking.name}`}
+                            >
                                 <span className={styles.nextSessionDate}><strong>{new Date(session.date).toLocaleDateString('es-CL', { day: '2-digit' })}</strong><small>{new Date(session.date).toLocaleDateString('es-CL', { month: 'short' })}</small></span>
                                 <span><strong>{booking.name}</strong><small>{getServiceDisplayName(booking.serviceType)} · Sesión {session.number} de {getInvoiceSessionSlots(booking).length}</small></span>
                                 <time>{new Date(session.date).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })}</time>
@@ -1301,8 +1306,9 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
 
-                                <div className={styles.sessionsBox}>
+                                <div className={`${styles.sessionsBox} ${styles.paymentHistoryBox}`}>
                                     <h3>💳 Historial de pagos ({getPaidBookings(selectedPatient.bookings).length})</h3>
+                                    <p className={styles.paymentHistoryHint}>Revisa cada proceso y marca la boleta SII directamente desde esta ficha.</p>
                                     {getPaidBookings(selectedPatient.bookings).length > 0 ? (
                                         <div className={styles.sessionsScroll}>
                                             {getPaidBookings(selectedPatient.bookings).map((b: any, i: number) => {
