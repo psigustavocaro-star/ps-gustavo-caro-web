@@ -823,4 +823,5 @@
 /* Flujo lineal para que la agenda siga inmediatamente a las métricas. */
 .overviewFlow { display: flex; flex-direction: column; gap: 12px; }
 .overviewFlow .dashboardStats, .overviewFlow .overviewGrid { flex: 0 0 auto; margin: 0 !important; }
+.overviewFlow .overviewGrid { align-content: start; padding: 0 !important; }
 .overviewFlow .historyLauncher { margin-top: 0; }
