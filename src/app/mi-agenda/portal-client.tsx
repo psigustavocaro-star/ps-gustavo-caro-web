@@ -90,7 +90,7 @@ export default function PatientPortal() {
         </section>
         {data.bookings.some((booking: any) => booking.appointmentCancellations?.length) && <section className={styles.completedSection}>
           <div className={styles.sectionHeader}><div><p className={styles.eyebrow}>HISTORIAL</p><h2>Cambios de fecha</h2></div></div>
-          <div className={styles.completedList}>{data.bookings.flatMap((booking: any) => (booking.appointmentCancellations || []).map((change: any) => <article key={change.id} className={styles.completedCard}><span className={styles.completedCheck}>↻</span><div><strong>Sesión reagendada</strong><small>{change.originalAppointmentDate ? `Original: ${displayDate(change.originalAppointmentDate)}` : 'Fecha original registrada'} · {change.rescheduledAppointmentDate ? `Nueva: ${displayDate(change.rescheduledAppointmentDate)}` : 'Pendiente de nueva fecha'}</small></div></article>))}</div>
+          <div className={styles.completedList}>{data.bookings.flatMap((booking: any) => (booking.appointmentCancellations || []).map((change: any) => <article key={change.id} className={styles.completedCard}><span className={styles.completedCheck}>↻</span><div><strong>Sesión reagendada</strong><small>{change.originalAppointmentDate ? `Original: ${displayDate(change.originalAppointmentDate)}` : 'Fecha original registrada'} · {booking.appointmentDates?.[change.appointmentIndex] ? `Nueva: ${displayDate(booking.appointmentDates[change.appointmentIndex])}` : 'Pendiente de nueva fecha'}</small></div></article>))}</div>
         </section>}
       </div>
       <aside className={styles.sideColumn}>

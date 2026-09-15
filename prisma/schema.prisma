@@ -141,7 +141,6 @@ model AppointmentCancellation {
   booking                 Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   appointmentIndex        Int
   originalAppointmentDate String
-  rescheduledAppointmentDate String?
   reason                  String?
   calCancelledAt          DateTime?
   emailSentAt             DateTime?

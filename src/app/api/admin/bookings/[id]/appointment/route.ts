@@ -74,12 +74,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
                 bookingId: booking.id,
                 appointmentIndex,
                 originalAppointmentDate: booking.appointmentDates[appointmentIndex] || booking.appointmentDate || appointmentDate,
-                rescheduledAppointmentDate: appointmentDate,
                 reason: body.reason || 'Fecha reagendada por administración.',
                 rebookedAt: new Date(),
             },
             update: {
-                rescheduledAppointmentDate: appointmentDate,
                 reason: body.reason || undefined,
                 rebookedAt: new Date(),
             },

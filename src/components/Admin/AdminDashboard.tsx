@@ -1389,7 +1389,7 @@ export default function AdminDashboard() {
                                     <div className={styles.sessionsScroll}>
                                         {selectedPatient.bookings.flatMap((b: any) => (b.appointmentCancellations || []).map((change: any) => <div className={styles.sessionLine} key={change.id}>
                                             <div><strong>{change.originalAppointmentDate ? new Date(change.originalAppointmentDate).toLocaleString('es-CL') : 'Fecha original'}</strong><span className={styles.sessionService}>Fecha original</span></div>
-                                            <div style={{ textAlign: 'right' }}><strong>{change.rescheduledAppointmentDate ? new Date(change.rescheduledAppointmentDate).toLocaleString('es-CL') : 'Pendiente'}</strong><span className={styles.sessionService}>Nueva fecha · {change.rebookedAt ? new Date(change.rebookedAt).toLocaleDateString('es-CL') : 'sin confirmar'}</span></div>
+                                            <div style={{ textAlign: 'right' }}><strong>{b.appointmentDates?.[change.appointmentIndex] ? new Date(b.appointmentDates[change.appointmentIndex]).toLocaleString('es-CL') : 'Pendiente'}</strong><span className={styles.sessionService}>Nueva fecha · {change.rebookedAt ? new Date(change.rebookedAt).toLocaleDateString('es-CL') : 'sin confirmar'}</span></div>
                                         </div>))}
                                     </div>
                                 </div>}
