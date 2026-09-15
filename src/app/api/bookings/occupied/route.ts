@@ -26,12 +26,13 @@ export async function GET(request: NextRequest) {
         });
 
         const now = Date.now();
-        const isFutureDate = (dateStr: string) => (
-            Boolean(dateStr) && !Number.isNaN(Date.parse(dateStr)) && Date.parse(dateStr) >= now
-        );
+        const parseFutureDate = (value: unknown) => {
+            if (typeof value !== 'string' || !value.trim()) return null;
+            const timestamp = Date.parse(value);
+            return Number.isNaN(timestamp) || timestamp < now ? null : new Date(timestamp);
+        };
 
-        const formatInSantiago = (dateStr: string | Date) => {
-            const date = new Date(dateStr);
+        const formatInSantiago = (date: Date) => {
             const santiagoDate = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'America/Santiago',
                 year: 'numeric',
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
                 ? b.appointmentDates
                 : b.appointmentDate ? [b.appointmentDate] : [];
 
-            return dates.filter(isFutureDate).map(formatInSantiago);
+            return dates.map(parseFutureDate).filter((date): date is Date => date !== null).map(formatInSantiago);
         });
 
         const finalOccupiedSlots = [...occupiedFromDB];
