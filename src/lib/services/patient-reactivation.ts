@@ -105,14 +105,32 @@ export async function processPatientReactivation() {
         .filter((booking) => !hasFutureAppointment(booking, now))
         .slice(0, maxSends);
 
-    const results: Array<{ email: string; success: boolean; error?: string }> = [];
+    const results: Array<{
+        email: string;
+        success: boolean;
+        outcome: 'sent' | 'skipped' | 'lookup_failed' | 'send_failed';
+        error?: string;
+        trackingError?: string;
+    }> = [];
 
     for (const booking of candidates) {
         const email = booking.email.trim().toLowerCase();
-        const subscriber = await prisma.newsletter.findUnique({ where: { email } }).catch(() => null);
+        let subscriber;
+        try {
+            subscriber = await prisma.newsletter.findUnique({ where: { email } });
+        } catch (error: any) {
+            // Do not send when the opt-out check cannot be completed.
+            results.push({
+                email,
+                success: false,
+                outcome: 'lookup_failed',
+                error: error?.message || 'subscriber_lookup_failed',
+            });
+            continue;
+        }
 
         if (subscriber?.active === false) {
-            results.push({ email, success: false, error: 'subscriber_inactive' });
+            results.push({ email, success: false, outcome: 'skipped', error: 'subscriber_inactive' });
             continue;
         }
 
@@ -120,14 +138,15 @@ export async function processPatientReactivation() {
             const lastNewsletterCutoff = new Date(now);
             lastNewsletterCutoff.setDate(lastNewsletterCutoff.getDate() - 21);
             if (subscriber.lastSentAt > lastNewsletterCutoff) {
-                results.push({ email, success: false, error: 'recent_newsletter_contact' });
+                results.push({ email, success: false, outcome: 'skipped', error: 'recent_newsletter_contact' });
                 continue;
             }
         }
 
+        let response;
         try {
             const firstName = firstNameFromBooking(booking.name, booking.firstName);
-            const response = await resend.emails.send({
+            response = await resend.emails.send({
                 from: 'Ps. Gustavo Caro <newsletter@psgustavocaro.cl>',
                 to: email,
                 subject: 'Por si quieres retomar tu proceso',
@@ -135,10 +154,15 @@ export async function processPatientReactivation() {
             });
 
             if (response.error) {
-                results.push({ email, success: false, error: response.error.message || 'resend_error' });
+                results.push({ email, success: false, outcome: 'send_failed', error: response.error.message || 'resend_error' });
                 continue;
             }
+        } catch (error: any) {
+            results.push({ email, success: false, outcome: 'send_failed', error: error?.message || 'unexpected_send_error' });
+            continue;
+        }
 
+        try {
             await prisma.newsletter.upsert({
                 where: { email },
                 update: {
@@ -155,22 +179,36 @@ export async function processPatientReactivation() {
                 },
             });
 
-            results.push({ email, success: true });
+            results.push({ email, success: true, outcome: 'sent' });
         } catch (error: any) {
-            results.push({ email, success: false, error: error?.message || 'unexpected_error' });
+            // The email was accepted by Resend, so record it as sent. Keeping the
+            // tracking error visible prevents a misleading "0 sent" audit.
+            results.push({
+                email,
+                success: true,
+                outcome: 'sent',
+                trackingError: error?.message || 'newsletter_tracking_failed',
+            });
         }
 
         await new Promise((resolve) => setTimeout(resolve, 250));
     }
 
     const sentCount = results.filter((result) => result.success).length;
+    const skippedCount = results.filter((result) => result.outcome === 'skipped').length;
+    const lookupFailedCount = results.filter((result) => result.outcome === 'lookup_failed').length;
+    const sendFailedCount = results.filter((result) => result.outcome === 'send_failed').length;
+    const trackingFailedCount = results.filter((result) => result.trackingError).length;
     const summary = {
         success: true,
         inactiveDays,
         checkedPatients: latestByEmail.size,
         candidateCount: candidates.length,
         sentCount,
-        skippedOrFailedCount: results.length - sentCount,
+        skippedCount,
+        lookupFailedCount,
+        sendFailedCount,
+        trackingFailedCount,
         results,
     };
 
@@ -183,7 +221,10 @@ export async function processPatientReactivation() {
             checkedPatients: latestByEmail.size,
             candidateCount: candidates.length,
             sentCount,
-            skippedOrFailedCount: results.length - sentCount,
+            skippedCount,
+            lookupFailedCount,
+            sendFailedCount,
+            trackingFailedCount,
         }, null, 2)}</pre>`,
     }).catch((error) => {
         console.error('Patient reactivation audit email error:', error);

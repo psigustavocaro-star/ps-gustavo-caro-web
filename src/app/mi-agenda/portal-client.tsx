@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar/Navbar';
 import styles from './portal.module.css';
+import { getInvoiceSessionSlots } from '@/lib/invoice-sessions';
 
 const serviceNames: Record<string, string> = { sesion: 'Psicoterapia individual', packSesiones: 'Pack de sesiones', primeraConsulta: 'Primera consulta', evalTDAH: 'Evaluación TDAH', evalAutismo: 'Evaluación TEA' };
 const displayDate = (value: string) => new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
@@ -42,10 +43,16 @@ export default function PatientPortal() {
   if (!data) return <main className={styles.loading}>Preparando tu espacio personal…</main>;
 
   const sessions = data.bookings.flatMap((booking: any) => {
-    const dates = booking.appointmentDates?.length ? booking.appointmentDates : booking.appointmentDate ? [booking.appointmentDate] : [];
-    return dates.map((date: string, index: number) => ({ booking, date, index, total: dates.length }));
-  }).sort((a: any, b: any) => Date.parse(a.date) - Date.parse(b.date));
-  const upcoming = sessions.filter((session: any) => Date.parse(session.date) > Date.now())[0];
+    const slots = getInvoiceSessionSlots(booking);
+    return slots.map((slot) => ({ booking, date: slot.date, index: slot.appointmentIndex ?? 0, number: slot.number, total: slots.length, completed: slot.completed }));
+  });
+  const scheduledSessions = sessions
+    .filter((session: any) => !session.completed && session.date && Date.parse(session.date) > Date.now())
+    .sort((first: any, second: any) => Date.parse(first.date) - Date.parse(second.date));
+  const completedSessions = sessions
+    .filter((session: any) => session.completed)
+    .sort((first: any, second: any) => second.number - first.number);
+  const upcoming = scheduledSessions[0];
 
   async function submitRequest(event: React.FormEvent<HTMLFormElement>): Promise<boolean> {
     event.preventDefault();
@@ -75,8 +82,12 @@ export default function PatientPortal() {
 
     <section className={styles.contentGrid}>
       <div className={styles.sessionsColumn}>
-        <div className={styles.sectionHeader}><div><p className={styles.eyebrow}>TU AGENDA</p><h2>Próximas sesiones</h2></div><span className={styles.sessionCount}>{sessions.length} {sessions.length === 1 ? 'sesión' : 'sesiones'}</span></div>
-        <div className={styles.sessionList}>{sessions.map((session: any, position: number) => <SessionCard key={`${session.booking.id}-${session.index}`} session={session} featured={position === 0} onRequest={setModal} />)}</div>
+        <div className={styles.sectionHeader}><div><p className={styles.eyebrow}>TU AGENDA</p><h2>Próximas sesiones</h2></div><span className={styles.sessionCount}>{scheduledSessions.length} {scheduledSessions.length === 1 ? 'programada' : 'programadas'}</span></div>
+        <div className={styles.sessionList}>{scheduledSessions.length ? scheduledSessions.map((session: any, position: number) => <SessionCard key={`${session.booking.id}-${session.number}`} session={session} featured={position === 0} onRequest={setModal} />) : <div className={styles.emptySessions}>No tienes sesiones futuras programadas.</div>}</div>
+        <section className={styles.completedSection}>
+          <div className={styles.sectionHeader}><div><p className={styles.eyebrow}>TU PROCESO</p><h2>Sesiones realizadas</h2></div><span className={styles.sessionCount}>{completedSessions.length} realizadas</span></div>
+          {completedSessions.length ? <div className={styles.completedList}>{completedSessions.map((session: any) => <article key={`${session.booking.id}-completed-${session.number}`} className={styles.completedCard}><span className={styles.completedCheck}>✓</span><div><strong>{serviceNames[session.booking.serviceType] || session.booking.serviceType}</strong><small>Sesión {session.number} de {session.total} · Realizada</small></div></article>)}</div> : <p className={styles.emptyCompleted}>Cuando una sesión sea confirmada como realizada, aparecerá en este historial.</p>}
+        </section>
       </div>
       <aside className={styles.sideColumn}>
         <div className={styles.nextCard}><p className={styles.eyebrow}>PRÓXIMA SESIÓN</p>{upcoming ? <><div className={styles.nextDate}><b>{new Date(upcoming.date).getDate()}</b><span>{new Intl.DateTimeFormat('es-CL', { month: 'short' }).format(new Date(upcoming.date))}</span></div><h3>{serviceNames[upcoming.booking.serviceType] || upcoming.booking.serviceType}</h3><p>{displayDate(upcoming.date)}</p>{upcoming.booking.meetUrl && <a className={styles.meetButton} href={upcoming.booking.meetUrl} target="_blank" rel="noreferrer">Unirme a la sesión <span>↗</span></a>}</> : <p>No tienes sesiones futuras por ahora.</p>}</div>
@@ -124,7 +135,7 @@ function ProfileModal({ profile, onClose, onSaved }: { profile: any; onClose: ()
 
 function SessionCard({ session, featured, onRequest }: { session: any; featured: boolean; onRequest: (modal: Modal) => void }) {
   const allowed = Date.parse(session.date) - Date.now() >= 172800000;
-  return <article className={`${styles.sessionCard} ${featured ? styles.featured : ''}`}><div className={styles.calendarTile}><b>{new Date(session.date).getDate()}</b><span>{new Intl.DateTimeFormat('es-CL', { month: 'short' }).format(new Date(session.date)).replace('.', '')}</span></div><div className={styles.sessionInfo}><div className={styles.sessionTitle}><h3>{serviceNames[session.booking.serviceType] || session.booking.serviceType}</h3>{session.booking.serviceType === 'packSesiones' && <span>Sesión {session.index + 1} de {session.total}</span>}</div><p className={styles.dateLine}>◷ {displayDate(session.date)}</p>{session.booking.meetUrl && <a href={session.booking.meetUrl} target="_blank" rel="noreferrer" className={styles.meetLink}>Unirme por Google Meet <span>↗</span></a>}<div className={styles.cardActions}>{allowed ? <><button onClick={() => onRequest({ booking: session.booking, index: session.index, type: 'CHANGE' })}>Solicitar cambio</button><button onClick={() => onRequest({ booking: session.booking, index: session.index, type: 'CANCEL' })} className={styles.subtleButton}>Solicitar anulación</button></> : <span className={styles.locked}>Esta sesión está dentro de las 48 horas.</span>}</div></div></article>;
+  return <article className={`${styles.sessionCard} ${featured ? styles.featured : ''}`}><div className={styles.calendarTile}><b>{new Date(session.date).getDate()}</b><span>{new Intl.DateTimeFormat('es-CL', { month: 'short' }).format(new Date(session.date)).replace('.', '')}</span></div><div className={styles.sessionInfo}><div className={styles.sessionTitle}><h3>{serviceNames[session.booking.serviceType] || session.booking.serviceType}</h3>{session.total > 1 && <span>Sesión {session.number} de {session.total}</span>}</div><p className={styles.dateLine}>◷ {displayDate(session.date)}</p>{session.booking.meetUrl && <a href={session.booking.meetUrl} target="_blank" rel="noreferrer" className={styles.meetLink}>Unirme por Google Meet <span>↗</span></a>}<div className={styles.cardActions}>{allowed ? <><button onClick={() => onRequest({ booking: session.booking, index: session.index, type: 'CHANGE' })}>Solicitar cambio</button><button onClick={() => onRequest({ booking: session.booking, index: session.index, type: 'CANCEL' })} className={styles.subtleButton}>Solicitar anulación</button></> : <span className={styles.locked}>Esta sesión está dentro de las 48 horas.</span>}</div></div></article>;
 }
 
 function PasswordCard({ done }: { done: () => void }) { const [password, setPassword] = useState(''); const [error, setError] = useState(''); const [saving, setSaving] = useState(false); return <section className={styles.passwordCard}><div className={styles.lockIcon}>⌁</div><div><p className={styles.eyebrow}>UN ÚLTIMO PASO</p><h2>Protege tu espacio personal</h2><p>Crea una contraseña personal para continuar. Solo te tomará un momento.</p></div><form onSubmit={async event => { event.preventDefault(); setSaving(true); setError(''); try { const response = await fetch('/api/paciente/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); if (response.ok) done(); else setError('La contraseña debe tener al menos 10 caracteres.'); } catch { setError('No fue posible guardar la contraseña. Intenta nuevamente.'); } finally { setSaving(false); } }}><input required minLength={10} type="password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Nueva contraseña" /><button disabled={saving} aria-busy={saving}>{saving ? 'Guardando…' : 'Guardar y continuar'}</button>{error && <small role="alert">{error}</small>}</form></section>; }

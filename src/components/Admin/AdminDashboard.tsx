@@ -7,7 +7,15 @@ import Link from 'next/link';
 import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
-import { getIncludedSessionCount, getInvoiceSessionSlots, getIssuedInvoiceSessionIds, stampIssuedInvoiceSessionIds } from '@/lib/invoice-sessions';
+import {
+    getCompletedSessionNumbers,
+    getIncludedSessionCount,
+    getInvoiceSessionSlots,
+    getIssuedInvoiceSessionIds,
+    getSessionAlignedAppointmentDates,
+    stampCompletedSessionNumbers,
+    stampIssuedInvoiceSessionIds,
+} from '@/lib/invoice-sessions';
 import Requests from '@/app/admingustavo/solicitudes/requests';
 import AdminDateTimePicker from './AdminDateTimePicker';
 
@@ -83,7 +91,10 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState<any[]>([]);
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'patients' | 'bookings' | 'newsletter' | 'marketing' | 'requests'>('patients');
+    const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'newsletter' | 'marketing' | 'requests'>('overview');
+    const [agendaView, setAgendaView] = useState<'scheduled' | 'completed'>('scheduled');
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [contentPreview, setContentPreview] = useState(false);
     const [profilePic, setProfilePic] = useState<string | null>(null);
 
     useEffect(() => {
@@ -210,15 +221,10 @@ export default function AdminDashboard() {
     const manualIncludedSessions = getIncludedSessionCount(manualBooking.serviceType);
     const manualRemainingSessions = manualIncludedSessions - manualBooking.completedSessions;
 
-    const calendarEntries = useMemo<any[]>(() => (
+    const allCalendarEntries = useMemo<any[]>(() => (
         bookings.flatMap<any>((booking: any) => {
             const sessionSlots = getInvoiceSessionSlots(booking);
-
-            if (sessionSlots.length <= 1) {
-                return [{ booking, session: null, sessionCount: 1 }];
-            }
-
-            return sessionSlots.filter(session => !session.completed).map((session) => ({ booking, session, sessionCount: sessionSlots.length }));
+            return sessionSlots.map((session) => ({ booking, session, sessionCount: sessionSlots.length }));
         }).sort((first, second) => {
             const firstDate = first.session?.date || first.booking.appointmentDate || first.booking.createdAt;
             const secondDate = second.session?.date || second.booking.appointmentDate || second.booking.createdAt;
@@ -233,6 +239,31 @@ export default function AdminDashboard() {
         })
     ), [bookings]);
 
+    const calendarEntries = useMemo(
+        () => allCalendarEntries.filter(({ session }) => agendaView === 'completed' ? session.completed : !session.completed),
+        [agendaView, allCalendarEntries],
+    );
+
+    const overviewMetrics = useMemo(() => {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const end = start + 86_400_000;
+        const scheduled = allCalendarEntries.filter(({ session }) => !session.completed && session.date);
+        const today = scheduled.filter(({ session }) => {
+            const time = Date.parse(session.date);
+            return time >= start && time < end;
+        });
+        const next = scheduled
+            .filter(({ session }) => Date.parse(session.date) >= now.getTime())
+            .sort((first, second) => Date.parse(first.session.date) - Date.parse(second.session.date))
+            .slice(0, 5);
+        const needsAttention = scheduled.filter(({ booking, session }) => (
+            getRescheduleState(booking, session.appointmentIndex ?? 0).needsAttention
+        )).length;
+        return { today, next, needsAttention };
+    }, [allCalendarEntries]);
+    const selectedBlogPost = useMemo(() => blogPosts.find((post) => post.title === title), [title]);
+
     const fetchData = async () => {
         setIsLoading(true);
         try {
@@ -243,10 +274,19 @@ export default function AdminDashboard() {
                 setPatients(data.patients || []);
                 setNewsletterSubs((data.newsletter || []).filter((sub: any) => sub.active !== false));
                 setTemplates(data.templates || []);
+                setLastUpdated(new Date());
             }
         } catch (err) { console.error("Sync Error:", err); } 
         finally { setIsLoading(false); }
     };
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        const interval = window.setInterval(() => { void fetchData(); }, 60_000);
+        return () => window.clearInterval(interval);
+        // fetchData deliberately uses only current setters and is refreshed once a minute.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -486,6 +526,34 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleToggleSessionCompleted = async (booking: any, sessionNumber: number, completed: boolean) => {
+        const previousBooking = { ...booking };
+        const currentNumbers = getCompletedSessionNumbers(booking);
+        const nextNumbers = completed
+            ? Array.from(new Set([...currentNumbers, sessionNumber]))
+            : currentNumbers.filter((number) => number !== sessionNumber);
+        const optimisticBooking = {
+            ...booking,
+            details: stampCompletedSessionNumbers(booking.details, nextNumbers),
+            appointmentDates: booking.appointmentDates?.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
+        };
+
+        updateBookingInState(optimisticBooking);
+        try {
+            const response = await fetch(`/api/admin/bookings/${encodeURIComponent(booking.id)}/session-status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionNumber, completed }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible actualizar la sesión.');
+            updateBookingInState(data.booking);
+        } catch (error) {
+            updateBookingInState(previousBooking);
+            alert(error instanceof Error ? error.message : 'No fue posible actualizar la sesión.');
+        }
+    };
+
     const renderSiiReceiptToggle = (booking: any) => {
         const sessionSlots = getInvoiceSessionSlots(booking);
         const issuedSessionCount = getIssuedInvoiceSessionIds(booking).filter((id) => sessionSlots.some((session) => session.id === id)).length;
@@ -508,7 +576,7 @@ export default function AdminDashboard() {
     };
 
     const renderCalendarReceiptToggle = (booking: any, session: any) => {
-        if (!session) return renderSiiReceiptToggle(booking);
+        if (!session || getInvoiceSessionSlots(booking).length === 1) return renderSiiReceiptToggle(booking);
 
         if (booking.siiReceiptIssued) {
             return <span className={styles.sessionInvoiceStatus}>Boleta unica emitida</span>;
@@ -829,21 +897,15 @@ export default function AdminDashboard() {
                 </div>
                 
                 <nav className={styles.navList}>
-                    <button className={activeTab === 'patients' ? styles.active : ''} onClick={() => { setActiveTab('patients'); setIsMobileMenuOpen(false); }}>👥 Mis Pacientes</button>
-                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => { setActiveTab('bookings'); setIsMobileMenuOpen(false); }}>🗓️ Calendario</button>
-                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => { setActiveTab('newsletter'); setIsMobileMenuOpen(false); }}>💌 Newsletter</button>
-                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => { setActiveTab('marketing'); setIsMobileMenuOpen(false); }}>✍️ Mi Blog</button>
-                    <button className={activeTab === 'requests' ? styles.active : ''} onClick={() => { setActiveTab('requests'); setIsMobileMenuOpen(false); }}>📥 Solicitudes</button>
+                    <button className={activeTab === 'overview' ? styles.active : ''} onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }}><span className={styles.navIcon}>⌂</span> Hoy</button>
+                    <button className={activeTab === 'bookings' ? styles.active : ''} onClick={() => { setActiveTab('bookings'); setIsMobileMenuOpen(false); }}><span className={styles.navIcon}>□</span> Agenda</button>
+                    <button className={activeTab === 'requests' ? styles.active : ''} onClick={() => { setActiveTab('requests'); setIsMobileMenuOpen(false); }}><span className={styles.navIcon}>↗</span> Solicitudes</button>
+                    <button className={activeTab === 'newsletter' ? styles.active : ''} onClick={() => { setActiveTab('newsletter'); setIsMobileMenuOpen(false); }}><span className={styles.navIcon}>✉</span> Comunicaciones</button>
+                    <button className={activeTab === 'marketing' ? styles.active : ''} onClick={() => { setActiveTab('marketing'); setIsMobileMenuOpen(false); }}><span className={styles.navIcon}>◇</span> Contenido</button>
                 </nav>
 
                 <div className={styles.publicLinks}>
-                    <span>Ir a la web</span>
-                    <div>
-                        <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</Link>
-                        <Link href="/agendar" onClick={() => setIsMobileMenuOpen(false)}>Agendar</Link>
-                        <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
-                        <Link href="/sobre-mi" onClick={() => setIsMobileMenuOpen(false)}>Sobre mí</Link>
-                    </div>
+                    <Link href="/" target="_blank" onClick={() => setIsMobileMenuOpen(false)}>Ver sitio público <span>↗</span></Link>
                 </div>
                 
                 <button onClick={handleLogout} className={styles.logoutAction}>Cerrar Sesión</button>
@@ -852,35 +914,63 @@ export default function AdminDashboard() {
             <main className={styles.contentArea}>
                 <header className={styles.contentHeader}>
                     <div>
-                        <h1>{activeTab === 'patients' ? 'Mis Pacientes' : activeTab === 'bookings' ? 'Mi Agenda' : activeTab === 'newsletter' ? 'Newsletter' : activeTab === 'requests' ? 'Solicitudes' : 'Mi Blog'}</h1>
-                        <p>Trabajando para mantener la salud mental al alcance de todos.</p>
+                        <span className={styles.pageEyebrow}>{activeTab === 'overview' ? 'Resumen operativo' : activeTab === 'bookings' ? 'Atención clínica' : activeTab === 'requests' ? 'Gestión de pacientes' : activeTab === 'newsletter' ? 'Relación con tu comunidad' : 'Biblioteca editorial'}</span>
+                        <h1>{activeTab === 'overview' ? 'Hoy' : activeTab === 'bookings' ? 'Agenda' : activeTab === 'newsletter' ? 'Comunicaciones' : activeTab === 'requests' ? 'Solicitudes' : 'Contenido'}</h1>
+                        <p>{activeTab === 'overview' ? 'Lo importante de tu consulta, ordenado en un solo lugar.' : activeTab === 'bookings' ? 'Sesiones, pagos, boletas y cambios de fecha.' : activeTab === 'requests' ? 'Decisiones pendientes y solicitudes ya resueltas.' : activeTab === 'newsletter' ? 'Prepara y envía correos con una vista previa clara.' : 'Revisa la presencia editorial de tu sitio.'}</p>
                     </div>
-                    <button onClick={fetchData} className={styles.syncBtn}>🔄 Actualizar Datos</button>
+                    <div className={styles.syncStatus}>
+                        <span className={styles.syncDot}></span>
+                        <div><strong>Sincronización automática</strong><small>{isLoading ? 'Actualizando…' : lastUpdated ? `Actualizado a las ${lastUpdated.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}` : 'Preparando datos'}</small></div>
+                        <button onClick={fetchData} disabled={isLoading} aria-label="Actualizar ahora" title="Actualizar ahora">↻</button>
+                    </div>
                 </header>
 
+                {activeTab === 'overview' && <>
                 <div className={styles.dashboardStats}>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon}>🧑‍⚕️</div>
                         <div className={styles.statInfo}>
-                            <h3>Pacientes Registrados</h3>
+                            <h3>Sesiones de hoy</h3>
+                            <p>{overviewMetrics.today.length}</p>
+                            <small>{overviewMetrics.today.length ? 'Jornada activa' : 'Sin sesiones para hoy'}</small>
+                        </div>
+                    </div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statInfo}>
+                            <h3>Pacientes registrados</h3>
                             <p>{patients.length}</p>
+                            <small>Ficha disponible desde Agenda</small>
                         </div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statIcon}>📅</div>
-                        <div className={styles.statInfo}>
-                            <h3>Citas Pagadas</h3>
-                            <p>{bookings.length}</p>
-                        </div>
-                    </div>
-                    <div className={styles.statCard}>
-                        <div className={styles.statIcon}>💰</div>
                         <div className={styles.statInfo}>
                             <h3>Ingresos agendados del mes</h3>
                             <p>${monthlyEarnings}</p>
+                            <small>Pagos distribuidos por sesión</small>
                         </div>
                     </div>
                 </div>
+
+                <section className={styles.overviewGrid}>
+                    <article className={styles.todayPanel}>
+                        <div className={styles.sectionHeading}>
+                            <div><span>Agenda inmediata</span><h2>Próximas sesiones</h2></div>
+                            <button onClick={() => setActiveTab('bookings')}>Ver agenda completa</button>
+                        </div>
+                        {overviewMetrics.next.length ? <div className={styles.nextSessionList}>{overviewMetrics.next.map(({ booking, session }) => (
+                            <button key={`${booking.id}-${session.id}`} className={styles.nextSessionRow} onClick={() => setActiveTab('bookings')}>
+                                <span className={styles.nextSessionDate}><strong>{new Date(session.date).toLocaleDateString('es-CL', { day: '2-digit' })}</strong><small>{new Date(session.date).toLocaleDateString('es-CL', { month: 'short' })}</small></span>
+                                <span><strong>{booking.name}</strong><small>{getServiceDisplayName(booking.serviceType)} · Sesión {session.number} de {getInvoiceSessionSlots(booking).length}</small></span>
+                                <time>{new Date(session.date).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })}</time>
+                            </button>
+                        ))}</div> : <div className={styles.emptyOverview}>No hay sesiones futuras agendadas.</div>}
+                    </article>
+                    <aside className={styles.attentionPanel}>
+                        <span>Atención</span>
+                        <h2>{overviewMetrics.needsAttention}</h2>
+                        <p>{overviewMetrics.needsAttention === 1 ? 'reagendamiento necesita revisión.' : 'reagendamientos necesitan revisión.'}</p>
+                        <button onClick={() => setActiveTab('bookings')}>Revisar en Agenda</button>
+                    </aside>
+                </section>
 
                 <div className={styles.historyLauncher}>
                     <div>
@@ -921,53 +1011,21 @@ export default function AdminDashboard() {
                         )}
                     </section>
                 )}
+                </>}
 
-                <div className={styles.listContainer}>
+                {activeTab !== 'overview' && <div className={styles.listContainer}>
                     {activeTab === 'requests' && <Requests />}
-                    {activeTab === 'patients' && (
-                        <div className={styles.responsiveList}>
-                            {/* Vista para Desktop */}
-                            <table className={styles.friendlyTable}>
-                                <thead><tr><th>Nombre</th><th>Correo</th><th>Etiqueta</th><th>Ficha</th></tr></thead>
-                                <tbody>{patients.map(p => {
-                                    const fullName = [p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ').trim();
-                                    const displayName = fullName || p.name || 'Sin Nombre';
-                                    return (
-                                    <tr key={p.email}>
-                                        <td>{displayName}</td>
-                                        <td>{p.email}</td>
-                                        <td><span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span></td>
-                                        <td><button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Abrir Ficha</button></td>
-                                    </tr>
-                                    )
-                                })}</tbody>
-                            </table>
-                            {/* Vista para Móvil (Cards) */}
-                            <div className={styles.mobileCards}>
-                                {patients.map(p => {
-                                    const fullName = [p.firstName, p.secondName, p.firstSurname, p.secondSurname].filter(Boolean).join(' ').trim();
-                                    const displayName = fullName || p.name || 'Sin Nombre';
-                                    return (
-                                        <div key={p.email} className={styles.mobileCard}>
-                                            <div className={styles.cardInfo}>
-                                                <strong>{displayName}</strong>
-                                                <span>{p.email}</span>
-                                                <span className={`${styles.badge} ${p.newsletter ? styles.badgeCalypso : styles.badgeGeneric}`}>{p.newsletter ? 'Lector' : 'Paciente'}</span>
-                                            </div>
-                                            <button className={styles.actionBtn} onClick={() => { setSelectedPatient(p); setIsEditing(false); }}>Ver Ficha</button>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                    )}
 
                     {activeTab === 'bookings' && (
                         <div className={styles.responsiveList}>
-                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '18px' }}>
-                                <p className={styles.calendarIntro} style={{ margin: 0 }}>Cada cita y sesión se ordena desde la más reciente; las que aún no tienen fecha quedan al final.</p>
-                                <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>📅 Reagendar una jornada</button></div>
+                            <div className={styles.agendaTopbar}>
+                                <div className={styles.segmentedControl} aria-label="Vista de agenda">
+                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Programadas <span>{allCalendarEntries.filter(({ session }) => !session.completed).length}</span></button>
+                                    <button className={agendaView === 'completed' ? styles.segmentActive : ''} onClick={() => setAgendaView('completed')}>Realizadas <span>{allCalendarEntries.filter(({ session }) => session.completed).length}</span></button>
+                                </div>
+                                <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>Reagendar jornada</button></div>
                             </div>
+                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Aquí están las sesiones próximas, pasadas por confirmar y pendientes de fecha.' : 'Historial de sesiones que marcaste como realizadas, aunque su orden no sea correlativo.'}</p>
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
                                     <col style={{ width: '16%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />
@@ -990,9 +1048,9 @@ export default function AdminDashboard() {
                                                 {session && <small className={styles.calendarSessionMeta}>Sesion {session.number} de {sessionCount}</small>}
                                             </td>
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
-                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div></td>
+                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}<button className={styles.sessionStatusBtn} onClick={() => handleToggleSessionCompleted(booking, session.number, !session.completed)}>{session.completed ? 'Volver a programadas' : 'Marcar realizada'}</button></div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
-                                            <td>{hasDate && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
+                                            <td>{hasDate && !session.completed && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
                                         </tr>
                                     );
@@ -1017,9 +1075,9 @@ export default function AdminDashboard() {
                                             <span className={styles.cardSubtitle}>{getServiceDisplayName(booking.serviceType)}{session ? ` · Sesion ${session.number} de ${sessionCount}` : ''}</span>
                                         </div>
                                             <div className={styles.mobileBookingFooter}>
-                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${styles.badgeCalypso}`}>{getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div>
+                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}<button className={styles.sessionStatusBtn} onClick={() => handleToggleSessionCompleted(booking, session.number, !session.completed)}>{session.completed ? 'Volver a programadas' : 'Marcar realizada'}</button></div>
                                             {renderCalendarReceiptToggle(booking, session)}
-                                            {hasDate && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
+                                            {hasDate && !session.completed && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
                                         </div>
                                     </div>
@@ -1029,69 +1087,52 @@ export default function AdminDashboard() {
                         </div>
                     )}
 
-                    {(activeTab === 'newsletter' || activeTab === 'marketing') && (
-                        <div className={styles.studioLayout}>
-                            <div className={styles.editorPanel}>
-                                <div className={styles.studioToolbar}>
-                                    <button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button>
-                                    <button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button>
+                    {activeTab === 'newsletter' && (
+                        <div className={styles.communicationWorkspace}>
+                            <section className={styles.campaignComposer}>
+                                <div className={styles.composerHeader}>
+                                    <div><span>Campaña</span><h2>{editingTemplate?.id ? 'Editar borrador' : 'Nueva comunicación'}</h2></div>
+                                    <div className={styles.previewSwitch}><button className={!contentPreview ? styles.segmentActive : ''} onClick={() => setContentPreview(false)}>Redactar</button><button className={contentPreview ? styles.segmentActive : ''} onClick={() => setContentPreview(true)}>Vista previa</button></div>
                                 </div>
-                                <input className={styles.editorTitle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Título del escrito..." />
-                                <div ref={editorRef} className={styles.richText} contentEditable onInput={(e: any) => setContent(e.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} />
-                                
+                                {!contentPreview ? <>
+                                    <label className={styles.campaignField}><span>Asunto</span><input value={title} onChange={event => setTitle(event.target.value)} placeholder="Un asunto claro y cercano" /></label>
+                                    <div className={styles.studioToolbar}><span>Contenido del correo</span><div><button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button><button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button></div></div>
+                                    <div ref={editorRef} className={styles.richText} contentEditable suppressContentEditableWarning onInput={(event: any) => setContent(event.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} data-placeholder="Escribe aquí el mensaje para tus lectores…" />
+                                </> : <div className={styles.emailPreview}><div className={styles.emailChrome}><span></span><span></span><span></span></div><div className={styles.emailPreviewBody}><small>Ps. Gustavo Caro</small><h2>{title || 'El asunto aparecerá aquí'}</h2><div dangerouslySetInnerHTML={{ __html: content || '<p>El contenido de tu correo aparecerá aquí.</p>' }} /></div></div>}
                                 <div className={styles.editorActions}>
-                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>💾 Guardar Cambios</button>
-                                    
-                                    <button className={styles.syncBtn} onClick={handleSendToAll} style={{color: '#22d3ee', borderColor: '#22d3ee'}}>🚀 Enviar a todos</button>
-                                    {selectedRecipients.length > 0 && <button className={styles.syncBtn} onClick={handleSendToSelected}>📨 Enviar a los {selectedRecipients.length} marcados</button>}
+                                    <button className={styles.primaryBtn} onClick={handleSaveTemplate}>Guardar borrador</button>
+                                    <button className={styles.sendPrimary} onClick={selectedRecipients.length ? handleSendToSelected : handleSendToAll}>{selectedRecipients.length ? `Enviar a ${selectedRecipients.length} seleccionados` : `Enviar a todos (${newsletterSubs.length})`}</button>
                                 </div>
-                            </div>
-                            
-                            <aside className={styles.sidePanel}>
-                                <div className={styles.panelCard}>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 20px 0'}}>
-                                        <h4 style={{margin: 0}}>👥 Tus Lectores</h4>
-                                        <button onClick={toggleSelectAll} style={{background: 'transparent', border: 'none', color: '#06b6d4', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600}}>
-                                            {selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0 ? 'Desmarcar todos' : 'Marcar todos'}
-                                        </button>
-                                    </div>
-                                    <div className={styles.audienceList}>
-                                        {newsletterSubs.map(s => (
-                                            <label key={s.id} className={styles.audienceItem}>
-                                                <input type="checkbox" checked={selectedRecipients.includes(s.email)} onChange={e => {
-                                                    if(e.target.checked) setSelectedRecipients([...selectedRecipients, s.email]);
-                                                    else setSelectedRecipients(selectedRecipients.filter(r => r !== s.email));
-                                                }} />
-                                                <span>{s.email}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                                
-                                <div className={styles.panelCard}>
-                                    <h4>📚 {activeTab === 'newsletter' ? 'Textos de Newsletter' : 'Artículos de Blog Publicados'}</h4>
-                                    <div className={styles.draftList} style={{maxHeight: '300px', overflowY: 'auto', paddingRight: '8px'}}>
-                                        {activeTab === 'marketing' && blogPosts.map(bp => (
-                                            <div key={bp.slug} className={styles.draftCard} onClick={() => { setEditingTemplate({ id: null }); setTitle(bp.title); setContent(bp.content); if(editorRef.current) editorRef.current.innerHTML = bp.content; }}>
-                                                <h5>[Blog] {bp.title}</h5>
-                                            </div>
-                                        ))}
-                                        {activeTab === 'newsletter' && newsletterSequence.map(seq => (
-                                            <div key={`seq-${seq.id}`} className={styles.draftCard} onClick={() => { setEditingTemplate({ id: null }); setTitle(seq.subject); setContent(seq.content('[Nombre del Paciente]')); if(editorRef.current) editorRef.current.innerHTML = seq.content('[Nombre del Paciente]'); }}>
-                                                <h5>[Pre-escrito] {seq.subject}</h5>
-                                            </div>
-                                        ))}
-                                        {activeTab === 'newsletter' && templates.map(t => (
-                                            <div key={t.id} className={styles.draftCard} onClick={() => { setEditingTemplate(t); setTitle(t.title); setContent(t.content); if(editorRef.current) editorRef.current.innerHTML = t.content; }}>
-                                                <h5>[Borrador] {t.title}</h5>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                            </section>
+                            <aside className={styles.communicationSidebar}>
+                                <section className={styles.audiencePanel}>
+                                    <div className={styles.panelTitle}><div><span>Audiencia</span><strong>{newsletterSubs.length} lectores con suscripción activa</strong></div><button onClick={toggleSelectAll}>{selectedRecipients.length === newsletterSubs.length && newsletterSubs.length ? 'Limpiar' : 'Seleccionar todos'}</button></div>
+                                    <p>{selectedRecipients.length ? `Enviarás solo a ${selectedRecipients.length} personas seleccionadas.` : 'Sin selección manual, el envío llegará a toda la audiencia activa.'}</p>
+                                    <div className={styles.audienceList}>{newsletterSubs.map(subscriber => <label key={subscriber.id} className={styles.audienceItem}><input type="checkbox" checked={selectedRecipients.includes(subscriber.email)} onChange={event => setSelectedRecipients(current => event.target.checked ? [...current, subscriber.email] : current.filter(email => email !== subscriber.email))} /><span>{subscriber.email}</span></label>)}</div>
+                                </section>
+                                <section className={styles.libraryPanel}>
+                                    <div className={styles.panelTitle}><div><span>Biblioteca</span><strong>Ideas y borradores</strong></div></div>
+                                    <div className={styles.draftList}>{newsletterSequence.map(sequence => <button key={`seq-${sequence.id}`} className={styles.draftCard} onClick={() => { const nextContent = sequence.content('[Nombre del Paciente]'); setEditingTemplate({ id: null }); setTitle(sequence.subject); setContent(nextContent); if (editorRef.current) editorRef.current.innerHTML = nextContent; }}><small>Secuencia preparada</small><h5>{sequence.subject}</h5></button>)}{templates.map(template => <button key={template.id} className={styles.draftCard} onClick={() => { setEditingTemplate(template); setTitle(template.title); setContent(template.content); if (editorRef.current) editorRef.current.innerHTML = template.content; }}><small>Borrador guardado</small><h5>{template.title}</h5></button>)}</div>
+                                </section>
                             </aside>
                         </div>
                     )}
-                </div>
+
+                    {activeTab === 'marketing' && (
+                        <div className={styles.contentWorkspace}>
+                            <section className={styles.contentLibrary}>
+                                <div className={styles.sectionHeading}><div><span>Publicados</span><h2>Biblioteca de artículos</h2></div><strong>{blogPosts.length} artículos</strong></div>
+                                <div className={styles.articleGrid}>{blogPosts.map(post => <button key={post.slug} className={styles.articleCard} onClick={() => { setTitle(post.title); setContent(post.content); }}><span className={styles.articleImage}><Image src={post.image} alt="" fill sizes="(max-width: 900px) 100vw, 260px" /></span><span className={styles.articleMeta}><small>{post.category} · {new Date(post.date).toLocaleDateString('es-CL')}</small><strong>{post.title}</strong><em>{post.excerpt}</em></span></button>)}</div>
+                            </section>
+                            <aside className={styles.articlePreview}>
+                                <span>Vista editorial</span>
+                                <h2>{title || 'Selecciona un artículo'}</h2>
+                                {selectedBlogPost ? <div className={styles.articlePreviewContent} dangerouslySetInnerHTML={{ __html: selectedBlogPost.content }} /> : <p>Elige una publicación para revisar su contenido y presentación.</p>}
+                                {selectedBlogPost && <Link href={`/blog/${selectedBlogPost.slug}`} target="_blank">Ver artículo en el sitio <span>↗</span></Link>}
+                            </aside>
+                        </div>
+                    )}
+                </div>}
             </main>
 
             {selectedPatient && (
@@ -1210,24 +1251,25 @@ export default function AdminDashboard() {
                                                                     : `Sesión ${session.number}`;
 
                                                                 return (
-                                                                    <label key={session.id} className={`${styles.sessionReceipt} ${issuedForSession || b.siiReceiptIssued ? styles.sessionReceiptOn : ''}`}>
+                                                                    <div key={session.id} className={`${styles.sessionReceipt} ${issuedForSession || b.siiReceiptIssued ? styles.sessionReceiptOn : ''}`}>
                                                                         <span>
                                                                             <strong>{sessionLabel}</strong>
-                                                                            <small>${amountPerSession.toLocaleString('es-CL')} aprox.</small>
+                                                                            <small>${amountPerSession.toLocaleString('es-CL')} aprox. · {session.completed ? 'Realizada' : session.date ? 'Programada' : 'Pendiente de fecha'}</small>
                                                                         </span>
+                                                                        <button type="button" className={styles.sessionStatusBtn} onClick={(event) => { event.preventDefault(); void handleToggleSessionCompleted(b, session.number, !session.completed); }}>{session.completed ? 'Marcar pendiente' : 'Marcar realizada'}</button>
                                                                         {b.siiReceiptIssued ? (
                                                                             <em>Incluida en boleta única</em>
                                                                         ) : (
-                                                                            <span className={styles.sessionReceiptControl}>
+                                                                            <label className={styles.sessionReceiptControl}>
                                                                                 <input
                                                                                     type="checkbox"
                                                                                     checked={issuedForSession}
                                                                                     onChange={(event) => handleToggleSessionReceipt(b, session.id, event.target.checked)}
                                                                                 />
                                                                                 <span>{issuedForSession ? 'Boleta emitida' : 'Marcar boleta'}</span>
-                                                                            </span>
+                                                                            </label>
                                                                         )}
-                                                                    </label>
+                                                                    </div>
                                                                 );
                                                             })}
                                                         </div>
