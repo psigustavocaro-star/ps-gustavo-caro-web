@@ -16,10 +16,12 @@ export default function Footer() {
                             Psicólogo Clínico con especialización en Salud Mental y <strong>Enfoque TCC</strong>.
                             Experiencia en diversas zonas de Chile y alto compromiso con el bienestar del paciente.
                         </p>
+                        <Link href="/admingustavo" className={styles.adminShortcut}>Acceso profesional <span>→</span></Link>
                     </div>
 
                     <div className={styles.footerLinks}>
                         <h4>Navegación</h4>
+                        <div className={styles.navGroups}>
                         <ul className={styles.linkList}>
                             <li><Link href="/" className={styles.linkItem}>Inicio</Link></li>
                             <li><Link href="/#sobre-mi" className={styles.linkItem}>Sobre mí</Link></li>
@@ -27,6 +29,8 @@ export default function Footer() {
                             <li><Link href="/recursos" className={styles.linkItem}>Recursos gratuitos</Link></li>
                             <li><Link href="/#servicios" className={styles.linkItem}>Servicios</Link></li>
                             <li><Link href="/agendar" className={styles.linkItem}>Agendar sesión</Link></li>
+                        </ul>
+                        <ul className={`${styles.linkList} ${styles.specialtyLinks}`}>
                             <li><Link href="/psicologo-online-chile" className={styles.linkItem}>Psicólogo online</Link></li>
                             <li><Link href="/psicologo-ansiedad" className={styles.linkItem}>Ansiedad</Link></li>
                             <li><Link href="/evaluacion-tdah-adulto" className={styles.linkItem}>Evaluación TDAH</Link></li>
@@ -35,6 +39,7 @@ export default function Footer() {
                             <li><Link href="/psicologo-estres-laboral" className={styles.linkItem}>Estrés laboral</Link></li>
                             <li><Link href="/psicologo-autoestima" className={styles.linkItem}>Autoestima</Link></li>
                         </ul>
+                        </div>
                     </div>
 
                     <div className={styles.footerLinks}>
@@ -62,9 +67,6 @@ export default function Footer() {
 
                 <div className={styles.bottomBar}>
                     <p>© {year} Ps. Gustavo Caro. Todos los derechos reservados.</p>
-                    <div className={styles.adminLink}>
-                        <Link href="/admingustavo">Acceso Admin</Link>
-                    </div>
                     <div className={styles.legalLinks}>
                         <p>No atender urgencias por este medio. En caso de crisis llame al *4141.</p>
                     </div>
