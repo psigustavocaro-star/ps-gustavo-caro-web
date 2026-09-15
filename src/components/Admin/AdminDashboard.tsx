@@ -1384,6 +1384,15 @@ export default function AdminDashboard() {
                                         <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay pagos registrados todavía.</p>
                                     )}
                                 </div>
+                                {selectedPatient.bookings.some((b: any) => b.appointmentCancellations?.length) && <div className={styles.sessionsBox} style={{ marginTop: 18 }}>
+                                    <h3>↻ Historial de reagendamientos</h3>
+                                    <div className={styles.sessionsScroll}>
+                                        {selectedPatient.bookings.flatMap((b: any) => (b.appointmentCancellations || []).map((change: any) => <div className={styles.sessionLine} key={change.id}>
+                                            <div><strong>{change.originalAppointmentDate ? new Date(change.originalAppointmentDate).toLocaleString('es-CL') : 'Fecha original'}</strong><span className={styles.sessionService}>Fecha original</span></div>
+                                            <div style={{ textAlign: 'right' }}><strong>{change.rescheduledAppointmentDate ? new Date(change.rescheduledAppointmentDate).toLocaleString('es-CL') : 'Pendiente'}</strong><span className={styles.sessionService}>Nueva fecha · {change.rebookedAt ? new Date(change.rebookedAt).toLocaleDateString('es-CL') : 'sin confirmar'}</span></div>
+                                        </div>))}
+                                    </div>
+                                </div>}
                             </div>
                         )}
                         

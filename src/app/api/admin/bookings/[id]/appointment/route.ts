@@ -62,6 +62,28 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
                 calBookingIds,
             },
         });
+        await prisma.appointmentCancellation.upsert({
+            where: {
+                bookingId_appointmentIndex_originalAppointmentDate: {
+                    bookingId: booking.id,
+                    appointmentIndex,
+                    originalAppointmentDate: dates[appointmentIndex] === appointmentDate ? (booking.appointmentDates[appointmentIndex] || booking.appointmentDate || appointmentDate) : appointmentDate,
+                },
+            },
+            create: {
+                bookingId: booking.id,
+                appointmentIndex,
+                originalAppointmentDate: booking.appointmentDates[appointmentIndex] || booking.appointmentDate || appointmentDate,
+                rescheduledAppointmentDate: appointmentDate,
+                reason: body.reason || 'Fecha reagendada por administración.',
+                rebookedAt: new Date(),
+            },
+            update: {
+                rescheduledAppointmentDate: appointmentDate,
+                reason: body.reason || undefined,
+                rebookedAt: new Date(),
+            },
+        }).catch(error => console.error('Reschedule history error:', error));
         return NextResponse.json({ success: true, booking: updated });
     } catch (error) {
         console.error('Admin appointment edit error:', error);

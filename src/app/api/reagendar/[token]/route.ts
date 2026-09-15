@@ -90,7 +90,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
                 appointmentIndex: pending.link.appointmentIndex,
                 originalAppointmentDate: pending.link.originalAppointmentDate,
             },
-            data: { rebookedAt: new Date() },
+            data: { rebookedAt: new Date(), rescheduledAppointmentDate: appointmentDate },
         });
         await sendRescheduleConfirmationEmail({
             patientName: pending.booking.name || '', email: pending.booking.email, appointmentDate,
