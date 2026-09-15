@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './BlogSection.module.css';
-import { getPublishedBlogPosts } from '@/lib/data/blog';
+import { getEffectiveBlogPosts } from '@/lib/data/managed-blog';
 
-export default function BlogSection() {
-    const latestPosts = getPublishedBlogPosts();
+export default async function BlogSection() {
+    const latestPosts = await getEffectiveBlogPosts();
 
     return (
         <section className={styles.blog} id="blog">

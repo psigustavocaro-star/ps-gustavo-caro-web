@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { Resend } from 'resend';
 import { sanitizeHtml } from '@/lib/services/html-sanitize';
+import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,17 +13,23 @@ const isEmail = (email: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 export async function POST(request: NextRequest) {
+    const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
+    if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+
     try {
-        const { templateId, target, specificEmail, customTitle, customContent } = await request.json();
+        const { templateId, target, specificEmail, specificEmails, customTitle, customPreheader, customContent } = await request.json();
         
         let finalTitle = customTitle;
+        let finalPreheader = customPreheader;
         let finalContent = customContent;
+        let sourceTemplate = null;
 
         if (templateId) {
-            const template = await prisma.emailTemplate.findUnique({ where: { id: templateId } });
-            if (template) {
-                if (!finalTitle) finalTitle = template.title;
-                if (!finalContent) finalContent = template.content;
+            sourceTemplate = await prisma.emailTemplate.findUnique({ where: { id: templateId } });
+            if (sourceTemplate) {
+                if (!finalTitle) finalTitle = sourceTemplate.title;
+                if (!finalPreheader) finalPreheader = sourceTemplate.preheader;
+                if (!finalContent) finalContent = sourceTemplate.content;
             }
         }
 
@@ -39,6 +46,8 @@ export async function POST(request: NextRequest) {
 
         if (target === 'all') {
             targetEmails = allSubs.map(s => normalizeEmail(s.email));
+        } else if (target === 'specific' && Array.isArray(specificEmails)) {
+            targetEmails = specificEmails.map((value: unknown) => normalizeEmail(String(value)));
         } else if (target === 'specific' && specificEmail) {
             const email = normalizeEmail(specificEmail);
             targetEmails = [email];
@@ -53,6 +62,16 @@ export async function POST(request: NextRequest) {
         if (targetEmails.length === 0) {
             return NextResponse.json({ success: false, error: 'No hay destinatarios' }, { status: 400 });
         }
+
+        const campaign = sourceTemplate?.status === 'DRAFT'
+            ? sourceTemplate
+            : await prisma.emailTemplate.create({
+                data: {
+                    title: String(finalTitle).slice(0, 200),
+                    preheader: typeof finalPreheader === 'string' ? finalPreheader.slice(0, 240) : null,
+                    content: String(finalContent).slice(0, 50000),
+                },
+            });
 
         const results: Array<{ email: string; success: boolean; error?: string }> = [];
 
@@ -71,7 +90,10 @@ export async function POST(request: NextRequest) {
                 // Replace variations of the placeholder
                 personalizedContent = personalizedContent.replace(/\[\s*Nombre del Paciente\s*\]/gi, firstName);
                 personalizedContent = personalizedContent.replace(/\[\s*Nombre\s*\]/gi, firstName);
-                const safeHtml = sanitizeHtml(personalizedContent);
+                const preheaderHtml = finalPreheader
+                    ? `<span style="display:none;max-height:0;overflow:hidden;opacity:0">${String(finalPreheader).replace(/[<>&]/g, '')}</span>`
+                    : '';
+                const safeHtml = preheaderHtml + sanitizeHtml(personalizedContent);
 
                 try {
                     const resendData = await resend.emails.send({
@@ -101,6 +123,19 @@ export async function POST(request: NextRequest) {
 
         const failed = results.filter(result => !result.success);
         const sentCount = results.length - failed.length;
+        const updatedCampaign = await prisma.emailTemplate.update({
+            where: { id: campaign.id },
+            data: {
+                title: String(finalTitle).slice(0, 200),
+                preheader: typeof finalPreheader === 'string' ? finalPreheader.slice(0, 240) : null,
+                content: String(finalContent).slice(0, 50000),
+                status: sentCount === results.length ? 'SENT' : sentCount > 0 ? 'PARTIAL' : 'FAILED',
+                sentAt: new Date(),
+                recipientCount: results.length,
+                sentCount,
+                failedCount: failed.length,
+            },
+        });
 
         return NextResponse.json({
             success: sentCount > 0 && failed.length === 0,
@@ -109,6 +144,7 @@ export async function POST(request: NextRequest) {
             sentCount,
             failedCount: failed.length,
             failed,
+            campaign: updatedCampaign,
             error: sentCount === 0 ? 'No se pudo enviar a ningún destinatario' : undefined,
         }, { status: sentCount > 0 ? 200 : 502 });
     } catch (error: unknown) {

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { getInvoiceSessionSlots, getIssuedInvoiceSessionIds, stampIssuedInvoiceSessionIds } from '@/lib/invoice-sessions';
+import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
+import {
+    getCompletedSessionNumbers,
+    getInvoiceSessionSlots,
+    getIssuedInvoiceSessionIds,
+    getSessionAlignedAppointmentDates,
+    stampCompletedSessionNumbers,
+    stampIssuedInvoiceSessionIds,
+} from '@/lib/invoice-sessions';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +16,9 @@ export async function PATCH(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
+    if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+
     try {
         const { id } = await params;
         const body = await request.json().catch(() => ({}));
@@ -31,24 +42,38 @@ export async function PATCH(
             return NextResponse.json({ success: false, error: 'Sesión no válida para esta reserva' }, { status: 400 });
         }
 
+        const slots = getInvoiceSessionSlots(booking);
+        const currentCompletedNumbers = getCompletedSessionNumbers(booking);
+        const selectedSlot = sessionId ? slots.find((slot) => slot.id === sessionId) : null;
+        const nextIssuedSessionIds = sessionId
+            ? issued
+                ? Array.from(new Set([...getIssuedInvoiceSessionIds(booking), sessionId]))
+                : getIssuedInvoiceSessionIds(booking).filter((id) => id !== sessionId)
+            : [];
+        const nextCompletedNumbers = sessionId && selectedSlot
+            ? issued
+                ? Array.from(new Set([...currentCompletedNumbers, selectedSlot.number]))
+                : currentCompletedNumbers.filter((number) => number !== selectedSlot.number)
+            : issued ? slots.map((slot) => slot.number) : [];
+        const updatedDetails = stampCompletedSessionNumbers(
+            stampIssuedInvoiceSessionIds(booking.details, nextIssuedSessionIds),
+            nextCompletedNumbers,
+        );
+
         const updatedBooking = await prisma.booking.update({
             where: { id },
             data: sessionId
                 ? {
                     siiReceiptIssued: false,
                     siiReceiptIssuedAt: null,
-                    details: stampIssuedInvoiceSessionIds(
-                        booking.details,
-                        issued
-                            ? Array.from(new Set([...getIssuedInvoiceSessionIds(booking), sessionId]))
-                            : getIssuedInvoiceSessionIds(booking).filter((id) => id !== sessionId),
-                    ),
+                    details: updatedDetails,
+                    appointmentDates: booking.appointmentDates.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
                 }
                 : {
                     siiReceiptIssued: issued,
                     siiReceiptIssuedAt: issued ? new Date() : null,
-                    // Una boleta única reemplaza cualquier registro previo por sesión.
-                    details: stampIssuedInvoiceSessionIds(booking.details, []),
+                    details: updatedDetails,
+                    appointmentDates: booking.appointmentDates.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
                 },
         });
 

@@ -1,4 +1,5 @@
-import { blogPosts, getPublishedBlogPosts, isBlogPostPublished } from "@/lib/data/blog";
+import { blogPosts, getPublishedBlogPosts } from "@/lib/data/blog";
+import { getEffectiveBlogPost } from "@/lib/data/managed-blog";
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import Image from "next/image";
@@ -14,9 +15,9 @@ export const dynamic = 'force-dynamic';
 // Generate dynamic metadata for each blog post
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const post = blogPosts.find((p) => p.slug === slug);
+    const post = await getEffectiveBlogPost(slug);
 
-    if (!post || !isBlogPostPublished(post)) {
+    if (!post) {
         return {
             title: 'Artículo no encontrado',
         };
@@ -56,9 +57,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const post = blogPosts.find((p) => p.slug === slug);
+    const post = await getEffectiveBlogPost(slug);
 
-    if (!post || !isBlogPostPublished(post)) {
+    if (!post) {
         notFound();
     }
 

@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
+    if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+
     try {
         const pendingExpirationDate = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
@@ -18,13 +22,16 @@ export async function GET() {
             },
         }).catch(() => null);
 
-        const allBookings = await prisma.booking.findMany({
-            orderBy: { createdAt: 'desc' },
-            include: { appointmentCancellations: true },
-        }).catch(() => []);
+        const [allBookings, newsletter, templates, contentPosts] = await Promise.all([
+            prisma.booking.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: { appointmentCancellations: true },
+            }).catch(() => []),
+            prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []),
+            prisma.emailTemplate.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
+            prisma.contentPost.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
+        ]);
         const bookings = allBookings.filter((booking) => (booking.status || '').toUpperCase() === 'PAID');
-        const newsletter = await prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
-        const templates = await prisma.emailTemplate.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []);
 
         const patientsMap = new Map();
 
@@ -82,7 +89,8 @@ export async function GET() {
             patients,
             bookings,
             newsletter,
-            templates
+            templates,
+            contentPosts,
         });
     } catch (error) {
         console.error('Admin data error:', error);

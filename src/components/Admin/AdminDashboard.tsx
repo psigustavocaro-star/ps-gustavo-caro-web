@@ -122,8 +122,12 @@ export default function AdminDashboard() {
     const [templates, setTemplates] = useState<any[]>([]);
     const [editingTemplate, setEditingTemplate] = useState<any>(null);
     const [title, setTitle] = useState('');
+    const [preheader, setPreheader] = useState('');
     const [content, setContent] = useState('');
     const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+    const [campaignView, setCampaignView] = useState<'drafts' | 'sent' | 'planned'>('drafts');
+    const [contentPosts, setContentPosts] = useState<any[]>([]);
+    const [articleDraft, setArticleDraft] = useState({ slug: '', title: '', excerpt: '', category: 'Salud Mental', image: '/images/blog/ansiedad.jpg', keywords: '', status: 'DRAFT' });
     const [showPreviousMonths, setShowPreviousMonths] = useState(false);
     const [rescheduleModal, setRescheduleModal] = useState<{ mode: 'day' | 'individual'; booking?: any; appointmentIndex?: number; label?: string } | null>(null);
     const [rescheduleDate, setRescheduleDate] = useState('');
@@ -134,6 +138,7 @@ export default function AdminDashboard() {
     const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
     
     const editorRef = useRef<HTMLDivElement>(null);
+    const articleEditorRef = useRef<HTMLDivElement>(null);
 
     // Carga histórico de consentimientos al abrir el detalle del paciente
     useEffect(() => {
@@ -262,7 +267,20 @@ export default function AdminDashboard() {
         )).length;
         return { today, next, needsAttention };
     }, [allCalendarEntries]);
-    const selectedBlogPost = useMemo(() => blogPosts.find((post) => post.title === title), [title]);
+    const editorialPosts = useMemo(() => {
+        const managedBySlug = new Map(contentPosts.map((post) => [post.slug, post]));
+        const staticPosts = blogPosts.map((post) => {
+            const managed = managedBySlug.get(post.slug);
+            return {
+                ...post,
+                ...(managed || {}),
+                status: managed?.status || 'PUBLISHED',
+                date: managed?.publishedAt || post.date,
+            };
+        });
+        const newPosts = contentPosts.filter((post) => !blogPosts.some((staticPost) => staticPost.slug === post.slug));
+        return [...newPosts, ...staticPosts].sort((a, b) => Date.parse(String(b.updatedAt || b.date)) - Date.parse(String(a.updatedAt || a.date)));
+    }, [contentPosts]);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -274,6 +292,7 @@ export default function AdminDashboard() {
                 setPatients(data.patients || []);
                 setNewsletterSubs((data.newsletter || []).filter((sub: any) => sub.active !== false));
                 setTemplates(data.templates || []);
+                setContentPosts(data.contentPosts || []);
                 setLastUpdated(new Date());
             }
         } catch (err) { console.error("Sync Error:", err); } 
@@ -455,10 +474,16 @@ export default function AdminDashboard() {
         }
 
         const previousBooking = { ...booking };
+        const sessionSlots = getInvoiceSessionSlots(booking);
         const optimisticBooking = {
             ...booking,
             siiReceiptIssued: issued,
             siiReceiptIssuedAt: issued ? new Date().toISOString() : null,
+            details: stampCompletedSessionNumbers(
+                stampIssuedInvoiceSessionIds(booking.details, []),
+                issued ? sessionSlots.map((session) => session.number) : [],
+            ),
+            appointmentDates: booking.appointmentDates?.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
         };
 
         updateBookingInState(optimisticBooking);
@@ -491,16 +516,24 @@ export default function AdminDashboard() {
 
         const previousBooking = { ...booking };
         const currentSessionIds = getIssuedInvoiceSessionIds(booking);
+        const sessionNumber = Number(sessionId.replace('session-', ''));
+        const currentCompletedNumbers = getCompletedSessionNumbers(booking);
         const optimisticBooking = {
             ...booking,
             siiReceiptIssued: false,
             siiReceiptIssuedAt: null,
-            details: stampIssuedInvoiceSessionIds(
-                booking.details,
+            details: stampCompletedSessionNumbers(
+                stampIssuedInvoiceSessionIds(
+                    booking.details,
+                    issued
+                        ? Array.from(new Set([...currentSessionIds, sessionId]))
+                        : currentSessionIds.filter((id) => id !== sessionId),
+                ),
                 issued
-                    ? Array.from(new Set([...currentSessionIds, sessionId]))
-                    : currentSessionIds.filter((id) => id !== sessionId),
+                    ? Array.from(new Set([...currentCompletedNumbers, sessionNumber]))
+                    : currentCompletedNumbers.filter((number) => number !== sessionNumber),
             ),
+            appointmentDates: booking.appointmentDates?.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
         };
 
         updateBookingInState(optimisticBooking);
@@ -523,34 +556,6 @@ export default function AdminDashboard() {
         } catch {
             updateBookingInState(previousBooking);
             alert('Error de conexión al actualizar la boleta de esta sesión');
-        }
-    };
-
-    const handleToggleSessionCompleted = async (booking: any, sessionNumber: number, completed: boolean) => {
-        const previousBooking = { ...booking };
-        const currentNumbers = getCompletedSessionNumbers(booking);
-        const nextNumbers = completed
-            ? Array.from(new Set([...currentNumbers, sessionNumber]))
-            : currentNumbers.filter((number) => number !== sessionNumber);
-        const optimisticBooking = {
-            ...booking,
-            details: stampCompletedSessionNumbers(booking.details, nextNumbers),
-            appointmentDates: booking.appointmentDates?.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
-        };
-
-        updateBookingInState(optimisticBooking);
-        try {
-            const response = await fetch(`/api/admin/bookings/${encodeURIComponent(booking.id)}/session-status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionNumber, completed }),
-            });
-            const data = await response.json();
-            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible actualizar la sesión.');
-            updateBookingInState(data.booking);
-        } catch (error) {
-            updateBookingInState(previousBooking);
-            alert(error instanceof Error ? error.message : 'No fue posible actualizar la sesión.');
         }
     };
 
@@ -698,11 +703,14 @@ export default function AdminDashboard() {
             const res = await fetch('/api/admin/newsletter/send', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'all', customTitle: title, customContent: content }),
+                body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'all', customTitle: title, customPreheader: preheader, customContent: content }),
             });
             const data = await res.json();
             if (data.success) {
                 alert(`🚀 ¡Correo enviado a ${data.sentCount ?? data.count} personas!`);
+                setEditingTemplate(data.campaign);
+                setCampaignView('sent');
+                fetchData();
             } else if (data.partial) {
                 alert(`⚠️ Envío parcial: llegó a ${data.sentCount} de ${data.count} personas. Fallaron ${data.failedCount}.`);
             } else {
@@ -716,28 +724,26 @@ export default function AdminDashboard() {
         if (!title || !content) return alert('Selecciona un correo o post primero 💌');
         if (selectedRecipients.length === 0) return alert('Debes marcar al menos un paciente');
         setIsLoading(true);
-        let successCount = 0;
         try {
-            for (const email of selectedRecipients) {
-                const res = await fetch('/api/admin/newsletter/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'specific', specificEmail: email, customTitle: title, customContent: content }),
-                });
-                const data = await res.json();
-                if (data.success || data.partial) {
-                    successCount++;
-                } else {
-                    console.error("Error sending to", email, data.error);
-                }
-            }
-            if (successCount === selectedRecipients.length) {
-                alert(`✅ Enviado con éxito a ${successCount} pacientes.`);
+            const res = await fetch('/api/admin/newsletter/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ templateId: editingTemplate?.id || null, target: 'specific', specificEmails: selectedRecipients, customTitle: title, customPreheader: preheader, customContent: content }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`✅ Enviado con éxito a ${data.sentCount} pacientes.`);
                 setSelectedRecipients([]);
-            } else if (successCount > 0) {
-                alert(`⚠️ Enviado parcialmente. Llegó a ${successCount} de ${selectedRecipients.length} pacientes.`);
+                setEditingTemplate(data.campaign);
+                setCampaignView('sent');
+                fetchData();
+            } else if (data.partial) {
+                alert(`⚠️ Enviado parcialmente. Llegó a ${data.sentCount} de ${data.count} pacientes.`);
+                setEditingTemplate(data.campaign);
+                setCampaignView('sent');
+                fetchData();
             } else {
-                alert(`❌ No se pudo enviar ningún correo. Verifica si configuraste las claves de envío.`);
+                alert(`❌ ${data.error || 'No se pudo enviar ningún correo. Verifica las claves de envío.'}`);
             }
         } catch { alert('Ocurrió un error en el envío de red'); }
         finally { setIsLoading(false); }
@@ -749,15 +755,63 @@ export default function AdminDashboard() {
             const res = await fetch('/api/admin/newsletter/templates', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, content, id: editingTemplate?.id }),
+                body: JSON.stringify({ title, preheader, content, id: editingTemplate?.id }),
             });
             const data = await res.json();
             if (data.success) {
                 alert('💾 Borrador de correo guardado perfectamente');
+                setEditingTemplate(data.template);
+                setCampaignView('drafts');
                 fetchData();
             }
         } catch { alert('No pudimos guardarlo en este momento'); }
         finally { setIsLoading(false); }
+    };
+
+    const openNewCampaign = () => {
+        setEditingTemplate(null);
+        setTitle('');
+        setPreheader('');
+        setContent('');
+        setSelectedRecipients([]);
+        setContentPreview(false);
+        if (editorRef.current) editorRef.current.innerHTML = '';
+    };
+
+    const openArticle = (post: any) => {
+        setArticleDraft({
+            slug: post.slug || '', title: post.title || '', excerpt: post.excerpt || '',
+            category: post.category || 'Salud Mental', image: post.image || '/images/blog/ansiedad.jpg',
+            keywords: Array.isArray(post.keywords) ? post.keywords.join(', ') : '', status: post.status || 'DRAFT',
+        });
+        requestAnimationFrame(() => { if (articleEditorRef.current) articleEditorRef.current.innerHTML = post.content || ''; });
+    };
+
+    const openNewArticle = () => {
+        setArticleDraft({ slug: '', title: '', excerpt: '', category: 'Salud Mental', image: '/images/blog/ansiedad.jpg', keywords: '', status: 'DRAFT' });
+        if (articleEditorRef.current) articleEditorRef.current.innerHTML = '';
+    };
+
+    const saveArticle = async (status: 'DRAFT' | 'PUBLISHED') => {
+        const articleContent = articleEditorRef.current?.innerHTML || '';
+        if (!articleDraft.slug || !articleDraft.title || !articleDraft.excerpt || !articleContent) {
+            alert('Completa título, enlace, resumen y contenido para guardar.');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/admin/content', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...articleDraft, content: articleContent, status }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible guardar el artículo.');
+            setArticleDraft(current => ({ ...current, status }));
+            alert(status === 'PUBLISHED' ? 'Artículo publicado y disponible en el sitio.' : 'Borrador editorial guardado.');
+            fetchData();
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'No fue posible guardar el artículo.');
+        } finally { setIsLoading(false); }
     };
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -889,8 +943,9 @@ export default function AdminDashboard() {
                         {profilePic ? (
                             <Image src={profilePic} alt="Tú" className={styles.profileImg} width={96} height={96} unoptimized />
                         ) : (
-                            <span className={styles.dogAvatar}>🐕</span>
+                            <span className={styles.dogAvatar}>GC</span>
                         )}
+                        <span className={styles.profileEdit}>Cambiar</span>
                     </label>
                     <span className={styles.navTitle}>Clínica Gustavo</span>
                     <span className={styles.navSubtitle}>Panel Principal</span>
@@ -1048,7 +1103,7 @@ export default function AdminDashboard() {
                                                 {session && <small className={styles.calendarSessionMeta}>Sesion {session.number} de {sessionCount}</small>}
                                             </td>
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
-                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}<button className={styles.sessionStatusBtn} onClick={() => handleToggleSessionCompleted(booking, session.number, !session.completed)}>{session.completed ? 'Volver a programadas' : 'Marcar realizada'}</button></div></td>
+                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
                                             <td>{hasDate && !session.completed && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
@@ -1075,7 +1130,7 @@ export default function AdminDashboard() {
                                             <span className={styles.cardSubtitle}>{getServiceDisplayName(booking.serviceType)}{session ? ` · Sesion ${session.number} de ${sessionCount}` : ''}</span>
                                         </div>
                                             <div className={styles.mobileBookingFooter}>
-                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : getBookingStatusLabel(booking.status)}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}<button className={styles.sessionStatusBtn} onClick={() => handleToggleSessionCompleted(booking, session.number, !session.completed)}>{session.completed ? 'Volver a programadas' : 'Marcar realizada'}</button></div>
+                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div>
                                             {renderCalendarReceiptToggle(booking, session)}
                                             {hasDate && !session.completed && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
@@ -1088,6 +1143,21 @@ export default function AdminDashboard() {
                     )}
 
                     {activeTab === 'newsletter' && (
+                        <div className={styles.communicationHub}>
+                            <section className={styles.campaignShelf}>
+                                <div className={styles.sectionHeading}><div><span>Centro de campañas</span><h2>Correos con contexto e historial</h2></div><button onClick={openNewCampaign}>＋ Nueva comunicación</button></div>
+                                <div className={styles.campaignTabs}>
+                                    <button className={campaignView === 'drafts' ? styles.campaignTabActive : ''} onClick={() => setCampaignView('drafts')}>Borradores <span>{templates.filter(template => template.status === 'DRAFT').length}</span></button>
+                                    <button className={campaignView === 'sent' ? styles.campaignTabActive : ''} onClick={() => setCampaignView('sent')}>Enviadas <span>{templates.filter(template => template.status && template.status !== 'DRAFT').length}</span></button>
+                                    <button className={campaignView === 'planned' ? styles.campaignTabActive : ''} onClick={() => setCampaignView('planned')}>Ideas preparadas <span>{newsletterSequence.length}</span></button>
+                                </div>
+                                <div className={styles.campaignCards}>
+                                    {campaignView === 'planned' && newsletterSequence.map(sequence => <button key={`seq-${sequence.id}`} className={styles.campaignCard} onClick={() => { const nextContent = sequence.content('[Nombre del Paciente]'); setEditingTemplate(null); setTitle(sequence.subject); setPreheader(sequence.preheader || ''); setContent(nextContent); setContentPreview(false); if (editorRef.current) editorRef.current.innerHTML = nextContent; }}><small>Idea preparada · {sequence.weekOf}</small><strong>{sequence.subject}</strong><em>{sequence.preheader || 'Lista para adaptar a tu comunidad.'}</em></button>)}
+                                    {campaignView === 'drafts' && templates.filter(template => template.status === 'DRAFT').map(template => <button key={template.id} className={styles.campaignCard} onClick={() => { setEditingTemplate(template); setTitle(template.title); setPreheader(template.preheader || ''); setContent(template.content); setContentPreview(false); if (editorRef.current) editorRef.current.innerHTML = template.content; }}><small>Borrador · actualizado {new Date(template.updatedAt).toLocaleDateString('es-CL')}</small><strong>{template.title}</strong><em>{template.preheader || 'Sin texto de vista previa.'}</em></button>)}
+                                    {campaignView === 'sent' && templates.filter(template => template.status && template.status !== 'DRAFT').map(template => <button key={template.id} className={styles.campaignCard} onClick={() => { setEditingTemplate(template); setTitle(template.title); setPreheader(template.preheader || ''); setContent(template.content); setContentPreview(true); }}><small>{template.status === 'SENT' ? 'Enviada' : template.status === 'PARTIAL' ? 'Envío parcial' : 'No enviada'} · {template.sentAt ? new Date(template.sentAt).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : 'sin fecha'}</small><strong>{template.title}</strong><em>{template.sentCount || 0} enviados de {template.recipientCount || 0} destinatarios</em></button>)}
+                                    {((campaignView === 'drafts' && !templates.some(template => template.status === 'DRAFT')) || (campaignView === 'sent' && !templates.some(template => template.status && template.status !== 'DRAFT'))) && <p className={styles.emptyCampaigns}>Aún no hay campañas en esta sección.</p>}
+                                </div>
+                            </section>
                         <div className={styles.communicationWorkspace}>
                             <section className={styles.campaignComposer}>
                                 <div className={styles.composerHeader}>
@@ -1096,6 +1166,7 @@ export default function AdminDashboard() {
                                 </div>
                                 {!contentPreview ? <>
                                     <label className={styles.campaignField}><span>Asunto</span><input value={title} onChange={event => setTitle(event.target.value)} placeholder="Un asunto claro y cercano" /></label>
+                                    <label className={styles.campaignField}><span>Texto de vista previa</span><input value={preheader} onChange={event => setPreheader(event.target.value)} placeholder="Una línea breve que acompaña el asunto en la bandeja de entrada" /></label>
                                     <div className={styles.studioToolbar}><span>Contenido del correo</span><div><button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button><button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button></div></div>
                                     <div ref={editorRef} className={styles.richText} contentEditable suppressContentEditableWarning onInput={(event: any) => setContent(event.currentTarget.innerHTML)} dangerouslySetInnerHTML={{ __html: content }} data-placeholder="Escribe aquí el mensaje para tus lectores…" />
                                 </> : <div className={styles.emailPreview}><div className={styles.emailChrome}><span></span><span></span><span></span></div><div className={styles.emailPreviewBody}><small>Ps. Gustavo Caro</small><h2>{title || 'El asunto aparecerá aquí'}</h2><div dangerouslySetInnerHTML={{ __html: content || '<p>El contenido de tu correo aparecerá aquí.</p>' }} /></div></div>}
@@ -1110,25 +1181,30 @@ export default function AdminDashboard() {
                                     <p>{selectedRecipients.length ? `Enviarás solo a ${selectedRecipients.length} personas seleccionadas.` : 'Sin selección manual, el envío llegará a toda la audiencia activa.'}</p>
                                     <div className={styles.audienceList}>{newsletterSubs.map(subscriber => <label key={subscriber.id} className={styles.audienceItem}><input type="checkbox" checked={selectedRecipients.includes(subscriber.email)} onChange={event => setSelectedRecipients(current => event.target.checked ? [...current, subscriber.email] : current.filter(email => email !== subscriber.email))} /><span>{subscriber.email}</span></label>)}</div>
                                 </section>
-                                <section className={styles.libraryPanel}>
-                                    <div className={styles.panelTitle}><div><span>Biblioteca</span><strong>Ideas y borradores</strong></div></div>
-                                    <div className={styles.draftList}>{newsletterSequence.map(sequence => <button key={`seq-${sequence.id}`} className={styles.draftCard} onClick={() => { const nextContent = sequence.content('[Nombre del Paciente]'); setEditingTemplate({ id: null }); setTitle(sequence.subject); setContent(nextContent); if (editorRef.current) editorRef.current.innerHTML = nextContent; }}><small>Secuencia preparada</small><h5>{sequence.subject}</h5></button>)}{templates.map(template => <button key={template.id} className={styles.draftCard} onClick={() => { setEditingTemplate(template); setTitle(template.title); setContent(template.content); if (editorRef.current) editorRef.current.innerHTML = template.content; }}><small>Borrador guardado</small><h5>{template.title}</h5></button>)}</div>
-                                </section>
+                                <section className={styles.libraryPanel}><div className={styles.panelTitle}><div><span>Antes de enviar</span><strong>Checklist de campaña</strong></div></div><div className={styles.sendChecklist}><span>✓ Asunto y vista previa claros</span><span>✓ Audiencia visible y seleccionable</span><span>✓ Al enviar se guarda fecha, alcance y resultado</span></div></section>
                             </aside>
+                        </div>
                         </div>
                     )}
 
                     {activeTab === 'marketing' && (
                         <div className={styles.contentWorkspace}>
                             <section className={styles.contentLibrary}>
-                                <div className={styles.sectionHeading}><div><span>Publicados</span><h2>Biblioteca de artículos</h2></div><strong>{blogPosts.length} artículos</strong></div>
-                                <div className={styles.articleGrid}>{blogPosts.map(post => <button key={post.slug} className={styles.articleCard} onClick={() => { setTitle(post.title); setContent(post.content); }}><span className={styles.articleImage}><Image src={post.image} alt="" fill sizes="(max-width: 900px) 100vw, 260px" /></span><span className={styles.articleMeta}><small>{post.category} · {new Date(post.date).toLocaleDateString('es-CL')}</small><strong>{post.title}</strong><em>{post.excerpt}</em></span></button>)}</div>
+                                <div className={styles.sectionHeading}><div><span>Biblioteca editorial</span><h2>Artículos y borradores</h2></div><button onClick={openNewArticle}>＋ Nuevo artículo</button></div>
+                                <p className={styles.libraryIntro}>Abre una pieza para editarla de verdad: puedes guardar un borrador o publicarla en el sitio.</p>
+                                <div className={styles.articleGrid}>{editorialPosts.map(post => <button key={post.slug} className={styles.articleCard} onClick={() => openArticle(post)}><span className={styles.articleImage}><Image src={post.image} alt="" fill sizes="(max-width: 900px) 100vw, 260px" /></span><span className={styles.articleMeta}><small>{post.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'} · {post.category}</small><strong>{post.title}</strong><em>{post.excerpt}</em></span></button>)}</div>
                             </section>
-                            <aside className={styles.articlePreview}>
-                                <span>Vista editorial</span>
-                                <h2>{title || 'Selecciona un artículo'}</h2>
-                                {selectedBlogPost ? <div className={styles.articlePreviewContent} dangerouslySetInnerHTML={{ __html: selectedBlogPost.content }} /> : <p>Elige una publicación para revisar su contenido y presentación.</p>}
-                                {selectedBlogPost && <Link href={`/blog/${selectedBlogPost.slug}`} target="_blank">Ver artículo en el sitio <span>↗</span></Link>}
+                            <aside className={styles.articleEditor}>
+                                <div className={styles.composerHeader}><div><span>Editor</span><h2>{articleDraft.title || 'Nuevo artículo'}</h2></div><span className={`${styles.articleState} ${articleDraft.status === 'PUBLISHED' ? styles.articlePublished : ''}`}>{articleDraft.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}</span></div>
+                                <label className={styles.campaignField}><span>Título</span><input value={articleDraft.title} onChange={event => setArticleDraft(current => ({ ...current, title: event.target.value }))} placeholder="Título del artículo" /></label>
+                                <label className={styles.campaignField}><span>Enlace del artículo</span><input value={articleDraft.slug} onChange={event => setArticleDraft(current => ({ ...current, slug: event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))} placeholder="mi-articulo" /></label>
+                                <label className={styles.campaignField}><span>Resumen</span><input value={articleDraft.excerpt} onChange={event => setArticleDraft(current => ({ ...current, excerpt: event.target.value }))} placeholder="Qué encontrará la persona lectora" /></label>
+                                <div className={styles.articleMetaFields}><label className={styles.campaignField}><span>Categoría</span><select value={articleDraft.category} onChange={event => setArticleDraft(current => ({ ...current, category: event.target.value }))}>{['Salud Mental', 'Neurodiversidad', 'Ansiedad', 'Opinión', 'Recursos'].map(category => <option key={category}>{category}</option>)}</select></label><label className={styles.campaignField}><span>Imagen</span><input value={articleDraft.image} onChange={event => setArticleDraft(current => ({ ...current, image: event.target.value }))} placeholder="/imagen.png" /></label></div>
+                                <label className={styles.campaignField}><span>Palabras clave</span><input value={articleDraft.keywords} onChange={event => setArticleDraft(current => ({ ...current, keywords: event.target.value }))} placeholder="ansiedad, bienestar, terapia" /></label>
+                                <div className={styles.studioToolbar}><span>Cuerpo del artículo</span><div><button onClick={() => document.execCommand('bold')} title="Negrita"><b>B</b></button><button onClick={() => document.execCommand('italic')} title="Cursiva"><i>I</i></button></div></div>
+                                <div ref={articleEditorRef} className={`${styles.richText} ${styles.articleRichText}`} contentEditable suppressContentEditableWarning data-placeholder="Desarrolla aquí el artículo…" />
+                                <div className={styles.editorActions}><button className={styles.primaryBtn} onClick={() => saveArticle('DRAFT')}>Guardar borrador</button><button className={styles.sendPrimary} onClick={() => saveArticle('PUBLISHED')}>Publicar en el sitio</button></div>
+                                {articleDraft.status === 'PUBLISHED' && articleDraft.slug && <Link className={styles.articleSiteLink} href={`/blog/${articleDraft.slug}`} target="_blank">Ver artículo publicado ↗</Link>}
                             </aside>
                         </div>
                     )}
@@ -1256,7 +1332,6 @@ export default function AdminDashboard() {
                                                                             <strong>{sessionLabel}</strong>
                                                                             <small>${amountPerSession.toLocaleString('es-CL')} aprox. · {session.completed ? 'Realizada' : session.date ? 'Programada' : 'Pendiente de fecha'}</small>
                                                                         </span>
-                                                                        <button type="button" className={styles.sessionStatusBtn} onClick={(event) => { event.preventDefault(); void handleToggleSessionCompleted(b, session.number, !session.completed); }}>{session.completed ? 'Marcar pendiente' : 'Marcar realizada'}</button>
                                                                         {b.siiReceiptIssued ? (
                                                                             <em>Incluida en boleta única</em>
                                                                         ) : (
