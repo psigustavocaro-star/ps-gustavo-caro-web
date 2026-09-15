@@ -78,6 +78,22 @@ const isSessionReceiptIssued = (booking: any, session: any) => (
     Boolean(booking.siiReceiptIssued) || getIssuedInvoiceSessionIds(booking).includes(session.id)
 );
 
+// Las sesiones sin hora asignada siempre se mantienen al final. Entre las que
+// sí tienen fecha, Agenda se lee como un historial: lo más reciente primero.
+const compareCalendarEntriesNewestFirst = (first: any, second: any) => {
+    const firstHasDate = hasAgendaEntryDate(first.booking, first.session);
+    const secondHasDate = hasAgendaEntryDate(second.booking, second.session);
+
+    if (!firstHasDate && !secondHasDate) return 0;
+    if (!firstHasDate) return 1;
+    if (!secondHasDate) return -1;
+
+    const firstTime = Date.parse(getAgendaEntryDate(first.booking, first.session));
+    const secondTime = Date.parse(getAgendaEntryDate(second.booking, second.session));
+    if (Number.isNaN(firstTime) || Number.isNaN(secondTime)) return 0;
+    return secondTime - firstTime;
+};
+
 const manualServiceOptions = [
     { value: 'sesion', label: 'Psicoterapia individual', price: 36000 },
     { value: 'primeraConsulta', label: 'Primera consulta', price: 0 },
@@ -236,18 +252,7 @@ export default function AdminDashboard() {
         bookings.flatMap<any>((booking: any) => {
             const sessionSlots = getInvoiceSessionSlots(booking);
             return sessionSlots.map((session) => ({ booking, session, sessionCount: sessionSlots.length }));
-        }).sort((first, second) => {
-            const firstDate = first.session?.date || first.booking.appointmentDate || first.booking.createdAt;
-            const secondDate = second.session?.date || second.booking.appointmentDate || second.booking.createdAt;
-            const firstTime = first.session && !first.session.date ? Number.MAX_SAFE_INTEGER : Date.parse(firstDate);
-            const secondTime = second.session && !second.session.date ? Number.MAX_SAFE_INTEGER : Date.parse(secondDate);
-            const firstIsPending = first.session && !first.session.date;
-            const secondIsPending = second.session && !second.session.date;
-
-            if (firstIsPending) return 1;
-            if (secondIsPending) return -1;
-            return firstTime - secondTime;
-        })
+        }).sort(compareCalendarEntriesNewestFirst)
     ), [bookings]);
 
     const calendarEntries = useMemo(() => (
@@ -256,24 +261,18 @@ export default function AdminDashboard() {
                 const receiptIssued = isSessionReceiptIssued(booking, session);
                 if (agendaView === 'issued') return receiptIssued;
                 if (agendaView === 'unbilled') return session.completed && !receiptIssued;
-                return !session.completed;
+                return !session.completed && !receiptIssued;
             })
-            .toSorted((first, second) => {
-                const firstTime = first.session?.date ? Date.parse(first.session.date) : Date.parse(first.booking.createdAt);
-                const secondTime = second.session?.date ? Date.parse(second.session.date) : Date.parse(second.booking.createdAt);
-                const firstPending = !first.session?.date;
-                const secondPending = !second.session?.date;
-                if (firstPending) return 1;
-                if (secondPending) return -1;
-                return secondTime - firstTime;
-            })
+            .toSorted(compareCalendarEntriesNewestFirst)
     ), [agendaView, allCalendarEntries]);
 
     const overviewMetrics = useMemo(() => {
         const now = new Date();
         const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         const end = start + 86_400_000;
-        const scheduled = allCalendarEntries.filter(({ session }) => !session.completed && session.date);
+        const scheduled = allCalendarEntries.filter(({ booking, session }) => (
+            !session.completed && !isSessionReceiptIssued(booking, session) && session.date
+        ));
         const today = scheduled.filter(({ session }) => {
             const time = Date.parse(session.date);
             return time >= start && time < end;
@@ -1095,7 +1094,7 @@ export default function AdminDashboard() {
                         <div className={styles.responsiveList}>
                             <div className={styles.agendaTopbar}>
                                 <div className={styles.segmentedControl} aria-label="Vista de agenda">
-                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ session }) => !session.completed).length}</span></button>
+                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ booking, session }) => !session.completed && !isSessionReceiptIssued(booking, session)).length}</span></button>
                                     <button className={agendaView === 'unbilled' ? styles.segmentActive : ''} onClick={() => setAgendaView('unbilled')}>Realizadas sin boleta <span>{allCalendarEntries.filter(({ booking, session }) => session.completed && !isSessionReceiptIssued(booking, session)).length}</span></button>
                                     <button className={agendaView === 'issued' ? styles.segmentActive : ''} onClick={() => setAgendaView('issued')}>Boletas emitidas <span>{allCalendarEntries.filter(({ booking, session }) => isSessionReceiptIssued(booking, session)).length}</span></button>
                                 </div>
@@ -1114,6 +1113,8 @@ export default function AdminDashboard() {
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
                                     const appointmentIndex = session?.appointmentIndex ?? 0;
                                     const rescheduleState = getRescheduleState(booking, appointmentIndex);
+                                    const receiptIssued = isSessionReceiptIssued(booking, session);
+                                    const finalized = session.completed || receiptIssued;
 
                                     return (
                                         <tr key={session ? `${booking.id}-${session.id}` : booking.id}>
@@ -1124,9 +1125,9 @@ export default function AdminDashboard() {
                                                 {session && <small className={styles.calendarSessionMeta}>Sesion {session.number} de {sessionCount}</small>}
                                             </td>
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
-                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div></td>
+                                            <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${finalized ? styles.badgeCompleted : styles.badgeCalypso}`}>{receiptIssued ? 'Boleta emitida' : session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{!finalized && rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{!finalized && rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
-                                            <td>{hasDate && !session.completed && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
+                                            <td>{hasDate && !finalized && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
                                         </tr>
                                     );
@@ -1139,6 +1140,8 @@ export default function AdminDashboard() {
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
                                     const appointmentIndex = session?.appointmentIndex ?? 0;
                                     const rescheduleState = getRescheduleState(booking, appointmentIndex);
+                                    const receiptIssued = isSessionReceiptIssued(booking, session);
+                                    const finalized = session.completed || receiptIssued;
 
                                     return (
                                     <div key={session ? `${booking.id}-${session.id}` : booking.id} className={styles.mobileCard}>
@@ -1151,9 +1154,9 @@ export default function AdminDashboard() {
                                             <span className={styles.cardSubtitle}>{getServiceDisplayName(booking.serviceType)}{session ? ` · Sesion ${session.number} de ${sessionCount}` : ''}</span>
                                         </div>
                                             <div className={styles.mobileBookingFooter}>
-                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${session.completed ? styles.badgeCompleted : styles.badgeCalypso}`}>{session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div>
+                                            <div className={styles.agendaStatus}><span className={`${styles.badge} ${finalized ? styles.badgeCompleted : styles.badgeCalypso}`}>{receiptIssued ? 'Boleta emitida' : session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{!finalized && rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{!finalized && rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div>
                                             {renderCalendarReceiptToggle(booking, session)}
-                                            {hasDate && !session.completed && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
+                                            {hasDate && !finalized && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
                                         </div>
                                     </div>
