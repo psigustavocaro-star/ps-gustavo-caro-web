@@ -12,20 +12,23 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const eventTypeId = searchParams.get('eventTypeId');
 
-        // 1. Obtener cierres y bloqueos desde DB local (Citas pagadas)
+        // 1. Obtener cierres y bloqueos desde DB local (citas pagadas).
+        // No se filtra por appointmentDate: en un pack esa fecha puede ser una
+        // sesión pasada mientras que las siguientes siguen estando agendadas.
         const bookings = await prisma.booking.findMany({
             where: {
                 status: 'PAID',
-                appointmentDate: {
-                    not: null,
-                    gte: new Date().toISOString() // Solo futuras
-                }
             },
             select: {
                 appointmentDate: true,
                 appointmentDates: true,
             }
         });
+
+        const now = Date.now();
+        const isFutureDate = (dateStr: string) => (
+            Boolean(dateStr) && !Number.isNaN(Date.parse(dateStr)) && Date.parse(dateStr) >= now
+        );
 
         const formatInSantiago = (dateStr: string | Date) => {
             const date = new Date(dateStr);
@@ -47,7 +50,7 @@ export async function GET(request: NextRequest) {
                 ? b.appointmentDates
                 : b.appointmentDate ? [b.appointmentDate] : [];
 
-            return dates.map(formatInSantiago);
+            return dates.filter(isFutureDate).map(formatInSantiago);
         });
 
         const finalOccupiedSlots = [...occupiedFromDB];
@@ -66,7 +69,7 @@ export async function GET(request: NextRequest) {
                 const calRes = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${calKey}`,
-                        'cal-api-version': '2024-09-04'
+                        'cal-api-version': '2026-02-25'
                     },
                     next: { revalidate: 0 }
                 });
