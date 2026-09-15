@@ -247,10 +247,19 @@ export default function AdminDashboard() {
         })
     ), [bookings]);
 
-    const calendarEntries = useMemo(
-        () => allCalendarEntries.filter(({ session }) => agendaView === 'completed' ? session.completed : !session.completed),
-        [agendaView, allCalendarEntries],
-    );
+    const calendarEntries = useMemo(() => (
+        allCalendarEntries
+            .filter(({ session }) => agendaView === 'completed' ? session.completed : !session.completed)
+            .toSorted((first, second) => {
+                const firstTime = first.session?.date ? Date.parse(first.session.date) : Date.parse(first.booking.createdAt);
+                const secondTime = second.session?.date ? Date.parse(second.session.date) : Date.parse(second.booking.createdAt);
+                const firstPending = !first.session?.date;
+                const secondPending = !second.session?.date;
+                if (firstPending) return 1;
+                if (secondPending) return -1;
+                return secondTime - firstTime;
+            })
+    ), [agendaView, allCalendarEntries]);
 
     const overviewMetrics = useMemo(() => {
         const now = new Date();
@@ -1078,12 +1087,12 @@ export default function AdminDashboard() {
                         <div className={styles.responsiveList}>
                             <div className={styles.agendaTopbar}>
                                 <div className={styles.segmentedControl} aria-label="Vista de agenda">
-                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Programadas <span>{allCalendarEntries.filter(({ session }) => !session.completed).length}</span></button>
-                                    <button className={agendaView === 'completed' ? styles.segmentActive : ''} onClick={() => setAgendaView('completed')}>Realizadas <span>{allCalendarEntries.filter(({ session }) => session.completed).length}</span></button>
+                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ session }) => !session.completed).length}</span></button>
+                                    <button className={agendaView === 'completed' ? styles.segmentActive : ''} onClick={() => setAgendaView('completed')}>Boletas emitidas <span>{allCalendarEntries.filter(({ session }) => session.completed).length}</span></button>
                                 </div>
                                 <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>Reagendar jornada</button></div>
                             </div>
-                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Aquí están las sesiones próximas, pasadas por confirmar y pendientes de fecha.' : 'Historial de sesiones que marcaste como realizadas, aunque su orden no sea correlativo.'}</p>
+                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Sesiones activas ordenadas desde la fecha más reciente. Las pendientes de fecha quedan al final.' : 'Sesiones separadas porque su boleta SII ya fue emitida, ordenadas desde la fecha más reciente.'}</p>
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
                                     <col style={{ width: '16%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />

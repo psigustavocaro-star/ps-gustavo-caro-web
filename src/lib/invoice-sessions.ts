@@ -3,6 +3,7 @@ type InvoiceSessionBooking = {
     appointmentDate?: string | null;
     appointmentDates?: string[] | null;
     details?: string | null;
+    siiReceiptIssued?: boolean | null;
 };
 
 const INCLUDED_SESSION_COUNTS: Record<string, number> = {
@@ -88,6 +89,7 @@ export function getInvoiceSessionSlots(booking: InvoiceSessionBooking) {
     const scheduledDates = rawScheduledDates.filter(isValidDate);
     const includedCount = getIncludedSessionCount(booking.serviceType);
     const completedSessionNumbers = getCompletedSessionNumbers(booking);
+    const issuedSessionIds = getIssuedInvoiceSessionIds(booking);
     const hasExplicitSessionNumbers = Boolean(booking.details?.match(COMPLETED_SESSION_NUMBERS_MARKER));
     const completedSessions = getCompletedSessionCount(booking);
     const total = hasExplicitSessionNumbers
@@ -96,7 +98,11 @@ export function getInvoiceSessionSlots(booking: InvoiceSessionBooking) {
 
     return Array.from({ length: total }, (_, index) => {
         const number = index + 1;
-        const completed = completedSessionNumbers.includes(number);
+        // La boleta emitida es la fuente de verdad: una boleta única cierra
+        // todas las sesiones y una boleta por sesión cierra solo esa sesión.
+        const completed = Boolean(booking.siiReceiptIssued)
+            || completedSessionNumbers.includes(number)
+            || issuedSessionIds.includes(`session-${number}`);
         const scheduledIndex = hasExplicitSessionNumbers ? index : index - completedSessions;
         return {
             id: `session-${number}`,
