@@ -104,12 +104,24 @@ export function getInvoiceSessionSlots(booking: InvoiceSessionBooking) {
             || completedSessionNumbers.includes(number)
             || issuedSessionIds.includes(`session-${number}`);
         const scheduledIndex = hasExplicitSessionNumbers ? index : index - completedSessions;
+        const directDate = rawScheduledDates[index] || '';
+        const hasDirectDate = isValidDate(directDate);
+
+        // Las fechas ya registradas no se pierden al emitir una boleta. Para
+        // registros antiguos (sin marcadores por sesión), la posición del
+        // arreglo es la única asociación fiable entre sesión y fecha.
+        const date = hasExplicitSessionNumbers
+            ? (hasDirectDate ? directDate : null)
+            : completed
+                ? (hasDirectDate ? directDate : null)
+                : scheduledDates[scheduledIndex] || null;
+
         return {
             id: `session-${number}`,
-            date: hasExplicitSessionNumbers && isValidDate(rawScheduledDates[index] || '') ? rawScheduledDates[index] : hasExplicitSessionNumbers ? null : completed ? null : scheduledDates[scheduledIndex] || null,
+            date,
             number,
             completed,
-            appointmentIndex: hasExplicitSessionNumbers ? (isValidDate(rawScheduledDates[index] || '') ? index : null) : completed ? null : scheduledIndex,
+            appointmentIndex: hasExplicitSessionNumbers ? (hasDirectDate ? index : null) : completed ? (hasDirectDate ? index : null) : scheduledIndex,
         };
     });
 }
