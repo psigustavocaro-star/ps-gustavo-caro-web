@@ -819,3 +819,8 @@
 .overviewGrid { margin-top: 12px; margin-bottom: 18px; }
 .statCard, .todayPanel, .attentionPanel, .listContainer { background-color: rgba(255, 255, 255, .91); backdrop-filter: blur(5px); }
 @media (max-width: 768px) { .contentArea { background-size: auto, 760px auto; background-position: 0 0, 58% 260px; background-attachment: scroll, scroll; }.overviewGrid { margin-top: 10px; } }
+
+/* No depender de márgenes entre las tarjetas superiores y la agenda. */
+.overviewFlow { display: grid; gap: 12px; }
+.overviewFlow .dashboardStats, .overviewFlow .overviewGrid { margin: 0 !important; }
+.overviewFlow .historyLauncher { margin-top: 0; }

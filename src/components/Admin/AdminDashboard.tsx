@@ -983,7 +983,7 @@ export default function AdminDashboard() {
                     </div>
                 </header>
 
-                {activeTab === 'overview' && <>
+                {activeTab === 'overview' && <div className={styles.overviewFlow}>
                 <div className={styles.dashboardStats}>
                     <div className={styles.statCard}>
                         <div className={styles.statInfo}>
@@ -1069,7 +1069,7 @@ export default function AdminDashboard() {
                         )}
                     </section>
                 )}
-                </>}
+                </div>}
 
                 {activeTab !== 'overview' && <div className={styles.listContainer}>
                     {activeTab === 'requests' && <Requests />}
