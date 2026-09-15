@@ -521,6 +521,9 @@ export default function AdminDashboard() {
             }
 
             updateBookingInState(data.booking);
+            // El cambio ya se refleja de forma optimista; esta recarga corta
+            // confirma que Agenda, ficha y contadores leen el mismo estado.
+            void fetchData();
         } catch {
             updateBookingInState(previousBooking);
             alert('Error de conexión al actualizar la boleta SII');
@@ -571,6 +574,7 @@ export default function AdminDashboard() {
             }
 
             updateBookingInState(data.booking);
+            void fetchData();
         } catch {
             updateBookingInState(previousBooking);
             alert('Error de conexión al actualizar la boleta de esta sesión');
@@ -1306,7 +1310,7 @@ export default function AdminDashboard() {
 
                                 <div className={`${styles.sessionsBox} ${styles.paymentHistoryBox}`}>
                                     <h3>Pagos y boletas ({getPaidBookings(selectedPatient.bookings).length})</h3>
-                                    <p className={styles.paymentHistoryHint}>Revisa cada proceso y marca la boleta SII directamente desde esta ficha.</p>
+                                    <p className={styles.paymentHistoryHint}>Las marcas de boleta se sincronizan al instante con Agenda y con esta ficha.</p>
                                     {getPaidBookings(selectedPatient.bookings).length > 0 ? (
                                         <div className={styles.sessionsScroll}>
                                             {getPaidBookings(selectedPatient.bookings).map((b: any, i: number) => {
