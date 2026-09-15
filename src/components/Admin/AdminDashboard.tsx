@@ -74,6 +74,9 @@ const getServiceDisplayName = (serviceType?: string) => {
 
 const getAgendaEntryDate = (booking: any, session: any) => session ? session.date : booking.appointmentDate || booking.createdAt;
 const hasAgendaEntryDate = (booking: any, session: any) => session ? Boolean(session.date) : Boolean(booking.appointmentDate);
+const isSessionReceiptIssued = (booking: any, session: any) => (
+    Boolean(booking.siiReceiptIssued) || getIssuedInvoiceSessionIds(booking).includes(session.id)
+);
 
 const manualServiceOptions = [
     { value: 'sesion', label: 'Psicoterapia individual', price: 36000 },
@@ -95,7 +98,7 @@ export default function AdminDashboard() {
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'newsletter' | 'marketing' | 'requests'>('overview');
-    const [agendaView, setAgendaView] = useState<'scheduled' | 'completed'>('scheduled');
+    const [agendaView, setAgendaView] = useState<'scheduled' | 'unbilled' | 'issued'>('scheduled');
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [contentPreview, setContentPreview] = useState(false);
     const [profilePic, setProfilePic] = useState<string | null>(null);
@@ -249,7 +252,12 @@ export default function AdminDashboard() {
 
     const calendarEntries = useMemo(() => (
         allCalendarEntries
-            .filter(({ session }) => agendaView === 'completed' ? session.completed : !session.completed)
+            .filter(({ booking, session }) => {
+                const receiptIssued = isSessionReceiptIssued(booking, session);
+                if (agendaView === 'issued') return receiptIssued;
+                if (agendaView === 'unbilled') return session.completed && !receiptIssued;
+                return !session.completed;
+            })
             .toSorted((first, second) => {
                 const firstTime = first.session?.date ? Date.parse(first.session.date) : Date.parse(first.booking.createdAt);
                 const secondTime = second.session?.date ? Date.parse(second.session.date) : Date.parse(second.booking.createdAt);
@@ -1088,15 +1096,16 @@ export default function AdminDashboard() {
                             <div className={styles.agendaTopbar}>
                                 <div className={styles.segmentedControl} aria-label="Vista de agenda">
                                     <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ session }) => !session.completed).length}</span></button>
-                                    <button className={agendaView === 'completed' ? styles.segmentActive : ''} onClick={() => setAgendaView('completed')}>Boletas emitidas <span>{allCalendarEntries.filter(({ session }) => session.completed).length}</span></button>
+                                    <button className={agendaView === 'unbilled' ? styles.segmentActive : ''} onClick={() => setAgendaView('unbilled')}>Realizadas sin boleta <span>{allCalendarEntries.filter(({ booking, session }) => session.completed && !isSessionReceiptIssued(booking, session)).length}</span></button>
+                                    <button className={agendaView === 'issued' ? styles.segmentActive : ''} onClick={() => setAgendaView('issued')}>Boletas emitidas <span>{allCalendarEntries.filter(({ booking, session }) => isSessionReceiptIssued(booking, session)).length}</span></button>
                                 </div>
                                 <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>Reagendar jornada</button></div>
                             </div>
-                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Sesiones activas ordenadas desde la fecha más reciente. Las pendientes de fecha quedan al final.' : 'Sesiones separadas porque su boleta SII ya fue emitida, ordenadas desde la fecha más reciente.'}</p>
+                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Sesiones activas ordenadas desde la fecha más reciente. Las pendientes de fecha quedan al final.' : agendaView === 'unbilled' ? 'Sesiones realizadas que todavía requieren emitir su boleta SII.' : 'Historial separado de sesiones con boleta SII efectivamente emitida.'}</p>
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
-                                    <col style={{ width: '16%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />
-                                    <col style={{ width: '10%' }} /><col style={{ width: '15%' }} /><col style={{ width: '11%' }} /><col style={{ width: '11%' }} />
+                                    <col style={{ width: '15%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />
+                                    <col style={{ width: '13%' }} /><col style={{ width: '15%' }} /><col style={{ width: '11%' }} /><col style={{ width: '9%' }} />
                                 </colgroup>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Acción</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {
