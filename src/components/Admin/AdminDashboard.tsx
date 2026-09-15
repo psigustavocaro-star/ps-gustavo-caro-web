@@ -72,6 +72,9 @@ const getServiceDisplayName = (serviceType?: string) => {
     return names[serviceType || ''] || serviceType || 'Servicio';
 };
 
+const getAgendaEntryDate = (booking: any, session: any) => session ? session.date : booking.appointmentDate || booking.createdAt;
+const hasAgendaEntryDate = (booking: any, session: any) => session ? Boolean(session.date) : Boolean(booking.appointmentDate);
+
 const manualServiceOptions = [
     { value: 'sesion', label: 'Psicoterapia individual', price: 36000 },
     { value: 'primeraConsulta', label: 'Primera consulta', price: 0 },
@@ -240,7 +243,7 @@ export default function AdminDashboard() {
 
             if (firstIsPending) return 1;
             if (secondIsPending) return -1;
-            return secondTime - firstTime;
+            return firstTime - secondTime;
         })
     ), [bookings]);
 
@@ -1088,8 +1091,8 @@ export default function AdminDashboard() {
                                 </colgroup>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Acción</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {
-                                    const date = session?.date || booking.appointmentDate || booking.createdAt;
-                                    const hasDate = Boolean(session?.date || booking.appointmentDate);
+                                    const date = getAgendaEntryDate(booking, session);
+                                    const hasDate = hasAgendaEntryDate(booking, session);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
                                     const appointmentIndex = session?.appointmentIndex ?? 0;
                                     const rescheduleState = getRescheduleState(booking, appointmentIndex);
@@ -1113,8 +1116,8 @@ export default function AdminDashboard() {
                             </table>
                             <div className={styles.mobileCards}>
                                 {calendarEntries.map(({ booking, session, sessionCount }) => {
-                                    const date = session?.date || booking.appointmentDate || booking.createdAt;
-                                    const hasDate = Boolean(session?.date || booking.appointmentDate);
+                                    const date = getAgendaEntryDate(booking, session);
+                                    const hasDate = hasAgendaEntryDate(booking, session);
                                     const amount = session ? (Number(booking.amount) || 0) / sessionCount : Number(booking.amount) || 0;
                                     const appointmentIndex = session?.appointmentIndex ?? 0;
                                     const rescheduleState = getRescheduleState(booking, appointmentIndex);
