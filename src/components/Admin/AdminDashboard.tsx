@@ -114,7 +114,7 @@ export default function AdminDashboard() {
     const [patients, setPatients] = useState<any[]>([]);
     const [newsletterSubs, setNewsletterSubs] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'newsletter' | 'marketing' | 'requests'>('overview');
-    const [agendaView, setAgendaView] = useState<'scheduled' | 'unbilled' | 'issued'>('scheduled');
+    const [agendaView, setAgendaView] = useState<'scheduled' | 'issued'>('scheduled');
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [contentPreview, setContentPreview] = useState(false);
     const [profilePic, setProfilePic] = useState<string | null>(null);
@@ -260,8 +260,7 @@ export default function AdminDashboard() {
             .filter(({ booking, session }) => {
                 const receiptIssued = isSessionReceiptIssued(booking, session);
                 if (agendaView === 'issued') return receiptIssued;
-                if (agendaView === 'unbilled') return session.completed && !receiptIssued;
-                return !session.completed && !receiptIssued;
+                return !receiptIssued;
             })
             .toSorted(compareCalendarEntriesNewestFirst)
     ), [agendaView, allCalendarEntries]);
@@ -1099,13 +1098,12 @@ export default function AdminDashboard() {
                         <div className={styles.responsiveList}>
                             <div className={styles.agendaTopbar}>
                                 <div className={styles.segmentedControl} aria-label="Vista de agenda">
-                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ booking, session }) => !session.completed && !isSessionReceiptIssued(booking, session)).length}</span></button>
-                                    <button className={agendaView === 'unbilled' ? styles.segmentActive : ''} onClick={() => setAgendaView('unbilled')}>Realizadas sin boleta <span>{allCalendarEntries.filter(({ booking, session }) => session.completed && !isSessionReceiptIssued(booking, session)).length}</span></button>
+                                    <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ booking, session }) => !isSessionReceiptIssued(booking, session)).length}</span></button>
                                     <button className={agendaView === 'issued' ? styles.segmentActive : ''} onClick={() => setAgendaView('issued')}>Boletas emitidas <span>{allCalendarEntries.filter(({ booking, session }) => isSessionReceiptIssued(booking, session)).length}</span></button>
                                 </div>
                                 <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>Reagendar jornada</button></div>
                             </div>
-                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Sesiones activas ordenadas desde la fecha más reciente. Las pendientes de fecha quedan al final.' : agendaView === 'unbilled' ? 'Sesiones realizadas que todavía requieren emitir su boleta SII.' : 'Historial separado de sesiones con boleta SII efectivamente emitida.'}</p>
+                            <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Sesiones por atender y, sólo mientras emites su boleta, las recién realizadas. Al marcarla, pasan a Boletas emitidas.' : 'Historial separado de sesiones con boleta SII efectivamente emitida.'}</p>
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
                                     <col style={{ width: '15%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />
