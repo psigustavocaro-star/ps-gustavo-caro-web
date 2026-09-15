@@ -8,12 +8,10 @@ import styles from './AdminDashboard.module.css';
 import { blogPosts } from '@/lib/data/blog';
 import { newsletterSequence } from '@/lib/config/newsletter-content';
 import {
-    getCompletedSessionNumbers,
     getIncludedSessionCount,
     getInvoiceSessionSlots,
     getIssuedInvoiceSessionIds,
     getSessionAlignedAppointmentDates,
-    stampCompletedSessionNumbers,
     stampIssuedInvoiceSessionIds,
 } from '@/lib/invoice-sessions';
 import Requests from '@/app/admingustavo/solicitudes/requests';
@@ -492,15 +490,11 @@ export default function AdminDashboard() {
         }
 
         const previousBooking = { ...booking };
-        const sessionSlots = getInvoiceSessionSlots(booking);
         const optimisticBooking = {
             ...booking,
             siiReceiptIssued: issued,
             siiReceiptIssuedAt: issued ? new Date().toISOString() : null,
-            details: stampCompletedSessionNumbers(
-                stampIssuedInvoiceSessionIds(booking.details, []),
-                issued ? sessionSlots.map((session) => session.number) : [],
-            ),
+            details: stampIssuedInvoiceSessionIds(booking.details, []),
             appointmentDates: booking.appointmentDates?.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
         };
 
@@ -537,22 +531,15 @@ export default function AdminDashboard() {
 
         const previousBooking = { ...booking };
         const currentSessionIds = getIssuedInvoiceSessionIds(booking);
-        const sessionNumber = Number(sessionId.replace('session-', ''));
-        const currentCompletedNumbers = getCompletedSessionNumbers(booking);
         const optimisticBooking = {
             ...booking,
             siiReceiptIssued: false,
             siiReceiptIssuedAt: null,
-            details: stampCompletedSessionNumbers(
-                stampIssuedInvoiceSessionIds(
-                    booking.details,
-                    issued
-                        ? Array.from(new Set([...currentSessionIds, sessionId]))
-                        : currentSessionIds.filter((id) => id !== sessionId),
-                ),
+            details: stampIssuedInvoiceSessionIds(
+                booking.details,
                 issued
-                    ? Array.from(new Set([...currentCompletedNumbers, sessionNumber]))
-                    : currentCompletedNumbers.filter((number) => number !== sessionNumber),
+                    ? Array.from(new Set([...currentSessionIds, sessionId]))
+                    : currentSessionIds.filter((id) => id !== sessionId),
             ),
             appointmentDates: booking.appointmentDates?.length ? getSessionAlignedAppointmentDates(booking) : booking.appointmentDates,
         };

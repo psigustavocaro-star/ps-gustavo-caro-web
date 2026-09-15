@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 import {
-    getCompletedSessionNumbers,
     getInvoiceSessionSlots,
     getIssuedInvoiceSessionIds,
     getSessionAlignedAppointmentDates,
-    stampCompletedSessionNumbers,
     stampIssuedInvoiceSessionIds,
 } from '@/lib/invoice-sessions';
 
@@ -43,22 +41,12 @@ export async function PATCH(
         }
 
         const slots = getInvoiceSessionSlots(booking);
-        const currentCompletedNumbers = getCompletedSessionNumbers(booking);
-        const selectedSlot = sessionId ? slots.find((slot) => slot.id === sessionId) : null;
         const nextIssuedSessionIds = sessionId
             ? issued
                 ? Array.from(new Set([...getIssuedInvoiceSessionIds(booking), sessionId]))
                 : getIssuedInvoiceSessionIds(booking).filter((id) => id !== sessionId)
             : [];
-        const nextCompletedNumbers = sessionId && selectedSlot
-            ? issued
-                ? Array.from(new Set([...currentCompletedNumbers, selectedSlot.number]))
-                : currentCompletedNumbers.filter((number) => number !== selectedSlot.number)
-            : issued ? slots.map((slot) => slot.number) : [];
-        const updatedDetails = stampCompletedSessionNumbers(
-            stampIssuedInvoiceSessionIds(booking.details, nextIssuedSessionIds),
-            nextCompletedNumbers,
-        );
+        const updatedDetails = stampIssuedInvoiceSessionIds(booking.details, nextIssuedSessionIds);
 
         const updatedBooking = await prisma.booking.update({
             where: { id },

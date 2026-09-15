@@ -68,60 +68,35 @@ function isValidDate(value: string) {
 }
 
 export function getSessionAlignedAppointmentDates(booking: InvoiceSessionBooking) {
-    const rawDates = booking.appointmentDates?.length
+    return booking.appointmentDates?.length
         ? [...booking.appointmentDates]
         : booking.appointmentDate ? [booking.appointmentDate] : [];
-    const includedCount = getIncludedSessionCount(booking.serviceType);
-    const hasExplicitSessionNumbers = Boolean(booking.details?.match(COMPLETED_SESSION_NUMBERS_MARKER));
-    const legacyCompletedCount = getCompletedSessionCount(booking);
-
-    if (!hasExplicitSessionNumbers && legacyCompletedCount > 0 && rawDates.length < includedCount) {
-        return [...Array.from({ length: legacyCompletedCount }, () => ''), ...rawDates];
-    }
-
-    return rawDates;
 }
 
 export function getInvoiceSessionSlots(booking: InvoiceSessionBooking) {
     const rawScheduledDates = (booking.appointmentDates?.length
         ? booking.appointmentDates
         : booking.appointmentDate ? [booking.appointmentDate] : []);
-    const scheduledDates = rawScheduledDates.filter(isValidDate);
     const includedCount = getIncludedSessionCount(booking.serviceType);
-    const completedSessionNumbers = getCompletedSessionNumbers(booking);
     const issuedSessionIds = getIssuedInvoiceSessionIds(booking);
-    const hasExplicitSessionNumbers = Boolean(booking.details?.match(COMPLETED_SESSION_NUMBERS_MARKER));
-    const completedSessions = getCompletedSessionCount(booking);
-    const total = hasExplicitSessionNumbers
-        ? Math.max(rawScheduledDates.length, includedCount)
-        : Math.max(scheduledDates.length + completedSessions, includedCount);
+    const total = Math.max(rawScheduledDates.length, includedCount);
 
     return Array.from({ length: total }, (_, index) => {
         const number = index + 1;
         // La boleta emitida es la fuente de verdad: una boleta única cierra
         // todas las sesiones y una boleta por sesión cierra solo esa sesión.
-        const completed = Boolean(booking.siiReceiptIssued)
-            || completedSessionNumbers.includes(number)
-            || issuedSessionIds.includes(`session-${number}`);
-        const scheduledIndex = hasExplicitSessionNumbers ? index : index - completedSessions;
+        // La boleta SII es la única fuente de verdad para considerar una
+        // sesión realizada. Las marcas históricas internas no cambian estado.
+        const completed = Boolean(booking.siiReceiptIssued) || issuedSessionIds.includes(`session-${number}`);
         const directDate = rawScheduledDates[index] || '';
         const hasDirectDate = isValidDate(directDate);
 
-        // Las fechas ya registradas no se pierden al emitir una boleta. Para
-        // registros antiguos (sin marcadores por sesión), la posición del
-        // arreglo es la única asociación fiable entre sesión y fecha.
-        const date = hasExplicitSessionNumbers
-            ? (hasDirectDate ? directDate : null)
-            : completed
-                ? (hasDirectDate ? directDate : null)
-                : scheduledDates[scheduledIndex] || null;
-
         return {
             id: `session-${number}`,
-            date,
+            date: hasDirectDate ? directDate : null,
             number,
             completed,
-            appointmentIndex: hasExplicitSessionNumbers ? (hasDirectDate ? index : null) : completed ? (hasDirectDate ? index : null) : scheduledIndex,
+            appointmentIndex: hasDirectDate ? index : null,
         };
     });
 }
