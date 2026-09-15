@@ -1242,7 +1242,7 @@ export default function AdminDashboard() {
                 <div className={styles.modalOverlay} onClick={() => setSelectedPatient(null)}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
-                            <h2>{isEditing ? '✏️ Editando Perfil' : '📋 Perfil del Paciente'}</h2>
+                            <h2>{isEditing ? 'Editar ficha' : 'Ficha del paciente'}</h2>
                             <button className={styles.closeIcon} onClick={() => setSelectedPatient(null)}>✖</button>
                         </div>
                         
@@ -1268,7 +1268,7 @@ export default function AdminDashboard() {
                                 </div>
                                 
                                 <div className={styles.sessionsBox}>
-                                    <h3>🛡️ Consentimientos registrados ({patientConsents.length})</h3>
+                                    <h3>Consentimientos ({patientConsents.length})</h3>
                                     {loadingConsents ? (
                                         <p style={{ fontSize: '0.85rem', color: '#64748b', padding: '8px 0' }}>Cargando...</p>
                                     ) : patientConsents.length === 0 ? (
@@ -1305,7 +1305,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div className={`${styles.sessionsBox} ${styles.paymentHistoryBox}`}>
-                                    <h3>💳 Historial de pagos ({getPaidBookings(selectedPatient.bookings).length})</h3>
+                                    <h3>Pagos y boletas ({getPaidBookings(selectedPatient.bookings).length})</h3>
                                     <p className={styles.paymentHistoryHint}>Revisa cada proceso y marca la boleta SII directamente desde esta ficha.</p>
                                     {getPaidBookings(selectedPatient.bookings).length > 0 ? (
                                         <div className={styles.sessionsScroll}>
@@ -1385,8 +1385,8 @@ export default function AdminDashboard() {
                                     )}
                                 </div>
                                 <div className={styles.sessionsBox} style={{ marginTop: 18 }}>
-                                    <h3>▦ Detalle de sesiones</h3>
-                                    <p className={styles.paymentHistoryHint}>Fechas, avance del pack, boletas y cambios de hora de este paciente.</p>
+                                    <h3>Sesiones y actividad</h3>
+                                    <p className={styles.paymentHistoryHint}>Fecha, avance, pago, boleta y reagendamientos en una sola vista.</p>
                                     <div className={styles.sessionsScroll}>
                                         {getPaidBookings(selectedPatient.bookings).flatMap((booking: any) => {
                                             const slots = getInvoiceSessionSlots(booking);
@@ -1400,6 +1400,7 @@ export default function AdminDashboard() {
                                                     </div>
                                                     <div style={{ textAlign: 'right' }}>
                                                         <strong>{receiptIssued ? 'Boleta emitida' : session.completed ? 'Realizada' : session.date ? 'Programada' : 'Pendiente'}</strong>
+                                                        <span className={styles.sessionService}>${Math.round((Number(booking.amount) || 0) / slots.length).toLocaleString('es-CL')} · pagado {new Date(booking.paidAt || booking.createdAt).toLocaleDateString('es-CL')}</span>
                                                         {reschedule && <span className={styles.sessionService}>Reagendada desde {new Date(reschedule.originalAppointmentDate).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' })}</span>}
                                                     </div>
                                                 </div>;
@@ -1408,7 +1409,7 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                                 {selectedPatient.bookings.some((b: any) => b.appointmentCancellations?.length) && <div className={styles.sessionsBox} style={{ marginTop: 18 }}>
-                                    <h3>↻ Historial de reagendamientos</h3>
+                                    <h3>Historial de reagendamientos</h3>
                                     <div className={styles.sessionsScroll}>
                                         {selectedPatient.bookings.flatMap((b: any) => (b.appointmentCancellations || []).map((change: any) => <div className={styles.sessionLine} key={change.id}>
                                             <div><strong>{change.originalAppointmentDate ? new Date(change.originalAppointmentDate).toLocaleString('es-CL') : 'Fecha original'}</strong><span className={styles.sessionService}>Fecha original</span></div>
