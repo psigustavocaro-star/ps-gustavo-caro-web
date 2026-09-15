@@ -530,6 +530,7 @@
 .sessionReceipt small { color: #64748b; font-size: 0.72rem; }
 .sessionReceiptOn { background: #f0fdfa; border-color: #99f6e4; }
 .sessionReceipt em { color: #0f766e; font-size: 0.72rem; font-style: normal; font-weight: 800; text-align: right; }
+.sessionReceiptIssued { display: inline-flex; align-items: center; gap: 4px; border: 1px solid #99f6e4; border-radius: 999px; padding: 4px 7px; background: #ecfdf5; color: #0f766e; font-size: .66rem; font-weight: 800; white-space: nowrap; }
 .sessionReceiptControl { display: flex; align-items: center; gap: 6px; color: #0f766e; font-size: 0.72rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
 
 .modalActions { display: flex; gap: 12px; margin-top: 32px; }

@@ -1365,7 +1365,7 @@ export default function AdminDashboard() {
                                                                             <small>${amountPerSession.toLocaleString('es-CL')} aprox. · {session.completed ? 'Realizada' : session.date ? 'Programada' : 'Pendiente de fecha'}</small>
                                                                         </span>
                                                                         {b.siiReceiptIssued ? (
-                                                                            <em>Incluida en boleta única</em>
+                                                                            <span className={styles.sessionReceiptIssued}>✓ Boleta SII emitida</span>
                                                                         ) : (
                                                                             <label className={styles.sessionReceiptControl}>
                                                                                 <input
