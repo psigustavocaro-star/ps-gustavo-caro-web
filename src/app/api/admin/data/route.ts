@@ -22,11 +22,17 @@ export async function GET(request: NextRequest) {
             },
         }).catch(() => null);
 
-        const [allBookings, newsletter, templates, contentPosts] = await Promise.all([
-            prisma.booking.findMany({
-                orderBy: { createdAt: 'desc' },
-                include: { appointmentCancellations: true },
-            }).catch(() => []),
+        const allBookings = await prisma.booking.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: { appointmentCancellations: true },
+        }).catch(async (error) => {
+            // El historial es complementario: una incompatibilidad transitoria
+            // nunca debe ocultar la agenda clínica ni sus pagos.
+            console.error('Admin bookings with history error:', error);
+            return prisma.booking.findMany({ orderBy: { createdAt: 'desc' } });
+        });
+
+        const [newsletter, templates, contentPosts] = await Promise.all([
             prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []),
             prisma.emailTemplate.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
             prisma.contentPost.findMany({ orderBy: { updatedAt: 'desc' } }).catch(() => []),
