@@ -1384,6 +1384,29 @@ export default function AdminDashboard() {
                                         <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>No hay pagos registrados todavía.</p>
                                     )}
                                 </div>
+                                <div className={styles.sessionsBox} style={{ marginTop: 18 }}>
+                                    <h3>▦ Detalle de sesiones</h3>
+                                    <p className={styles.paymentHistoryHint}>Fechas, avance del pack, boletas y cambios de hora de este paciente.</p>
+                                    <div className={styles.sessionsScroll}>
+                                        {getPaidBookings(selectedPatient.bookings).flatMap((booking: any) => {
+                                            const slots = getInvoiceSessionSlots(booking);
+                                            return slots.map((session) => {
+                                                const reschedule = (booking.appointmentCancellations || []).find((item: any) => item.appointmentIndex === session.appointmentIndex && item.rebookedAt);
+                                                const receiptIssued = isSessionReceiptIssued(booking, session);
+                                                return <div key={`${booking.id}-${session.id}`} className={styles.sessionLine}>
+                                                    <div>
+                                                        <strong>Sesión {session.number} de {slots.length}</strong>
+                                                        <span className={styles.sessionService}>{session.date ? new Date(session.date).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : 'Sin fecha asignada'}</span>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <strong>{receiptIssued ? 'Boleta emitida' : session.completed ? 'Realizada' : session.date ? 'Programada' : 'Pendiente'}</strong>
+                                                        {reschedule && <span className={styles.sessionService}>Reagendada desde {new Date(reschedule.originalAppointmentDate).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' })}</span>}
+                                                    </div>
+                                                </div>;
+                                            });
+                                        })}
+                                    </div>
+                                </div>
                                 {selectedPatient.bookings.some((b: any) => b.appointmentCancellations?.length) && <div className={styles.sessionsBox} style={{ marginTop: 18 }}>
                                     <h3>↻ Historial de reagendamientos</h3>
                                     <div className={styles.sessionsScroll}>

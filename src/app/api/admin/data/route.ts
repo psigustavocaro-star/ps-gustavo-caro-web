@@ -22,15 +22,25 @@ export async function GET(request: NextRequest) {
             },
         }).catch(() => null);
 
-        const allBookings = await prisma.booking.findMany({
-            orderBy: { createdAt: 'desc' },
-            include: { appointmentCancellations: true },
-        }).catch(async (error) => {
-            // El historial es complementario: una incompatibilidad transitoria
-            // nunca debe ocultar la agenda clínica ni sus pagos.
-            console.error('Admin bookings with history error:', error);
-            return prisma.booking.findMany({ orderBy: { createdAt: 'desc' } });
+        const [rawBookings, appointmentCancellations] = await Promise.all([
+            prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }),
+            prisma.appointmentCancellation.findMany({ orderBy: { createdAt: 'desc' } }).catch((error) => {
+                // El historial es complementario: una incompatibilidad transitoria
+                // nunca debe ocultar la agenda clínica ni sus pagos.
+                console.error('Admin reschedule history error:', error);
+                return [];
+            }),
+        ]);
+        const cancellationsByBooking = new Map<string, typeof appointmentCancellations>();
+        appointmentCancellations.forEach((item) => {
+            const entries = cancellationsByBooking.get(item.bookingId) || [];
+            entries.push(item);
+            cancellationsByBooking.set(item.bookingId, entries);
         });
+        const allBookings = rawBookings.map((booking) => ({
+            ...booking,
+            appointmentCancellations: cancellationsByBooking.get(booking.id) || [],
+        }));
 
         const [newsletter, templates, contentPosts] = await Promise.all([
             prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []),
