@@ -65,13 +65,21 @@ export async function POST(request: NextRequest) {
             });
             try {
                 if (!cancellation.calCancelledAt) {
-                    const calBookingId = booking.calBookingIds[appointmentIndex] || (appointmentIndex === 0 ? booking.calBookingId : null);
-                    if (calBookingId) {
-                        const result = await cancelCalBooking(calBookingId, reason || 'Cancelación por motivos de fuerza mayor.');
-                        if (!result.success) throw new Error('No fue posible cancelar el evento en Cal.com');
+                    // Cal.com no permite anular una cita que ya ocurrió. En ese
+                    // caso no hay un evento futuro que cancelar, pero sí debemos
+                    // completar el correo con el enlace para elegir una nueva hora.
+                    if (Date.parse(appointmentDate) <= Date.now()) {
+                        await prisma.appointmentCancellation.update({ where: { id: cancellation.id }, data: { calCancelledAt: new Date() } });
+                        cancelled++;
+                    } else {
+                        const calBookingId = booking.calBookingIds[appointmentIndex] || (appointmentIndex === 0 ? booking.calBookingId : null);
+                        if (calBookingId) {
+                            const result = await cancelCalBooking(calBookingId, reason || 'Cancelación por motivos de fuerza mayor.');
+                            if (!result.success) throw new Error('No fue posible cancelar el evento en Cal.com');
+                        }
+                        await prisma.appointmentCancellation.update({ where: { id: cancellation.id }, data: { calCancelledAt: new Date() } });
+                        cancelled++;
                     }
-                    await prisma.appointmentCancellation.update({ where: { id: cancellation.id }, data: { calCancelledAt: new Date() } });
-                    cancelled++;
                 }
                 if (!cancellation.emailSentAt) {
                     const token = await createRescheduleToken({ bookingId: booking.id, appointmentIndex, originalAppointmentDate: appointmentDate });
