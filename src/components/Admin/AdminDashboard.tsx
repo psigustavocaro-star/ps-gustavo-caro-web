@@ -154,6 +154,7 @@ export default function AdminDashboard() {
     const [rescheduleReason, setRescheduleReason] = useState('');
     const [dateEditModal, setDateEditModal] = useState<{ booking: any; appointmentIndex: number; label: string } | null>(null);
     const [editedAppointmentDate, setEditedAppointmentDate] = useState('');
+    const [manualOverbook, setManualOverbook] = useState(false);
     const [manualBookingModal, setManualBookingModal] = useState(false);
     const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
     
@@ -353,6 +354,7 @@ export default function AdminDashboard() {
 
     const openDateEdit = (booking: any, appointmentIndex: number, date: string) => {
         setEditedAppointmentDate(toDateTimeLocal(date));
+        setManualOverbook(String(booking.details || '').includes(`[manual_overbook_event:${appointmentIndex}:`));
         setDateEditModal({ booking, appointmentIndex, label: `${booking.name || 'Paciente'} · ${new Date(date).toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}` });
     };
 
@@ -362,11 +364,13 @@ export default function AdminDashboard() {
         try {
             const response = await fetch(`/api/admin/bookings/${dateEditModal.booking.id}/appointment`, {
                 method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ appointmentIndex: dateEditModal.appointmentIndex, appointmentDate: new Date(editedAppointmentDate).toISOString() }),
+                body: JSON.stringify({ appointmentIndex: dateEditModal.appointmentIndex, appointmentDate: new Date(editedAppointmentDate).toISOString(), manualOverbook }),
             });
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible modificar la fecha.');
-            alert('Fecha actualizada. Cal.com envió la invitación actualizada al paciente.');
+            alert(manualOverbook
+                ? 'Sobrecupo registrado. Google Calendar envió la invitación al paciente y la hora quedó bloqueada en la agenda.'
+                : 'Fecha actualizada. Cal.com envió la invitación actualizada al paciente.');
             setDateEditModal(null);
             fetchData();
         } catch (error) {
@@ -957,8 +961,9 @@ export default function AdminDashboard() {
                             <div><span className={styles.rescheduleEyebrow}>Corrección administrativa</span><h2>Modificar fecha</h2></div>
                             <button className={styles.closeIcon} onClick={() => setDateEditModal(null)} disabled={isLoading} aria-label="Cerrar">✕</button>
                         </div>
-                        <p className={styles.rescheduleDescription}>Cambiarás la fecha de {dateEditModal.label}. Cal.com moverá la cita y actualizará la invitación del paciente.</p>
+                        <p className={styles.rescheduleDescription}>{manualOverbook ? 'Registrarás una hora excepcional. No se revisará la disponibilidad de Cal.com: el evento se creará directamente en Google Calendar y se bloqueará en la agenda web.' : `Cambiarás la fecha de ${dateEditModal.label}. Cal.com moverá la cita y actualizará la invitación del paciente.`}</p>
                         <label className={styles.rescheduleField}><span>Nueva fecha y hora</span><AdminDateTimePicker value={editedAppointmentDate} onChange={setEditedAppointmentDate} ariaLabel="Nueva fecha y hora" /></label>
+                        <label className={styles.overbookToggle}><input type="checkbox" checked={manualOverbook} onChange={event => setManualOverbook(event.target.checked)} disabled={isLoading} /><span><strong>Sobrecupo manual</strong><small>Usar una hora excepcional fuera de la disponibilidad de Cal.com.</small></span></label>
                         <div className={styles.modalActions}>
                             <button className={styles.syncBtn} onClick={() => setDateEditModal(null)} disabled={isLoading}>Volver</button>
                             <button className={styles.primaryBtn} onClick={submitDateEdit} disabled={isLoading}>{isLoading ? 'Actualizando…' : 'Guardar nueva fecha'}</button>

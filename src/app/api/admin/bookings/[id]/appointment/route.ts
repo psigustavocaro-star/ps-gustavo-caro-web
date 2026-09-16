@@ -2,9 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 import { cancelCalBooking, createCalBooking, rescheduleCalBooking } from '@/lib/services/calcom';
+import { createGoogleCalendarOverbook, deleteGoogleCalendarOverbook, updateGoogleCalendarOverbook } from '@/lib/services/google-calendar';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const manualEventPattern = /\n?\[manual_overbook_event:(\d+):([^\]]+)\]\n?/g;
+
+function getManualEventId(details: string | null, appointmentIndex: number) {
+    return Array.from((details || '').matchAll(manualEventPattern))
+        .find((match) => Number(match[1]) === appointmentIndex)?.[2] || null;
+}
+
+function stampManualEventId(details: string | null, appointmentIndex: number, eventId: string) {
+    const cleaned = (details || '').replace(manualEventPattern, (match, index) => Number(index) === appointmentIndex ? '' : match).trim();
+    return `${cleaned}${cleaned ? '\n' : ''}[manual_overbook_event:${appointmentIndex}:${eventId}]`;
+}
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
@@ -15,6 +28,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const body = await request.json();
         const appointmentIndex = Number.isInteger(body.appointmentIndex) ? body.appointmentIndex : -1;
         const appointmentDate = typeof body.appointmentDate === 'string' ? body.appointmentDate : '';
+        const manualOverbook = body.manualOverbook === true;
         if (appointmentIndex < 0 || Number.isNaN(Date.parse(appointmentDate)) || new Date(appointmentDate).getTime() <= Date.now()) {
             return NextResponse.json({ success: false, error: 'Selecciona una fecha futura válida.' }, { status: 400 });
         }
@@ -27,6 +41,28 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const calBookingIds = booking.calBookingIds.length ? [...booking.calBookingIds] : booking.calBookingId ? [booking.calBookingId] : [];
         const currentCalBookingId = calBookingIds[appointmentIndex] || (appointmentIndex === 0 ? booking.calBookingId : null);
         let newCalBookingId = currentCalBookingId || '';
+        let nextDetails = booking.details;
+
+        if (manualOverbook) {
+            const existingGoogleEventId = getManualEventId(booking.details, appointmentIndex);
+            const eventInput = { name: booking.name || 'Paciente', email: booking.email, start: appointmentDate, bookingId: booking.id };
+            const googleEvent = existingGoogleEventId
+                ? await updateGoogleCalendarOverbook(existingGoogleEventId, eventInput).then(success => success ? { success: true as const, eventId: existingGoogleEventId } : { success: false as const, error: 'No fue posible actualizar el sobrecupo en Google Calendar.' })
+                : await createGoogleCalendarOverbook(eventInput);
+            if (!googleEvent.success) return NextResponse.json({ success: false, error: googleEvent.error }, { status: 503 });
+
+            if (currentCalBookingId) {
+                const cancelled = await cancelCalBooking(currentCalBookingId, 'Reagendada como sobrecupo por administración.');
+                if (!cancelled.success) {
+                    if (!existingGoogleEventId) await deleteGoogleCalendarOverbook(googleEvent.eventId);
+                    return NextResponse.json({ success: false, error: 'No se pudo anular la cita anterior en Cal.com. No se realizaron cambios.' }, { status: 409 });
+                }
+            }
+            while (calBookingIds.length <= appointmentIndex) calBookingIds.push('');
+            calBookingIds[appointmentIndex] = '';
+            newCalBookingId = '';
+            nextDetails = stampManualEventId(booking.details, appointmentIndex, googleEvent.eventId);
+        } else {
 
         if (currentCalBookingId) {
             const result = await rescheduleCalBooking({ bookingUid: currentCalBookingId, start: appointmentDate, rescheduledBy: booking.email });
@@ -49,6 +85,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             if (!result.success) return NextResponse.json({ success: false, error: 'Cal.com no tiene disponibilidad para esa hora.' }, { status: 409 });
             newCalBookingId = result.bookingId;
         }
+        }
 
         dates[appointmentIndex] = appointmentDate;
         while (calBookingIds.length <= appointmentIndex) calBookingIds.push('');
@@ -60,6 +97,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
                 appointmentDates: booking.appointmentDates.length ? dates : booking.appointmentDates,
                 calBookingId: calBookingIds.find(Boolean) || null,
                 calBookingIds,
+                details: nextDetails,
             },
         });
         await prisma.appointmentCancellation.upsert({
