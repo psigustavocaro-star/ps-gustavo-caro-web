@@ -68,7 +68,9 @@ export default function Navbar({ patientAuthenticated = false, onPatientLogout }
                     <button
                         className={`${styles.hamburger} ${isMenuOpen ? styles.open : ''}`}
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        aria-label="Toggle menu"
+                        aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                        aria-expanded={isMenuOpen}
+                        aria-controls="mobile-navigation"
                     >
                         <span></span>
                         <span></span>
@@ -78,7 +80,7 @@ export default function Navbar({ patientAuthenticated = false, onPatientLogout }
             </div>
 
             {/* Mobile Menu Overlay */}
-            <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.isOpen : ''}`}>
+            <div id="mobile-navigation" className={`${styles.mobileMenu} ${isMenuOpen ? styles.isOpen : ''}`}>
                 <div className={styles.mobileMenuContent}>
                     <ul className={styles.mobileNavLinks}>
                         <li><Link href="/#sobre-mi" onClick={closeMenu}>Sobre mí</Link></li>

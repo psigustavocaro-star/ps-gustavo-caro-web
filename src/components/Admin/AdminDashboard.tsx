@@ -452,6 +452,8 @@ export default function AdminDashboard() {
                 setIsEditing(false);
                 setSelectedPatient(editData);
                 fetchData();
+            } else {
+                alert(data.error || 'No se pudieron guardar los cambios');
             }
         } catch { alert('Error de conexión'); }
         finally { setIsLoading(false); }
@@ -694,6 +696,54 @@ export default function AdminDashboard() {
         setIsEditing(false);
     };
 
+    const closePatientModal = () => {
+        setSelectedPatient(null);
+        setEditData(null);
+        setIsEditing(false);
+    };
+
+    const startPatientEdit = () => {
+        if (!selectedPatient) return;
+
+        let firstName = selectedPatient.firstName;
+        let secondName = selectedPatient.secondName;
+        let firstSurname = selectedPatient.firstSurname;
+        let secondSurname = selectedPatient.secondSurname;
+
+        // Las fichas antiguas pueden tener solo el nombre completo. Lo
+        // proponemos separado para que corregirlo no obligue a reescribirlo.
+        if (!firstName && selectedPatient.name) {
+            const parts = selectedPatient.name.trim().split(/\s+/);
+            if (parts.length === 1) {
+                firstName = parts[0];
+            } else if (parts.length === 2) {
+                [firstName, firstSurname] = parts;
+            } else if (parts.length === 3) {
+                [firstName, firstSurname, secondSurname] = parts;
+            } else if (parts.length >= 4) {
+                firstName = parts[0];
+                secondName = parts[1];
+                firstSurname = parts[2];
+                secondSurname = parts.slice(3).join(' ');
+            }
+        }
+
+        setEditData({
+            ...selectedPatient,
+            firstName: firstName || '',
+            secondName: secondName || '',
+            firstSurname: firstSurname || '',
+            secondSurname: secondSurname || '',
+            rut: selectedPatient.rut || '',
+            phone: selectedPatient.phone || '',
+            address: selectedPatient.address || '',
+            commune: selectedPatient.commune || '',
+            region: selectedPatient.region || '',
+            country: selectedPatient.country || 'Chile',
+        });
+        setIsEditing(true);
+    };
+
     const toggleSelectAll = () => {
         if (selectedRecipients.length === newsletterSubs.length && newsletterSubs.length > 0) {
             setSelectedRecipients([]);
@@ -825,6 +875,21 @@ export default function AdminDashboard() {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    useEffect(() => {
+        if (!isMobileMenuOpen) return;
+
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setIsMobileMenuOpen(false);
+        };
+
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', closeOnEscape);
+        };
+    }, [isMobileMenuOpen]);
+
     if (!isAuthenticated) {
         return (
             <div className={styles.authContainer}>
@@ -937,7 +1002,9 @@ export default function AdminDashboard() {
             <button 
                 className={styles.mobileToggle} 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label="Toggle Menu"
+                aria-label={isMobileMenuOpen ? 'Cerrar navegación de administración' : 'Abrir navegación de administración'}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="admin-navigation"
             >
                 {isMobileMenuOpen ? '✕' : '☰'}
             </button>
@@ -945,7 +1012,7 @@ export default function AdminDashboard() {
             {/* Overlay para cerrar en móvil */}
             {isMobileMenuOpen && <div className={styles.navOverlay} onClick={() => setIsMobileMenuOpen(false)}></div>}
 
-            <aside className={`${styles.sideNav} ${isMobileMenuOpen ? styles.sideNavOpen : ''}`}>
+            <aside id="admin-navigation" className={`${styles.sideNav} ${isMobileMenuOpen ? styles.sideNavOpen : ''}`}>
                 <div className={styles.navHeader}>
                     <label className={styles.profileUploadBox} title="Haz clic para subir tu foto">
                         <input type="file" accept="image/*" style={{display: 'none'}} onChange={handleProfilePicChange} />
@@ -1230,23 +1297,29 @@ export default function AdminDashboard() {
             </main>
 
             {selectedPatient && (
-                <div className={styles.modalOverlay} onClick={() => setSelectedPatient(null)}>
+                <div className={styles.modalOverlay} onClick={closePatientModal}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
                             <h2>{isEditing ? 'Editar ficha' : 'Ficha del paciente'}</h2>
-                            <button className={styles.closeIcon} onClick={() => setSelectedPatient(null)}>✖</button>
+                            <div className={styles.patientHeaderActions}>
+                                {!isEditing && <button className={styles.editPatientBtn} onClick={startPatientEdit}>✏️ Editar datos</button>}
+                                <button className={styles.closeIcon} onClick={closePatientModal} aria-label="Cerrar ficha">✖</button>
+                            </div>
                         </div>
                         
                         {isEditing ? (
                             <div className={styles.dataGrid}>
-                                <div className={styles.dataField}><label>Nombre Principal</label><input value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Nombre Principal</label><input value={editData.firstName} onChange={e => setEditData({...editData, firstName: e.target.value})} autoComplete="given-name" /></div>
                                 <div className={styles.dataField}><label>Segundo Nombre</label><input value={editData.secondName || ''} onChange={e => setEditData({...editData, secondName: e.target.value})} /></div>
-                                <div className={styles.dataField}><label>Primer Apellido</label><input value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} /></div>
+                                <div className={styles.dataField}><label>Primer Apellido</label><input value={editData.firstSurname} onChange={e => setEditData({...editData, firstSurname: e.target.value})} autoComplete="family-name" /></div>
                                 <div className={styles.dataField}><label>Segundo Apellido</label><input value={editData.secondSurname || ''} onChange={e => setEditData({...editData, secondSurname: e.target.value})} /></div>
                                 <div className={styles.dataField}><label>Nº de RUT</label><input value={editData.rut} onChange={e => setEditData({...editData, rut: e.target.value})} /></div>
-                                <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled style={{opacity: 0.5}} /></div>
-                                <div className={styles.dataField}><label>Teléfono</label><input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} /></div>
-                                <div className={styles.dataField}><label>Dirección y Comuna</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} placeholder="Ej: Las Lilas 123, Providencia" /></div>
+                                <div className={styles.dataField}><label>Correo Electrónico</label><input value={editData.email} disabled aria-describedby="patient-email-note" style={{opacity: 0.5}} /><small id="patient-email-note">El correo se mantiene para no desconectar su cuenta.</small></div>
+                                <div className={styles.dataField}><label>Teléfono</label><input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} autoComplete="tel" /></div>
+                                <div className={styles.dataField}><label>Dirección</label><input value={editData.address || ''} onChange={e => setEditData({...editData, address: e.target.value})} autoComplete="street-address" placeholder="Ej: Las Lilas 123" /></div>
+                                <div className={styles.dataField}><label>Comuna</label><input value={editData.commune || ''} onChange={e => setEditData({...editData, commune: e.target.value})} autoComplete="address-level2" /></div>
+                                <div className={styles.dataField}><label>Región</label><input value={editData.region || ''} onChange={e => setEditData({...editData, region: e.target.value})} autoComplete="address-level1" /></div>
+                                <div className={styles.dataField}><label>País</label><input value={editData.country || ''} onChange={e => setEditData({...editData, country: e.target.value})} autoComplete="country-name" /></div>
                             </div>
                         ) : (
                             <div>
@@ -1415,44 +1488,11 @@ export default function AdminDashboard() {
                             {isEditing ? (
                                 <>
                                     <button className={styles.primaryBtn} onClick={handleUpdatePatient}>💾 Guardar Todo</button>
-                                    <button className={styles.syncBtn} onClick={() => setIsEditing(false)}>Volver Atrás</button>
+                                    <button className={styles.syncBtn} onClick={() => { setEditData(null); setIsEditing(false); }}>Volver Atrás</button>
                                 </>
                             ) : (
                                 <>
-                                    <button className={styles.primaryBtn} onClick={() => { 
-                                        let newFirstName = selectedPatient.firstName;
-                                        let newSecondName = selectedPatient.secondName;
-                                        let newFirstSurname = selectedPatient.firstSurname;
-                                        let newSecondSurname = selectedPatient.secondSurname;
-                                        
-                                        if (!newFirstName && selectedPatient.name) {
-                                            const parts = selectedPatient.name.trim().split(/\s+/);
-                                            if (parts.length === 1) {
-                                                newFirstName = parts[0];
-                                            } else if (parts.length === 2) {
-                                                newFirstName = parts[0];
-                                                newFirstSurname = parts[1];
-                                            } else if (parts.length === 3) {
-                                                newFirstName = parts[0];
-                                                newFirstSurname = parts[1];
-                                                newSecondSurname = parts[2];
-                                            } else if (parts.length >= 4) {
-                                                newFirstName = parts[0];
-                                                newSecondName = parts[1];
-                                                newFirstSurname = parts[2];
-                                                newSecondSurname = parts.slice(3).join(' ');
-                                            }
-                                        }
-                                        
-                                        setEditData({
-                                            ...selectedPatient,
-                                            firstName: newFirstName || '',
-                                            secondName: newSecondName || '',
-                                            firstSurname: newFirstSurname || '',
-                                            secondSurname: newSecondSurname || ''
-                                        }); 
-                                        setIsEditing(true); 
-                                    }}>✏️ Actualizar Datos</button>
+                                    <button className={styles.primaryBtn} onClick={startPatientEdit}>✏️ Actualizar Datos</button>
                                     <button className={styles.syncBtn} style={{backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)'}} onClick={() => handleDeletePatient(selectedPatient.email)}>🗑️ Eliminar Paciente</button>
                                 </>
                             )}

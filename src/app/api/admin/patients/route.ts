@@ -1,32 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 
 export async function PUT(request: NextRequest) {
     try {
+        const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
+        if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+
         const body = await request.json();
         const { email, ...updateData } = body;
 
-        if (!email) {
+        if (typeof email !== 'string' || !email.trim()) {
             return NextResponse.json({ success: false, error: 'Email requerido' }, { status: 400 });
         }
 
-        // Actualizamos todas las reservas de este email para mantener la consistencia del 'paciente'
-        await prisma.booking.updateMany({
-            where: { email: email.toLowerCase().trim() },
-            data: {
-                firstName: updateData.firstName,
-                secondName: updateData.secondName,
-                firstSurname: updateData.firstSurname,
-                secondSurname: updateData.secondSurname,
-                name: `${updateData.firstName} ${updateData.secondName} ${updateData.firstSurname} ${updateData.secondSurname}`.replace(/\s+/g, ' ').trim(),
-                rut: updateData.rut,
-                address: updateData.address,
-                region: updateData.region,
-                commune: updateData.commune,
-                country: updateData.country,
-                phone: updateData.phone
-            }
-        });
+        const normalizedEmail = email.toLowerCase().trim();
+        const text = (value: unknown) => typeof value === 'string' ? value.trim() : '';
+        const patientData = {
+            firstName: text(updateData.firstName) || null,
+            secondName: text(updateData.secondName) || null,
+            firstSurname: text(updateData.firstSurname) || null,
+            secondSurname: text(updateData.secondSurname) || null,
+            rut: text(updateData.rut) || null,
+            address: text(updateData.address) || null,
+            region: text(updateData.region) || null,
+            commune: text(updateData.commune) || null,
+            country: text(updateData.country) || 'Chile',
+            phone: text(updateData.phone) || null,
+        };
+        const fullName = [patientData.firstName, patientData.secondName, patientData.firstSurname, patientData.secondSurname]
+            .filter(Boolean)
+            .join(' ');
+
+        // La ficha administrativa se alimenta de las reservas. Si la persona
+        // tiene acceso al portal, actualizamos también su perfil para que el
+        // mismo nombre se vea en ambos lugares.
+        await prisma.$transaction([
+            prisma.booking.updateMany({
+                where: { email: normalizedEmail },
+                data: { ...patientData, name: fullName || null },
+            }),
+            prisma.patientAccount.updateMany({
+                where: { email: normalizedEmail },
+                data: patientData,
+            }),
+            prisma.newsletter.updateMany({
+                where: { email: normalizedEmail },
+                data: { name: fullName || null },
+            }),
+        ]);
 
         return NextResponse.json({ success: true, message: 'Paciente actualizado correctamente' });
     } catch (error) {
@@ -37,6 +59,9 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
+        const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
+        if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
 
