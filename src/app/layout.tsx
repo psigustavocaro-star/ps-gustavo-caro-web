@@ -62,9 +62,12 @@ export const metadata: Metadata = {
     description: "Especialista en Terapia Cognitivo Conductual. Atención online profesional para tu bienestar emocional. Agenda tu primera sesión.",
     images: [
       {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
+        // This is the real photograph used in the homepage hero. The previous
+        // /og-image.jpg reference did not exist in public/, so social networks
+        // received an empty image response and showed a blank preview.
+        url: "/images/gustavo-collage-2.jpg?v=2",
+        width: 1024,
+        height: 768,
         alt: "Ps. Gustavo Caro - Psicólogo Clínico TCC"
       }
     ]
@@ -73,7 +76,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ps. Gustavo Caro | Psicólogo Clínico TCC",
     description: "Especialista en Terapia Cognitivo Conductual. Atención online profesional.",
-    images: ["/og-image.jpg"]
+    images: ["/images/gustavo-collage-2.jpg?v=2"]
   },
   icons: {
     icon: [
