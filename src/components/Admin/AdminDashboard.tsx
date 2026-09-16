@@ -1302,6 +1302,7 @@ export default function AdminDashboard() {
                         <div className={styles.modalHeader}>
                             <h2>{isEditing ? 'Editar ficha' : 'Ficha del paciente'}</h2>
                             <div className={styles.patientHeaderActions}>
+                                {!isEditing && selectedPatient.email && <Link className={styles.patientPortalBtn} href={`/admingustavo/paciente?email=${encodeURIComponent(selectedPatient.email)}`}>◉ Ver portal</Link>}
                                 {!isEditing && <button className={styles.editPatientBtn} onClick={startPatientEdit}>✏️ Editar datos</button>}
                                 <button className={styles.closeIcon} onClick={closePatientModal} aria-label="Cerrar ficha">✖</button>
                             </div>

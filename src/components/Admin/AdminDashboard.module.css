@@ -494,6 +494,8 @@
 .modalHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .modalHeader h2 { font-size: 1.6rem; font-weight: 800; color: #0f172a; font-family: 'Outfit', sans-serif; }
 .patientHeaderActions { display: flex; align-items: center; gap: 10px; }
+.patientPortalBtn { display: inline-flex; align-items: center; border: 1px solid #9fd8d1; border-radius: 8px; padding: 8px 10px; background: #effbf8; color: #147b72; font-size: .75rem; font-weight: 800; text-decoration: none; }
+.patientPortalBtn:hover { background: #dcf4ef; }
 .editPatientBtn { min-height: 36px; padding: 8px 11px; border: 1px solid #bae6fd; border-radius: 9px; background: #ecfeff; color: #0e7490; font-size: .78rem; font-weight: 800; cursor: pointer; }
 .editPatientBtn:hover { background: #cffafe; border-color: #0891b2; }
 .closeIcon { background: #f1f5f9; border: none; color: #64748b; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -890,5 +892,5 @@
     .modalContent { max-width: none; padding: 24px; }
     .paymentHistoryBox .sessionsScroll { max-height: 280px; }
     .patientHeaderActions { gap: 8px; }
-    .editPatientBtn { padding: 8px 10px; font-size: .72rem; }
+    .editPatientBtn, .patientPortalBtn { padding: 8px 10px; font-size: .72rem; }
 }
