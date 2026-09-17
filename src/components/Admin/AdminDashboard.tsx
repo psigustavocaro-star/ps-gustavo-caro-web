@@ -149,7 +149,7 @@ export default function AdminDashboard() {
     const [contentPosts, setContentPosts] = useState<any[]>([]);
     const [articleDraft, setArticleDraft] = useState({ slug: '', title: '', excerpt: '', category: 'Salud Mental', image: '/images/blog/ansiedad.jpg', keywords: '', status: 'DRAFT' });
     const [showPreviousMonths, setShowPreviousMonths] = useState(false);
-    const [rescheduleModal, setRescheduleModal] = useState<{ mode: 'day' | 'individual'; booking?: any; appointmentIndex?: number; label?: string } | null>(null);
+    const [rescheduleModal, setRescheduleModal] = useState<{ mode: 'day' | 'individual'; booking?: any; appointmentIndex?: number; label?: string; reminder?: boolean } | null>(null);
     const [rescheduleDate, setRescheduleDate] = useState('');
     const [rescheduleReason, setRescheduleReason] = useState('');
     const [dateEditModal, setDateEditModal] = useState<{ booking: any; appointmentIndex: number; label: string } | null>(null);
@@ -353,6 +353,7 @@ export default function AdminDashboard() {
         setRescheduleModal({
             mode: 'individual', booking, appointmentIndex,
             label: `${booking.name || 'Paciente'}${date ? ` · ${new Date(date).toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}` : ''}`,
+            reminder: getRescheduleState(booking, appointmentIndex).awaiting,
         });
     };
 
@@ -403,7 +404,9 @@ export default function AdminDashboard() {
             if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible iniciar la reprogramación.');
             const summary = data.summary;
             const failures = summary.failed ? `\n\nHubo ${summary.failed} caso(s) que no se pudo completar. Puedes volver a intentarlo: no se duplicarán los correos ya enviados.` : '';
-            alert(`Listo: ${summary.cancelled} evento(s) cancelado(s) en Cal.com y ${summary.emailed} correo(s) enviado(s) para ${summary.affected} sesión(es).${failures}`);
+            const notifications = [`${summary.cancelled} evento(s) cancelado(s) en Cal.com`, `${summary.emailed} enlace(s) inicial(es) enviado(s)`];
+            if (summary.reminders) notifications.push(`${summary.reminders} recordatorio(s) enviado(s)`);
+            alert(`Listo: ${notifications.join(' y ')} para ${summary.affected} sesión(es).${failures}`);
             setRescheduleModal(null);
             fetchData();
         } catch (error) {
@@ -971,7 +974,9 @@ export default function AdminDashboard() {
                         <p className={styles.rescheduleDescription}>
                             {rescheduleModal.mode === 'day'
                                 ? 'Elige el día que no atenderás. Verás canceladas las sesiones de esa fecha y cada paciente recibirá su enlace privado para escoger una nueva hora.'
-                                : `Se cancelará únicamente la sesión de ${rescheduleModal.label}. La persona recibirá su enlace privado para reagendar.`}
+                                : rescheduleModal.reminder
+                                    ? `La sesión ya fue cancelada y está esperando nueva fecha. Enviaremos un recordatorio con su enlace privado para elegirla.`
+                                    : `Se cancelará únicamente la sesión de ${rescheduleModal.label}. La persona recibirá su enlace privado para reagendar.`}
                         </p>
                         {rescheduleModal.mode === 'day' && (
                             <label className={styles.rescheduleField}>
@@ -986,7 +991,7 @@ export default function AdminDashboard() {
                         <div className={styles.modalActions}>
                             <button className={styles.syncBtn} onClick={() => setRescheduleModal(null)} disabled={isLoading}>Volver</button>
                             <button className={styles.primaryBtn} onClick={submitReschedule} disabled={isLoading}>
-                                {isLoading ? 'Enviando…' : 'Confirmar y enviar enlaces'}
+                                {isLoading ? 'Enviando…' : rescheduleModal.reminder ? 'Enviar recordatorio' : 'Confirmar y enviar enlaces'}
                             </button>
                         </div>
                     </div>
@@ -1245,7 +1250,7 @@ export default function AdminDashboard() {
                                             <td style={{fontWeight: 700, color: '#0f172a'}}>${amount.toLocaleString('es-CL')}{session && <small className={styles.calendarSessionMeta}>por sesion</small>}</td>
                                             <td><div className={styles.agendaStatus}><span className={`${styles.badge} ${finalized ? styles.badgeCompleted : styles.badgeCalypso}`}>{receiptIssued ? 'Boleta emitida' : session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{!finalized && rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{!finalized && rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div></td>
                                             <td>{renderCalendarReceiptToggle(booking, session)}</td>
-                                            <td>{hasDate && !finalized && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}</td>
+                                            <td>{hasDate && !finalized && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>{rescheduleState.awaiting ? 'Recordar reprogramación' : 'Reprogramar'}</button></div>}</td>
                                             <td><button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button></td>
                                         </tr>
                                     );
@@ -1274,7 +1279,7 @@ export default function AdminDashboard() {
                                             <div className={styles.mobileBookingFooter}>
                                             <div className={styles.agendaStatus}><span className={`${styles.badge} ${finalized ? styles.badgeCompleted : styles.badgeCalypso}`}>{receiptIssued ? 'Boleta emitida' : session.completed ? 'Realizada' : hasDate ? 'Programada' : 'Sin fecha'}</span>{!finalized && rescheduleState.awaiting && <span className={styles.awaitingReschedule}>Esperando nueva fecha</span>}{!finalized && rescheduleState.needsAttention && <span className={styles.rescheduleAttention}>Reagendamiento por completar</span>}</div>
                                             {renderCalendarReceiptToggle(booking, session)}
-                                            {hasDate && !finalized && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>Reprogramar</button></div>}
+                                            {hasDate && !finalized && <div className={styles.agendaActionGroup}><button className={styles.editDateBtn} onClick={() => openDateEdit(booking, appointmentIndex, String(date))}>Editar fecha</button><button className={styles.reschedulePatientBtn} onClick={() => openIndividualReschedule(booking, appointmentIndex, String(date))}>{rescheduleState.awaiting ? 'Recordar reprogramación' : 'Reprogramar'}</button></div>}
                                             <button className={styles.bookingPatientBtn} onClick={() => openPatientFromBooking(booking)}>Abrir ficha</button>
                                         </div>
                                     </div>

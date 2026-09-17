@@ -145,6 +145,32 @@ export async function sendProfessionalCancellationEmail(data: {
     return response.data;
 }
 
+/** Recordatorio para pacientes que aún no escogen una nueva fecha. */
+export async function sendProfessionalRescheduleReminderEmail(data: {
+    patientName: string;
+    email: string;
+    appointmentDate: string;
+    rescheduleUrl: string;
+}) {
+    const patientName = escapeHtml(data.patientName.trim() || '');
+    const appointmentDate = escapeHtml(formatAppointmentDate(data.appointmentDate));
+    const rescheduleUrl = escapeHtml(data.rescheduleUrl);
+    const response = await resend.emails.send({
+        from: 'Ps. Gustavo Caro <contacto@psgustavocaro.cl>',
+        to: data.email,
+        subject: 'Recordatorio: elige una nueva hora para tu sesión',
+        html: `
+            <div style="background:#f4f7f8;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#263238;line-height:1.6">
+                <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(38,50,56,.08)">
+                    <div style="background:#0f6b78;padding:28px 36px;color:#ffffff"><p style="margin:0 0 6px;font-size:14px;letter-spacing:.04em;text-transform:uppercase;opacity:.85">Ps. Gustavo Caro</p><h1 style="margin:0;font-size:25px;line-height:1.25">Recordatorio para reprogramar tu sesión</h1></div>
+                    <div style="padding:32px 36px"><p style="margin-top:0">Hola${patientName ? ` ${patientName}` : ''},</p><p>Te escribo para recordarte que aún puedes elegir una nueva hora para la sesión que estaba agendada para el <strong style="text-transform:capitalize">${appointmentDate}</strong>.</p><p>Tu pago y reserva se mantienen sin cambios.</p><p style="text-align:center;margin:30px 0"><a href="${rescheduleUrl}" style="display:inline-block;background:#0f6b78;color:#ffffff;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:9px">Elegir una nueva hora</a></p><p style="margin-bottom:0">Si necesitas ayuda, puedes responder directamente a este correo.<br/><br/>Un abrazo,<br/><strong>Ps. Gustavo Caro</strong></p></div>
+                </div>
+            </div>`,
+    });
+    if (response.error) throw new Error(response.error.message || 'No fue posible enviar el recordatorio de reprogramación');
+    return response.data;
+}
+
 export async function sendRescheduleConfirmationEmail(data: {
     patientName: string;
     email: string;

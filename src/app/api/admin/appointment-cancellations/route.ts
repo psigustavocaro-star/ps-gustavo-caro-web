@@ -4,7 +4,7 @@ import prisma from '@/lib/db';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/auth/session';
 import { createRescheduleToken } from '@/lib/auth/reschedule-link';
 import { cancelCalBooking } from '@/lib/services/calcom';
-import { sendProfessionalCancellationEmail } from '@/lib/services/mail';
+import { sendProfessionalCancellationEmail, sendProfessionalRescheduleReminderEmail } from '@/lib/services/mail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -49,11 +49,12 @@ export async function POST(request: NextRequest) {
                     .filter(item => clinicDateKey(item.appointmentDate) === date);
             });
         }
-        if (!sessions.length) return NextResponse.json({ success: true, summary: { affected: 0, cancelled: 0, emailed: 0, failed: 0 } });
+        if (!sessions.length) return NextResponse.json({ success: true, summary: { affected: 0, cancelled: 0, emailed: 0, reminders: 0, failed: 0 } });
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://psgustavocaro.cl';
         let cancelled = 0;
         let emailed = 0;
+        let reminders = 0;
         const failures: Array<{ patient: string; error: string }> = [];
 
         for (const sessionToCancel of sessions) {
@@ -89,12 +90,21 @@ export async function POST(request: NextRequest) {
                     });
                     await prisma.appointmentCancellation.update({ where: { id: cancellation.id }, data: { emailSentAt: new Date() } });
                     emailed++;
+                } else if (cancellation.calCancelledAt) {
+                    // Una segunda acción no vuelve a cancelar ni duplica el
+                    // aviso inicial: reenvía un recordatorio con un enlace nuevo.
+                    const token = await createRescheduleToken({ bookingId: booking.id, appointmentIndex, originalAppointmentDate: appointmentDate });
+                    await sendProfessionalRescheduleReminderEmail({
+                        patientName: booking.name || '', email: booking.email, appointmentDate,
+                        rescheduleUrl: `${baseUrl}/reagendar/${token}`,
+                    });
+                    reminders++;
                 }
             } catch (error) {
                 failures.push({ patient: booking.name || booking.email, error: error instanceof Error ? error.message : 'Error inesperado' });
             }
         }
-        return NextResponse.json({ success: true, summary: { affected: sessions.length, cancelled, emailed, failed: failures.length }, failures });
+        return NextResponse.json({ success: true, summary: { affected: sessions.length, cancelled, emailed, reminders, failed: failures.length }, failures });
     } catch (error) {
         console.error('Appointment cancellation error:', error);
         return NextResponse.json({ success: false, error: 'No fue posible cancelar la jornada' }, { status: 500 });
