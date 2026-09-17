@@ -441,6 +441,10 @@
 }
 .reschedulePatientBtn:hover { background: #ffedd5; border-color: #fb923c; }
 .agendaActionGroup { display: flex; flex-direction: column; gap: 6px; }
+/* El recordatorio es más largo que "Reprogramar"; reservamos aire a su
+   derecha para que no se acerque a la acción de abrir ficha. */
+.agendaTable td:nth-child(7) { padding-right: 24px; }
+.agendaTable .reschedulePatientBtn { white-space: normal; line-height: 1.2; }
 .editDateBtn { min-height: 36px; padding: 8px 10px; border: 1px solid #bae6fd; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: .76rem; font-weight: 800; cursor: pointer; transition: .2s; white-space: nowrap; }
 .editDateBtn:hover { background: #e0f2fe; border-color: #7dd3fc; }
 

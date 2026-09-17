@@ -1227,7 +1227,7 @@ export default function AdminDashboard() {
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
                                     <col style={{ width: '15%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />
-                                    <col style={{ width: '13%' }} /><col style={{ width: '15%' }} /><col style={{ width: '11%' }} /><col style={{ width: '9%' }} />
+                                    <col style={{ width: '13%' }} /><col style={{ width: '13%' }} /><col style={{ width: '13%' }} /><col style={{ width: '9%' }} />
                                 </colgroup>
                                 <thead><tr><th>Paciente</th><th>Fecha de Cita</th><th>Tipo de Servicio</th><th>Monto</th><th>Situación</th><th>Boleta</th><th>Acción</th><th>Ficha</th></tr></thead>
                                 <tbody>{calendarEntries.map(({ booking, session, sessionCount }) => {
