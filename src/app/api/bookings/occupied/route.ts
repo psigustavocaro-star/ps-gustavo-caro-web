@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
         // 1. Obtener cierres y bloqueos desde DB local (citas pagadas).
         // No se filtra por appointmentDate: en un pack esa fecha puede ser una
         // sesión pasada mientras que las siguientes siguen estando agendadas.
-        const bookings = await prisma.booking.findMany({
+        const [bookings, scheduleBlocks] = await Promise.all([
+            prisma.booking.findMany({
             where: {
                 status: 'PAID',
             },
@@ -23,7 +24,9 @@ export async function GET(request: NextRequest) {
                 appointmentDate: true,
                 appointmentDates: true,
             }
-        });
+            }),
+            prisma.scheduleBlock.findMany({ select: { date: true, allDay: true, startTime: true, endTime: true } }),
+        ]);
 
         const now = Date.now();
         const parseFutureDate = (value: unknown) => {
@@ -55,6 +58,23 @@ export async function GET(request: NextRequest) {
         });
 
         const finalOccupiedSlots = [...occupiedFromDB];
+        const blockedDates = scheduleBlocks.filter(block => block.allDay).map(block => block.date);
+
+        // Una franja bloquea cada sesión que se solape con ella. Así un cierre
+        // de 18:45 a 19:30 también protege una sesión que empieza a las 18:30.
+        scheduleBlocks.filter(block => !block.allDay && block.startTime && block.endTime).forEach((block) => {
+            const day = new Date(`${block.date}T12:00:00`);
+            getAvailableSlotsForDay(day.getDay()).forEach((slot) => {
+                const [hour, minute] = slot.split(':').map(Number);
+                const slotStart = hour * 60 + minute;
+                const slotEnd = slotStart + 45;
+                const [startHour, startMinute] = block.startTime!.split(':').map(Number);
+                const [endHour, endMinute] = block.endTime!.split(':').map(Number);
+                const blockStart = startHour * 60 + startMinute;
+                const blockEnd = endHour * 60 + endMinute;
+                if (slotStart < blockEnd && slotEnd > blockStart) finalOccupiedSlots.push(`${block.date} ${slot}`);
+            });
+        });
 
         // 2. Si hay eventTypeId, consultar disponibilidad REAL (incluyendo Google Calendar)
         const calKey = process.env.CALCOM_API_KEY;
@@ -117,7 +137,7 @@ export async function GET(request: NextRequest) {
         // Combinar y eliminar duplicados
         const occupiedSlots = Array.from(new Set(finalOccupiedSlots));
 
-        return NextResponse.json({ success: true, occupiedSlots });
+        return NextResponse.json({ success: true, occupiedSlots, blockedDates: Array.from(new Set(blockedDates)) });
     } catch {
         return NextResponse.json({ success: false, error: 'Failed to fetch occupied slots' }, { status: 500 });
     }

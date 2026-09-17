@@ -157,6 +157,9 @@ export default function AdminDashboard() {
     const [manualOverbook, setManualOverbook] = useState(false);
     const [manualBookingModal, setManualBookingModal] = useState(false);
     const [manualBooking, setManualBooking] = useState({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
+    const [scheduleBlocks, setScheduleBlocks] = useState<any[]>([]);
+    const [scheduleBlockModal, setScheduleBlockModal] = useState(false);
+    const [scheduleBlock, setScheduleBlock] = useState({ date: '', allDay: false, startTime: '18:30', endTime: '20:15', reason: '' });
     
     const editorRef = useRef<HTMLDivElement>(null);
     const articleEditorRef = useRef<HTMLDivElement>(null);
@@ -310,6 +313,7 @@ export default function AdminDashboard() {
                 setNewsletterSubs((data.newsletter || []).filter((sub: any) => sub.active !== false));
                 setTemplates(data.templates || []);
                 setContentPosts(data.contentPosts || []);
+                setScheduleBlocks(data.scheduleBlocks || []);
                 setLastUpdated(new Date());
             }
         } catch (err) { console.error("Sync Error:", err); } 
@@ -412,6 +416,40 @@ export default function AdminDashboard() {
     const openManualBooking = () => {
         setManualBooking({ name: '', email: '', phone: '', serviceType: 'sesion', amount: '36000', completedSessions: 0, appointmentDates: [''], sendEmail: true });
         setManualBookingModal(true);
+    };
+
+    const openScheduleBlock = () => {
+        setScheduleBlock({ date: new Date().toISOString().slice(0, 10), allDay: false, startTime: '18:30', endTime: '20:15', reason: '' });
+        setScheduleBlockModal(true);
+    };
+
+    const submitScheduleBlock = async () => {
+        if (!scheduleBlock.date || (!scheduleBlock.allDay && (!scheduleBlock.startTime || !scheduleBlock.endTime))) {
+            alert('Completa la fecha y el horario para continuar.');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/admin/schedule-blocks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(scheduleBlock) });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible guardar el bloqueo.');
+            setScheduleBlockModal(false);
+            alert(scheduleBlock.allDay ? 'Día completo bloqueado.' : 'Horario bloqueado.');
+            fetchData();
+        } catch (error) { alert(error instanceof Error ? error.message : 'No fue posible guardar el bloqueo.'); }
+        finally { setIsLoading(false); }
+    };
+
+    const deleteScheduleBlock = async (id: string) => {
+        if (!window.confirm('¿Quitar este bloqueo de la agenda?')) return;
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/admin/schedule-blocks?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No fue posible quitar el bloqueo.');
+            fetchData();
+        } catch (error) { alert(error instanceof Error ? error.message : 'No fue posible quitar el bloqueo.'); }
+        finally { setIsLoading(false); }
     };
 
     const updateManualDate = (index: number, value: string) => {
@@ -971,6 +1009,19 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            {scheduleBlockModal && (
+                <div className={styles.modalOverlay} onMouseDown={() => !isLoading && setScheduleBlockModal(false)}>
+                    <div className={`${styles.modalContent} ${styles.dateEditModal}`} onMouseDown={event => event.stopPropagation()}>
+                        <div className={styles.modalHeader}><div><span className={styles.rescheduleEyebrow}>Disponibilidad</span><h2>Bloquear agenda</h2></div><button className={styles.closeIcon} onClick={() => setScheduleBlockModal(false)} disabled={isLoading} aria-label="Cerrar">✕</button></div>
+                        <p className={styles.rescheduleDescription}>El cierre evita nuevas reservas. Las sesiones ya agendadas no se cancelan ni se modifican.</p>
+                        <label className={styles.rescheduleField}><span>Fecha</span><AdminDateTimePicker value={scheduleBlock.date} onChange={date => setScheduleBlock(current => ({ ...current, date }))} withTime={false} ariaLabel="Fecha a bloquear" /></label>
+                        <label className={styles.overbookToggle}><input type="checkbox" checked={scheduleBlock.allDay} onChange={event => setScheduleBlock(current => ({ ...current, allDay: event.target.checked }))} disabled={isLoading} /><span><strong>Bloquear el día completo</strong><small>Oculta todos los horarios disponibles de esa fecha.</small></span></label>
+                        {!scheduleBlock.allDay && <div className={styles.manualFormGrid}><label className={styles.rescheduleField}><span>Desde</span><input type="time" value={scheduleBlock.startTime} onChange={event => setScheduleBlock(current => ({ ...current, startTime: event.target.value }))} /></label><label className={styles.rescheduleField}><span>Hasta</span><input type="time" value={scheduleBlock.endTime} onChange={event => setScheduleBlock(current => ({ ...current, endTime: event.target.value }))} /></label></div>}
+                        <label className={styles.rescheduleField}><span>Motivo <em>opcional</em></span><input value={scheduleBlock.reason} maxLength={200} onChange={event => setScheduleBlock(current => ({ ...current, reason: event.target.value }))} placeholder="Por ejemplo: reunión o vacaciones" /></label>
+                        <div className={styles.modalActions}><button className={styles.syncBtn} onClick={() => setScheduleBlockModal(false)} disabled={isLoading}>Volver</button><button className={styles.primaryBtn} onClick={submitScheduleBlock} disabled={isLoading}>{isLoading ? 'Guardando…' : 'Guardar bloqueo'}</button></div>
+                    </div>
+                </div>
+            )}
             {manualBookingModal && (
                 <div className={styles.modalOverlay} onMouseDown={() => !isLoading && setManualBookingModal(false)}>
                     <div className={`${styles.modalContent} ${styles.manualBookingModal}`} onMouseDown={event => event.stopPropagation()}>
@@ -1164,9 +1215,10 @@ export default function AdminDashboard() {
                                     <button className={agendaView === 'scheduled' ? styles.segmentActive : ''} onClick={() => setAgendaView('scheduled')}>Agenda activa <span>{allCalendarEntries.filter(({ booking, session }) => !isSessionReceiptIssued(booking, session)).length}</span></button>
                                     <button className={agendaView === 'issued' ? styles.segmentActive : ''} onClick={() => setAgendaView('issued')}>Boletas emitidas <span>{allCalendarEntries.filter(({ booking, session }) => isSessionReceiptIssued(booking, session)).length}</span></button>
                                 </div>
-                                <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>Reagendar jornada</button></div>
+                                <div className={styles.agendaActions}><button className={styles.transferBtn} onClick={openManualBooking} disabled={isLoading}>＋ Registrar transferencia</button><button className={styles.actionBtn} onClick={openScheduleBlock} disabled={isLoading}>Bloquear agenda</button><button className={styles.actionBtn} onClick={openDayReschedule} disabled={isLoading}>Reagendar jornada</button></div>
                             </div>
                             <p className={styles.calendarIntro}>{agendaView === 'scheduled' ? 'Sesiones por atender y, sólo mientras emites su boleta, las recién realizadas. Al marcarla, pasan a Boletas emitidas.' : 'Historial separado de sesiones con boleta SII efectivamente emitida.'}</p>
+                            {agendaView === 'scheduled' && scheduleBlocks.filter(block => block.date >= new Date().toISOString().slice(0, 10)).length > 0 && <div className={styles.scheduleBlockList}><strong>Bloqueos próximos</strong>{scheduleBlocks.filter(block => block.date >= new Date().toISOString().slice(0, 10)).map(block => <div key={block.id}><span>{new Date(`${block.date}T12:00:00`).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })} · {block.allDay ? 'Día completo' : `${block.startTime}–${block.endTime}`}{block.reason ? ` · ${block.reason}` : ''}</span><button onClick={() => deleteScheduleBlock(block.id)} disabled={isLoading}>Quitar</button></div>)}</div>}
                             <table className={`${styles.friendlyTable} ${styles.agendaTable}`}>
                                 <colgroup>
                                     <col style={{ width: '15%' }} /><col style={{ width: '12%' }} /><col style={{ width: '15%' }} /><col style={{ width: '10%' }} />

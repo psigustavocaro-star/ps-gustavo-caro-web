@@ -8,13 +8,17 @@ import styles from "./calendario.module.css";
 
 export default function CalendarClient() {
     const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
+    const [blockedDates, setBlockedDates] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch('/api/bookings/occupied', { cache: 'no-store' })
             .then(r => r.ok ? r.json() : null)
             .then(d => {
-                if (d?.success) setOccupiedSlots(d.occupiedSlots || []);
+                if (d?.success) {
+                    setOccupiedSlots(d.occupiedSlots || []);
+                    setBlockedDates(d.blockedDates || []);
+                }
             })
             .catch(err => console.error('Error fetching occupied slots:', err))
             .finally(() => setLoading(false));
@@ -47,6 +51,7 @@ export default function CalendarClient() {
                             <CustomCalendar
                                 onSelectDateTime={handleViewOnly}
                                 bookedSlots={occupiedSlots}
+                                blockedDates={blockedDates}
                             />
                         )}
                     </div>

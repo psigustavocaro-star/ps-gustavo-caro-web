@@ -49,6 +49,7 @@ export default function Booking() {
     const [bookingDetails, setBookingDetails] = useState<{ date?: string; time?: string }>({});
     const [packSessions, setPackSessions] = useState<PackSession[]>([]);
     const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
+    const [blockedDates, setBlockedDates] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         serviceType: 'sesion' as 'primeraConsulta' | 'sesion' | 'packSesiones' | 'evalTDAH' | 'evalAutismo' | 'evalWiscV' | 'evalInteligencia' | 'evalNeuropsicologica' | 'evalEmocional' | 'evalFreeTDAH' | 'evalFreeAutismo' | 'evalFreeInteligencia' | 'evalFreeNeuro' | 'evalFreeEmocional' | '',
         reason: '',
@@ -231,6 +232,7 @@ export default function Booking() {
                 const data = await res.json();
                 if (data.success) {
                     setOccupiedSlots(data.occupiedSlots);
+                    setBlockedDates(data.blockedDates || []);
                 }
             } catch (err) {
                 console.error('Error fetching occupied slots:', err);
@@ -997,6 +999,7 @@ export default function Booking() {
                                                 ...occupiedSlots,
                                                 ...packSessions.map(session => session.slotKey),
                                             ]}
+                                            blockedDates={blockedDates}
                                         />
                                     </div>
                                 </div>

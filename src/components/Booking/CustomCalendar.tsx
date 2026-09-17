@@ -20,9 +20,10 @@ const getLocalDateKey = (date: Date) => {
 interface CustomCalendarProps {
     onSelectDateTime: (date: Date, time: string) => void;
     bookedSlots?: string[]; // Formato: 'YYYY-MM-DD HH:MM'
+    blockedDates?: string[];
 }
 
-export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: CustomCalendarProps) {
+export default function CustomCalendar({ onSelectDateTime, bookedSlots = [], blockedDates = [] }: CustomCalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -63,7 +64,7 @@ export default function CustomCalendar({ onSelectDateTime, bookedSlots = [] }: C
         const dayOfWeek = date.getDay();
         const dayConfig = weeklyAvailability[dayOfWeek];
 
-        return dayConfig?.enabled && !isDateBlocked(date);
+        return dayConfig?.enabled && !isDateBlocked(date) && !blockedDates.includes(getLocalDateKey(date));
     };
 
     // Obtener slots disponibles para la fecha seleccionada

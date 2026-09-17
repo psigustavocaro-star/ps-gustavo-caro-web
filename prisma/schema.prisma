@@ -52,6 +52,20 @@ model Booking {
   @@index([siiReceiptIssued])
 }
 
+// Cierres creados desde la agenda administrativa. Un cierre puede abarcar
+// todo el día o una franja horaria, sin alterar las sesiones ya agendadas.
+model ScheduleBlock {
+  id        String   @id @default(uuid())
+  date      String
+  allDay    Boolean  @default(false)
+  startTime String?
+  endTime   String?
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
 model PatientAccount {
   id           String   @id @default(uuid())
   email        String   @unique

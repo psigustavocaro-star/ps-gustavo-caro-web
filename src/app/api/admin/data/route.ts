@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
             },
         }).catch(() => null);
 
-        const [rawBookings, appointmentCancellations] = await Promise.all([
+        const [rawBookings, appointmentCancellations, scheduleBlocks] = await Promise.all([
             prisma.booking.findMany({ orderBy: { createdAt: 'desc' } }),
             prisma.appointmentCancellation.findMany({ orderBy: { createdAt: 'desc' } }).catch((error) => {
                 // El historial es complementario: una incompatibilidad transitoria
@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
                 console.error('Admin reschedule history error:', error);
                 return [];
             }),
+            prisma.scheduleBlock.findMany({ orderBy: [{ date: 'asc' }, { startTime: 'asc' }] }),
         ]);
         const cancellationsByBooking = new Map<string, typeof appointmentCancellations>();
         appointmentCancellations.forEach((item) => {
@@ -107,6 +108,7 @@ export async function GET(request: NextRequest) {
             newsletter,
             templates,
             contentPosts,
+            scheduleBlocks,
         });
     } catch (error) {
         console.error('Admin data error:', error);

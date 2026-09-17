@@ -15,6 +15,7 @@ function dateKey(date: Date) {
 export default function RescheduleClient({ token }: { token: string }) {
     const [state, setState] = useState<State>('loading');
     const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
+    const [blockedDates, setBlockedDates] = useState<string[]>([]);
     const [error, setError] = useState('');
     const [confirmation, setConfirmation] = useState('');
 
@@ -36,6 +37,7 @@ export default function RescheduleClient({ token }: { token: string }) {
                 if (!response) return;
                 const data = await response.json();
                 setOccupiedSlots(data.success ? data.occupiedSlots || [] : []);
+                setBlockedDates(data.success ? data.blockedDates || [] : []);
                 setState('ready');
             })
             .catch(() => {
@@ -78,7 +80,7 @@ export default function RescheduleClient({ token }: { token: string }) {
                     <h1>Elige una nueva hora</h1>
                     <p>Tu sesión y el pago ya están registrados. Solo selecciona el horario que te acomode; todas las horas se muestran en horario de Chile.</p>
                     {error && <p className={styles.error}>{error}</p>}
-                    {state === 'saving' ? <p className={styles.saving}>Confirmando tu nueva hora…</p> : <CustomCalendar onSelectDateTime={selectSlot} bookedSlots={occupiedSlots} />}
+                    {state === 'saving' ? <p className={styles.saving}>Confirmando tu nueva hora…</p> : <CustomCalendar onSelectDateTime={selectSlot} bookedSlots={occupiedSlots} blockedDates={blockedDates} />}
                 </>}
                 {state === 'complete' && <>
                     <span className={styles.eyebrow}>Reprogramación confirmada</span>

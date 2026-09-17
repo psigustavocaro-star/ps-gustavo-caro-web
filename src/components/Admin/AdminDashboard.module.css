@@ -558,6 +558,10 @@
 .manualEmailOption { display: flex; align-items: center; gap: 9px; margin-top: 16px; color: #475569; font-size: .84rem; font-weight: 700; cursor: pointer; }
 .manualEmailOption input { width: 16px; height: 16px; accent-color: #0891b2; }
 .agendaActions { display: flex; gap: 10px; flex-wrap: wrap; }
+.scheduleBlockList { display: grid; gap: 7px; margin: -3px 0 18px; border: 1px solid #d4e8e4; border-radius: 12px; padding: 11px 13px; background: #f7fcfa; color: #315c57; font-size: .78rem; }
+.scheduleBlockList > strong { color: #176f6a; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+.scheduleBlockList > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.scheduleBlockList button { border: 0; border-radius: 7px; padding: 5px 8px; background: #e4f2ee; color: #176f6a; font-size: .7rem; font-weight: 800; cursor: pointer; }
 .transferBtn { border: 1px solid #99f6e4; border-radius: 10px; background: #f0fdfa; color: #0f766e; padding: 10px 14px; font-size: .85rem; font-weight: 800; cursor: pointer; transition: .2s; }
 .transferBtn:hover { background: #ccfbf1; border-color: #2dd4bf; }
 .rescheduleEyebrow { display: block; margin-bottom: 5px; color: #0e7490; font-size: 0.72rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
