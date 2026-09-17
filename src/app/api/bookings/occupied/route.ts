@@ -90,7 +90,10 @@ export async function GET(request: NextRequest) {
                 const calRes = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${calKey}`,
-                        'cal-api-version': '2026-02-25'
+                        // El endpoint de slots se mantiene en la versión
+                        // 2024-09-04. Con versiones recientes responde 404 y
+                        // dejaba pasar horas que Cal.com no puede reservar.
+                        'cal-api-version': '2024-09-04'
                     },
                     next: { revalidate: 0 }
                 });
